@@ -1,0 +1,25 @@
+version: "3"
+services:
+  node:
+    image: node:alpine
+    working_dir: /app
+    volumes:
+    - ./:/app/
+    stdin_open: true
+    tty: true
+    command: sh
+  db:
+    build:
+      context: ./docker/db
+    environment:
+      MYSQL_USER: 'user'
+      MYSQL_PASSWORD: 'pass'
+      MYSQL_DATABASE: 'test'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+    ports:
+      - '3306:3306'
+  redis:
+    build:
+      context: ./docker/redis
+    ports:
+      - 6379:6379

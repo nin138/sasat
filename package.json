@@ -1,0 +1,77 @@
+{
+  "name": "sassat.ts",
+  "version": "0.2.0",
+  "repository": "https://github.com/yanokunpei/sassat.git",
+  "author": "yanokunpei <ninian138@gmail.com>",
+  "license": "MIT",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "start": "env-cmd ts-node ./",
+    "prebuild": "rm -rf ./lib",
+    "build": "yarn tsc",
+    "lint": "tslint 'src/**/*.ts'",
+    "fmt": "yarn lint --fix && yarn prettier",
+    "prettier": "prettier --write './**/*.ts'",
+    "pretest": "yarn resetdb",
+    "test": "env-cmd jest --coverage",
+    "redis": "docker-compose exec redis redis-cli",
+    "resetdb": "docker-compose exec db sh -c \"mysql -u root < /docker-entrypoint-initdb.d/temp.sql\"",
+    "prepublish": "yarn build"
+  },
+  "dependencies": {
+    "js-yaml": "^3.13.1",
+    "mariadb": "^2.1.0",
+    "redis": "^2.8.0",
+    "sqlstring": "^2.3.1"
+  },
+  "devDependencies": {
+    "@types/jest": "^23.3.13",
+    "@types/js-yaml": "^3.11.2",
+    "@types/node": "^12.7.4",
+    "@types/redis": "^2.8.6",
+    "@types/sqlstring": "^2.2.1",
+    "env-cmd": "^9.0.3",
+    "husky": "^3.0.4",
+    "jest": "^23.6.0",
+    "lint-staged": "^9.2.5",
+    "prettier": "^1.14.3",
+    "ts-jest": "^23.10.5",
+    "ts-node": "^7.0.1",
+    "tslint": "^5.11.0",
+    "tslint-config-prettier": "^1.15.0",
+    "tslint-plugin-prettier": "^2.0.1",
+    "typescript": "^3.1.4"
+  },
+  "lint-staged": {
+    "*.ts": [
+      "yarn fmt",
+      "git add"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "ts",
+      "js"
+    ],
+    "transform": {
+      "^.+\\.(ts|tsx)$": "ts-jest"
+    },
+    "globals": {
+      "ts-jest": {
+        "tsConfigFile": "tsconfig.json"
+      }
+    },
+    "testMatch": [
+      "**/test/**/*.+(ts|tsx|js)"
+    ]
+  }
+}
