@@ -1,19 +1,19 @@
-import { SassatConfigLoader } from "./config";
+import { SasatConfigLoader } from "./config";
 import { DBClient } from "../db/dbClient";
 import { RedisClient } from "../redis/redisClient";
 
 import { MariaDBClient } from "../db/mariaDBClient";
 import { initCache } from "./initCache";
 import {
-  SassatRedisCacheConfHash,
-  SassatRedisCacheConfJSONString,
-  SassatRedisCacheConfString,
-  SassatRedisCacheType,
+  SasatRedisCacheConfHash,
+  SasatRedisCacheConfJSONString,
+  SasatRedisCacheConfString,
+  SasatRedisCacheType,
 } from "./redisCacheConf";
 
-export class SassatClient {
-  readonly cacheConf: { [name: string]: SassatRedisCacheType } = {};
-  private readonly config = new SassatConfigLoader().getConfig();
+export class SasatClient {
+  readonly cacheConf: { [name: string]: SasatRedisCacheType } = {};
+  private readonly config = new SasatConfigLoader().getConfig();
   private readonly db: DBClient;
   private readonly redis: RedisClient;
   constructor() {
@@ -37,7 +37,7 @@ export class SassatClient {
 
   updateString(name: string, key: any, value: any) {
     return this.db.transaction().then(async con => {
-      const conf = this.cacheConf[name] as SassatRedisCacheConfString;
+      const conf = this.cacheConf[name] as SasatRedisCacheConfString;
       const sql = `update ${conf.table} set ${conf.value} = ${this.db.escape(value)} where ${
         conf.key
       } = ${this.db.escape(key)}`;
@@ -54,7 +54,7 @@ export class SassatClient {
 
   updateJSONString(name: string, key: string, values: { [key: string]: any }) {
     return this.db.transaction().then(async con => {
-      const conf = this.cacheConf[name] as SassatRedisCacheConfJSONString;
+      const conf = this.cacheConf[name] as SasatRedisCacheConfJSONString;
       const columns = Object.entries(values)
         .map(([k, v]) => `${k} = ${this.db.escape(v)}`)
         .join(",");
@@ -72,7 +72,7 @@ export class SassatClient {
 
   updateHash(name: string, key: string, values: { [key: string]: any }) {
     return this.db.transaction().then(async con => {
-      const conf = this.cacheConf[name] as SassatRedisCacheConfHash;
+      const conf = this.cacheConf[name] as SasatRedisCacheConfHash;
       const columns = Object.entries(values)
         .map(([k, v]) => `${k} = ${this.db.escape(v)}`)
         .join(",");

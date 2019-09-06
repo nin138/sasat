@@ -7,7 +7,7 @@ export enum RedisDBCacheTypeNames {
   Hash = "hash",
 }
 
-export interface SassatRedisCacheConfString {
+export interface SasatRedisCacheConfString {
   name: string;
   type: RedisDBCacheTypeNames.String;
   keyPrefix: string;
@@ -16,7 +16,7 @@ export interface SassatRedisCacheConfString {
   value: DBColumnName;
 }
 
-export interface SassatRedisCacheConfJSONString {
+export interface SasatRedisCacheConfJSONString {
   name: string;
   type: RedisDBCacheTypeNames.JSONString;
   keyPrefix: string;
@@ -25,7 +25,7 @@ export interface SassatRedisCacheConfJSONString {
   values: DBColumnName[];
 }
 
-export interface SassatRedisCacheConfHash {
+export interface SasatRedisCacheConfHash {
   name: string;
   type: RedisDBCacheTypeNames.Hash;
   keyPrefix: string;
@@ -34,7 +34,4 @@ export interface SassatRedisCacheConfHash {
   values: DBColumnName[];
 }
 
-export type SassatRedisCacheType =
-  | SassatRedisCacheConfString
-  | SassatRedisCacheConfJSONString
-  | SassatRedisCacheConfHash;
+export type SasatRedisCacheType = SasatRedisCacheConfString | SasatRedisCacheConfJSONString | SasatRedisCacheConfHash;

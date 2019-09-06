@@ -1,1 +1,1 @@
-export { SassatClient } from "./src/sasat/client";
+export { SasatClient } from "./src/sasat/client";

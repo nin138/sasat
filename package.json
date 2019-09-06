@@ -1,7 +1,7 @@
 {
-  "name": "sassat.ts",
-  "version": "0.2.0",
-  "repository": "https://github.com/yanokunpei/sassat.git",
+  "name": "sasat",
+  "version": "0.1.0",
+  "repository": "https://github.com/yanokunpei/sasat.git",
   "author": "yanokunpei <ninian138@gmail.com>",
   "license": "MIT",
   "main": "lib/index.js",

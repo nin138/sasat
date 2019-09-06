@@ -1,9 +1,9 @@
 import * as fs from "fs";
 import * as yaml from "js-yaml";
 import * as path from "path";
-import { SassatRedisCacheType } from "./redisCacheConf";
+import { SasatRedisCacheType } from "./redisCacheConf";
 
-interface SassatConfigDb {
+interface SasatConfigDb {
   host: string;
   port: number;
   user: string;
@@ -11,38 +11,38 @@ interface SassatConfigDb {
   database: string;
 }
 
-interface SassatConfigRedis {
+interface SasatConfigRedis {
   host: string;
   port: number;
   password: string;
 }
 
-export interface SassatConfig {
-  db: SassatConfigDb;
-  redis: SassatConfigRedis;
-  initCaches: SassatRedisCacheType[];
+export interface SasatConfig {
+  db: SasatConfigDb;
+  redis: SasatConfigRedis;
+  initCaches: SasatRedisCacheType[];
 }
 
-export class SassatConfigLoader {
+export class SasatConfigLoader {
   private static loadFile() {
-    const fileName = "sassat.config.yml";
+    const fileName = "sasat.config.yml";
     const filepath = path.join(process.cwd(), fileName);
     if (!fs.existsSync(filepath)) throw new Error(`${fileName} not Found in Project root folder`);
     return yaml.safeLoad(fs.readFileSync(filepath, "utf8"));
   }
 
-  readonly db: SassatConfigDb;
-  readonly redis: SassatConfigRedis;
-  readonly initCaches: SassatRedisCacheType[];
+  readonly db: SasatConfigDb;
+  readonly redis: SasatConfigRedis;
+  readonly initCaches: SasatRedisCacheType[];
 
   constructor() {
-    const obj = SassatConfigLoader.loadFile();
+    const obj = SasatConfigLoader.loadFile();
     this.db = (this.readDBConf(obj.db) as unknown) as any;
     this.redis = (this.readRedisConf(obj.redis) as unknown) as any;
     this.initCaches = this.readCacheConf(obj.cache);
   }
 
-  getConfig(): SassatConfig {
+  getConfig(): SasatConfig {
     return {
       db: this.db,
       redis: this.redis,
@@ -68,7 +68,7 @@ export class SassatConfigLoader {
     };
   }
 
-  private readCacheConf(conf: { [key: string]: any }): SassatRedisCacheType[] {
+  private readCacheConf(conf: { [key: string]: any }): SasatRedisCacheType[] {
     return Object.entries(conf).map(([key, value]: any, index) => {
       return {
         name: key,
