@@ -29,22 +29,22 @@
     "sqlstring": "^2.3.1"
   },
   "devDependencies": {
-    "@types/jest": "^23.3.13",
-    "@types/js-yaml": "^3.11.2",
-    "@types/node": "^12.7.4",
-    "@types/redis": "^2.8.6",
-    "@types/sqlstring": "^2.2.1",
-    "env-cmd": "^9.0.3",
-    "husky": "^3.0.4",
-    "jest": "^24.9.0",
-    "lint-staged": "^9.2.5",
-    "prettier": "^1.14.3",
-    "ts-jest": "^24.0.2",
-    "ts-node": "^7.0.1",
-    "tslint": "^5.11.0",
-    "tslint-config-prettier": "^1.15.0",
-    "tslint-plugin-prettier": "^2.0.1",
-    "typescript": "^3.1.4"
+    "@types/jest": "23.3.14",
+    "@types/js-yaml": "3.12.1",
+    "@types/node": "12.7.4",
+    "@types/redis": "2.8.13",
+    "@types/sqlstring": "2.2.1",
+    "env-cmd": "9.0.3",
+    "husky": "3.0.5",
+    "jest": "24.9.0",
+    "lint-staged": "9.2.5",
+    "prettier": "1.18.2",
+    "ts-jest": "24.0.2",
+    "ts-node": "7.0.1",
+    "tslint": "5.19.0",
+    "tslint-config-prettier": "1.18.0",
+    "tslint-plugin-prettier": "2.0.1",
+    "typescript": "3.6.2"
   },
   "lint-staged": {
     "*.ts": [
