@@ -73,9 +73,10 @@ export class SasatConfigLoader {
     return Object.entries(conf).map(([key, value]: any, index) => {
       return {
         name: key,
-        ...value,
         type: value.type.toLowerCase(),
         keyPrefix: value.keyPrefix || `${index}__`,
+        isKeyAutoIncrement: value.key_auto_increment,
+        ...value,
       };
     });
   }

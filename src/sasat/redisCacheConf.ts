@@ -13,6 +13,7 @@ export interface SasatRedisCacheConfString {
   keyPrefix: string;
   table: DBTableName;
   key: DBColumnName;
+  isKeyAutoIncrement: boolean;
   value: DBColumnName;
 }
 
@@ -22,6 +23,7 @@ export interface SasatRedisCacheConfJSONString {
   keyPrefix: string;
   table: DBTableName;
   key: DBColumnName;
+  isKeyAutoIncrement: boolean;
   values: DBColumnName[];
 }
 
@@ -31,6 +33,7 @@ export interface SasatRedisCacheConfHash {
   keyPrefix: string;
   table: DBTableName;
   key: DBColumnName;
+  isKeyAutoIncrement: boolean;
   values: DBColumnName[];
 }
 

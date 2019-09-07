@@ -1,6 +1,6 @@
 {
   "name": "sasat",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "repository": "https://github.com/yanokunpei/sasat.git",
   "author": "yanokunpei <ninian138@gmail.com>",
   "license": "MIT",
@@ -17,7 +17,7 @@
     "fmt": "yarn lint --fix && yarn prettier",
     "prettier": "prettier --write './**/*.ts'",
     "pretest": "yarn resetdb",
-    "test": "env-cmd jest --coverage",
+    "test": "env-cmd jest --coverage --silent=false --verbose false",
     "redis": "docker-compose exec redis redis-cli",
     "resetdb": "docker-compose exec db sh -c \"mysql -u root < /docker-entrypoint-initdb.d/temp.sql\"",
     "prepublish": "yarn build"

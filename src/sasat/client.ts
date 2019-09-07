@@ -1,5 +1,5 @@
 import { SasatConfigLoader } from "./config";
-import { DBClient } from "../db/dbClient";
+import { DBClient, SQLTransaction } from "../db/dbClient";
 import { RedisClient } from "../redis/redisClient";
 
 import { MariaDBClient } from "../db/mariaDBClient";
@@ -11,7 +11,12 @@ import {
   SasatRedisCacheType,
 } from "./redisCacheConf";
 
+type Key = string | number;
+
 export class SasatClient {
+  private static flatFV(values: { [key: string]: any }) {
+    return Object.entries(values).reduce((prev: any[], cur: any[]) => [...cur, ...prev], []);
+  }
   readonly cacheConf: { [name: string]: SasatRedisCacheType } = {};
   readonly db: DBClient;
   readonly redis: RedisClient;
@@ -31,66 +36,109 @@ export class SasatClient {
     return initCache(this.db, this.redis, this.config.initCaches);
   }
 
-  getString(name: string, key: string) {
+  getString(name: string, key: Key) {
     return this.redis.get(this.cacheConf[name].keyPrefix + key);
   }
 
-  updateString(name: string, key: any, value: any) {
+  setString(name: string, key: Key, value: any) {
+    const conf = this.cacheConf[name] as SasatRedisCacheConfString;
+    return this.redis.set(conf.keyPrefix + key, value);
+  }
+
+  updateString(name: string, key: Key, value: any) {
     return this.db.transaction().then(async con => {
       const conf = this.cacheConf[name] as SasatRedisCacheConfString;
-      const sql = `update ${conf.table} set ${conf.value} = ${this.db.escape(value)} where ${
-        conf.key
-      } = ${this.db.escape(key)}`;
-      const r = await con.rawCommand(sql);
+      const r = await con.rawCommand(
+        `update ${conf.table} set ${conf.value} = ${this.db.escape(value)} where ${conf.key} = ${this.db.escape(key)}`,
+      );
       await this.redis.set(conf.keyPrefix + key, value);
       await con.commit();
       return r;
     });
   }
 
-  getJSONString(name: string, key: string): Promise<{ [key: string]: any } | null> {
+  getJSONString(name: string, key: Key): Promise<{ [key: string]: any } | null> {
     return this.redis.get(this.cacheConf[name].keyPrefix + key).then(it => (it ? JSON.parse(it) : null));
   }
 
-  updateJSONString(name: string, key: string, values: { [key: string]: any }) {
+  setJSONString(name: string, key: Key, values: { [key: string]: any }) {
+    const conf = this.cacheConf[name] as SasatRedisCacheConfJSONString;
+    return this.redis.set(conf.keyPrefix + key, JSON.stringify(values));
+  }
+
+  insertJSONStringWithDb(name: string, values: { [key: string]: any }) {
+    const conf = this.cacheConf[name] as SasatRedisCacheConfJSONString;
+    return this.db.transaction().then(async con => {
+      const r = await this.insertToDb(con, conf.table, values);
+      if (conf.isKeyAutoIncrement) values[conf.key] = r.insertId;
+      await this.redis.set(conf.keyPrefix + values[conf.key], JSON.stringify(values));
+      await con.commit();
+      return r;
+    });
+  }
+
+  updateJSONString(name: string, key: Key, values: { [key: string]: any }) {
     return this.db.transaction().then(async con => {
       const conf = this.cacheConf[name] as SasatRedisCacheConfJSONString;
       const columns = Object.entries(values)
         .map(([k, v]) => `${k} = ${this.db.escape(v)}`)
         .join(",");
-      const sql = `update ${conf.table} set ${columns} where ${conf.key} = ${this.db.escape(key)}`;
-      const r = await con.rawCommand(sql);
+      const r = await con.rawCommand(`update ${conf.table} set ${columns} where ${conf.key} = ${this.db.escape(key)}`);
       await this.redis.set(conf.keyPrefix + key, JSON.stringify(values));
       await con.commit();
       return r;
     });
   }
 
-  getHash(name: string, key: string, column: string): Promise<string | null> {
+  getHash(name: string, key: Key, column: string): Promise<string | null> {
     return this.redis.hget(this.cacheConf[name].keyPrefix + key, column);
   }
 
-  updateHash(name: string, key: string, values: { [key: string]: any }) {
+  getHashAll(name: string, key: Key) {
+    return this.redis.hgetall(this.cacheConf[name].keyPrefix + key);
+  }
+
+  setHash(name: string, key: Key, values: { [key: string]: any }) {
+    const conf = this.cacheConf[name] as SasatRedisCacheConfHash;
+    return this.redis.hmset(conf.keyPrefix + key, ...SasatClient.flatFV(values));
+  }
+
+  insertHashWithDb(name: string, values: { [key: string]: any }) {
+    const conf = this.cacheConf[name] as SasatRedisCacheConfHash;
     return this.db.transaction().then(async con => {
-      const conf = this.cacheConf[name] as SasatRedisCacheConfHash;
-      const columns = Object.entries(values)
-        .map(([k, v]) => `${k} = ${this.db.escape(v)}`)
-        .join(",");
-      const sql = `update ${conf.table} set ${columns} where ${conf.key} = ${this.db.escape(key)}`;
-      const r = await con.rawCommand(sql);
-      const fieldValues = Object.entries(values).reduce((prev: any[], cur: any[]) => [...cur, ...prev], []);
-      await this.redis.hmset(conf.keyPrefix + key, ...fieldValues);
+      const r = await this.insertToDb(con, conf.table, values);
+      if (conf.isKeyAutoIncrement) values[conf.key] = r.insertId;
+      await this.redis.hmset(conf.keyPrefix + values[conf.key], ...SasatClient.flatFV(values));
       await con.commit();
       return r;
     });
   }
 
-  getHashAll(name: string, key: string) {
-    return this.redis.hgetall(this.cacheConf[name].keyPrefix + key);
+  updateHash(name: string, key: Key, values: { [key: string]: any }) {
+    return this.db.transaction().then(async con => {
+      const conf = this.cacheConf[name] as SasatRedisCacheConfHash;
+      const columns = Object.entries(values)
+        .map(([k, v]) => `${k} = ${this.db.escape(v)}`)
+        .join(",");
+      const r = await con.rawCommand(`update ${conf.table} set ${columns} where ${conf.key} = ${this.db.escape(key)}`);
+      await this.redis.hmset(conf.keyPrefix + key, ...SasatClient.flatFV(values));
+      await con.commit();
+      return r;
+    });
   }
 
   disconnect() {
     this.db.release();
     this.redis.dc();
+  }
+
+  private insertToDb(transaction: SQLTransaction, table: string, values: { [key: string]: any }) {
+    const columns: string[] = [];
+    const vals: any[] = [];
+    Object.entries(values).map(([k, v]) => {
+      columns.push(k);
+      vals.push(this.db.escape(v));
+    });
+    return transaction.rawCommand(`insert into ${table}(${columns.join(",")}) values(${vals.join(",")})`);
   }
 }

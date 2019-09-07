@@ -10,7 +10,7 @@ create table user(
 insert into user(name) values('scac'),( 'sqwf'),( 'efwef'),('g6g');
 
 create table test(
-    id int primary key,
+    id int primary key auto_increment,
     c1 varchar(20),
     c2 varchar(22)
 );
