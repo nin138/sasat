@@ -10,7 +10,7 @@
     "lib"
   ],
   "scripts": {
-    "start": "env-cmd ts-node ./",
+    "start": "env-cmd .env ts-node ./index.ts",
     "prebuild": "rm -rf ./lib",
     "build": "yarn tsc",
     "lint": "tslint 'src/**/*.ts'",

@@ -13,9 +13,9 @@ import {
 
 export class SasatClient {
   readonly cacheConf: { [name: string]: SasatRedisCacheType } = {};
+  readonly db: DBClient;
+  readonly redis: RedisClient;
   private readonly config = new SasatConfigLoader().getConfig();
-  private readonly db: DBClient;
-  private readonly redis: RedisClient;
   constructor() {
     this.db = new MariaDBClient({
       ...this.config.db,

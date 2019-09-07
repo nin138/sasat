@@ -57,6 +57,7 @@ export class SasatConfigLoader {
       user: this.readValue(conf.user),
       password: this.readValue(conf.password),
       database: this.readValue(conf.database),
+      connectionLimit: this.readValue(conf.connectionLimit),
     };
   }
 
@@ -81,7 +82,7 @@ export class SasatConfigLoader {
 
   private readValue(value: string) {
     if (!value) return value;
-    if (value.startsWith("$")) return process.env[value.slice(1)];
+    if (typeof value === "string" && value.startsWith("$")) return process.env[value.slice(1)];
     return value;
   }
 }
