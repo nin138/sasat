@@ -4,7 +4,6 @@ import { addColumn, addIndex, addPrimaryKey, addUniqueKey } from "../sqlCreater"
 import { ColumnCreator } from "../column/columnCreator";
 import { TableBase } from "./tableBase";
 import { TableBuilder } from "./tableBuilder";
-
 export class TableMigrator extends TableBase {
   static fromTableBuilder(store: DataStoreMigrator, table: TableBuilder): TableMigrator {
     return Object.assign(Object.create(this.prototype), table, { store });

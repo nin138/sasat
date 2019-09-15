@@ -1,6 +1,5 @@
 import { ColumnCreator } from "../column/columnCreator";
 import { TableBase } from "./tableBase";
-
 export class TableBuilder extends TableBase {
   constructor(tableName: string) {
     super(tableName);

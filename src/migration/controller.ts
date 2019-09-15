@@ -5,7 +5,6 @@ import { getDbClient } from "../db/getDbClient";
 import { DataStoreMigrator } from "./dataStore";
 import * as ts from "typescript";
 import { migrate } from "./executer";
-
 export class MigrationController {
   private migrationDir = path.join(process.cwd(), config.migration.dir);
 
@@ -18,7 +17,7 @@ export class MigrationController {
     files.forEach((fileName: string) => {
       if (fileName === currentMigration) execMigrate = false;
       const file = fs.readFileSync(path.join(this.migrationDir, fileName)).toString();
-      // noinspection TsLint
+      // tslint:disable-next-line
       const Class = eval(ts.transpile(file));
       new Class().up(store);
       if (execMigrate) migrate(store, fileName);
