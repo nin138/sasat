@@ -1,3 +1,7 @@
+migration:
+  dir: test/migrations
+  table: __migration__
+
 db:
   host: $DB_HOST
   port: $DB_PORT
@@ -5,6 +9,7 @@ db:
   password: $DB_PASSWORD
   database: $DATABASE
   connectionLimit: 10
+
 redis:
   host: $REDIS_HOST
   port: $REDIS_PORT
@@ -33,11 +38,6 @@ cache:
     values:
       - c1
       - c2
-
-
-#hash:
-migration:
-  dir: ./migrations
 
 
 

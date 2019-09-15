@@ -1,8 +1,6 @@
-import { SasatConfigLoader } from "./config";
-import { DBClient, SQLTransaction } from "../db/dbClient";
+import { DBClient, SQLClient, SQLTransaction } from "../db/dbClient";
 import { RedisClient } from "../redis/redisClient";
 
-import { MariaDBClient } from "../db/mariaDBClient";
 import { initCache } from "./initCache";
 import {
   SasatRedisCacheConfHash,
@@ -10,6 +8,8 @@ import {
   SasatRedisCacheConfString,
   SasatRedisCacheType,
 } from "./redisCacheConf";
+import { getDbClient } from "../db/getDbClient";
+import { config } from "../config/config";
 
 type Key = string | number;
 
@@ -20,11 +20,9 @@ export class SasatClient {
   readonly cacheConf: { [name: string]: SasatRedisCacheType } = {};
   readonly db: DBClient;
   readonly redis: RedisClient;
-  private readonly config = new SasatConfigLoader().getConfig();
+  private readonly config = config;
   constructor() {
-    this.db = new MariaDBClient({
-      ...this.config.db,
-    });
+    this.db = getDbClient();
     this.redis = new RedisClient(this.config.redis.host, this.config.redis.port, this.config.redis.password);
 
     this.config.initCaches.forEach(it => {
@@ -48,8 +46,10 @@ export class SasatClient {
   updateString(name: string, key: Key, value: any) {
     return this.db.transaction().then(async con => {
       const conf = this.cacheConf[name] as SasatRedisCacheConfString;
-      const r = await con.rawCommand(
-        `update ${conf.table} set ${conf.value} = ${this.db.escape(value)} where ${conf.key} = ${this.db.escape(key)}`,
+      const r = await con.rawQuery(
+        `update ${conf.table} set ${conf.value} = ${SQLClient.escape(value)} where ${conf.key} = ${SQLClient.escape(
+          key,
+        )}`,
       );
       await this.redis.set(conf.keyPrefix + key, value);
       await con.commit();
@@ -81,9 +81,9 @@ export class SasatClient {
     return this.db.transaction().then(async con => {
       const conf = this.cacheConf[name] as SasatRedisCacheConfJSONString;
       const columns = Object.entries(values)
-        .map(([k, v]) => `${k} = ${this.db.escape(v)}`)
+        .map(([k, v]) => `${k} = ${SQLClient.escape(v)}`)
         .join(",");
-      const r = await con.rawCommand(`update ${conf.table} set ${columns} where ${conf.key} = ${this.db.escape(key)}`);
+      const r = await con.rawQuery(`update ${conf.table} set ${columns} where ${conf.key} = ${SQLClient.escape(key)}`);
       await this.redis.set(conf.keyPrefix + key, JSON.stringify(values));
       await con.commit();
       return r;
@@ -118,9 +118,9 @@ export class SasatClient {
     return this.db.transaction().then(async con => {
       const conf = this.cacheConf[name] as SasatRedisCacheConfHash;
       const columns = Object.entries(values)
-        .map(([k, v]) => `${k} = ${this.db.escape(v)}`)
+        .map(([k, v]) => `${k} = ${SQLClient.escape(v)}`)
         .join(",");
-      const r = await con.rawCommand(`update ${conf.table} set ${columns} where ${conf.key} = ${this.db.escape(key)}`);
+      const r = await con.rawQuery(`update ${conf.table} set ${columns} where ${conf.key} = ${SQLClient.escape(key)}`);
       await this.redis.hmset(conf.keyPrefix + key, ...SasatClient.flatFV(values));
       await con.commit();
       return r;
@@ -137,8 +137,8 @@ export class SasatClient {
     const vals: any[] = [];
     Object.entries(values).map(([k, v]) => {
       columns.push(k);
-      vals.push(this.db.escape(v));
+      vals.push(SQLClient.escape(v));
     });
-    return transaction.rawCommand(`insert into ${table}(${columns.join(",")}) values(${vals.join(",")})`);
+    return transaction.rawQuery(`insert into ${table}(${columns.join(",")}) values(${vals.join(",")})`);
   }
 }

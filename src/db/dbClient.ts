@@ -3,19 +3,17 @@ export type QueryResponse = Array<{ [key: string]: string }>;
 export type CommandResponse = any;
 
 export abstract class SQLClient {
-  abstract rawQuery(sql: string): Promise<QueryResponse>;
-  abstract query(templateString: TemplateStringsArray, ...params: any[]): Promise<QueryResponse>;
-  escape(param: any): string {
+  static escape(param: any): string {
     return SqlString.escape(param);
   }
-  abstract rawCommand(sql: string): Promise<CommandResponse>;
-  abstract command(templateString: TemplateStringsArray, ...params: any[]): Promise<CommandResponse>;
+  abstract rawQuery(sql: string): Promise<QueryResponse | CommandResponse>;
+  abstract query(templateString: TemplateStringsArray, ...params: any[]): Promise<QueryResponse | CommandResponse>;
   formatQuery(str: TemplateStringsArray, ...params: any[]): string {
     let ret = str[0];
     for (let i = 0; i < params.length; i++) {
       if (typeof params[i] === "function") ret += params[i]();
-      else if (Array.isArray(params[i])) ret += params[i].map((it: any) => this.escape(it)).join(", ");
-      else ret += this.escape(params[i]);
+      else if (Array.isArray(params[i])) ret += params[i].map((it: any) => SQLClient.escape(it)).join(", ");
+      else ret += SQLClient.escape(params[i]);
       ret += str[i + 1];
     }
     return ret;

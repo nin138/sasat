@@ -18,19 +18,11 @@ export class MariaDBClient extends DBClient {
     this.pool = maria.createPool(config);
   }
 
-  command(templateString: TemplateStringsArray, ...params: any[]): Promise<CommandResponse> {
+  query(templateString: TemplateStringsArray, ...params: any[]): Promise<QueryResponse | CommandResponse> {
     return this.pool.query(this.formatQuery(templateString, ...params));
   }
 
-  query(templateString: TemplateStringsArray, ...params: any[]): Promise<QueryResponse> {
-    return this.pool.query(this.formatQuery(templateString, ...params));
-  }
-
-  rawCommand(sql: string): Promise<CommandResponse> {
-    return this.pool.query(sql);
-  }
-
-  rawQuery(sql: string): Promise<QueryResponse> {
+  rawQuery(sql: string): Promise<QueryResponse | CommandResponse> {
     return this.pool.query(sql);
   }
 
@@ -67,16 +59,8 @@ export class MariaDBTransaction extends SQLTransaction {
     return result;
   }
 
-  command(templateString: TemplateStringsArray, ...params: any[]): Promise<CommandResponse> {
-    return this.connection.query(this.formatQuery(templateString, ...params));
-  }
-
   query(templateString: TemplateStringsArray, ...params: any[]): Promise<QueryResponse> {
     return this.connection.query(this.formatQuery(templateString, ...params));
-  }
-
-  rawCommand(sql: string): Promise<CommandResponse> {
-    return this.connection.query(sql);
   }
 
   rawQuery(sql: string): Promise<QueryResponse> {
