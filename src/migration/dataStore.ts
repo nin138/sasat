@@ -1,12 +1,13 @@
 import { TableBuilder } from "./table/tableBuilder";
 import { addIndex } from "./sqlCreater";
+import { TableMigrator } from "./table/tableMigrator";
 
 export abstract class DataStoreBuilder {
-  protected tables: TableBuilder[] = [];
+  protected tables: TableMigrator[] = [];
 
   abstract createTable(tableName: string, tableCreator: (table: TableBuilder) => void): DataStoreBuilder;
 
-  table(tableName: string): TableBuilder | undefined {
+  table(tableName: string): TableMigrator | undefined {
     return this.tables.find(it => it.tableName === tableName);
   }
 }
@@ -21,7 +22,7 @@ export class DataStoreMigrator extends DataStoreBuilder {
   createTable(tableName: string, tableCreator: (table: TableBuilder) => void): DataStoreBuilder {
     const table = new TableBuilder(tableName);
     tableCreator(table);
-    this.tables.push(table);
+    this.tables.push(TableMigrator.fromTableBuilder(this, table));
     this.migrationQueue.push(table.showCreateTable());
     this.migrationQueue.push(...table.indexes.map(it => addIndex(table.tableName, it)));
     return this;
@@ -33,5 +34,9 @@ export class DataStoreMigrator extends DataStoreBuilder {
 
   reset() {
     this.migrationQueue = [];
+  }
+
+  serialize() {
+    return this.tables.map(it => it.serialize());
   }
 }

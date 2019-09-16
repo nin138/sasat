@@ -10,6 +10,6 @@ export interface ForeignKey {
   columnName: string;
   referenceTable: string;
   referenceColumn: string;
-  onUpdate: ForeignKeyReferentialAction;
-  onDelete: ForeignKeyReferentialAction;
+  onUpdate?: ForeignKeyReferentialAction;
+  onDelete?: ForeignKeyReferentialAction;
 }

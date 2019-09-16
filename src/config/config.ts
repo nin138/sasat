@@ -18,6 +18,7 @@ export interface SasatConfigRedis {
 export interface SasatConfigMigration {
   table: string;
   dir: string;
+  out: string;
 }
 
 export interface SasatConfig {

@@ -4,14 +4,13 @@ import {
   DateColumnBuilder,
   DecimalColumnBuilder,
   FloatColumnBuilder,
-  IdColumnBuilder,
   IntegerColumnBuilder,
   StringColumnBuilder,
   TextColumnBuilder,
   TimeStampColumnBuilder,
 } from "./columnBuilder";
-import { SasatColumnTypes } from "../../types/column";
 import { TableBase } from "../table/tableBase";
+import { SasatColumnTypes } from "./columnTypes";
 
 export class ColumnCreator {
   constructor(private table: TableBase, private name: string, private callAddColumn = true) {}
@@ -35,7 +34,6 @@ export class ColumnCreator {
   dateTime = () => this.create(new DateColumnBuilder(this.name, SasatColumnTypes.dateTime));
   timestamp = () => this.create(new TimeStampColumnBuilder(this.name, SasatColumnTypes.timestamp));
   boolean = () => this.create(new BooleanColumnBuilder(this.name));
-  id = () => this.create(new IdColumnBuilder(this.name));
 
   private create<T extends ColumnBuilder>(column: T): T {
     if (this.callAddColumn) this.table.addBuiltInColumn(column);

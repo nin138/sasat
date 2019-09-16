@@ -1,16 +1,28 @@
 import { ColumnBuilder } from "../column/columnBuilder";
 import { Index } from "../../types";
-import { ForeignKey } from "../../types/foreignKey";
+import { ForeignKey, ForeignKeyReferentialAction } from "../../types/foreignKey";
 import { columnToSql, foreignKeyToSql } from "../sqlCreater";
+import { TableInfo } from "./tableInfo";
 
 export abstract class TableBase {
-  readonly columns: ColumnBuilder[] = [];
   readonly indexes: Index[] = [];
-  readonly foreignKeys: ForeignKey[] = [];
+  protected columns: ColumnBuilder[] = [];
+  protected foreignKeys: ForeignKey[] = [];
   protected primaryKey: string[] | undefined;
   protected uniqueKeys: string[][] = [];
 
   protected constructor(readonly tableName: string) {}
+
+  serialize(): TableInfo {
+    return {
+      tableName: this.tableName,
+      columns: this.columns.map(it => it.build()),
+      indexes: this.indexes,
+      foreignKeys: this.foreignKeys,
+      primaryKey: this.primaryKey,
+      uniqueKeys: this.uniqueKeys,
+    };
+  }
 
   addIndex(constraintName: string, ...columns: string[]): this {
     this.indexes.push({ constraintName, columns });
@@ -36,6 +48,25 @@ export abstract class TableBase {
       if (!this.isColumnExists(it)) throw new Error(`${this.tableName}.${it} does not exists`);
     });
     this.primaryKey = columnNames;
+    return this;
+  }
+
+  addforeignKey(
+    constraintName: string,
+    columnName: string,
+    referenceTable: string,
+    referenceColumn: string,
+    onUpdate?: ForeignKeyReferentialAction,
+    onDelete?: ForeignKeyReferentialAction,
+  ): this {
+    this.foreignKeys.push({
+      constraintName,
+      columnName,
+      referenceTable,
+      referenceColumn,
+      onUpdate,
+      onDelete,
+    });
     return this;
   }
 

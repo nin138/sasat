@@ -4,6 +4,7 @@ generated
 coverage
 build
 /lib/
+test/out
 
 # Created by .ignore support plugin (hsz.mobi)
 ### macOS template

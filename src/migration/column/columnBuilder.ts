@@ -1,6 +1,4 @@
-import { ForeignKey, ForeignKeyReferentialAction } from "../../types/foreignKey";
 import {
-  AllColumnInfo,
   SasatColumnTypes,
   SasatDateTypes,
   SasatFloatingTypes,
@@ -8,13 +6,13 @@ import {
   SasatNumberTypes,
   SasatStringTypes,
   SasatTextTypes,
-} from "../../types/column";
+} from "./columnTypes";
+import { AllColumnInfo } from "../../types/column";
 
 export abstract class ColumnBuilder {
   protected _primary = false;
   protected _notNull: boolean | undefined;
   protected _unique = false;
-  protected _foreignKey: ForeignKey | undefined;
   protected _zerofill = false;
   protected _signed: boolean | undefined;
   protected _autoIncrement = false;
@@ -43,23 +41,6 @@ export abstract class ColumnBuilder {
     this._unique = true;
     return this;
   }
-  foreignKey(
-    constraintName: string,
-    table: string,
-    column: string,
-    onUpdate: ForeignKeyReferentialAction = ForeignKeyReferentialAction.Restrict,
-    onDelete: ForeignKeyReferentialAction = ForeignKeyReferentialAction.Restrict,
-  ): this {
-    this._foreignKey = {
-      constraintName,
-      columnName: this.name,
-      referenceTable: table,
-      referenceColumn: column,
-      onUpdate,
-      onDelete,
-    };
-    return this;
-  }
   default(value: any): this {
     this._default = value;
     return this;
@@ -73,7 +54,6 @@ export abstract class ColumnBuilder {
       primary: this._primary,
       notNull: this._notNull,
       unique: this._unique,
-      foreignKey: this._foreignKey,
       zerofill: this._zerofill,
       signed: this._signed,
       autoIncrement: this._autoIncrement,
@@ -193,15 +173,6 @@ export class BooleanColumnBuilder extends ColumnBuilder {
   }
   default(value: boolean | null) {
     this._default = value;
-    return this;
-  }
-}
-
-export class IdColumnBuilder extends ColumnBuilder {
-  constructor(name: string) {
-    super(name, SasatColumnTypes.id);
-  }
-  default(_: undefined) {
     return this;
   }
 }

@@ -1,15 +1,16 @@
 import * as path from "path";
 import * as fs from "fs";
-import * as yaml from "js-yaml";
 import { SasatRedisCacheType } from "../sasat/redisCacheConf";
 import { SasatConfig, SasatConfigDb, SasatConfigMigration, SasatConfigRedis } from "./config";
+import { readYmlFile } from "../util";
 
+// TODO refactoring and default value
 export class SasatConfigLoader {
   private static loadFile() {
-    const fileName = "sasat.config.yml";
+    const fileName = "sasat.yml";
     const filepath = path.join(process.cwd(), fileName);
     if (!fs.existsSync(filepath)) throw new Error(`${fileName} not Found in Project root folder`);
-    return yaml.safeLoad(fs.readFileSync(filepath, "utf8"));
+    return readYmlFile(filepath);
   }
 
   readonly db: SasatConfigDb;
@@ -72,9 +73,6 @@ export class SasatConfigLoader {
   }
 
   private readMigrationConfig(conf: { [key: string]: string }): SasatConfigMigration {
-    return {
-      table: conf.table,
-      dir: conf.dir,
-    };
+    return conf as any;
   }
 }

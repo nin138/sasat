@@ -1,46 +1,11 @@
-import { ForeignKey } from "./foreignKey";
-
-export enum SasatColumnTypes {
-  char = "char",
-  varchar = "varchar",
-  text = "text",
-  tinyInt = "tinyint",
-  smallInt = "smallint",
-  mediumInt = "mediumint",
-  int = "int",
-  bigInt = "bigint",
-  float = "float",
-  double = "double",
-  decimal = "decimal",
-  year = "year",
-  date = "date",
-  time = "time",
-  dateTime = "datetime",
-  timestamp = "timestamp",
-  boolean = "boolean",
-  id = "id",
-}
-
-export type SasatStringTypes = SasatColumnTypes.char | SasatColumnTypes.varchar;
-
-export type SasatTextTypes = SasatColumnTypes.text;
-
-export type SasatIntegerTypes =
-  | SasatColumnTypes.tinyInt
-  | SasatColumnTypes.smallInt
-  | SasatColumnTypes.mediumInt
-  | SasatColumnTypes.int
-  | SasatColumnTypes.bigInt;
-
-export type SasatFloatingTypes = SasatColumnTypes.float | SasatColumnTypes.double;
-
-export type SasatNumberTypes = SasatIntegerTypes | SasatFloatingTypes | SasatColumnTypes.decimal;
-
-export type SasatDateTypes =
-  | SasatColumnTypes.time
-  | SasatColumnTypes.date
-  | SasatColumnTypes.dateTime
-  | SasatColumnTypes.year;
+import {
+  SasatColumnTypes,
+  SasatDateTypes,
+  SasatFloatingTypes,
+  SasatIntegerTypes,
+  SasatStringTypes,
+  SasatTextTypes,
+} from "../migration/column/columnTypes";
 
 interface ColumnBase {
   columnName: string;
@@ -106,11 +71,6 @@ export interface BooleanColumn extends ColumnBase {
   default: boolean | undefined;
 }
 
-export interface IdColumn extends ColumnBase {
-  type: SasatColumnTypes.id;
-  default: undefined | undefined;
-}
-
 export type ColumnInfo =
   | StringColumn
   | TextColumn
@@ -119,8 +79,7 @@ export type ColumnInfo =
   | DecimalColumn
   | TimeStampColumn
   | DateColumn
-  | BooleanColumn
-  | IdColumn;
+  | BooleanColumn;
 
 export interface AllColumnInfo {
   columnName: string;
@@ -130,7 +89,6 @@ export interface AllColumnInfo {
   primary: boolean;
   notNull: boolean | undefined;
   unique: boolean;
-  foreignKey: ForeignKey | undefined;
   zerofill: boolean;
   signed: boolean | undefined;
   autoIncrement: boolean;

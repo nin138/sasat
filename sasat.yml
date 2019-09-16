@@ -1,6 +1,7 @@
 migration:
   dir: test/migrations
   table: __migration__
+  out: test/out
 
 db:
   host: $DB_HOST

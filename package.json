@@ -9,6 +9,9 @@
   "files": [
     "lib"
   ],
+  "bin": {
+    "sasat": "lib/src/cli/cli.js"
+  },
   "scripts": {
     "start": "env-cmd .env ts-node ./index.ts",
     "prebuild": "rm -rf ./lib",
@@ -20,15 +23,20 @@
     "test": "env-cmd jest --coverage --silent=false --verbose false",
     "redis": "docker-compose exec redis redis-cli",
     "resetdb": "docker-compose exec db sh -c \"mysql -u root < /docker-entrypoint-initdb.d/temp.sql\"",
-    "prepublish": "yarn build"
+    "prepublish": "yarn build",
+    "sasat": "yarn env-cmd ts-node ./src/cli/cli.ts"
   },
   "dependencies": {
+    "cac": "^6.5.3",
+    "chalk": "^2.4.2",
     "js-yaml": "^3.13.1",
     "mariadb": "^2.1.0",
     "redis": "^2.8.0",
-    "sqlstring": "^2.3.1"
+    "sqlstring": "^2.3.1",
+    "fs-extra": "^8.1.0"
   },
   "devDependencies": {
+    "@types/fs-extra": "^8.0.0",
     "@types/jest": "23.3.14",
     "@types/js-yaml": "3.12.1",
     "@types/node": "12.7.4",
