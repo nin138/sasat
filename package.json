@@ -27,8 +27,6 @@
     "sasat": "yarn env-cmd ts-node ./src/cli/cli.ts"
   },
   "dependencies": {
-    "cac": "^6.5.3",
-    "chalk": "^2.4.2",
     "js-yaml": "^3.13.1",
     "mariadb": "^2.1.0",
     "redis": "^2.8.0",
@@ -42,6 +40,8 @@
     "@types/node": "12.7.4",
     "@types/redis": "2.8.13",
     "@types/sqlstring": "2.2.1",
+    "cac": "^6.5.3",
+    "chalk": "^2.4.2",
     "env-cmd": "9.0.3",
     "husky": "^3.0.5",
     "jest": "24.9.0",

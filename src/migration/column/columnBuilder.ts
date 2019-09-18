@@ -45,7 +45,7 @@ export abstract class ColumnBuilder {
     this._default = value;
     return this;
   }
-  build(): AllColumnInfo {
+  build(): AllColumnInfo & { primary: boolean } {
     return {
       columnName: this.name,
       type: this.type,

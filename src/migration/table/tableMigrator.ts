@@ -6,7 +6,10 @@ import { TableBase } from "./tableBase";
 import { TableBuilder } from "./tableBuilder";
 export class TableMigrator extends TableBase {
   static fromTableBuilder(store: DataStoreMigrator, table: TableBuilder): TableMigrator {
-    return Object.assign(Object.create(this.prototype), table, { store });
+    const result: TableMigrator = Object.assign(Object.create(this.prototype), table, { store });
+    if (result.primaryKey.length === 0)
+      result.primaryKey = table.columns.filter(it => it.build().primary).map(it => it.name);
+    return result;
   }
 
   constructor(private store: DataStoreMigrator, tableName: string) {

@@ -86,7 +86,6 @@ export interface AllColumnInfo {
   type: SasatColumnTypes;
   length: number | undefined;
   scale: number | undefined;
-  primary: boolean;
   notNull: boolean | undefined;
   unique: boolean;
   zerofill: boolean;

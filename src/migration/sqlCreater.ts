@@ -5,7 +5,7 @@ import { Index } from "../types";
 import { SasatColumnTypes } from "./column/columnTypes";
 
 export const columnToSql = (column: AllColumnInfo) => {
-  // TODO impl type ID and boolean
+  // TODO impl type boolean
   const structure = [column.columnName, column.type];
   if (column.length) structure.push(`(${[column.length, column.scale].filter(it => it !== undefined).join(",")})`);
   if (column.signed === true) structure.push("SIGNED");
@@ -14,7 +14,6 @@ export const columnToSql = (column: AllColumnInfo) => {
   if (column.autoIncrement) structure.push("AUTO_INCREMENT");
   if (column.notNull === true) structure.push("NOT NULL");
   else if (column.notNull === false) structure.push("NULL");
-  if (column.primary) structure.push("PRIMARY KEY");
   if (column.unique) structure.push("UNIQUE");
   if (
     (column.type === SasatColumnTypes.timestamp || column.type === SasatColumnTypes.dateTime) &&
@@ -45,7 +44,7 @@ export const addColumn = (tableName: string, column: AllColumnInfo) =>
   `ALTER TABLE ${tableName} ADD COLUMN ${columnToSql(column)}`;
 
 export const addUniqueKey = (tableName: string, columns: string[]) =>
-  `ALTER TABLE ${tableName} ADD UNIQEU ${columns.join("__")}(${columns.join(",")})`;
+  `ALTER TABLE ${tableName} ADD UNIQUE ${columns.join("__")}(${columns.join(",")})`;
 
 export const addPrimaryKey = (tableName: string, columns: string[]) =>
   `ALTER TABLE ${tableName} ADD PRIMARY KEY ${columns.join("__")}(${columns.join(",")})`;

@@ -7,7 +7,7 @@ import { getEntityName } from "../entity/entity";
 
 const createRepositoryString = (table: TableInfo) => {
   const entity = getEntityName(table);
-  const pKeys = table.primaryKey ? `\n    ${table.primaryKey.join("\n    ")}` : "";
+  const pKeys = table.primaryKey ? `\n    ${table.primaryKey.map(it => `'${it}'`).join("\n    ")}` : "";
   return `import { Repository } from 'sasat';
 import { ${entity}, Creatable${entity} } from '../entity/${table.tableName}';
 export class ${entity}Repository extends Repository<${entity}, Creatable${entity}> {

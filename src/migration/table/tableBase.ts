@@ -6,9 +6,9 @@ import { TableInfo } from "./tableInfo";
 
 export abstract class TableBase {
   readonly indexes: Index[] = [];
-  protected columns: ColumnBuilder[] = [];
+  readonly columns: ColumnBuilder[] = [];
   protected foreignKeys: ForeignKey[] = [];
-  protected primaryKey: string[] | undefined;
+  protected primaryKey: string[] = [];
   protected uniqueKeys: string[][] = [];
 
   protected constructor(readonly tableName: string) {}
