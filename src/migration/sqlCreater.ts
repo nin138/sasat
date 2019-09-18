@@ -2,6 +2,7 @@ import { AllColumnInfo } from "../types/column";
 import * as SqlString from "sqlstring";
 import { ForeignKey } from "../types/foreignKey";
 import { Index } from "../types";
+import { SasatColumnTypes } from "./column/columnTypes";
 
 export const columnToSql = (column: AllColumnInfo) => {
   // TODO impl type ID and boolean
@@ -15,7 +16,12 @@ export const columnToSql = (column: AllColumnInfo) => {
   else if (column.notNull === false) structure.push("NULL");
   if (column.primary) structure.push("PRIMARY KEY");
   if (column.unique) structure.push("UNIQUE");
-  if (column.default !== undefined) structure.push("DEFAULT " + SqlString.escape(column.default));
+  if (
+    (column.type === SasatColumnTypes.timestamp || column.type === SasatColumnTypes.dateTime) &&
+    column.default === "CURRENT_TIMESTAMP"
+  )
+    structure.push("DEFAULT CURRENT_TIMESTAMP");
+  else if (column.default !== undefined) structure.push("DEFAULT " + SqlString.escape(column.default));
   if (column.onUpdateCurrentTimeStamp) structure.push("ON UPDATE CURRENT_TIMESTAMP");
   return structure.join(" ");
 };

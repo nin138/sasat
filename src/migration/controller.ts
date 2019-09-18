@@ -6,7 +6,8 @@ import { DataStoreMigrator } from "./dataStore";
 import * as ts from "typescript";
 import { Console } from "../cli/console";
 import { SQLClient } from "../db/dbClient";
-import { writeYmlFile } from "../util";
+
+import { generate } from "../generator";
 export class MigrationController {
   private static async getCurrentMigration(): Promise<string | undefined> {
     const client = getDbClient();
@@ -32,7 +33,7 @@ export class MigrationController {
       store.reset();
       if (fileName === currentMigration) execMigrate = true;
     }
-    writeYmlFile(config.migration.out, "current_schema.yml", store.serialize());
+    await generate(store.serialize());
     return files.pop()!;
   }
 
@@ -46,8 +47,8 @@ export class MigrationController {
       );
       await transaction.commit();
     } catch (e) {
-      transaction.rollback();
       Console.error(e.message);
+      await transaction.rollback();
     }
     store.reset();
   }

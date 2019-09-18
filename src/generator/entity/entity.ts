@@ -1,13 +1,41 @@
 import { TableInfo } from "../../migration/table/tableInfo";
 import { columnTypeToTsType } from "../../migration/column/columnTypes";
-import { capitalizeFirstLetter } from "../../util";
+import { capitalizeFirstLetter, mkDirIfNotExists } from "../../util";
+import { AllColumnInfo } from "../../types/column";
+import * as path from "path";
+import { config } from "../../config/config";
+import { emptyDir, writeFile } from "fs-extra";
 
-export const genEntityString = (table: TableInfo): string => {
+const getColumnTsType = (column: AllColumnInfo) =>
+  `${columnTypeToTsType(column.type)}${column.notNull === false ? " | null" : ""}`;
+
+export const getEntityName = (table: TableInfo) => capitalizeFirstLetter(table.tableName);
+
+const createEntityString = (table: TableInfo): string => {
+  const fields = table.columns.map(column => `  ${column.columnName}: ${getColumnTsType(column)};`).join("\n");
+  return `export interface ${getEntityName(table)} extends Creatable${getEntityName(table)} {\n` + fields + "\n}";
+};
+
+const createCreatableEntityString = (table: TableInfo): string => {
+  const isRequired = (column: AllColumnInfo) =>
+    !(column.default !== undefined || column.autoIncrement || column.notNull === false);
+
   const fields = table.columns
-    .map(
-      column =>
-        `  ${column.columnName}: ${columnTypeToTsType(column.type)}${column.notNull === false ? " | null" : ""};`,
-    )
+    .map(column => `  ${column.columnName}${isRequired(column) ? "" : "?"}: ${getColumnTsType(column)};`)
     .join("\n");
-  return `export interface ${capitalizeFirstLetter(table.tableName)}\n` + fields + "\n}";
+  return `export interface Creatable${getEntityName(table)} {\n` + fields + "\n}";
+};
+
+export const writeEntityFiles = async (tables: TableInfo[]) => {
+  const outDir = path.join(config.migration.out, "entity");
+  mkDirIfNotExists(outDir);
+  await emptyDir(outDir);
+  return await Promise.all(
+    tables.map(table =>
+      writeFile(
+        path.join(outDir, table.tableName + ".ts"),
+        createEntityString(table) + "\n\n" + createCreatableEntityString(table),
+      ),
+    ),
+  );
 };

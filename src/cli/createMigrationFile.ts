@@ -15,8 +15,8 @@ export const createMigrationFile = (migrationName: string) => {
     pad(date.getMinutes()) +
     pad(date.getSeconds());
   const fileName = now + migrationName;
-
   fs.writeFileSync(join(config.migration.dir, fileName) + ".ts", getMigrationFile(migrationName));
+  return fileName;
 };
 
 const getMigrationFile = (className: string) =>

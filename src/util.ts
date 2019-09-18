@@ -4,8 +4,12 @@ import { join } from "path";
 
 export const readYmlFile = (filepath: string) => yaml.safeLoad(fs.readFileSync(filepath, "utf8"));
 
-export const writeYmlFile = (path: string, fileName: string, obj: any) => {
+export const mkDirIfNotExists = (path: string) => {
   if (!fs.pathExistsSync(path)) fs.mkdirpSync(path);
+};
+
+export const writeYmlFile = (path: string, fileName: string, obj: any) => {
+  mkDirIfNotExists(path);
   fs.writeFileSync(join(path, fileName), yaml.safeDump(obj, { skipInvalid: true }));
 };
 

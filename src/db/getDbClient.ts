@@ -1,6 +1,10 @@
 import { MariaDBClient } from "./mariaDBClient";
 import { config } from "../config/config";
+import { SQLClient } from "./dbClient";
 
-const client = new MariaDBClient(config.db);
+let client: SQLClient | undefined;
 
-export const getDbClient = () => client;
+export const getDbClient = () => {
+  if (!client) client = new MariaDBClient(config.db);
+  return client;
+};

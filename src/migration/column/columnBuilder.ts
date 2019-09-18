@@ -161,6 +161,9 @@ export class TimeStampColumnBuilder extends ColumnBuilder {
     this._default = value;
     return this;
   }
+  defaultCurrentTimeStamp(): this {
+    return this.default("CURRENT_TIMESTAMP");
+  }
   onUpdateCurrentTimeStamp(): this {
     this._onUpdateCurrentTimeStamp = true;
     return this;
