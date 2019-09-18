@@ -11,7 +11,7 @@ const createRepositoryString = (table: TableInfo) => {
   return `import { Repository } from 'sasat';
 import { ${entity}, Creatable${entity} } from '../entity/${table.tableName}';
 export class ${entity}Repository extends Repository<${entity}, Creatable${entity}> {
-  readonly tableName = '${table.tableName}';
+  protected tableName = '${table.tableName}';
   protected primaryKeys: string[] = [${pKeys}
   ];
 }

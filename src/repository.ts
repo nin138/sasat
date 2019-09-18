@@ -54,20 +54,3 @@ export abstract class Repository<Entity, Creatable> implements IRepository<Entit
     return this.primaryKeys.map(it => `${it} = ${SQLClient.escape((entity as any)[it])}`).join(" AND ");
   }
 }
-
-interface User {
-  id: number;
-  name: string;
-  memo?: string;
-}
-
-interface CreatableUser {
-  id: number;
-  name: string;
-  memo?: string;
-}
-
-export class UserRepository extends Repository<User, CreatableUser> {
-  readonly tableName = "user";
-  protected primaryKeys: string[] = [];
-}
