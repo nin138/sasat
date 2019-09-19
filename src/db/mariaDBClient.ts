@@ -22,12 +22,6 @@ export class MariaDBClient extends DBClient {
     const connection = await this.pool.getConnection();
     await connection.beginTransaction();
     return new MariaDBTransaction(connection);
-    // return this.pool.getConnection()
-    //   .then(async con => {
-    //     const transaction = new MariaDBTransaction(con);
-    //     await transaction.init();
-    //     return transaction;
-    // });
   }
 
   release(): Promise<void> {
@@ -44,18 +38,14 @@ export class MariaDBTransaction extends SQLTransaction {
     super();
   }
 
-  init(): Promise<void> {
-    return this.connection.beginTransaction();
-  }
-
   commit(): Promise<void> {
     const result = this.connection.commit();
     this.connection.release();
     return result;
   }
 
-  rollback() {
-    const result = this.connection.rollback();
+  async rollback() {
+    const result = await this.connection.rollback();
     this.connection.release();
     return result;
   }

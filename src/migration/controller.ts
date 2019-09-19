@@ -74,7 +74,7 @@ export class MigrationController {
     const transaction = await getDbClient().transaction();
     try {
       for (const sql of sqls) await transaction.rawQuery(sql);
-      await transaction.query`insert into ${() => migrationTable} (name, direction) values (${[
+      await transaction.query`insert into aa${() => migrationTable} (name, direction) values (${[
         migrationName,
         direction,
       ]})`;
