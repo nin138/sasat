@@ -18,12 +18,16 @@ export class MariaDBClient extends DBClient {
     this.pool = maria.createPool(config);
   }
 
-  transaction(): Promise<SQLTransaction> {
-    return this.pool.getConnection().then(async con => {
-      const transaction = new MariaDBTransaction(con);
-      await transaction.init();
-      return transaction;
-    });
+  async transaction(): Promise<SQLTransaction> {
+    const connection = await this.pool.getConnection();
+    await connection.beginTransaction();
+    return new MariaDBTransaction(connection);
+    // return this.pool.getConnection()
+    //   .then(async con => {
+    //     const transaction = new MariaDBTransaction(con);
+    //     await transaction.init();
+    //     return transaction;
+    // });
   }
 
   release(): Promise<void> {
@@ -39,6 +43,7 @@ export class MariaDBTransaction extends SQLTransaction {
   constructor(private connection: maria.PoolConnection) {
     super();
   }
+
   init(): Promise<void> {
     return this.connection.beginTransaction();
   }

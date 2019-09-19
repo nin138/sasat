@@ -19,11 +19,11 @@ export abstract class SQLClient {
   }
 
   query(templateString: TemplateStringsArray, ...params: any[]): Promise<QueryResponse> {
-    return this.execSql(this.formatQuery(templateString, params)) as Promise<QueryResponse>;
+    return this.execSql(this.formatQuery(templateString, ...params)) as Promise<QueryResponse>;
   }
 
   command(templateString: TemplateStringsArray, ...params: any[]): Promise<CommandResponse> {
-    return this.execSql(this.formatQuery(templateString, params)) as Promise<CommandResponse>;
+    return this.execSql(this.formatQuery(templateString, ...params)) as Promise<CommandResponse>;
   }
 
   formatQuery(str: TemplateStringsArray, ...params: any[]): string {
