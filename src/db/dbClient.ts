@@ -1,13 +1,31 @@
 import * as SqlString from "sqlstring";
 export type QueryResponse = Array<{ [key: string]: string }>;
-export type CommandResponse = any;
+export interface CommandResponse {
+  insertId: number;
+  affectedRows: number;
+}
 
 export abstract class SQLClient {
   static escape(param: any): string {
     return SqlString.escape(param);
   }
-  abstract rawQuery(sql: string): Promise<QueryResponse | CommandResponse>;
-  abstract query(templateString: TemplateStringsArray, ...params: any[]): Promise<QueryResponse | CommandResponse>;
+
+  rawQuery(sql: string): Promise<QueryResponse> {
+    return this.execSql(sql) as Promise<QueryResponse>;
+  }
+
+  rawCommand(sql: string): Promise<CommandResponse> {
+    return this.execSql(sql) as Promise<CommandResponse>;
+  }
+
+  query(templateString: TemplateStringsArray, ...params: any[]): Promise<QueryResponse> {
+    return this.execSql(this.formatQuery(templateString, params)) as Promise<QueryResponse>;
+  }
+
+  command(templateString: TemplateStringsArray, ...params: any[]): Promise<CommandResponse> {
+    return this.execSql(this.formatQuery(templateString, params)) as Promise<CommandResponse>;
+  }
+
   formatQuery(str: TemplateStringsArray, ...params: any[]): string {
     let ret = str[0];
     for (let i = 0; i < params.length; i++) {
@@ -18,6 +36,7 @@ export abstract class SQLClient {
     }
     return ret;
   }
+  protected abstract execSql(sql: string): Promise<QueryResponse | CommandResponse>;
 }
 
 export abstract class SQLTransaction extends SQLClient {
