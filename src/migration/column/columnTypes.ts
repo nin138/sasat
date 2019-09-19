@@ -29,11 +29,7 @@ export type SasatIntegerTypes =
 
 export type SasatFloatingTypes = SasatColumnTypes.float | SasatColumnTypes.double;
 export type SasatNumberTypes = SasatIntegerTypes | SasatFloatingTypes | SasatColumnTypes.decimal;
-export type SasatDateTypes =
-  | SasatColumnTypes.time
-  | SasatColumnTypes.date
-  | SasatColumnTypes.dateTime
-  | SasatColumnTypes.year;
+export type SasatDateTypes = SasatColumnTypes.time | SasatColumnTypes.date | SasatColumnTypes.year;
 
 export const columnTypeToTsType = (type: SasatColumnTypes): string => {
   switch (type) {

@@ -56,7 +56,7 @@ export interface DecimalColumn extends ColumnBase {
 }
 
 export interface TimeStampColumn extends ColumnBase {
-  type: SasatColumnTypes.timestamp;
+  type: SasatColumnTypes.timestamp | SasatColumnTypes.dateTime;
   default: "CURRENT_TIMESTAMP" | string | null | undefined;
   onUpdateCurrentTimeStamp: boolean;
 }

@@ -31,7 +31,7 @@ export class ColumnCreator {
   year = () => this.create(new DateColumnBuilder(this.name, SasatColumnTypes.year));
   date = () => this.create(new DateColumnBuilder(this.name, SasatColumnTypes.date));
   time = () => this.create(new DateColumnBuilder(this.name, SasatColumnTypes.time));
-  dateTime = () => this.create(new DateColumnBuilder(this.name, SasatColumnTypes.dateTime));
+  dateTime = () => this.create(new TimeStampColumnBuilder(this.name, SasatColumnTypes.dateTime));
   timestamp = () => this.create(new TimeStampColumnBuilder(this.name, SasatColumnTypes.timestamp));
   boolean = () => this.create(new BooleanColumnBuilder(this.name));
 

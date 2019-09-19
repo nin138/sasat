@@ -154,7 +154,7 @@ export class DateColumnBuilder extends ColumnBuilder {
 }
 
 export class TimeStampColumnBuilder extends ColumnBuilder {
-  constructor(readonly name: string, protected type: SasatColumnTypes.timestamp) {
+  constructor(readonly name: string, protected type: SasatColumnTypes.timestamp | SasatColumnTypes.dateTime) {
     super(name, type);
   }
   default(value: "CURRENT_TIMESTAMP" | string | null | undefined): this {

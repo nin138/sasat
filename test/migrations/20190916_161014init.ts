@@ -4,7 +4,7 @@ export class Init implements SasatMigration {
   up: (store: DataStoreBuilder) => void = store => {
     store.createTable("t1", table => {
       table
-        .column("c")
+        .column("c1")
         .int()
         .autoIncrement()
         .unsigned()
