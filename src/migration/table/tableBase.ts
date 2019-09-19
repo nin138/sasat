@@ -1,6 +1,6 @@
 import { ColumnBuilder } from "../column/columnBuilder";
-import { Index } from "../../types";
-import { ForeignKey, ForeignKeyReferentialAction } from "../../types/foreignKey";
+import { Index } from "./index";
+import { ForeignKey, ForeignKeyReferentialAction } from "./foreignKey";
 import { columnToSql, foreignKeyToSql } from "../sqlCreater";
 import { TableInfo } from "./tableInfo";
 
@@ -16,7 +16,11 @@ export abstract class TableBase {
   serialize(): TableInfo {
     return {
       tableName: this.tableName,
-      columns: this.columns.map(it => it.build()),
+      columns: this.columns.map(it => {
+        const ret = it.build();
+        delete ret.primary;
+        return ret;
+      }),
       indexes: this.indexes,
       foreignKeys: this.foreignKeys,
       primaryKey: this.primaryKey,
@@ -73,7 +77,7 @@ export abstract class TableBase {
   showCreateTable(): string {
     const columns = this.columns.map(it => columnToSql(it.build()));
     const rows = [...columns];
-    if (this.primaryKey) rows.push(`PRIMARY KEY (${this.primaryKey.join(",")})`);
+    if (this.primaryKey.length !== 0) rows.push(`PRIMARY KEY (${this.primaryKey.join(",")})`);
     this.uniqueKeys.forEach(it => {
       if (this.uniqueKeys.length !== 0) rows.push(`UNIQUE KEY (${it.join(",")})`);
     });

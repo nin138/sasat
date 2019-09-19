@@ -12,12 +12,14 @@ export class MigrationController {
   private static async getCurrentMigration(): Promise<string | undefined> {
     const client = getDbClient();
     await client.rawQuery(
-      `CREATE TABLE IF NOT EXISTS ${config.migration.table} (id int auto_increment primary key , name varchar(100) unique not null, migrated_at timestamp default current_timestamp)`,
+      `CREATE TABLE IF NOT EXISTS ${
+        config().migration.table
+      } (id int auto_increment primary key , name varchar(100) unique not null, migrated_at timestamp default current_timestamp)`,
     );
-    const result = await client.rawQuery(`SELECT name FROM ${config.migration.table} ORDER BY id LIMIT 1`);
+    const result = await client.rawQuery(`SELECT name FROM ${config().migration.table} ORDER BY id LIMIT 1`);
     return result.length ? result[0].name : undefined;
   }
-  private migrationDir = path.join(process.cwd(), config.migration.dir);
+  private migrationDir = path.join(process.cwd(), config().migration.dir);
 
   async migrate(): Promise<string> {
     const currentMigration = await MigrationController.getCurrentMigration();
@@ -43,7 +45,7 @@ export class MigrationController {
     try {
       for (const sql of sqls) await transaction.rawQuery(sql);
       await transaction.rawQuery(
-        `insert into ${config.migration.table}(name) values (${SQLClient.escape(migrationName)})`,
+        `insert into ${config().migration.table}(name) values (${SQLClient.escape(migrationName)})`,
       );
       await transaction.commit();
     } catch (e) {

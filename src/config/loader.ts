@@ -1,7 +1,7 @@
 import * as path from "path";
 import * as fs from "fs";
 import { SasatRedisCacheType } from "../sasat/redisCacheConf";
-import { SasatConfig, SasatConfigDb, SasatConfigMigration, SasatConfigRedis } from "./config";
+import { defaultConf, SasatConfig } from "./config";
 import { readYmlFile } from "../util";
 
 // TODO refactoring and default value
@@ -13,48 +13,36 @@ export class SasatConfigLoader {
     return readYmlFile(filepath);
   }
 
-  readonly db: SasatConfigDb;
-  readonly redis: SasatConfigRedis;
-  readonly initCaches: SasatRedisCacheType[];
-  readonly migration: SasatConfigMigration;
+  readonly conf: SasatConfig;
 
   constructor() {
     const obj = SasatConfigLoader.loadFile();
-    this.db = (this.readDBConf(obj.db) as unknown) as any;
-    this.redis = (this.readRedisConf(obj.redis) as unknown) as any;
-    this.initCaches = this.readCacheConf(obj.cache);
-    this.migration = this.readMigrationConfig(obj.migration);
+    this.conf = {
+      db: this.readConf(defaultConf.db, obj.db),
+      redis: this.readConf(defaultConf.redis, obj.redis),
+      migration: this.readConf(defaultConf.migration, obj.migration),
+      initCaches: this.readCacheConf(obj.cache),
+    };
   }
 
   getConfig(): SasatConfig {
+    return this.conf;
+  }
+
+  private readConf(def: any, conf: { [key: string]: any }): any {
     return {
-      db: this.db,
-      redis: this.redis,
-      initCaches: this.initCaches,
-      migration: this.migration,
+      ...def,
+      ...this.readObj(conf),
     };
   }
 
-  private readDBConf(conf: { [key: string]: string }) {
-    return {
-      host: this.readValue(conf.host),
-      port: this.readValue(conf.port),
-      user: this.readValue(conf.user),
-      password: this.readValue(conf.password),
-      database: this.readValue(conf.database),
-      connectionLimit: this.readValue(conf.connectionLimit),
-    };
-  }
-
-  private readRedisConf(conf: { [key: string]: string }) {
-    return {
-      host: this.readValue(conf.host),
-      port: this.readValue(conf.port),
-      password: this.readValue(conf.password),
-    };
+  private readObj(obj: { [key: string]: any }) {
+    for (const key in obj) obj[key] = this.readValue(obj[key]);
+    return obj;
   }
 
   private readCacheConf(conf: { [key: string]: any }): SasatRedisCacheType[] {
+    if (typeof conf !== "object") return [];
     return Object.entries(conf).map(([key, value]: any, index) => {
       return {
         name: key,
@@ -66,13 +54,14 @@ export class SasatConfigLoader {
     });
   }
 
-  private readValue(value: any) {
+  private readValue(value: any): any {
     if (!value) return value;
+    if (Array.isArray(value)) return value.map(it => this.readValue(it));
     if (typeof value === "string" && value.startsWith("$")) return process.env[value.slice(1)];
+    if (typeof value === "object") {
+      for (const key in value) value[key] = this.readValue(value[key]);
+      return value;
+    }
     return value;
-  }
-
-  private readMigrationConfig(conf: { [key: string]: string }): SasatConfigMigration {
-    return conf as any;
   }
 }

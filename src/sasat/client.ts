@@ -20,7 +20,7 @@ export class SasatClient {
   readonly cacheConf: { [name: string]: SasatRedisCacheType } = {};
   readonly db: DBClient;
   readonly redis: RedisClient;
-  private readonly config = config;
+  private readonly config = config();
   constructor() {
     this.db = getDbClient();
     this.redis = new RedisClient(this.config.redis.host, this.config.redis.port, this.config.redis.password);

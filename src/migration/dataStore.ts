@@ -21,9 +21,10 @@ export class DataStoreMigrator extends DataStoreBuilder {
   }
 
   createTable(tableName: string, tableCreator: (table: TableBuilder) => void): DataStoreBuilder {
-    const table = new TableBuilder(tableName);
-    tableCreator(table);
-    this.tables.push(TableMigrator.fromTableBuilder(this, table));
+    const tmp = new TableBuilder(tableName);
+    tableCreator(tmp);
+    const table = TableMigrator.fromTableBuilder(this, tmp);
+    this.tables.push(table);
     this.migrationQueue.push(table.showCreateTable());
     this.migrationQueue.push(...table.indexes.map(it => addIndex(table.tableName, it)));
     return this;

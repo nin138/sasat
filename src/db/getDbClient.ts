@@ -5,6 +5,6 @@ import { DBClient } from "./dbClient";
 let client: DBClient | undefined;
 
 export const getDbClient = () => {
-  if (!client) client = new MariaDBClient(config.db);
+  if (!client) client = new MariaDBClient(config().db);
   return client;
 };

@@ -1,6 +1,6 @@
-import { AllColumnInfo } from "../../types/column";
-import { Index } from "../../types";
-import { ForeignKey } from "../../types/foreignKey";
+import { AllColumnInfo } from "../column/column";
+import { Index } from "./index";
+import { ForeignKey } from "./foreignKey";
 
 export interface TableInfo {
   tableName: string;

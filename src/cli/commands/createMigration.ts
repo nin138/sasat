@@ -1,7 +1,21 @@
+import { Console } from "../console";
 import * as fs from "fs";
 import { join } from "path";
-import { config } from "../config/config";
-import { capitalizeFirstLetter } from "../util";
+import { config } from "../../config/config";
+import { capitalizeFirstLetter } from "../../util";
+
+export const createMigration = (args: any) => {
+  if (!args) {
+    Console.error("missing argument migration name");
+    return;
+  }
+  if (!/^[$A-Za-z_][0-9A-Za-z_]+$/.test(args)) {
+    Console.error("migration name should be match /^[$A-Za-z_][0-9A-Za-z_]+$/");
+    return;
+  }
+  Console.success(createMigrationFile(args) + " Successfully created");
+  return;
+};
 
 export const createMigrationFile = (migrationName: string) => {
   const date = new Date();
@@ -15,7 +29,7 @@ export const createMigrationFile = (migrationName: string) => {
     pad(date.getMinutes()) +
     pad(date.getSeconds());
   const fileName = now + migrationName;
-  fs.writeFileSync(join(config.migration.dir, fileName) + ".ts", getMigrationFile(migrationName));
+  fs.writeFileSync(join(config().migration.dir, fileName) + ".ts", getMigrationFile(migrationName));
   return fileName;
 };
 

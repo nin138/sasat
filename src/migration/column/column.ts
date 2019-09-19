@@ -5,7 +5,7 @@ import {
   SasatIntegerTypes,
   SasatStringTypes,
   SasatTextTypes,
-} from "../migration/column/columnTypes";
+} from "./columnTypes";
 
 interface ColumnBase {
   columnName: string;

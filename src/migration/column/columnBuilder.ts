@@ -7,7 +7,7 @@ import {
   SasatStringTypes,
   SasatTextTypes,
 } from "./columnTypes";
-import { AllColumnInfo } from "../../types/column";
+import { AllColumnInfo } from "./column";
 
 export abstract class ColumnBuilder {
   protected _primary = false;

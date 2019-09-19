@@ -1,8 +1,8 @@
-import { AllColumnInfo } from "../types/column";
 import * as SqlString from "sqlstring";
-import { ForeignKey } from "../types/foreignKey";
-import { Index } from "../types";
 import { SasatColumnTypes } from "./column/columnTypes";
+import { AllColumnInfo } from "./column/column";
+import { Index } from "./table";
+import { ForeignKey } from "./table/foreignKey";
 
 export const columnToSql = (column: AllColumnInfo) => {
   // TODO impl type boolean

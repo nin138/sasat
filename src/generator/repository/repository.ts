@@ -19,7 +19,7 @@ export class ${entity}Repository extends Repository<${entity}, Creatable${entity
 };
 
 export const writeRepositoryFiles = async (tables: TableInfo[]) => {
-  const outDir = path.join(config.migration.out, "repository");
+  const outDir = path.join(config().migration.out, "repository");
   mkDirIfNotExists(outDir);
   await emptyDir(outDir);
   return await Promise.all(

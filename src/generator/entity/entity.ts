@@ -1,10 +1,10 @@
 import { TableInfo } from "../../migration/table/tableInfo";
 import { columnTypeToTsType } from "../../migration/column/columnTypes";
 import { capitalizeFirstLetter, mkDirIfNotExists } from "../../util";
-import { AllColumnInfo } from "../../types/column";
 import * as path from "path";
 import { config } from "../../config/config";
 import { emptyDir, writeFile } from "fs-extra";
+import { AllColumnInfo } from "../../migration/column/column";
 
 const getColumnTsType = (column: AllColumnInfo) =>
   `${columnTypeToTsType(column.type)}${column.notNull === false ? " | null" : ""}`;
@@ -27,7 +27,7 @@ const createCreatableEntityString = (table: TableInfo): string => {
 };
 
 export const writeEntityFiles = async (tables: TableInfo[]) => {
-  const outDir = path.join(config.migration.out, "entity");
+  const outDir = path.join(config().migration.out, "entity");
   mkDirIfNotExists(outDir);
   await emptyDir(outDir);
   return await Promise.all(
