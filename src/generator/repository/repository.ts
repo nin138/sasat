@@ -20,7 +20,7 @@ const findByUnique = (table: TableInfo, keys: string[]) => {
     .join(', ');
   const returns = `: Promise<${getEntityName(table)} | undefined>`;
   const lines = [
-    'const result = this.findBy({',
+    'const result = await this.findBy({',
     ...keys.map(it => `  ${it},`),
     '});',
     'if (result.length === 0) return;',
