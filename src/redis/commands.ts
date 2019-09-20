@@ -10,11 +10,14 @@ import REMReply = Redis.REMReply;
 import ZADDReply = Redis.ZADDReply;
 import HSETReply = Redis.HSETReply;
 
+/*eslint @typescript-eslint/no-explicit-any: 0*/
+
 export abstract class Commands {
   abstract readonly client: redis.RedisClient | redis.Multi;
   private readonly WITHSOCORES = 'WITHSOCORES';
 
   select(db: number): Promise<OK> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return this.promisify((cb: any) => this.client.select(db, cb));
   }
 

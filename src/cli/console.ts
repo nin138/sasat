@@ -7,6 +7,7 @@ export const Console = {
   error: (msg: string) => {
     console.error(chalk.bold.red(msg));
   },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   log: (msg: any) => {
     console.log(msg);
   },

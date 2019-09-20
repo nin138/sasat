@@ -6,6 +6,7 @@ import {
   SasatStringTypes,
   SasatTextTypes,
 } from './columnTypes';
+import { SqlValueType } from '../../db/dbClient';
 
 interface ColumnBase {
   columnName: string;
@@ -13,7 +14,7 @@ interface ColumnBase {
   notNull: boolean;
   unique: boolean;
   primary: boolean;
-  default: any;
+  default: SqlValueType | undefined | null;
 }
 
 export interface StringColumn extends ColumnBase {
@@ -91,6 +92,6 @@ export interface AllColumnInfo {
   zerofill: boolean;
   signed: boolean | undefined;
   autoIncrement: boolean;
-  default: any;
+  default: SqlValueType | undefined;
   onUpdateCurrentTimeStamp: boolean;
 }

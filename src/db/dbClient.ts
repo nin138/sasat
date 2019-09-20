@@ -5,7 +5,7 @@ export interface CommandResponse {
   affectedRows: number;
 }
 
-export type SqlValueType = string | number | Date;
+export type SqlValueType = string | number | Date | boolean | null;
 
 export abstract class SQLClient {
   static escape(param: SqlValueType): string {
@@ -35,7 +35,7 @@ export abstract class SQLClient {
     let ret = str[0];
     for (let i = 0; i < params.length; i++) {
       if (typeof params[i] === 'function') ret += params[i]();
-      else if (Array.isArray(params[i])) ret += params[i].map((it: any) => SQLClient.escape(it)).join(', ');
+      else if (Array.isArray(params[i])) ret += params[i].map((it: SqlValueType) => SQLClient.escape(it)).join(', ');
       else ret += SQLClient.escape(params[i]);
       ret += str[i + 1];
     }

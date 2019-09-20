@@ -4,7 +4,7 @@ import { promisify } from 'util';
 import { MySqlTransaction } from './transaction';
 import { config } from '../../config/config';
 
-export class MysqlDBClient extends DBClient {
+export class MysqlClient extends DBClient {
   private readonly pool: mysql.Pool;
   constructor() {
     super();
@@ -23,6 +23,6 @@ export class MysqlDBClient extends DBClient {
   }
 
   protected execSql(sql: string): Promise<QueryResponse | CommandResponse> {
-    return promisify(this.pool.query).bind(this.pool)(sql) as any;
+    return promisify(this.pool.query).bind(this.pool)(sql) as Promise<QueryResponse | CommandResponse>;
   }
 }

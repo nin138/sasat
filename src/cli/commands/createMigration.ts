@@ -32,7 +32,7 @@ export const createMigrationFile = (migrationName: string) => {
   return fileName;
 };
 
-export const createMigration = (args: any) => {
+export const createMigration = (args: string) => {
   if (!args) {
     Console.error('missing argument migration name');
     return;

@@ -14,8 +14,9 @@ import { config } from '../config/config';
 type Key = string | number;
 
 export class SasatClient {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private static flatFV(values: { [key: string]: any }) {
-    return Object.entries(values).reduce((prev: any[], cur: any[]) => [...cur, ...prev], []);
+    return Object.entries(values).reduce((prev: Array<string>, cur: Array<string>) => [...cur, ...prev], []);
   }
   readonly cacheConf: { [name: string]: SasatRedisCacheType } = {};
   readonly db: DBClient;
@@ -137,10 +138,10 @@ export class SasatClient {
   private insertToDb(
     transaction: SQLTransaction,
     table: string,
-    valueMap: { [key: string]: any },
+    valueMap: { [key: string]: string | number },
   ): Promise<CommandResponse> {
     const columns: string[] = [];
-    const values: any[] = [];
+    const values: Array<string | number> = [];
     Object.entries(valueMap).map(([k, v]) => {
       columns.push(k);
       values.push(SQLClient.escape(v));

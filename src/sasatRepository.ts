@@ -6,7 +6,7 @@ interface Repository<Entity, Creatable> {
   list(): Promise<Entity[]>;
   update(entity: Entity): Promise<CommandResponse>;
   delete(entity: Entity): Promise<CommandResponse>;
-  findBy(map: { [column: string]: any }): Promise<Entity[]>;
+  findBy(map: { [column: string]: SqlValueType }): Promise<Entity[]>;
 }
 
 export abstract class SasatRepository<Entity, Creatable> implements Repository<Entity, Creatable> {
@@ -25,7 +25,7 @@ export abstract class SasatRepository<Entity, Creatable> implements Repository<E
     );
   }
 
-  async findBy(where: { [p: string]: any }): Promise<Entity[]> {
+  async findBy(where: { [key: string]: SqlValueType }): Promise<Entity[]> {
     const condition = this.objToSql(where).join(' AND ');
     const result = await this.client.rawQuery(`SELECT * FROM ${this.getTableName()} WHERE ${condition}`);
     return result.map(it => this.resultToEntity(it));
@@ -37,6 +37,7 @@ export abstract class SasatRepository<Entity, Creatable> implements Repository<E
   }
 
   update(entity: Entity) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const values = this.objToSql(entity as any).join(', ');
     return this.client.rawCommand(
       `UPDATE ${this.getTableName()} SET ${values} WHERE ${this.getWhereClauseIdentifiedByPrimaryKey(entity)}`,
@@ -56,6 +57,7 @@ export abstract class SasatRepository<Entity, Creatable> implements Repository<E
   }
 
   private getWhereClauseIdentifiedByPrimaryKey(entity: Entity) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return this.primaryKeys.map(it => `${it} = ${SQLClient.escape((entity as any)[it])}`).join(' AND ');
   }
 }

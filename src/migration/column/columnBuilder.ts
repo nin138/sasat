@@ -8,6 +8,7 @@ import {
   SasatTextTypes,
 } from './columnTypes';
 import { AllColumnInfo } from './column';
+import { SqlValueType } from '../../db/dbClient';
 
 export abstract class ColumnBuilder {
   protected _primary = false;
@@ -16,7 +17,7 @@ export abstract class ColumnBuilder {
   protected _zerofill = false;
   protected _signed: boolean | undefined;
   protected _autoIncrement = false;
-  protected _default: number | string | boolean | null | undefined;
+  protected _default: SqlValueType | undefined;
   protected _onUpdateCurrentTimeStamp = false;
   protected constructor(
     readonly name: string,
@@ -41,7 +42,7 @@ export abstract class ColumnBuilder {
     this._unique = true;
     return this;
   }
-  default(value: any): this {
+  default(value: SqlValueType | undefined): this {
     this._default = value;
     return this;
   }

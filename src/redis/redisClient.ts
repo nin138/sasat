@@ -18,6 +18,7 @@ export class Multi extends Commands {
   discard(): Promise<OK> {
     return this.promisify(cb => this.client.discard(cb));
   }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   exec(): Promise<any[]> {
     return this.promisify(cb => this.client.exec(cb));
   }

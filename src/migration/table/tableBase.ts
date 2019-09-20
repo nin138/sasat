@@ -42,6 +42,8 @@ export abstract class TableBase {
     columnNames.forEach(it => {
       if (!this.isColumnExists(it)) throw new Error(`${this.tableName}.${it} does not exists`);
     });
+    if (columnNames.length === 0) return this;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     if (columnNames.length === 1) this.columns.find(it => it.name === columnNames[0])!.unique();
     else this.uniqueKeys.push(columnNames);
     return this;
@@ -55,7 +57,7 @@ export abstract class TableBase {
     return this;
   }
 
-  addforeignKey(
+  addForeignKey(
     constraintName: string,
     columnName: string,
     referenceTable: string,

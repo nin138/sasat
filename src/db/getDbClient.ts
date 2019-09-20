@@ -1,5 +1,5 @@
 import { DBClient } from './dbClient';
-import { MariaDBClient } from './mariaDBClient';
+import { MariaDBClient } from './mariadb/client';
 
 let client: DBClient | undefined;
 

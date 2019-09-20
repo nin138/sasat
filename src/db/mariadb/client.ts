@@ -1,9 +1,9 @@
-import { CommandResponse, DBClient, QueryResponse, SQLTransaction } from './dbClient';
+import { CommandResponse, DBClient, QueryResponse, SQLTransaction } from '../dbClient';
 import * as maria from 'mariadb';
 import { config } from '../../config/config';
 import { MariaDBTransaction } from './transaction';
 
-export class Client extends DBClient {
+export class MariaDBClient extends DBClient {
   private readonly pool: maria.Pool;
   constructor() {
     super();
