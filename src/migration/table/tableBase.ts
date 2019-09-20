@@ -57,22 +57,8 @@ export abstract class TableBase {
     return this;
   }
 
-  addForeignKey(
-    constraintName: string,
-    columnName: string,
-    referenceTable: string,
-    referenceColumn: string,
-    onUpdate?: ForeignKeyReferentialAction,
-    onDelete?: ForeignKeyReferentialAction,
-  ): this {
-    this.foreignKeys.push({
-      constraintName,
-      columnName,
-      referenceTable,
-      referenceColumn,
-      onUpdate,
-      onDelete,
-    });
+  addForeignKey(constraint: ForeignKey): this {
+    this.foreignKeys.push(constraint);
     return this;
   }
 

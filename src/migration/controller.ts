@@ -37,7 +37,7 @@ export class MigrationController {
         '(id int auto_increment primary key , name varchar(100) unique not null,' +
         "direction enum('up', 'down') not null, migrated_at timestamp default current_timestamp)",
     );
-    const result = await client.rawQuery(`SELECT name, direction FROM ${migrationTable} ORDER BY id LIMIT 1`);
+    const result = await client.rawQuery(`SELECT name, direction FROM ${migrationTable} ORDER BY id DESC LIMIT 1`);
     if (!result.length) return;
     if (result[0].direction === Direction.Up) return result[0].name;
     const index = this.files.indexOf(result[0].name);

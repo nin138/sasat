@@ -7,6 +7,7 @@ export abstract class DataStoreBuilder {
   protected tables: TableMigrator[] = [];
 
   abstract createTable(tableName: string, tableCreator: (table: TableBuilder) => void): DataStoreBuilder;
+  abstract dropTable(tableName: string): void;
 
   table(tableName: string): TableMigrator | undefined {
     return this.tables.find(it => it.tableName === tableName);
@@ -28,6 +29,10 @@ export class DataStoreMigrator extends DataStoreBuilder {
     this.migrationQueue.push(table.showCreateTable());
     this.migrationQueue.push(...table.indexes.map(it => addIndex(table.tableName, it)));
     return this;
+  }
+
+  dropTable(tableName: string) {
+    this.migrationQueue.push(`DROP TABLE ${tableName}`);
   }
 
   getSql() {

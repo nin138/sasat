@@ -9,8 +9,13 @@ const getMigrationFile = (className: string) =>
 import { DataStoreBuilder } from "sasat";
 
 export class ${capitalizeFirstLetter(className)} implements SasatMigration {
+  
   up: (store: DataStoreBuilder) => void = store => {
 
+  }
+  
+  down: (store: DataStoreBuilder) => void = store => {
+    throw new Error('Down is not implemented on ${className}');
   }
 }
 

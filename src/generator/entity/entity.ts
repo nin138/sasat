@@ -34,7 +34,7 @@ export const writeEntityFiles = async (tables: TableInfo[]) => {
     tables.map(table =>
       writeFile(
         path.join(outDir, table.tableName + '.ts'),
-        createEntityString(table) + '\n\n' + createCreatableEntityString(table),
+        createEntityString(table) + '\n\n' + createCreatableEntityString(table) + '\n',
       ),
     ),
   );
