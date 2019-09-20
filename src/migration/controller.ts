@@ -34,7 +34,7 @@ export class MigrationController {
     const client = getDbClient();
     await client.rawQuery(
       `CREATE TABLE IF NOT EXISTS ${migrationTable} ` +
-        '(id int auto_increment primary key , name varchar(100) unique not null,' +
+        '(id int auto_increment primary key , name varchar(100) not null,' +
         "direction enum('up', 'down') not null, migrated_at timestamp default current_timestamp)",
     );
     const result = await client.rawQuery(`SELECT name, direction FROM ${migrationTable} ORDER BY id DESC LIMIT 1`);
