@@ -1,4 +1,4 @@
-import { DataStoreBuilder } from "./dataStore";
+import { DataStoreBuilder } from './dataStore';
 
 export interface SasatMigration {
   up: (store: DataStoreBuilder) => void;

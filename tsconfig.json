@@ -63,5 +63,8 @@
     "./**/*.test.ts",
     "test",
     "lib"
+  ],
+  "include": [
+    "src/**/*.ts"
   ]
 }

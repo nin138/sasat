@@ -1,13 +1,13 @@
-import * as path from "path";
-import * as fs from "fs";
-import { SasatRedisCacheType } from "../sasat/redisCacheConf";
-import { defaultConf, SasatConfig } from "./config";
-import { readYmlFile } from "../util";
+import * as path from 'path';
+import * as fs from 'fs';
+import { SasatRedisCacheType } from '../sasat/redisCacheConf';
+import { defaultConf, SasatConfig } from './config';
+import { readYmlFile } from '../util';
 
 // TODO refactoring and default value
 export class SasatConfigLoader {
   private static loadFile() {
-    const fileName = "sasat.yml";
+    const fileName = 'sasat.yml';
     const filepath = path.join(process.cwd(), fileName);
     if (!fs.existsSync(filepath)) throw new Error(`${fileName} not Found in Project root folder`);
     return readYmlFile(filepath);
@@ -42,7 +42,7 @@ export class SasatConfigLoader {
   }
 
   private readCacheConf(conf: { [key: string]: any }): SasatRedisCacheType[] {
-    if (typeof conf !== "object") return [];
+    if (typeof conf !== 'object') return [];
     return Object.entries(conf).map(([key, value]: any, index) => {
       return {
         name: key,
@@ -57,8 +57,8 @@ export class SasatConfigLoader {
   private readValue(value: any): any {
     if (!value) return value;
     if (Array.isArray(value)) return value.map(it => this.readValue(it));
-    if (typeof value === "string" && value.startsWith("$")) return process.env[value.slice(1)];
-    if (typeof value === "object") {
+    if (typeof value === 'string' && value.startsWith('$')) return process.env[value.slice(1)];
+    if (typeof value === 'object') {
       for (const key in value) value[key] = this.readValue(value[key]);
       return value;
     }

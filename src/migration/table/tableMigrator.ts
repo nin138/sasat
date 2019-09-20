@@ -1,9 +1,9 @@
-import { DataStoreMigrator } from "../dataStore";
-import { ColumnBuilder } from "../column/columnBuilder";
-import { addColumn, addIndex, addPrimaryKey, addUniqueKey } from "../sqlCreater";
-import { ColumnCreator } from "../column/columnCreator";
-import { TableBase } from "./tableBase";
-import { TableBuilder } from "./tableBuilder";
+import { DataStoreMigrator } from '../dataStore';
+import { ColumnBuilder } from '../column/columnBuilder';
+import { addColumn, addIndex, addPrimaryKey, addUniqueKey } from '../sqlCreater';
+import { ColumnCreator } from '../column/columnCreator';
+import { TableBase } from './tableBase';
+import { TableBuilder } from './tableBuilder';
 export class TableMigrator extends TableBase {
   static fromTableBuilder(store: DataStoreMigrator, table: TableBuilder): TableMigrator {
     const result: TableMigrator = Object.assign(Object.create(this.prototype), table, { store });
@@ -24,7 +24,7 @@ export class TableMigrator extends TableBase {
   addColumn(name: string, createColumn: (c: ColumnCreator) => ColumnBuilder, after?: string): this {
     if (this.isColumnExists(name)) throw new Error(`${this.tableName}.${name} already exists`);
     const column = createColumn(new ColumnCreator(this, name, false));
-    const afterStatement = after ? ` AFTER ${after}` : "";
+    const afterStatement = after ? ` AFTER ${after}` : '';
     this.store.addMigrationQuery(addColumn(this.tableName, column.build()) + afterStatement);
     this.applyAddColumn(column, after);
     return this;

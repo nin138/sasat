@@ -1,8 +1,8 @@
-import { ColumnBuilder } from "../column/columnBuilder";
-import { Index } from "./index";
-import { ForeignKey, ForeignKeyReferentialAction } from "./foreignKey";
-import { columnToSql, foreignKeyToSql } from "../sqlCreater";
-import { TableInfo } from "./tableInfo";
+import { ColumnBuilder } from '../column/columnBuilder';
+import { Index } from './index';
+import { ForeignKey, ForeignKeyReferentialAction } from './foreignKey';
+import { columnToSql, foreignKeyToSql } from '../sqlCreater';
+import { TableInfo } from './tableInfo';
 
 export abstract class TableBase {
   readonly indexes: Index[] = [];
@@ -77,13 +77,13 @@ export abstract class TableBase {
   showCreateTable(): string {
     const columns = this.columns.map(it => columnToSql(it.build()));
     const rows = [...columns];
-    if (this.primaryKey.length !== 0) rows.push(`PRIMARY KEY (${this.primaryKey.join(",")})`);
+    if (this.primaryKey.length !== 0) rows.push(`PRIMARY KEY (${this.primaryKey.join(',')})`);
     this.uniqueKeys.forEach(it => {
-      if (this.uniqueKeys.length !== 0) rows.push(`UNIQUE KEY (${it.join(",")})`);
+      if (this.uniqueKeys.length !== 0) rows.push(`UNIQUE KEY (${it.join(',')})`);
     });
     if (this.foreignKeys.length !== 0) rows.push(...this.foreignKeys.map(it => foreignKeyToSql(it)));
 
-    return `CREATE TABLE ${this.tableName} ( ${rows.join(", ")} )`;
+    return `CREATE TABLE ${this.tableName} ( ${rows.join(', ')} )`;
   }
 
   protected isColumnExists(columnName: string): boolean {

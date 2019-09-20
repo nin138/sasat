@@ -1,25 +1,26 @@
-import { RedisClient as C, Multi as M } from "./redisClient";
+import { RedisClient as C, Multi as M } from './redisClient';
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Redis {
   export const Client = C;
   export const Multi = M;
   export enum Type {
-    String = "string",
-    Set = "set",
-    Zset = "zset",
-    List = "list",
-    Hash = "hash",
+    String = 'string',
+    Set = 'set',
+    Zset = 'zset',
+    List = 'list',
+    Hash = 'hash',
   }
 
   export enum Aggregate {
-    SUM = "SUM",
-    MIN = "MIN",
-    MAX = "MAX,",
+    SUM = 'SUM',
+    MIN = 'MIN',
+    MAX = 'MAX,',
   }
 
   export enum MINMAX {
-    MIN = "-inf",
-    MAX = "+inf ",
+    MIN = '-inf',
+    MAX = '+inf ',
   }
 
   export enum HSETReply {
@@ -47,5 +48,5 @@ export namespace Redis {
     NewElementIsAdded = 1,
   }
 
-  export type OK = "OK";
+  export type OK = 'OK';
 }

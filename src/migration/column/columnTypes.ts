@@ -1,21 +1,21 @@
 export enum SasatColumnTypes {
-  char = "char",
-  varchar = "varchar",
-  text = "text",
-  tinyInt = "tinyint",
-  smallInt = "smallint",
-  mediumInt = "mediumint",
-  int = "int",
-  bigInt = "bigint",
-  float = "float",
-  double = "double",
-  decimal = "decimal",
-  year = "year",
-  date = "date",
-  time = "time",
-  dateTime = "datetime",
-  timestamp = "timestamp",
-  boolean = "boolean",
+  char = 'char',
+  varchar = 'varchar',
+  text = 'text',
+  tinyInt = 'tinyint',
+  smallInt = 'smallint',
+  mediumInt = 'mediumint',
+  int = 'int',
+  bigInt = 'bigint',
+  float = 'float',
+  double = 'double',
+  decimal = 'decimal',
+  year = 'year',
+  date = 'date',
+  time = 'time',
+  dateTime = 'datetime',
+  timestamp = 'timestamp',
+  boolean = 'boolean',
 }
 
 export type SasatStringTypes = SasatColumnTypes.char | SasatColumnTypes.varchar;
@@ -42,17 +42,17 @@ export const columnTypeToTsType = (type: SasatColumnTypes): string => {
     case SasatColumnTypes.double:
     case SasatColumnTypes.decimal:
     case SasatColumnTypes.year:
-      return "number";
+      return 'number';
     case SasatColumnTypes.char:
     case SasatColumnTypes.varchar:
     case SasatColumnTypes.text:
     case SasatColumnTypes.time:
-      return "string";
+      return 'string';
     case SasatColumnTypes.date:
     case SasatColumnTypes.dateTime:
     case SasatColumnTypes.timestamp:
-      return "Date";
+      return 'Date';
     case SasatColumnTypes.boolean:
-      return "boolean";
+      return 'boolean';
   }
 };

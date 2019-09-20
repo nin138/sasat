@@ -1,15 +1,15 @@
-import { DBClient, SQLClient, SQLTransaction } from "../db/dbClient";
-import { RedisClient } from "../redis/redisClient";
+import { CommandResponse, DBClient, SQLClient, SQLTransaction } from '../db/dbClient';
+import { RedisClient } from '../redis/redisClient';
 
-import { initCache } from "./initCache";
+import { initCache } from './initCache';
 import {
   SasatRedisCacheConfHash,
   SasatRedisCacheConfJSONString,
   SasatRedisCacheConfString,
   SasatRedisCacheType,
-} from "./redisCacheConf";
-import { getDbClient } from "../db/getDbClient";
-import { config } from "../config/config";
+} from './redisCacheConf';
+import { getDbClient } from '../db/getDbClient';
+import { config } from '../config/config';
 
 type Key = string | number;
 
@@ -30,20 +30,20 @@ export class SasatClient {
     });
   }
 
-  init(): Promise<any> {
+  init(): Promise<void> {
     return initCache(this.db, this.redis, this.config.initCaches);
   }
 
-  getString(name: string, key: Key) {
+  getString(name: string, key: Key): Promise<string | null> {
     return this.redis.get(this.cacheConf[name].keyPrefix + key);
   }
 
-  setString(name: string, key: Key, value: any) {
+  setString(name: string, key: Key, value: string): Promise<'OK'> {
     const conf = this.cacheConf[name] as SasatRedisCacheConfString;
     return this.redis.set(conf.keyPrefix + key, value);
   }
 
-  updateString(name: string, key: Key, value: any) {
+  updateString(name: string, key: Key, value: string) {
     return this.db.transaction().then(async con => {
       const conf = this.cacheConf[name] as SasatRedisCacheConfString;
       const r = await con.rawQuery(
@@ -57,19 +57,20 @@ export class SasatClient {
     });
   }
 
-  getJSONString(name: string, key: Key): Promise<{ [key: string]: any } | null> {
+  getJSONString(name: string, key: Key): Promise<{ [key: string]: string } | null> {
     return this.redis.get(this.cacheConf[name].keyPrefix + key).then(it => (it ? JSON.parse(it) : null));
   }
 
-  setJSONString(name: string, key: Key, values: { [key: string]: any }) {
+  setJSONString(name: string, key: Key, values: { [key: string]: string | number }) {
     const conf = this.cacheConf[name] as SasatRedisCacheConfJSONString;
     return this.redis.set(conf.keyPrefix + key, JSON.stringify(values));
   }
 
-  insertJSONStringWithDb(name: string, values: { [key: string]: any }) {
+  insertJSONStringWithDb(name: string, values: { [key: string]: string | number }) {
     const conf = this.cacheConf[name] as SasatRedisCacheConfJSONString;
     return this.db.transaction().then(async con => {
       const r = await this.insertToDb(con, conf.table, values);
+      // eslint-disable-next-line require-atomic-updates
       if (conf.isKeyAutoIncrement) values[conf.key] = r.insertId;
       await this.redis.set(conf.keyPrefix + values[conf.key], JSON.stringify(values));
       await con.commit();
@@ -77,12 +78,12 @@ export class SasatClient {
     });
   }
 
-  updateJSONString(name: string, key: Key, values: { [key: string]: any }) {
+  updateJSONString(name: string, key: Key, values: { [key: string]: string }) {
     return this.db.transaction().then(async con => {
       const conf = this.cacheConf[name] as SasatRedisCacheConfJSONString;
       const columns = Object.entries(values)
         .map(([k, v]) => `${k} = ${SQLClient.escape(v)}`)
-        .join(",");
+        .join(',');
       const r = await con.rawQuery(`update ${conf.table} set ${columns} where ${conf.key} = ${SQLClient.escape(key)}`);
       await this.redis.set(conf.keyPrefix + key, JSON.stringify(values));
       await con.commit();
@@ -98,15 +99,16 @@ export class SasatClient {
     return this.redis.hgetall(this.cacheConf[name].keyPrefix + key);
   }
 
-  setHash(name: string, key: Key, values: { [key: string]: any }) {
+  setHash(name: string, key: Key, values: { [key: string]: string }) {
     const conf = this.cacheConf[name] as SasatRedisCacheConfHash;
     return this.redis.hmset(conf.keyPrefix + key, ...SasatClient.flatFV(values));
   }
 
-  insertHashWithDb(name: string, values: { [key: string]: any }) {
+  insertHashWithDb(name: string, values: { [key: string]: string | number }) {
     const conf = this.cacheConf[name] as SasatRedisCacheConfHash;
     return this.db.transaction().then(async con => {
       const r = await this.insertToDb(con, conf.table, values);
+      // eslint-disable-next-line require-atomic-updates
       if (conf.isKeyAutoIncrement) values[conf.key] = r.insertId;
       await this.redis.hmset(conf.keyPrefix + values[conf.key], ...SasatClient.flatFV(values));
       await con.commit();
@@ -114,12 +116,12 @@ export class SasatClient {
     });
   }
 
-  updateHash(name: string, key: Key, values: { [key: string]: any }) {
+  updateHash(name: string, key: Key, values: { [key: string]: string }) {
     return this.db.transaction().then(async con => {
       const conf = this.cacheConf[name] as SasatRedisCacheConfHash;
       const columns = Object.entries(values)
         .map(([k, v]) => `${k} = ${SQLClient.escape(v)}`)
-        .join(",");
+        .join(',');
       const r = await con.rawQuery(`update ${conf.table} set ${columns} where ${conf.key} = ${SQLClient.escape(key)}`);
       await this.redis.hmset(conf.keyPrefix + key, ...SasatClient.flatFV(values));
       await con.commit();
@@ -132,13 +134,17 @@ export class SasatClient {
     this.redis.dc();
   }
 
-  private insertToDb(transaction: SQLTransaction, table: string, values: { [key: string]: any }) {
+  private insertToDb(
+    transaction: SQLTransaction,
+    table: string,
+    valueMap: { [key: string]: any },
+  ): Promise<CommandResponse> {
     const columns: string[] = [];
-    const vals: any[] = [];
-    Object.entries(values).map(([k, v]) => {
+    const values: any[] = [];
+    Object.entries(valueMap).map(([k, v]) => {
       columns.push(k);
-      vals.push(SQLClient.escape(v));
+      values.push(SQLClient.escape(v));
     });
-    return transaction.rawQuery(`insert into ${table}(${columns.join(",")}) values(${vals.join(",")})`);
+    return transaction.rawCommand(`insert into ${table}(${columns.join(',')}) values(${values.join(',')})`);
   }
 }

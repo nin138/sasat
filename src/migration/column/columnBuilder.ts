@@ -6,8 +6,8 @@ import {
   SasatNumberTypes,
   SasatStringTypes,
   SasatTextTypes,
-} from "./columnTypes";
-import { AllColumnInfo } from "./column";
+} from './columnTypes';
+import { AllColumnInfo } from './column';
 
 export abstract class ColumnBuilder {
   protected _primary = false;
@@ -157,12 +157,12 @@ export class TimeStampColumnBuilder extends ColumnBuilder {
   constructor(readonly name: string, protected type: SasatColumnTypes.timestamp | SasatColumnTypes.dateTime) {
     super(name, type);
   }
-  default(value: "CURRENT_TIMESTAMP" | string | null | undefined): this {
+  default(value: 'CURRENT_TIMESTAMP' | string | null | undefined): this {
     this._default = value;
     return this;
   }
   defaultCurrentTimeStamp(): this {
-    return this.default("CURRENT_TIMESTAMP");
+    return this.default('CURRENT_TIMESTAMP');
   }
   onUpdateCurrentTimeStamp(): this {
     this._onUpdateCurrentTimeStamp = true;

@@ -1,6 +1,6 @@
-import { MigrationController } from "../../migration/controller";
-import { getDbClient } from "../../db/getDbClient";
-import { Console } from "../console";
+import { MigrationController } from '../../migration/controller';
+import { getDbClient } from '../../db/getDbClient';
+import { Console } from '../console';
 
 export const migrate = async () => {
   let current;

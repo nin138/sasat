@@ -1,8 +1,8 @@
 export enum ForeignKeyReferentialAction {
-  Restrict = "RESTRICT",
-  Cascade = "CASCADE",
-  SetNull = "SET NULL",
-  NoAction = "NO ACTION",
+  Restrict = 'RESTRICT',
+  Cascade = 'CASCADE',
+  SetNull = 'SET NULL',
+  NoAction = 'NO ACTION',
 }
 
 export interface ForeignKey {

@@ -1,5 +1,5 @@
-import { SasatRedisCacheType } from "../sasat/redisCacheConf";
-import { SasatConfigLoader } from "./loader";
+import { SasatRedisCacheType } from '../sasat/redisCacheConf';
+import { SasatConfigLoader } from './loader';
 
 export interface SasatConfigDb {
   host: string;
@@ -10,11 +10,11 @@ export interface SasatConfigDb {
 }
 
 const defaultConfDb: SasatConfigDb = {
-  host: "127.0.0.1",
+  host: '127.0.0.1',
   port: 3306,
-  user: "root",
-  database: "sasat",
-  password: "",
+  user: 'root',
+  database: 'sasat',
+  password: '',
 };
 
 export interface SasatConfigRedis {
@@ -24,7 +24,7 @@ export interface SasatConfigRedis {
 }
 
 const defaultCofRedis: SasatConfigRedis = {
-  host: "127.0.0.1",
+  host: '127.0.0.1',
   port: 6379,
 };
 
@@ -36,9 +36,9 @@ export interface SasatConfigMigration {
 }
 
 const defaultConfMigration: SasatConfigMigration = {
-  table: "__migrate__",
-  dir: "migrations",
-  out: "sasat",
+  table: '__migrate__',
+  dir: 'migrations',
+  out: 'sasat',
 };
 
 export interface SasatConfig {

@@ -1,6 +1,6 @@
-import * as redis from "redis";
-import { Callback } from "redis";
-import { Redis } from "./redis";
+import * as redis from 'redis';
+import { Callback } from 'redis';
+import { Redis } from './redis';
 import OK = Redis.OK;
 import MINMAX = Redis.MINMAX;
 import Aggregate = Redis.Aggregate;
@@ -12,7 +12,7 @@ import HSETReply = Redis.HSETReply;
 
 export abstract class Commands {
   abstract readonly client: redis.RedisClient | redis.Multi;
-  private readonly WITHSOCORES = "WITHSOCORES";
+  private readonly WITHSOCORES = 'WITHSOCORES';
 
   select(db: number): Promise<OK> {
     return this.promisify((cb: any) => this.client.select(db, cb));
@@ -46,7 +46,7 @@ export abstract class Commands {
     return this.promisify(cb => (this.client.del as any)(...keys, cb));
   }
 
-  type(key: string): Promise<Redis.Type | "none"> {
+  type(key: string): Promise<Redis.Type | 'none'> {
     return this.promisify((cb: any) => this.client.type(key, cb));
   }
 
@@ -306,17 +306,17 @@ export abstract class Commands {
     return this.promisify((cb: any) => this.client.zrevrank(key, member, cb));
   }
 
-  zrange(key: string, start: number, stop: number, withScore: boolean = false): Promise<string[]> {
+  zrange(key: string, start: number, stop: number, withScore = false): Promise<string[]> {
     if (withScore) return this.promisify(cb => this.client.zrange(key, start, stop, this.WITHSOCORES, cb));
     return this.promisify(cb => this.client.zrange(key, start, stop, cb));
   }
 
-  zrevrenge(key: string, start: number, stop: number, withScore: boolean = false): Promise<string[]> {
+  zrevrenge(key: string, start: number, stop: number, withScore = false): Promise<string[]> {
     if (withScore) return this.promisify(cb => this.client.zrevrange(key, start, stop, this.WITHSOCORES, cb));
     return this.promisify(cb => this.client.zrevrange(key, start, stop, cb));
   }
 
-  zrangebyscore(key: string, min: number, max: number, withScore: boolean = false): Promise<string[]> {
+  zrangebyscore(key: string, min: number, max: number, withScore = false): Promise<string[]> {
     if (withScore) return this.promisify(cb => this.client.zrangebyscore(key, min, max, this.WITHSOCORES, cb));
     return this.promisify(cb => this.client.zrangebyscore(key, min, max, cb));
   }
@@ -357,8 +357,8 @@ export abstract class Commands {
     aggregate: Aggregate | undefined,
   ): Promise<number> {
     const args = [destination, keys.length, ...keys];
-    if (weights) args.push("WEIGHTS", ...weights);
-    if (aggregate) args.push("AGGREGATE", aggregate);
+    if (weights) args.push('WEIGHTS', ...weights);
+    if (aggregate) args.push('AGGREGATE', aggregate);
     return this.promisify(cb => this.client.zunionstore(...args, cb));
   }
 
@@ -369,8 +369,8 @@ export abstract class Commands {
     aggregate: Aggregate | undefined,
   ): Promise<number> {
     const args = [destination, keys.length, ...keys];
-    if (weights) args.push("WEIGHTS", ...weights);
-    if (aggregate) args.push("AGGREGATE", aggregate);
+    if (weights) args.push('WEIGHTS', ...weights);
+    if (aggregate) args.push('AGGREGATE', aggregate);
     return this.promisify(cb => this.client.zinterstore(...args, cb));
   }
 

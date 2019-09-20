@@ -1,7 +1,7 @@
-import { getDbClient } from "./db/getDbClient";
-import { CommandResponse, SQLClient } from "./db/dbClient";
+import { getDbClient } from './db/getDbClient';
+import { CommandResponse, SQLClient, SqlValueType } from './db/dbClient';
 
-interface IRepository<Entity, Creatable> {
+interface Repository<Entity, Creatable> {
   create(entity: Creatable): Promise<CommandResponse>;
   list(): Promise<Entity[]>;
   update(entity: Entity): Promise<CommandResponse>;
@@ -9,7 +9,7 @@ interface IRepository<Entity, Creatable> {
   findBy(map: { [column: string]: any }): Promise<Entity[]>;
 }
 
-export abstract class Repository<Entity, Creatable> implements IRepository<Entity, Creatable> {
+export abstract class SasatRepository<Entity, Creatable> implements Repository<Entity, Creatable> {
   protected client: SQLClient = getDbClient();
   protected abstract tableName: string;
   protected abstract primaryKeys: string[];
@@ -26,7 +26,7 @@ export abstract class Repository<Entity, Creatable> implements IRepository<Entit
   }
 
   async findBy(where: { [p: string]: any }): Promise<Entity[]> {
-    const condition = this.objToSql(where).join(" AND ");
+    const condition = this.objToSql(where).join(' AND ');
     const result = await this.client.rawQuery(`SELECT * FROM ${this.getTableName()} WHERE ${condition}`);
     return result.map(it => this.resultToEntity(it));
   }
@@ -37,7 +37,7 @@ export abstract class Repository<Entity, Creatable> implements IRepository<Entit
   }
 
   update(entity: Entity) {
-    const values = this.objToSql(entity).join(", ");
+    const values = this.objToSql(entity as any).join(', ');
     return this.client.rawCommand(
       `UPDATE ${this.getTableName()} SET ${values} WHERE ${this.getWhereClauseIdentifiedByPrimaryKey(entity)}`,
     );
@@ -51,11 +51,11 @@ export abstract class Repository<Entity, Creatable> implements IRepository<Entit
     return this.tableName;
   }
 
-  private objToSql(obj: any): string[] {
+  private objToSql(obj: Record<string, SqlValueType>): string[] {
     return Object.entries(obj).map(([column, value]) => `${column} = ${SQLClient.escape(value)}`);
   }
 
   private getWhereClauseIdentifiedByPrimaryKey(entity: Entity) {
-    return this.primaryKeys.map(it => `${it} = ${SQLClient.escape((entity as any)[it])}`).join(" AND ");
+    return this.primaryKeys.map(it => `${it} = ${SQLClient.escape((entity as any)[it])}`).join(' AND ');
   }
 }

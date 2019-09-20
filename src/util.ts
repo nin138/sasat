@@ -1,8 +1,8 @@
-import * as yaml from "js-yaml";
-import * as fs from "fs-extra";
-import { join } from "path";
+import * as yaml from 'js-yaml';
+import * as fs from 'fs-extra';
+import { join } from 'path';
 
-export const readYmlFile = (filepath: string) => yaml.safeLoad(fs.readFileSync(filepath, "utf8"));
+export const readYmlFile = (filepath: string) => yaml.safeLoad(fs.readFileSync(filepath, 'utf8'));
 
 export const mkDirIfNotExists = (path: string) => {
   if (!fs.pathExistsSync(path)) fs.mkdirpSync(path);

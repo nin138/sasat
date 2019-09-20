@@ -8,9 +8,9 @@ import {
   StringColumnBuilder,
   TextColumnBuilder,
   TimeStampColumnBuilder,
-} from "./columnBuilder";
-import { TableBase } from "../table/tableBase";
-import { SasatColumnTypes } from "./columnTypes";
+} from './columnBuilder';
+import { TableBase } from '../table/tableBase';
+import { SasatColumnTypes } from './columnTypes';
 
 export class ColumnCreator {
   constructor(private table: TableBase, private name: string, private callAddColumn = true) {}

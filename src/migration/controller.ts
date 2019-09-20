@@ -1,22 +1,21 @@
-import * as fs from "fs";
-import * as path from "path";
-import { config } from "../config/config";
-import { getDbClient } from "../db/getDbClient";
-import { DataStoreMigrator } from "./dataStore";
-import * as ts from "typescript";
-import { Console } from "../cli/console";
-import { generate } from "../generator";
+import * as fs from 'fs';
+import * as path from 'path';
+import { config } from '../config/config';
+import { getDbClient } from '../db/getDbClient';
+import { DataStoreMigrator } from './dataStore';
+import * as ts from 'typescript';
+import { generate } from '../generator';
 
-const migrationTable = "__migration__";
+const migrationTable = '__migration__';
 
 enum Direction {
-  Up = "up",
-  Down = "down",
+  Up = 'up',
+  Down = 'down',
 }
 
 export class MigrationController {
   private migrationDir = path.join(process.cwd(), config().migration.dir);
-  private files = fs.readdirSync(this.migrationDir).filter(it => it.split(".").pop() === "ts");
+  private files = fs.readdirSync(this.migrationDir).filter(it => it.split('.').pop() === 'ts');
 
   async migrate(): Promise<string> {
     const currentMigration = await this.getCurrentMigration();
@@ -35,7 +34,7 @@ export class MigrationController {
     const client = getDbClient();
     await client.rawQuery(
       `CREATE TABLE IF NOT EXISTS ${migrationTable} ` +
-        "(id int auto_increment primary key , name varchar(100) unique not null," +
+        '(id int auto_increment primary key , name varchar(100) unique not null,' +
         "direction enum('up', 'down') not null, migrated_at timestamp default current_timestamp)",
     );
     const result = await client.rawQuery(`SELECT name, direction FROM ${migrationTable} ORDER BY id LIMIT 1`);
@@ -49,7 +48,7 @@ export class MigrationController {
   private getTargets(files: string[], current: string | undefined): { direction: Direction; files: string[] } {
     const currentIndex = current ? files.indexOf(current) + 1 : 0;
     const targetIndex = files.indexOf(config().migration.target || files[files.length - 1]) + 1;
-    if (currentIndex === -1 || targetIndex === -1) throw new Error("migration target not found");
+    if (currentIndex === -1 || targetIndex === -1) throw new Error('migration target not found');
     if (targetIndex >= currentIndex)
       return {
         direction: Direction.Up,

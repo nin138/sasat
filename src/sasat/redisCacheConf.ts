@@ -2,9 +2,9 @@ export type DBTableName = string;
 export type DBColumnName = string;
 
 export enum RedisDBCacheTypeNames {
-  String = "string",
-  JSONString = "json",
-  Hash = "hash",
+  String = 'string',
+  JSONString = 'json',
+  Hash = 'hash',
 }
 
 export interface SasatRedisCacheConfString {
