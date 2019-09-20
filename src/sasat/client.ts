@@ -78,7 +78,7 @@ export class SasatClient {
     });
   }
 
-  updateJSONString(name: string, key: Key, values: { [key: string]: string }) {
+  updateJSONString(name: string, key: Key, values: { [key: string]: string | number }) {
     return this.db.transaction().then(async con => {
       const conf = this.cacheConf[name] as SasatRedisCacheConfJSONString;
       const columns = Object.entries(values)
@@ -116,7 +116,7 @@ export class SasatClient {
     });
   }
 
-  updateHash(name: string, key: Key, values: { [key: string]: string }) {
+  updateHash(name: string, key: Key, values: { [key: string]: string | number }) {
     return this.db.transaction().then(async con => {
       const conf = this.cacheConf[name] as SasatRedisCacheConfHash;
       const columns = Object.entries(values)
