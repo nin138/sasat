@@ -34,7 +34,7 @@ export class MigrationController {
   private async getCurrentMigration(): Promise<string | undefined> {
     const client = getDbClient();
     await client.rawQuery(
-      `CREATE TABLE IF NOT EXISTS ${migrationTable}  ` +
+      `CREATE TABLE IF NOT EXISTS ${migrationTable} ` +
         "(id int auto_increment primary key , name varchar(100) unique not null," +
         "direction enum('up', 'down') not null, migrated_at timestamp default current_timestamp)",
     );
@@ -74,13 +74,12 @@ export class MigrationController {
     const transaction = await getDbClient().transaction();
     try {
       for (const sql of sqls) await transaction.rawQuery(sql);
-      await transaction.query`insert into aa${() => migrationTable} (name, direction) values (${[
+      await transaction.query`insert into ${() => migrationTable} (name, direction) values (${[
         migrationName,
         direction,
       ]})`;
       return await transaction.commit();
     } catch (e) {
-      Console.error(e.message);
       await transaction.rollback();
       throw e;
     }
