@@ -22,7 +22,7 @@ export class DataStoreMigrator extends DataStoreBuilder {
   }
 
   createTable(tableName: string, tableCreator: (table: TableBuilder) => void): DataStoreBuilder {
-    const tmp = new TableBuilder(tableName);
+    const tmp = new TableBuilder(this, tableName);
     tableCreator(tmp);
     const table = TableMigrator.fromTableBuilder(this, tmp);
     this.tables.push(table);

@@ -48,3 +48,6 @@ export const addUniqueKey = (tableName: string, columns: string[]) =>
 
 export const addPrimaryKey = (tableName: string, columns: string[]) =>
   `ALTER TABLE ${tableName} ADD PRIMARY KEY ${columns.join('__')}(${columns.join(',')})`;
+
+export const addForeignKey = (tableName: string, foreignKey: ForeignKey) =>
+  `ALTER TABLE ${tableName} ADD ${foreignKeyToSql(foreignKey)}`;

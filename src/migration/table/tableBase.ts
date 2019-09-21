@@ -1,8 +1,11 @@
 import { ColumnBuilder } from '../column/columnBuilder';
 import { Index } from './index';
-import { ForeignKey, ForeignKeyReferentialAction } from './foreignKey';
+import { ForeignKey } from './foreignKey';
 import { columnToSql, foreignKeyToSql } from '../sqlCreater';
 import { TableInfo } from './tableInfo';
+import { ReferenceColumnInfo, referenceToColumnInfo, referenceToForeignKey } from '../column/referenceColumn';
+import { DataStoreBuilder } from '../dataStore';
+import { Console } from '../../cli/console';
 
 export abstract class TableBase {
   readonly indexes: Index[] = [];
@@ -10,8 +13,9 @@ export abstract class TableBase {
   protected foreignKeys: ForeignKey[] = [];
   protected primaryKey: string[] = [];
   protected uniqueKeys: string[][] = [];
+  protected references: ReferenceColumnInfo[] = [];
 
-  protected constructor(readonly tableName: string) {}
+  protected constructor(protected store: DataStoreBuilder, readonly tableName: string) {}
 
   serialize(): TableInfo {
     return {
@@ -25,7 +29,17 @@ export abstract class TableBase {
       foreignKeys: this.foreignKeys,
       primaryKey: this.primaryKey,
       uniqueKeys: this.uniqueKeys,
+      references: this.references,
     };
+  }
+
+  addReferences(table: string, column: string, unique = false): this {
+    this.references.push({
+      table,
+      column,
+      unique,
+    });
+    return this;
   }
 
   addIndex(constraintName: string, ...columns: string[]): this {
@@ -39,9 +53,6 @@ export abstract class TableBase {
   }
 
   addUniqueKey(...columnNames: string[]): this {
-    columnNames.forEach(it => {
-      if (!this.isColumnExists(it)) throw new Error(`${this.tableName}.${it} does not exists`);
-    });
     if (columnNames.length === 0) return this;
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     if (columnNames.length === 1) this.columns.find(it => it.name === columnNames[0])!.unique();
@@ -50,9 +61,6 @@ export abstract class TableBase {
   }
 
   addPrimaryKey(...columnNames: string[]): this {
-    columnNames.forEach(it => {
-      if (!this.isColumnExists(it)) throw new Error(`${this.tableName}.${it} does not exists`);
-    });
     this.primaryKey = columnNames;
     return this;
   }
@@ -65,12 +73,15 @@ export abstract class TableBase {
   showCreateTable(): string {
     const columns = this.columns.map(it => columnToSql(it.build()));
     const rows = [...columns];
+    if (this.references.length !== 0)
+      rows.push(...this.references.map(it => columnToSql(referenceToColumnInfo(this.store, it))));
     if (this.primaryKey.length !== 0) rows.push(`PRIMARY KEY (${this.primaryKey.join(',')})`);
     this.uniqueKeys.forEach(it => {
       if (this.uniqueKeys.length !== 0) rows.push(`UNIQUE KEY (${it.join(',')})`);
     });
     if (this.foreignKeys.length !== 0) rows.push(...this.foreignKeys.map(it => foreignKeyToSql(it)));
-
+    if (this.references.length !== 0)
+      rows.push(...this.references.map(it => foreignKeyToSql(referenceToForeignKey(it))));
     return `CREATE TABLE ${this.tableName} ( ${rows.join(', ')} )`;
   }
 

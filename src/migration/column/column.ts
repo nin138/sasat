@@ -7,6 +7,7 @@ import {
   SasatTextTypes,
 } from './columnTypes';
 import { SqlValueType } from '../../db/dbClient';
+import { ReferenceColumnInfo } from './referenceColumn';
 
 interface ColumnBase {
   columnName: string;
@@ -85,13 +86,14 @@ export type ColumnInfo =
 export interface AllColumnInfo {
   columnName: string;
   type: SasatColumnTypes;
-  length: number | undefined;
-  scale: number | undefined;
-  notNull: boolean | undefined;
   unique: boolean;
   zerofill: boolean;
-  signed: boolean | undefined;
   autoIncrement: boolean;
-  default: SqlValueType | undefined;
+  length?: number;
+  scale?: number;
+  notNull?: boolean;
+  signed?: boolean;
+  default?: SqlValueType;
   onUpdateCurrentTimeStamp: boolean;
+  reference?: ReferenceColumnInfo;
 }

@@ -1,9 +1,10 @@
 import { DataStoreMigrator } from '../dataStore';
 import { ColumnBuilder } from '../column/columnBuilder';
-import { addColumn, addIndex, addPrimaryKey, addUniqueKey } from '../sqlCreater';
+import { addColumn, addForeignKey, addIndex, addPrimaryKey, addUniqueKey } from '../sqlCreater';
 import { ColumnCreator } from '../column/columnCreator';
 import { TableBase } from './tableBase';
 import { TableBuilder } from './tableBuilder';
+import { referenceToColumnInfo } from '../column/referenceColumn';
 export class TableMigrator extends TableBase {
   static fromTableBuilder(store: DataStoreMigrator, table: TableBuilder): TableMigrator {
     const result: TableMigrator = Object.assign(Object.create(this.prototype), table, { store });
@@ -12,8 +13,8 @@ export class TableMigrator extends TableBase {
     return result;
   }
 
-  constructor(private store: DataStoreMigrator, tableName: string) {
-    super(tableName);
+  constructor(protected store: DataStoreMigrator, tableName: string) {
+    super(store, tableName);
   }
 
   addBuiltInColumn(column: ColumnBuilder, after?: string) {
@@ -27,6 +28,26 @@ export class TableMigrator extends TableBase {
     const afterStatement = after ? ` AFTER ${after}` : '';
     this.store.addMigrationQuery(addColumn(this.tableName, column.build()) + afterStatement);
     this.applyAddColumn(column, after);
+    return this;
+  }
+
+  addReferences(table: string, column: string, unique = false): this {
+    super.addReferences(table, column, unique);
+    const columnInfo = referenceToColumnInfo(this.store, {
+      table,
+      column,
+      unique,
+    });
+    delete columnInfo.primary;
+    this.store.addMigrationQuery(addColumn(this.tableName, columnInfo));
+    this.store.addMigrationQuery(
+      addForeignKey(this.tableName, {
+        referenceTable: table,
+        referenceColumn: column,
+        columnName: column,
+        constraintName: `ref${table}_${column}`,
+      }),
+    );
     return this;
   }
 
