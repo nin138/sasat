@@ -5,7 +5,6 @@ import { columnToSql, foreignKeyToSql } from '../sqlCreater';
 import { TableInfo } from './tableInfo';
 import { ReferenceColumnInfo, referenceToColumnInfo, referenceToForeignKey } from '../column/referenceColumn';
 import { DataStoreBuilder } from '../dataStore';
-import { Console } from '../../cli/console';
 
 export abstract class TableBase {
   readonly indexes: Index[] = [];
@@ -72,9 +71,14 @@ export abstract class TableBase {
 
   showCreateTable(): string {
     const columns = this.columns.map(it => columnToSql(it.build()));
+    if (this.references.length !== 0) {
+      columns.splice(
+        this.primaryKey.length,
+        0,
+        ...this.references.map(it => columnToSql(referenceToColumnInfo(this.store, it))),
+      );
+    }
     const rows = [...columns];
-    if (this.references.length !== 0)
-      rows.push(...this.references.map(it => columnToSql(referenceToColumnInfo(this.store, it))));
     if (this.primaryKey.length !== 0) rows.push(`PRIMARY KEY (${this.primaryKey.join(',')})`);
     this.uniqueKeys.forEach(it => {
       if (this.uniqueKeys.length !== 0) rows.push(`UNIQUE KEY (${it.join(',')})`);
