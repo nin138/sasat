@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { cac } from 'cac';
 import { migrate } from './commands/migrate';
 import { createMigration } from './commands/createMigration';

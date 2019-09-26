@@ -2,7 +2,7 @@ import { Console } from '../console';
 import * as fs from 'fs';
 import { join } from 'path';
 import { config } from '../../config/config';
-import { capitalizeFirstLetter } from '../../util';
+import { capitalizeFirstLetter, mkDirIfNotExists } from '../../util';
 
 const getMigrationFile = (className: string) =>
   `import { SasatMigration } from "sasat";
@@ -12,11 +12,11 @@ export class ${capitalizeFirstLetter(className)} implements SasatMigration {
   
   up: (store: DataStoreBuilder) => void = store => {
 
-  }
+  };
   
   down: (store: DataStoreBuilder) => void = store => {
     throw new Error('Down is not implemented on ${className}');
-  }
+  };
 }
 
 `;
@@ -33,7 +33,9 @@ export const createMigrationFile = (migrationName: string) => {
     pad(date.getMinutes()) +
     pad(date.getSeconds());
   const fileName = now + migrationName;
-  fs.writeFileSync(join(config().migration.dir, fileName) + '.ts', getMigrationFile(migrationName));
+  const outDir = join(config().migration.dir);
+  mkDirIfNotExists(outDir);
+  fs.writeFileSync(join(outDir, fileName) + '.ts', getMigrationFile(migrationName));
   return fileName;
 };
 
