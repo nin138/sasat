@@ -8,6 +8,11 @@ export const mkDirIfNotExists = (path: string) => {
   if (!fs.pathExistsSync(path)) fs.mkdirpSync(path);
 };
 
+export const writeFileIfNotExists = (path: string, data: string) => {
+  if (fs.existsSync(path)) return;
+  return fs.writeFile(path, data);
+};
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const writeYmlFile = (path: string, fileName: string, obj: any) => {
   mkDirIfNotExists(path);

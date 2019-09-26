@@ -1,7 +1,7 @@
 import { TableInfo } from '../../migration/table/tableInfo';
 import * as path from 'path';
 import { config } from '../../config/config';
-import { camelize, capitalizeFirstLetter, mkDirIfNotExists } from '../../util';
+import { camelize, capitalizeFirstLetter, mkDirIfNotExists, writeFileIfNotExists } from '../../util';
 import { emptyDir, writeFile } from 'fs-extra';
 import { getEntityName } from '../entity/entity';
 import { columnTypeToTsType } from '../../migration/column/columnTypes';
@@ -88,7 +88,7 @@ export class RepositoryGenerator {
     return `\
 ${this.imports.join('\n')}
 
-export class ${entity}Repository extends SasatRepository<${entity}, Creatable${entity}> {
+export abstract class Generated${entity}Repository extends SasatRepository<${entity}, Creatable${entity}> {
   protected tableName = '${table.tableName}';
   protected primaryKeys: string[] = [${pKeys}
   ];
@@ -98,13 +98,30 @@ ${functions}}
   };
 }
 
+const createRepository = (tableName: string) => {
+  const className = `${capitalizeFirstLetter(tableName)}Repository`;
+  return `\
+import { Generated${className} } from '../__generated/repository/${tableName}';
+
+class ${className} extends Generated${className} {}
+
+export const ${tableName}Repository = new ${className}();
+`;
+};
+
 export const writeRepositoryFiles = async (tables: TableInfo[]) => {
-  const outDir = path.join(config().migration.out, 'repository');
+  const outDir = path.join(process.cwd(), config().migration.out, 'repository');
+  const generateDir = path.join(process.cwd(), config().migration.out, '__generated', 'repository');
   mkDirIfNotExists(outDir);
-  await emptyDir(outDir);
+  mkDirIfNotExists(generateDir);
+  await emptyDir(generateDir);
   return await Promise.all(
-    tables.map(table =>
-      writeFile(path.join(outDir, table.tableName + '.ts'), new RepositoryGenerator(table).createRepositoryString()),
-    ),
+    tables.map(async table => {
+      await writeFile(
+        path.join(generateDir, table.tableName + '.ts'),
+        new RepositoryGenerator(table).createRepositoryString(),
+      );
+      await writeFileIfNotExists(path.join(outDir, table.tableName + '.ts'), createRepository(table.tableName));
+    }),
   );
 };

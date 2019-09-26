@@ -12,7 +12,10 @@ const getColumnTsType = (column: AllColumnInfo) =>
 export const getEntityName = (table: TableInfo) => capitalizeFirstLetter(table.tableName);
 
 const createEntityString = (table: TableInfo): string => {
-  const fields = table.columns.map(column => `  ${column.columnName}: ${getColumnTsType(column)};`).join('\n');
+  const isPrimary = (column: AllColumnInfo) => table.primaryKey.includes(column.columnName);
+  const fields = table.columns
+    .map(column => `  ${isPrimary(column) ? 'readonly ' : ''}${column.columnName}: ${getColumnTsType(column)};`)
+    .join('\n');
   return `export interface ${getEntityName(table)} extends Creatable${getEntityName(table)} {\n` + fields + '\n}';
 };
 
@@ -27,7 +30,7 @@ const createCreatableEntityString = (table: TableInfo): string => {
 };
 
 export const writeEntityFiles = async (tables: TableInfo[]) => {
-  const outDir = path.join(config().migration.out, 'entity');
+  const outDir = path.join(config().migration.out, '__generated', 'entity');
   mkDirIfNotExists(outDir);
   await emptyDir(outDir);
   return await Promise.all(

@@ -8,7 +8,7 @@ export interface TableInfo {
   columns: Array<AllColumnInfo>;
   indexes: Index[];
   foreignKeys: ForeignKey[];
-  primaryKey: string[] | undefined;
+  primaryKey: string[];
   uniqueKeys: string[][];
   references: ReferenceColumnInfo[];
 }
