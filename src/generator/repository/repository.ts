@@ -103,9 +103,7 @@ const createRepository = (tableName: string) => {
   return `\
 import { Generated${className} } from '../__generated/repository/${tableName}';
 
-class ${className} extends Generated${className} {}
-
-export const ${tableName}Repository = new ${className}();
+export class ${className} extends Generated${className} {}
 `;
 };
 

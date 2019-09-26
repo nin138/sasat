@@ -10,9 +10,9 @@ interface Repository<Entity, Creatable> {
 }
 
 export abstract class SasatRepository<Entity, Creatable> implements Repository<Entity, Creatable> {
-  protected client: SQLClient = getDbClient();
   protected abstract tableName: string;
   protected abstract primaryKeys: string[];
+  constructor(protected client: SQLClient = getDbClient()) {}
 
   async create(entity: Creatable) {
     const values = Object.values(entity);
