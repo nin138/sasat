@@ -1,9 +1,8 @@
 import { TableInfo } from '../../migration/table/tableInfo';
 import { columnTypeToTsType } from '../../migration/column/columnTypes';
-import { capitalizeFirstLetter, mkDirIfNotExists } from '../../util';
+import { capitalizeFirstLetter } from '../../util';
 import * as path from 'path';
-import { config } from '../../config/config';
-import { emptyDir, writeFile } from 'fs-extra';
+import { writeFile } from 'fs-extra';
 import { AllColumnInfo } from '../../migration/column/column';
 
 const getColumnTsType = (column: AllColumnInfo) =>
@@ -29,16 +28,9 @@ const createCreatableEntityString = (table: TableInfo): string => {
   return `export interface Creatable${getEntityName(table)} {\n` + fields + '\n}';
 };
 
-export const writeEntityFiles = async (tables: TableInfo[]) => {
-  const outDir = path.join(config().migration.out, '__generated', 'entity');
-  mkDirIfNotExists(outDir);
-  await emptyDir(outDir);
-  return await Promise.all(
-    tables.map(table =>
-      writeFile(
-        path.join(outDir, table.tableName + '.ts'),
-        createEntityString(table) + '\n\n' + createCreatableEntityString(table) + '\n',
-      ),
-    ),
+export const writeEntity = (table: TableInfo, outDir: string) => {
+  return writeFile(
+    path.join(outDir, table.tableName + '.ts'),
+    createEntityString(table) + '\n\n' + createCreatableEntityString(table) + '\n',
   );
 };

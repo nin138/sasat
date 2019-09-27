@@ -4,7 +4,7 @@ import { config } from '../config/config';
 import { getDbClient } from '../db/getDbClient';
 import { DataStoreMigrator } from './dataStore';
 import * as ts from 'typescript';
-import { generate } from '../generator';
+import { GenerateController } from '../generator/controller';
 
 const migrationTable = '__migration__';
 
@@ -26,7 +26,7 @@ export class MigrationController {
       await this.execMigration(store, fileName, target.direction);
       store.reset();
     }
-    await generate(store.serialize());
+    await new GenerateController(store.serialize()).execute();
     return config().migration.target || this.files[this.files.length - 1];
   }
 

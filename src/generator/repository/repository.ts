@@ -1,8 +1,7 @@
 import { TableInfo } from '../../migration/table/tableInfo';
 import * as path from 'path';
-import { config } from '../../config/config';
-import { camelize, capitalizeFirstLetter, mkDirIfNotExists, writeFileIfNotExists } from '../../util';
-import { emptyDir, writeFile } from 'fs-extra';
+import { camelize, capitalizeFirstLetter, writeFileIfNotExists } from '../../util';
+import { writeFile } from 'fs-extra';
 import { getEntityName } from '../entity/entity';
 import { columnTypeToTsType } from '../../migration/column/columnTypes';
 import { ReferenceColumnInfo } from '../../migration/column/referenceColumn';
@@ -107,19 +106,10 @@ export class ${className} extends Generated${className} {}
 `;
 };
 
-export const writeRepositoryFiles = async (tables: TableInfo[]) => {
-  const outDir = path.join(process.cwd(), config().migration.out, 'repository');
-  const generateDir = path.join(process.cwd(), config().migration.out, '__generated', 'repository');
-  mkDirIfNotExists(outDir);
-  mkDirIfNotExists(generateDir);
-  await emptyDir(generateDir);
-  return await Promise.all(
-    tables.map(async table => {
-      await writeFile(
-        path.join(generateDir, table.tableName + '.ts'),
-        new RepositoryGenerator(table).createRepositoryString(),
-      );
-      await writeFileIfNotExists(path.join(outDir, table.tableName + '.ts'), createRepository(table.tableName));
-    }),
+export const writeRepository = async (table: TableInfo, generateDir: string, repositoryDir: string) => {
+  await writeFile(
+    path.join(generateDir, table.tableName + '.ts'),
+    new RepositoryGenerator(table).createRepositoryString(),
   );
+  await writeFileIfNotExists(path.join(repositoryDir, table.tableName + '.ts'), createRepository(table.tableName));
 };
