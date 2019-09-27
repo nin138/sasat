@@ -5,7 +5,7 @@ import { writeFile } from 'fs-extra';
 import { getEntityName } from '../entity/entity';
 import { columnTypeToTsType } from '../../migration/column/columnTypes';
 import { ReferenceColumnInfo } from '../../migration/column/referenceColumn';
-import { getQueries } from '../func/getQueries';
+import { getFindQueries } from '../func/getFindQueries';
 
 // TODO refactoring
 
@@ -53,7 +53,7 @@ export class RepositoryGenerator {
   };
 
   private functions = (table: TableInfo) => {
-    return getQueries(table)
+    return getFindQueries(table)
       .map(it => this.createFindBy(table, it.keys, it.unique, it.ref))
       .join('\n');
   };

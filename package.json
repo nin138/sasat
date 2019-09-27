@@ -26,14 +26,15 @@
     "sasat": "yarn env-cmd ts-node ./src/cli/cli.ts"
   },
   "dependencies": {
+    "cac": "6.5.3",
+    "chalk": "2.4.2",
     "fs-extra": "^8.1.0",
     "js-yaml": "^3.13.1",
     "mariadb": "^2.1.0",
     "mysql": "^2.17.1",
+    "pluralize": "^8.0.0",
     "redis": "^2.8.0",
-    "sqlstring": "^2.3.1",
-    "cac": "6.5.3",
-    "chalk": "2.4.2"
+    "sqlstring": "^2.3.1"
   },
   "devDependencies": {
     "@types/fs-extra": "8.0.0",
@@ -41,6 +42,7 @@
     "@types/js-yaml": "3.12.1",
     "@types/mysql": "2.15.7",
     "@types/node": "12.7.5",
+    "@types/pluralize": "^0.0.29",
     "@types/redis": "2.8.13",
     "@types/sqlstring": "2.2.1",
     "@typescript-eslint/eslint-plugin": "2.3.0",

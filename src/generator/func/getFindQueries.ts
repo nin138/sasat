@@ -9,7 +9,7 @@ export interface QueryInfo {
   ref?: Pick<ReferenceColumnInfo, 'table' | 'column'>;
 }
 
-export const getQueries = (table: TableInfo): QueryInfo[] => {
+export const getFindQueries = (table: TableInfo): QueryInfo[] => {
   const queries: QueryInfo[] = [];
   const isDuplicate = (keys: string[]) => {
     outer: for (const q of queries) {
