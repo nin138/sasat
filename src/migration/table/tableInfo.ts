@@ -12,3 +12,5 @@ export interface TableInfo {
   uniqueKeys: string[][];
   references: ReferenceColumnInfo[];
 }
+
+export const isPrimary = (key: string, table: TableInfo) => table.primaryKey.includes(key);

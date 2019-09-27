@@ -9,7 +9,7 @@ export const migrate = async () => {
     current = await migration.migrate();
   } catch (e) {
     Console.error(e.message);
-    process.exit(1);
+    throw e;
   } finally {
     await getDbClient().release();
   }

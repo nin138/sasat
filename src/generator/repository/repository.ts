@@ -5,6 +5,7 @@ import { writeFile } from 'fs-extra';
 import { getEntityName } from '../entity/entity';
 import { columnTypeToTsType } from '../../migration/column/columnTypes';
 import { ReferenceColumnInfo } from '../../migration/column/referenceColumn';
+import { getQueries } from '../func/getQueries';
 
 // TODO refactoring
 
@@ -52,33 +53,11 @@ export class RepositoryGenerator {
   };
 
   private functions = (table: TableInfo) => {
-    const functions: Array<{
-      keys: string[];
-      unique: boolean;
-      ref?: Pick<ReferenceColumnInfo, 'table' | 'column'>;
-    }> = [];
-    const isDuplicate = (keys: string[]) => {
-      outer: for (const fn of functions) {
-        if (keys.length !== fn.keys.length) continue;
-        for (const [i, it] of keys.entries()) {
-          if (it !== fn.keys[i]) continue outer;
-        }
-        return true;
-      }
-      return false;
-    };
-
-    if (table.primaryKey) functions.push({ keys: table.primaryKey, unique: true });
-    functions.push(
-      ...table.references
-        .filter(it => !isDuplicate([it.column]))
-        .map(it => ({ keys: [it.column], unique: it.unique, ref: { table: it.table, column: it.column } })),
-    );
-    functions.push(
-      ...table.uniqueKeys.filter(it => !isDuplicate(it)).map(it => ({ keys: it, unique: true, isRef: false })),
-    );
-    return functions.map(it => this.createFindBy(table, it.keys, it.unique, it.ref)).join('\n');
+    return getQueries(table)
+      .map(it => this.createFindBy(table, it.keys, it.unique, it.ref))
+      .join('\n');
   };
+
   createRepositoryString = () => {
     const table = this.table;
     const entity = getEntityName(table);
