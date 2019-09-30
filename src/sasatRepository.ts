@@ -1,5 +1,6 @@
 import { getDbClient } from './db/getDbClient';
-import { CommandResponse, SQLClient, SqlValueType } from './db/dbClient';
+import { CommandResponse, SQLClient, SQLExecutor, SqlValueType } from './db/dbClient';
+import { formatQuery } from './db/formatQuery';
 
 interface Repository<Entity, Creatable> {
   create(entity: Creatable): Promise<CommandResponse>;
@@ -12,11 +13,13 @@ interface Repository<Entity, Creatable> {
 export abstract class SasatRepository<Entity, Creatable> implements Repository<Entity, Creatable> {
   protected abstract tableName: string;
   protected abstract primaryKeys: string[];
-  constructor(protected client: SQLClient = getDbClient()) {}
+  constructor(protected client: SQLExecutor = getDbClient()) {}
 
   async create(entity: Creatable) {
     const values = Object.values(entity);
-    return this.client.command`INSERT INTO ${this.getTableName} (${() => Object.keys(entity)}) VALUES (${values})`;
+    return this.client.rawCommand(
+      formatQuery`INSERT INTO ${this.getTableName} (${() => Object.keys(entity)}) VALUES (${values})`,
+    );
   }
 
   async delete(entity: Entity) {

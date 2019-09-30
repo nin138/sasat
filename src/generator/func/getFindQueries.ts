@@ -1,4 +1,3 @@
-import { TableInfo } from '../../migration/table/tableInfo';
 import { ReferenceColumnInfo } from '../../migration/column/referenceColumn';
 import { capitalizeFirstLetter } from '../../util';
 import { TableGenerator } from '../store';

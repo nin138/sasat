@@ -1,10 +1,6 @@
-import { TableInfo } from '../../migration/table/tableInfo';
-import { capitalizeFirstLetter } from '../../util';
 import * as path from 'path';
 import { writeFile } from 'fs-extra';
 import { TableGenerator } from '../store';
-
-export const getEntityName = (table: TableInfo) => capitalizeFirstLetter(table.tableName);
 
 const createEntityString = (table: TableGenerator): string => {
   const fields = table.columns
@@ -15,7 +11,7 @@ const createEntityString = (table: TableGenerator): string => {
 
 const createCreatableEntityString = (table: TableGenerator): string => {
   const fields = table.columns
-    .map(column => `  ${column.name}${column.isNullableOnCreate() ? '' : '?'}: ${column.getTsType()};`)
+    .map(column => `  ${column.name}${column.isNullableOnCreate() ? '?' : ''}: ${column.getTsType()};`)
     .join('\n');
   return `export interface Creatable${table.entityName()} {\n` + fields + '\n}';
 };

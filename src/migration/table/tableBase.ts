@@ -6,6 +6,7 @@ import { TableInfo } from './tableInfo';
 import { ReferenceColumnInfo, referenceToColumnInfo, referenceToForeignKey } from '../column/referenceColumn';
 import { DataStoreBuilder } from '../dataStore';
 
+// TODO REFACTOR AND ADD INTERFACE
 export abstract class TableBase {
   readonly indexes: Index[] = [];
   readonly columns: ColumnBuilder[] = [];

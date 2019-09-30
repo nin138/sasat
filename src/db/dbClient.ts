@@ -1,4 +1,5 @@
 import * as SqlString from 'sqlstring';
+import { formatQuery } from './formatQuery';
 export type QueryResponse = Array<{ [key: string]: string }>;
 export interface CommandResponse {
   insertId: number;
@@ -7,7 +8,12 @@ export interface CommandResponse {
 
 export type SqlValueType = string | number | Date | boolean | null;
 
-export abstract class SQLClient {
+export interface SQLExecutor {
+  rawQuery(sql: string): Promise<QueryResponse>;
+  rawCommand(sql: string): Promise<CommandResponse>;
+}
+
+export abstract class SQLClient implements SQLExecutor {
   static escape(param: SqlValueType): string {
     return SqlString.escape(param);
   }
@@ -22,25 +28,14 @@ export abstract class SQLClient {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   query(templateString: TemplateStringsArray, ...params: any[]): Promise<QueryResponse> {
-    return this.execSql(this.formatQuery(templateString, ...params)) as Promise<QueryResponse>;
+    return this.execSql(formatQuery(templateString, ...params)) as Promise<QueryResponse>;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   command(templateString: TemplateStringsArray, ...params: any[]): Promise<CommandResponse> {
-    return this.execSql(this.formatQuery(templateString, ...params)) as Promise<CommandResponse>;
+    return this.execSql(formatQuery(templateString, ...params)) as Promise<CommandResponse>;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  formatQuery(str: TemplateStringsArray, ...params: any[]): string {
-    let ret = str[0];
-    for (let i = 0; i < params.length; i++) {
-      if (typeof params[i] === 'function') ret += params[i]();
-      else if (Array.isArray(params[i])) ret += params[i].map((it: SqlValueType) => SQLClient.escape(it)).join(', ');
-      else ret += SQLClient.escape(params[i]);
-      ret += str[i + 1];
-    }
-    return ret;
-  }
   protected abstract execSql(sql: string): Promise<QueryResponse | CommandResponse>;
 }
 

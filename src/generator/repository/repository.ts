@@ -1,15 +1,10 @@
-import { TableInfo } from '../../migration/table/tableInfo';
 import * as path from 'path';
-import { camelize, capitalizeFirstLetter, writeFileIfNotExists } from '../../util';
+import { arrayEq, camelize, capitalizeFirstLetter, writeFileIfNotExists } from '../../util';
 import { writeFile } from 'fs-extra';
-import { getEntityName } from '../entity/entity';
-import { columnTypeToTsType } from '../../migration/column/columnTypes';
-import { ReferenceColumnInfo } from '../../migration/column/referenceColumn';
 import { getFindQueries } from '../func/getFindQueries';
 import { TableGenerator } from '../store';
 
 // TODO refactoring
-
 const createFindFunction = (
   name: string,
   params: string[],
@@ -27,35 +22,51 @@ const createFindFunction = (
 
 export class RepositoryGenerator {
   private imports: string[] = ["import { SasatRepository } from 'sasat';"];
+  private importEntities: string[] = [];
   constructor(private table: TableGenerator) {
     this.imports.push(
       `import { ${table.entityName()}, Creatable${table.entityName()} } from '../entity/${table.tableName}';`,
     );
   }
 
-  private createFindBy = (
-    table: TableGenerator,
-    keys: string[],
-    unique: boolean,
-    ref?: Pick<ReferenceColumnInfo, 'targetTable' | 'targetColumn'>,
-  ) => {
-    if (keys.length === 0) return '';
-    const name = ref !== undefined ? ref!.targetTable : keys.map(capitalizeFirstLetter).join('And');
-    let params;
-    if (ref !== undefined) {
-      this.imports.push(`import { ${capitalizeFirstLetter(ref.targetTable)} } from '../entity/${ref.targetTable}';`);
-      params = [`${ref.targetTable}: Pick<${capitalizeFirstLetter(ref.targetTable)}, '${ref.targetColumn}'>`];
-    } else {
-      params = keys.map(it => `${it}: ${table.column(it).getTsType(true)}`);
-    }
-    const returns = unique ? `${table.entityName()} | undefined` : `${table.entityName()}[]`;
-    const findParamMap = ref !== undefined ? [`${ref.targetColumn}: ${ref.targetTable}.${ref.targetColumn}`] : keys;
-    return createFindFunction(name, params, returns, findParamMap, unique);
+  private createFindBy = (keys: string[], table: TableGenerator) => {
+    const isUnique = () =>
+      [
+        table.primaryKey,
+        ...table.uniqueKeys,
+        ...table.columns.filter(it => it.isReference() && it.info.reference!.unique).map(it => [it.name]),
+      ].find(it => arrayEq(it, keys)) !== undefined;
+
+    const columns = keys.map(it => table.column(it));
+    columns.forEach(it => {
+      if (it.isReference()) this.importEntities.push(it.info.reference!.targetTable);
+    });
+    const name = columns
+      .map(column => (column.isReference() ? column.info.reference!.targetTable : column.name))
+      .map(capitalizeFirstLetter)
+      .join('And');
+    const params = columns.map(it =>
+      it.isReference()
+        ? `${it.info.reference!.targetTable}: Pick<${capitalizeFirstLetter(it.info.reference!.targetTable)}, '${
+            it.info.reference!.targetColumn
+          }'>`
+        : `${it.name}: ${it.getTsType(true)}`,
+    );
+
+    const returns = isUnique() ? `${table.entityName()} | undefined` : `${table.entityName()}[]`;
+    const findParamMap = columns.map(it =>
+      it.isReference()
+        ? `${it.info.reference!.columnName}: ${it.info.reference!.targetTable}.${it.info.reference!.targetColumn}`
+        : it.name,
+    );
+    return createFindFunction(name, params, returns, findParamMap, isUnique());
   };
 
   private functions = (table: TableGenerator) => {
-    return getFindQueries(table)
-      .map(it => this.createFindBy(table, it.keys, it.unique, it.ref))
+    // return getFindQueries(table)
+    return table
+      .getFindQueries()
+      .map(it => this.createFindBy(it, table))
       .join('\n');
   };
 
@@ -66,6 +77,9 @@ export class RepositoryGenerator {
     const functions = this.functions(table);
     return `\
 ${this.imports.join('\n')}
+${[...new Set(this.importEntities)]
+  .map(it => `import { ${capitalizeFirstLetter(it)} } from '../entity/${it}';`)
+  .join('\n')}
 
 export abstract class Generated${entity}Repository extends SasatRepository<${entity}, Creatable${entity}> {
   protected tableName = '${table.tableName}';

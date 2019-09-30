@@ -1,7 +1,6 @@
 import * as path from 'path';
 import { config } from '../config/config';
 import { mkDirIfNotExists, writeYmlFile } from '../util';
-import { TableInfo } from '../migration/table/tableInfo';
 import { writeEntity } from './entity/entity';
 import { writeRepository } from './repository/repository';
 import { emptyDir, writeFile } from 'fs-extra';

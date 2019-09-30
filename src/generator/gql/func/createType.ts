@@ -1,8 +1,5 @@
-import { isPrimary, TableInfo } from '../../../migration/table/tableInfo';
-import { GqlPrimitive, GqlType } from '../types';
-import { capitalizeFirstLetter } from '../../../util';
+import { GqlPrimitive } from '../types';
 import { SasatColumnTypes } from '../../../migration/column/columnTypes';
-import { TableGenerator } from '../../store';
 
 export const columnTypeToGqlPrimitive = (type: SasatColumnTypes) => {
   switch (type) {
@@ -29,13 +26,3 @@ export const columnTypeToGqlPrimitive = (type: SasatColumnTypes) => {
       return GqlPrimitive.Boolean;
   }
 };
-
-// TODO reference support
-export const createGqlType = (table: TableGenerator): GqlType => ({
-  typeName: capitalizeFirstLetter(table.tableName),
-  fields: table.columns.map(it => ({
-    name: it.name,
-    type: columnTypeToGqlPrimitive(it.info.type),
-    nullable: !it.info.notNull && !table.isPrimary(it.name),
-  })),
-});

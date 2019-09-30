@@ -1,7 +1,6 @@
 import { TableBuilder } from './table/tableBuilder';
 import { addIndex } from './sqlCreater';
 import { TableMigrator } from './table/tableMigrator';
-import { TableInfo } from './table/tableInfo';
 import { DataStoreSchema } from './table/dataStoreSchema';
 
 export abstract class DataStoreBuilder {

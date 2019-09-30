@@ -4,8 +4,11 @@ import { ForeignKey } from '../migration/table/foreignKey';
 import { Index } from '../migration/table';
 import { ReferenceColumnInfo } from '../migration/column/referenceColumn';
 import { DataStoreSchema } from '../migration/table/dataStoreSchema';
-import { capitalizeFirstLetter } from '../util';
+import { arrayEq, capitalizeFirstLetter, uniqueDeep } from '../util';
 import { columnTypeToTsType } from '../migration/column/columnTypes';
+import { GqlType } from './gql/types';
+import { columnTypeToGqlPrimitive } from './gql/func/createType';
+import { QueryInfo } from './gql/queryInfo';
 
 export class ColumnGenerator {
   name: string;
@@ -17,8 +20,12 @@ export class ColumnGenerator {
     `${columnTypeToTsType(this.info.type)}${this.info.notNull === false && !forceNotNull ? ' | null' : ''}`;
 
   isNullableOnCreate = (): boolean => {
-    return this.info.notNull === false || this.info.default !== undefined || this.info.autoIncrement;
+    return (
+      !this.isReference() && (this.info.notNull === false || this.info.default !== undefined || this.info.autoIncrement)
+    );
   };
+
+  isReference = (): boolean => this.info.reference !== undefined;
 }
 
 export class TableGenerator implements Omit<TableInfo, 'columns' | 'references'> {
@@ -40,6 +47,24 @@ export class TableGenerator implements Omit<TableInfo, 'columns' | 'references'>
   column = (columnName: string): ColumnGenerator => this.columns.find(it => it.name === columnName)!;
   entityName = () => capitalizeFirstLetter(this.tableName);
   isPrimary = (columnName: string) => this.primaryKey.includes(columnName);
+
+  // TODO reference support
+  createGqlType = (): GqlType => ({
+    typeName: capitalizeFirstLetter(this.tableName),
+    fields: this.columns.map(it => ({
+      name: it.name,
+      type: columnTypeToGqlPrimitive(it.info.type),
+      nullable: !it.info.notNull && !this.isPrimary(it.name),
+    })),
+  });
+
+  getFindQueries = (): string[][] => {
+    return uniqueDeep([
+      this.primaryKey,
+      ...this.columns.filter(it => it.isReference()).map(it => [it.name]),
+      ...this.uniqueKeys,
+    ]);
+  };
 }
 
 export class StoreGenerator {
