@@ -6,6 +6,8 @@ import { writeEntity } from './entity/entity';
 import { writeRepository } from './repository/repository';
 import { emptyDir, writeFile } from 'fs-extra';
 import { generateGqlString } from './gql/gql';
+import { DataStoreSchema } from '../migration/table/dataStoreSchema';
+import { StoreGenerator, TableGenerator } from './store';
 
 export class GenerateController {
   private outDir = config().migration.out;
@@ -14,13 +16,16 @@ export class GenerateController {
   private generateEntityDir = path.join(this.generateDir, 'entity');
   private generateRepositoryDir = path.join(this.generateDir, 'repository');
 
-  constructor(private tables: TableInfo[]) {}
+  private store: StoreGenerator;
+  constructor(private schema: DataStoreSchema) {
+    this.store = new StoreGenerator(schema);
+  }
 
   async execute() {
     await this.prepareDirs();
-    writeYmlFile(this.outDir, 'current_schema.yml', this.tables);
-    await Promise.all(this.tables.map(this.generate));
-    await writeFile(path.join(this.generateDir, 'typeDefs.ts'), generateGqlString(this.tables).typeDefs);
+    writeYmlFile(this.outDir, 'current_schema.yml', this.schema.tables);
+    await Promise.all(this.store.tables.map(this.generate));
+    await writeFile(path.join(this.generateDir, 'typeDefs.ts'), generateGqlString(this.store.tables).typeDefs);
   }
 
   private async prepareDirs() {
@@ -31,7 +36,7 @@ export class GenerateController {
     mkDirIfNotExists(this.repositoryDir);
   }
 
-  private generate = async (table: TableInfo) => {
+  private generate = async (table: TableGenerator) => {
     await writeEntity(table, this.generateEntityDir);
     await writeRepository(table, this.generateRepositoryDir, this.repositoryDir);
   };

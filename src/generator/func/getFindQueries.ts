@@ -1,15 +1,16 @@
 import { TableInfo } from '../../migration/table/tableInfo';
 import { ReferenceColumnInfo } from '../../migration/column/referenceColumn';
 import { capitalizeFirstLetter } from '../../util';
+import { TableGenerator } from '../store';
 
 export interface QueryInfo {
   entity: string;
   keys: string[];
   unique: boolean;
-  ref?: Pick<ReferenceColumnInfo, 'table' | 'column'>;
+  ref?: Pick<ReferenceColumnInfo, 'targetTable' | 'targetColumn'>;
 }
 
-export const getFindQueries = (table: TableInfo): QueryInfo[] => {
+export const getFindQueries = (table: TableGenerator): QueryInfo[] => {
   const queries: QueryInfo[] = [];
   const isDuplicate = (keys: string[]) => {
     outer: for (const q of queries) {
@@ -25,13 +26,15 @@ export const getFindQueries = (table: TableInfo): QueryInfo[] => {
   const entity = capitalizeFirstLetter(table.tableName);
   if (table.primaryKey) queries.push({ entity: entity, keys: table.primaryKey, unique: true });
   queries.push(
-    ...table.references
-      .filter(it => !isDuplicate([it.column]))
+    ...table.columns
+      .filter(it => it.info.reference !== undefined)
+      .map(it => it.info.reference!)
+      .filter(it => !isDuplicate([it.targetColumn]))
       .map(it => ({
         entity: entity,
-        keys: [it.column],
+        keys: [it.targetColumn],
         unique: it.unique,
-        ref: { table: it.table, column: it.column },
+        ref: { targetTable: it.targetTable, targetColumn: it.targetColumn },
       })),
   );
   queries.push(

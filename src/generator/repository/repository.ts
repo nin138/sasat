@@ -6,6 +6,7 @@ import { getEntityName } from '../entity/entity';
 import { columnTypeToTsType } from '../../migration/column/columnTypes';
 import { ReferenceColumnInfo } from '../../migration/column/referenceColumn';
 import { getFindQueries } from '../func/getFindQueries';
+import { TableGenerator } from '../store';
 
 // TODO refactoring
 
@@ -26,33 +27,33 @@ const createFindFunction = (
 
 export class RepositoryGenerator {
   private imports: string[] = ["import { SasatRepository } from 'sasat';"];
-  constructor(private table: TableInfo) {
+  constructor(private table: TableGenerator) {
     this.imports.push(
-      `import { ${getEntityName(table)}, Creatable${getEntityName(table)} } from '../entity/${table.tableName}';`,
+      `import { ${table.entityName()}, Creatable${table.entityName()} } from '../entity/${table.tableName}';`,
     );
   }
 
   private createFindBy = (
-    table: TableInfo,
+    table: TableGenerator,
     keys: string[],
     unique: boolean,
-    ref?: Pick<ReferenceColumnInfo, 'table' | 'column'>,
+    ref?: Pick<ReferenceColumnInfo, 'targetTable' | 'targetColumn'>,
   ) => {
     if (keys.length === 0) return '';
-    const name = ref !== undefined ? ref!.table : keys.map(capitalizeFirstLetter).join('And');
+    const name = ref !== undefined ? ref!.targetTable : keys.map(capitalizeFirstLetter).join('And');
     let params;
     if (ref !== undefined) {
-      this.imports.push(`import { ${capitalizeFirstLetter(ref.table)} } from '../entity/${ref.table}';`);
-      params = [`${ref.table}: Pick<${capitalizeFirstLetter(ref.table)}, '${ref.column}'>`];
+      this.imports.push(`import { ${capitalizeFirstLetter(ref.targetTable)} } from '../entity/${ref.targetTable}';`);
+      params = [`${ref.targetTable}: Pick<${capitalizeFirstLetter(ref.targetTable)}, '${ref.targetColumn}'>`];
     } else {
-      params = keys.map(it => `${it}: ${columnTypeToTsType(table.columns.find(it => it.columnName)!.type)}`);
+      params = keys.map(it => `${it}: ${table.column(it).getTsType(true)}`);
     }
-    const returns = unique ? `${getEntityName(table)} | undefined` : `${getEntityName(table)}[]`;
-    const findParamMap = ref !== undefined ? [`${ref.column}: ${ref.table}.${ref.column}`] : keys;
+    const returns = unique ? `${table.entityName()} | undefined` : `${table.entityName()}[]`;
+    const findParamMap = ref !== undefined ? [`${ref.targetColumn}: ${ref.targetTable}.${ref.targetColumn}`] : keys;
     return createFindFunction(name, params, returns, findParamMap, unique);
   };
 
-  private functions = (table: TableInfo) => {
+  private functions = (table: TableGenerator) => {
     return getFindQueries(table)
       .map(it => this.createFindBy(table, it.keys, it.unique, it.ref))
       .join('\n');
@@ -60,7 +61,7 @@ export class RepositoryGenerator {
 
   createRepositoryString = () => {
     const table = this.table;
-    const entity = getEntityName(table);
+    const entity = table.entityName();
     const pKeys = table.primaryKey ? `\n    ${table.primaryKey.map(it => `'${it}'`).join('\n    ')}` : '';
     const functions = this.functions(table);
     return `\
@@ -85,7 +86,7 @@ export class ${className} extends Generated${className} {}
 `;
 };
 
-export const writeRepository = async (table: TableInfo, generateDir: string, repositoryDir: string) => {
+export const writeRepository = async (table: TableGenerator, generateDir: string, repositoryDir: string) => {
   await writeFile(
     path.join(generateDir, table.tableName + '.ts'),
     new RepositoryGenerator(table).createRepositoryString(),

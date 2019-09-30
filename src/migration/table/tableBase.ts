@@ -34,8 +34,9 @@ export abstract class TableBase {
 
   addReferences(table: string, column: string, unique = false): this {
     this.references.push({
-      table,
-      column,
+      targetTable: table,
+      targetColumn: column,
+      columnName: column,
       unique,
     });
     return this;

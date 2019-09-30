@@ -34,8 +34,9 @@ export class TableMigrator extends TableBase {
   addReferences(table: string, column: string, unique = false): this {
     super.addReferences(table, column, unique);
     const columnInfo = referenceToColumnInfo(this.store, {
-      table,
-      column,
+      targetTable: table,
+      targetColumn: column,
+      columnName: column,
       unique,
     });
     delete columnInfo.primary;
