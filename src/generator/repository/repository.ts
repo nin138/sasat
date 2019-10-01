@@ -1,7 +1,6 @@
 import * as path from 'path';
 import { arrayEq, camelize, capitalizeFirstLetter, writeFileIfNotExists } from '../../util';
 import { writeFile } from 'fs-extra';
-import { getFindQueries } from '../func/getFindQueries';
 import { TableGenerator } from '../store';
 
 // TODO refactoring
@@ -13,8 +12,10 @@ const createFindFunction = (
   unique: boolean,
 ) => `\
   async findBy${capitalizeFirstLetter(camelize(name))}(${params.join(', ')}): Promise<${returns}> {
-    const result = await this.findBy({
-      ${findParamMap.join(',\n      ')},
+    const result = await this.find({
+      where: {
+        ${findParamMap.join(',\n        ')},
+      }
     });
     ${unique ? `if (result.length === 0) return;\n    return result[0];` : 'return result;'}
   }

@@ -1,6 +1,6 @@
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 import { SQLClient, SqlValueType } from './dbClient';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const formatQuery = (str: TemplateStringsArray, ...params: any[]): string => {
   let ret = str[0];
   for (let i = 0; i < params.length; i++) {

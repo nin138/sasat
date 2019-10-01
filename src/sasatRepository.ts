@@ -1,13 +1,14 @@
 import { getDbClient } from './db/getDbClient';
 import { CommandResponse, SQLClient, SQLExecutor, SqlValueType } from './db/dbClient';
 import { formatQuery } from './db/formatQuery';
+import { Condition, orderToSQL, whereToSQL } from './condition';
 
 interface Repository<Entity, Creatable> {
   create(entity: Creatable): Promise<CommandResponse>;
   list(): Promise<Entity[]>;
   update(entity: Entity): Promise<CommandResponse>;
   delete(entity: Entity): Promise<CommandResponse>;
-  findBy(map: { [column: string]: SqlValueType }): Promise<Entity[]>;
+  find(condition: Condition<Entity>): Promise<Entity[]>;
 }
 
 export abstract class SasatRepository<Entity, Creatable> implements Repository<Entity, Creatable> {
@@ -28,14 +29,20 @@ export abstract class SasatRepository<Entity, Creatable> implements Repository<E
     );
   }
 
-  async findBy(where: { [key: string]: SqlValueType }): Promise<Entity[]> {
-    const condition = this.objToSql(where).join(' AND ');
-    const result = await this.client.rawQuery(`SELECT * FROM ${this.getTableName()} WHERE ${condition}`);
+  async find(condition: Condition<Entity>): Promise<Entity[]> {
+    const select = condition.select ? condition.select.join(', ') : '*';
+    const where = condition.where ? ' WHERE' + whereToSQL(condition.where) : '';
+    const order = condition.order ? ' ORDER BY' + orderToSQL(condition.order) : '';
+    const limit = condition.limit ? ' LIMIT' + condition.limit : '';
+    const offset = condition.offset ? ' OFFSET' : '';
+    const result = await this.client.rawQuery(
+      `SELECT ${select} FROM ${this.tableName}${where}${order}${limit}${offset}`,
+    );
     return result.map(it => this.resultToEntity(it));
   }
 
   async list(): Promise<Entity[]> {
-    const result = await this.client.rawQuery(`SELECT * FROM ${this.getTableName()}`);
+    const result = await this.client.rawQuery(`SELECT * FROM ${this.tableName}`);
     return result.map(it => this.resultToEntity(it));
   }
 

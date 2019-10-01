@@ -4,11 +4,10 @@ import { ForeignKey } from '../migration/table/foreignKey';
 import { Index } from '../migration/table';
 import { ReferenceColumnInfo } from '../migration/column/referenceColumn';
 import { DataStoreSchema } from '../migration/table/dataStoreSchema';
-import { arrayEq, capitalizeFirstLetter, uniqueDeep } from '../util';
+import { capitalizeFirstLetter, uniqueDeep } from '../util';
 import { columnTypeToTsType } from '../migration/column/columnTypes';
 import { GqlType } from './gql/types';
 import { columnTypeToGqlPrimitive } from './gql/func/createType';
-import { QueryInfo } from './gql/queryInfo';
 
 export class ColumnGenerator {
   name: string;
