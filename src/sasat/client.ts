@@ -10,6 +10,7 @@ import {
 } from './redisCacheConf';
 import { getDbClient } from '../db/getDbClient';
 import { config } from '../config/config';
+import * as SqlString from 'sqlstring';
 
 type Key = string | number;
 
@@ -48,7 +49,7 @@ export class SasatClient {
     return this.db.transaction().then(async con => {
       const conf = this.cacheConf[name] as SasatRedisCacheConfString;
       const r = await con.rawQuery(
-        `update ${conf.table} set ${conf.value} = ${SQLClient.escape(value)} where ${conf.key} = ${SQLClient.escape(
+        `update ${conf.table} set ${conf.value} = ${SqlString.escape(value)} where ${conf.key} = ${SqlString.escape(
           key,
         )}`,
       );
@@ -83,9 +84,9 @@ export class SasatClient {
     return this.db.transaction().then(async con => {
       const conf = this.cacheConf[name] as SasatRedisCacheConfJSONString;
       const columns = Object.entries(values)
-        .map(([k, v]) => `${k} = ${SQLClient.escape(v)}`)
+        .map(([k, v]) => `${k} = ${SqlString.escape(v)}`)
         .join(',');
-      const r = await con.rawQuery(`update ${conf.table} set ${columns} where ${conf.key} = ${SQLClient.escape(key)}`);
+      const r = await con.rawQuery(`update ${conf.table} set ${columns} where ${conf.key} = ${SqlString.escape(key)}`);
       await this.redis.set(conf.keyPrefix + key, JSON.stringify(values));
       await con.commit();
       return r;
@@ -121,9 +122,9 @@ export class SasatClient {
     return this.db.transaction().then(async con => {
       const conf = this.cacheConf[name] as SasatRedisCacheConfHash;
       const columns = Object.entries(values)
-        .map(([k, v]) => `${k} = ${SQLClient.escape(v)}`)
+        .map(([k, v]) => `${k} = ${SqlString.escape(v)}`)
         .join(',');
-      const r = await con.rawQuery(`update ${conf.table} set ${columns} where ${conf.key} = ${SQLClient.escape(key)}`);
+      const r = await con.rawQuery(`update ${conf.table} set ${columns} where ${conf.key} = ${SqlString.escape(key)}`);
       await this.redis.hmset(conf.keyPrefix + key, ...SasatClient.flatFV(values));
       await con.commit();
       return r;
@@ -144,7 +145,7 @@ export class SasatClient {
     const values: Array<string | number> = [];
     Object.entries(valueMap).map(([k, v]) => {
       columns.push(k);
-      values.push(SQLClient.escape(v));
+      values.push(SqlString.escape(v));
     });
     return transaction.rawCommand(`insert into ${table}(${columns.join(',')}) values(${values.join(',')})`);
   }

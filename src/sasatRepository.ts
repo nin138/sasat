@@ -1,7 +1,7 @@
 import { getDbClient } from './db/getDbClient';
-import { CommandResponse, SQLClient, SQLExecutor, SqlValueType } from './db/dbClient';
-import { formatQuery } from './db/formatQuery';
+import { CommandResponse, SQLExecutor, SqlValueType } from './db/dbClient';
 import { Condition, orderToSQL, whereToSQL } from './condition';
+import * as SqlString from 'sqlstring';
 
 interface Repository<Entity, Creatable> {
   create(entity: Creatable): Promise<CommandResponse>;
@@ -17,20 +17,27 @@ export abstract class SasatRepository<Entity, Creatable> implements Repository<E
   constructor(protected client: SQLExecutor = getDbClient()) {}
 
   async create(entity: Creatable) {
-    const values = Object.values(entity);
+    const columns: string[] = [];
+    const values: string[] = [];
+    Object.entries(entity).forEach(([column, value]) => {
+      columns.push(column);
+      values.push(value);
+    });
     return this.client.rawCommand(
-      formatQuery`INSERT INTO ${this.getTableName} (${() => Object.keys(entity)}) VALUES (${values})`,
+      `INSERT INTO ${this.tableName}(${columns.map(it => SqlString.escapeId(it)).join(', ')}) VALUES ${values
+        .map(SqlString.escape)
+        .join(', ')}`,
     );
   }
 
   async delete(entity: Entity) {
     return this.client.rawCommand(
-      `DELETE FROM ${this.getTableName()} WHERE ${this.getWhereClauseIdentifiedByPrimaryKey(entity)}`,
+      `DELETE FROM ${this.tableName} WHERE ${this.getWhereClauseIdentifiedByPrimaryKey(entity)}`,
     );
   }
 
   async find(condition: Condition<Entity>): Promise<Entity[]> {
-    const select = condition.select ? condition.select.join(', ') : '*';
+    const select = condition.select ? condition.select.map(it => SqlString.escapeId(it)).join(', ') : '*';
     const where = condition.where ? ' WHERE' + whereToSQL(condition.where) : '';
     const order = condition.order ? ' ORDER BY' + orderToSQL(condition.order) : '';
     const limit = condition.limit ? ' LIMIT' + condition.limit : '';
@@ -41,8 +48,10 @@ export abstract class SasatRepository<Entity, Creatable> implements Repository<E
     return result.map(it => this.resultToEntity(it));
   }
 
-  async list(): Promise<Entity[]> {
-    const result = await this.client.rawQuery(`SELECT * FROM ${this.tableName}`);
+  async list(select?: Array<keyof Entity>): Promise<Entity[]> {
+    const result = await this.client.rawQuery(
+      `SELECT ${select ? select.map(it => SqlString.escapeId(it)).join(', ') : '*'} FROM ${this.tableName}`,
+    );
     return result.map(it => this.resultToEntity(it));
   }
 
@@ -50,7 +59,7 @@ export abstract class SasatRepository<Entity, Creatable> implements Repository<E
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const values = this.objToSql(entity as any).join(', ');
     return this.client.rawCommand(
-      `UPDATE ${this.getTableName()} SET ${values} WHERE ${this.getWhereClauseIdentifiedByPrimaryKey(entity)}`,
+      `UPDATE ${this.tableName} SET ${values} WHERE ${this.getWhereClauseIdentifiedByPrimaryKey(entity)}`,
     );
   }
 
@@ -58,16 +67,14 @@ export abstract class SasatRepository<Entity, Creatable> implements Repository<E
     return (obj as unknown) as Entity;
   }
 
-  protected getTableName() {
-    return this.tableName;
-  }
-
   private objToSql(obj: Record<string, SqlValueType>): string[] {
-    return Object.entries(obj).map(([column, value]) => `${column} = ${SQLClient.escape(value)}`);
+    return Object.entries(obj).map(([column, value]) => `${SqlString.escapeId(column)} = ${SqlString.escape(value)}`);
   }
 
   private getWhereClauseIdentifiedByPrimaryKey(entity: Entity) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return this.primaryKeys.map(it => `${it} = ${SQLClient.escape((entity as any)[it])}`).join(' AND ');
+    return this.primaryKeys
+      .map(it => `${SqlString.escapeId(it)} = ${SqlString.escape((entity as any)[it])}`)
+      .join(' AND ');
   }
 }

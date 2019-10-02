@@ -1,4 +1,3 @@
-import * as SqlString from 'sqlstring';
 import { formatQuery } from './formatQuery';
 export type QueryResponse = Array<{ [key: string]: string }>;
 export interface CommandResponse {
@@ -14,10 +13,6 @@ export interface SQLExecutor {
 }
 
 export abstract class SQLClient implements SQLExecutor {
-  static escape(param: SqlValueType): string {
-    return SqlString.escape(param);
-  }
-
   rawQuery(sql: string): Promise<QueryResponse> {
     return this.execSql(sql) as Promise<QueryResponse>;
   }
