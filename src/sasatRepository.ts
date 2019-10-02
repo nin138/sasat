@@ -72,9 +72,11 @@ export abstract class SasatRepository<Entity, Creatable> implements Repository<E
   }
 
   private getWhereClauseIdentifiedByPrimaryKey(entity: Entity) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return this.primaryKeys
-      .map(it => `${SqlString.escapeId(it)} = ${SqlString.escape((entity as any)[it])}`)
-      .join(' AND ');
+    return (
+      this.primaryKeys
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .map(it => `${SqlString.escapeId(it)} = ${SqlString.escape((entity as any)[it])}`)
+        .join(' AND ')
+    );
   }
 }

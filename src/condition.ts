@@ -22,10 +22,14 @@ export enum SQLComparisonOperator {
   'LIKE' = 'LIKE',
 }
 
-export type SQLWhereConditions<T> = Where<T> | WhereOr<T>;
+export type SQLWhereConditions<T> = Where<T> | WhereOr<T> | WhereAnd<T>;
 
 export type WhereOr<T> = {
   OR: SQLWhereConditions<T>[];
+};
+
+export type WhereAnd<T> = {
+  AND: SQLWhereConditions<T>[];
 };
 
 export type Where<T> = Partial<
@@ -43,9 +47,8 @@ export type Where<T> = Partial<
 export const whereToSQL = <T>(where: SQLWhereConditions<T>, type: 'AND' | 'OR' = 'AND'): string => {
   return Object.entries(where)
     .map(([key, value]) => {
-      if (key === 'OR') {
-        return `(${value.map((it: SQLWhereConditions<T>) => whereToSQL(it)).join(' OR ')})`;
-      }
+      if (key === 'OR') return `(${value.map((it: SQLWhereConditions<T>) => whereToSQL(it)).join(' OR ')})`;
+      if (key === 'AND') return `(${value.map((it: SQLWhereConditions<T>) => whereToSQL(it)).join(' AND ')})`;
       if (!Array.isArray(value)) return `${key} = ${SqlString.escape(value)}`;
       if (value[0] === 'IS NULL') return `${key} IS NULL`;
       if (value[0] === 'IS NOT NULL') return `${key} IS NOT NULL`;

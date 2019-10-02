@@ -18,3 +18,5 @@ rules:
   "@typescript-eslint/ban-ts-ignore": 0
   prettier/prettier: 0
   "@typescript-eslint/camelcase": 0
+  "@typescript-eslint/no-unused-vars": 2
+  "@typescript-eslint/no-explicit-any": 2

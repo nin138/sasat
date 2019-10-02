@@ -1,4 +1,4 @@
-import { CommandResponse, DBClient, SQLClient, SQLTransaction } from '../db/dbClient';
+import { CommandResponse, DBClient, SQLTransaction } from '../db/dbClient';
 import { RedisClient } from '../redis/redisClient';
 
 import { initCache } from './initCache';
