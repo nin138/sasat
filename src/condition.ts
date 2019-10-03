@@ -50,6 +50,7 @@ export const whereToSQL = <T>(where: SQLWhereConditions<T>, type: 'AND' | 'OR' =
       if (key === 'OR') return `(${value.map((it: SQLWhereConditions<T>) => whereToSQL(it)).join(' OR ')})`;
       if (key === 'AND') return `(${value.map((it: SQLWhereConditions<T>) => whereToSQL(it)).join(' AND ')})`;
       if (!Array.isArray(value)) return `${key} = ${SqlString.escape(value)}`;
+      key = SqlString.escapeId(key);
       if (value[0] === 'IS NULL') return `${key} IS NULL`;
       if (value[0] === 'IS NOT NULL') return `${key} IS NOT NULL`;
       if (value[0] === 'IN') {
