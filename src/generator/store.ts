@@ -4,10 +4,12 @@ import { ForeignKey } from '../migration/table/foreignKey';
 import { Index } from '../migration/table';
 import { ReferenceColumnInfo } from '../migration/column/referenceColumn';
 import { DataStoreSchema } from '../migration/table/dataStoreSchema';
-import { capitalizeFirstLetter, uniqueDeep } from '../util';
 import { columnTypeToTsType } from '../migration/column/columnTypes';
 import { GqlType } from './gql/types';
-import { columnTypeToGqlPrimitive } from './gql/func/createType';
+import { columnTypeToGqlPrimitive } from './gql/sasatToGqlType';
+import { FindQueryCreator } from './repository/repository';
+import { capitalizeFirstLetter } from '../util/stringUtil';
+import { arrayEq, uniqueDeep } from '../util/arrayUtil';
 
 export class ColumnGenerator {
   name: string;
@@ -46,6 +48,57 @@ export class TableGenerator implements Omit<TableInfo, 'columns' | 'references'>
   column = (columnName: string): ColumnGenerator => this.columns.find(it => it.name === columnName)!;
   entityName = () => capitalizeFirstLetter(this.tableName);
   isPrimary = (columnName: string) => this.primaryKey.includes(columnName);
+  references = (): ColumnGenerator[] => this.columns.filter(it => it.isReference());
+
+  getFindQueries2 = (): FindQueryCreator[] => {
+    const queries: FindQueryCreator[] = [
+      new FindQueryCreator({
+        params: this.primaryKey.map(it => ({
+          name: this.column(it).name,
+          type: this.column(it).info.type,
+        })),
+        isReturnUnique: true,
+        returnEntity: this.entityName(),
+      }),
+    ];
+
+    const isDuplicate = (columns: string[]) =>
+      queries.find(query => !arrayEq(query.params.map(param => param.name), columns)) !== null;
+
+    this.references().forEach(column => {
+      if (isDuplicate([column.name])) {
+        queries.push(
+          new FindQueryCreator({
+            params: [
+              {
+                name: column.name,
+                type: column.info.type,
+              },
+            ],
+            isReturnUnique: column.info.reference!.unique,
+            returnEntity: this.entityName(),
+          }),
+        );
+      }
+    });
+
+    this.uniqueKeys.forEach(columns => {
+      if (isDuplicate(columns)) {
+        queries.push(
+          new FindQueryCreator({
+            params: columns.map(it => ({
+              name: it,
+              type: this.column(it).info.type,
+            })),
+            isReturnUnique: true,
+            returnEntity: this.entityName(),
+          }),
+        );
+      }
+    });
+
+    return queries;
+  };
 
   // TODO reference support
   createGqlType = (): GqlType => ({

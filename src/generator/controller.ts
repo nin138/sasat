@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { config } from '../config/config';
-import { mkDirIfNotExists, writeYmlFile } from '../util';
+import { mkDirIfNotExists, writeYmlFile } from '../util/fsUtil';
 import { writeEntity } from './entity/entity';
 import { writeRepository } from './repository/repository';
 import { emptyDir, writeFile } from 'fs-extra';
@@ -24,7 +24,10 @@ export class GenerateController {
     await this.prepareDirs();
     writeYmlFile(this.outDir, 'current_schema.yml', this.schema.tables);
     await Promise.all(this.store.tables.map(this.generate));
-    await writeFile(path.join(this.generateDir, 'typeDefs.ts'), generateGqlString(this.store.tables).typeDefs);
+    const gqlStrings = generateGqlString(this.store.tables);
+    await writeFile(path.join(this.generateDir, 'typeDefs.ts'), gqlStrings.typeDefs);
+    await writeFile(path.join(this.generateDir, 'query.ts'), gqlStrings.query);
+    await writeFile(path.join(this.generateDir, 'resolver.ts'), gqlStrings.resolver);
   }
 
   private async prepareDirs() {

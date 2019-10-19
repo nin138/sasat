@@ -1,5 +1,5 @@
 import { ReferenceColumnInfo } from '../../migration/column/referenceColumn';
-import { capitalizeFirstLetter } from '../../util';
+import { capitalizeFirstLetter } from '../../util/stringUtil';
 import { TableGenerator } from '../store';
 
 export interface QueryInfo {

@@ -1,7 +1,37 @@
 import * as path from 'path';
-import { arrayEq, camelize, capitalizeFirstLetter, writeFileIfNotExists } from '../../util';
 import { writeFile } from 'fs-extra';
 import { TableGenerator } from '../store';
+import { SasatColumnTypes } from '../../migration/column/columnTypes';
+import { camelize, capitalizeFirstLetter } from '../../util/stringUtil';
+import { writeFileIfNotExists } from '../../util/fsUtil';
+import { arrayEq } from '../../util/arrayUtil';
+
+export interface Import {
+  name: string[];
+  path: string;
+}
+
+export interface FindQueryCreatable {
+  params: Array<{ name: string; type: SasatColumnTypes }>;
+  returnEntity: string;
+  isReturnUnique: boolean;
+}
+
+export class FindQueryCreator implements FindQueryCreatable {
+  params: Array<{ name: string; type: SasatColumnTypes }>;
+  returnEntity: string;
+  isReturnUnique: boolean;
+  constructor(creatable: FindQueryCreatable) {
+    this.params = creatable.params;
+    this.returnEntity = creatable.returnEntity;
+    this.isReturnUnique = creatable.isReturnUnique;
+  }
+}
+
+export interface RepositoryCreatable {
+  entityName: string;
+  findQueries: FindQueryCreator[];
+}
 
 // TODO refactoring
 const createFindFunction = (
@@ -20,6 +50,14 @@ const createFindFunction = (
     ${unique ? `if (result.length === 0) return;\n    return result[0];` : 'return result;'}
   }
 `;
+
+export const toRepoFnName = (keys: string[], table: TableGenerator) => {
+  return keys
+    .map(it => table.column(it))
+    .map(column => (column.isReference() ? column.info.reference!.targetTable : column.name))
+    .map(capitalizeFirstLetter)
+    .join('And');
+};
 
 export class RepositoryGenerator {
   private imports: string[] = ["import { SasatRepository } from 'sasat';"];
@@ -42,10 +80,7 @@ export class RepositoryGenerator {
     columns.forEach(it => {
       if (it.isReference()) this.importEntities.push(it.info.reference!.targetTable);
     });
-    const name = columns
-      .map(column => (column.isReference() ? column.info.reference!.targetTable : column.name))
-      .map(capitalizeFirstLetter)
-      .join('And');
+    const name = toRepoFnName(keys, table);
     const params = columns.map(it =>
       it.isReference()
         ? `${it.info.reference!.targetTable}: Pick<${capitalizeFirstLetter(it.info.reference!.targetTable)}, '${

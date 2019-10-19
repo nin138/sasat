@@ -1,14 +1,15 @@
 import { GqlQuery, GqlSchema } from './types';
-import { columnTypeToGqlPrimitive } from './func/createType';
+import { columnTypeToGqlPrimitive } from './sasatToGqlType';
 import { getFindQueries, QueryInfo } from '../func/getFindQueries';
 import { generateTypeDefs } from './generateTypeDefs';
-import { plural } from 'pluralize';
 import { TableGenerator } from '../store';
-import { camelize } from '../../util';
+import { camelize, plural } from '../../util/stringUtil';
+import { generateGqlQueryString } from './resolver/query';
+import { getResolverString } from './resolver/generateResolver';
 
 const getReturnType = (info: QueryInfo) => (info.unique ? info.entity : `[${info.entity}]`);
 
-const getGqlQueries = (table: TableGenerator): GqlQuery[] => {
+export const getGqlQueries = (table: TableGenerator): GqlQuery[] => {
   const toFunctionName = (keys: string[], prefix?: string) => camelize(prefix + '_' + keys.join('And_'));
 
   return getFindQueries(table).map(it => ({
@@ -35,5 +36,7 @@ export const generateGqlString = (tables: TableGenerator[]) => {
   };
   return {
     typeDefs: generateTypeDefs(schema),
+    query: generateGqlQueryString(tables),
+    resolver: getResolverString(),
   };
 };

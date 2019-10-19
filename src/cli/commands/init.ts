@@ -1,4 +1,4 @@
-import { writeYmlFile } from '../../util';
+import { writeYmlFile } from '../../util/fsUtil';
 import { defaultConf } from '../../config/config';
 import { Console } from '../console';
 import * as fs from 'fs';

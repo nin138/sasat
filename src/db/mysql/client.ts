@@ -1,8 +1,8 @@
 import { CommandResponse, DBClient, QueryResponse, SQLTransaction } from '../dbClient';
 import * as mysql from 'mysql';
-import { promisify } from 'util';
 import { MySqlTransaction } from './transaction';
 import { config } from '../../config/config';
+import { promisify } from 'util';
 
 export class MysqlClient extends DBClient {
   private readonly pool: mysql.Pool;
