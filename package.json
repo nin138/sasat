@@ -37,7 +37,7 @@
     "sqlstring": "^2.3.1"
   },
   "devDependencies": {
-    "@types/fs-extra": "8.0.0",
+    "@types/fs-extra": "8.0.1",
     "@types/jest": "24.0.23",
     "@types/js-yaml": "3.12.1",
     "@types/mysql": "2.15.7",
