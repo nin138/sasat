@@ -1,87 +1,53 @@
-import {
-  SasatColumnTypes,
-  SasatDateTypes,
-  SasatFloatingTypes,
-  SasatIntegerTypes,
-  SasatStringTypes,
-  SasatTextTypes,
-} from './columnTypes';
+import { columnTypeToTsType, SasatColumnTypes } from './columnTypes';
 import { SqlValueType } from '../../db/dbClient';
-import { ReferenceColumnInfo } from './referenceColumn';
+import { ColumnReference } from './referenceColumn';
+import { columnTypeToGqlPrimitive } from '../../generator/gql/sasatToGqlType';
+import { GqlPrimitive } from '../../generator/gql/types';
+import { ColumnData } from './columnData';
+import * as SqlString from 'sqlstring';
 
-interface ColumnBase {
-  columnName: string;
-  type: SasatColumnTypes;
-  notNull: boolean;
-  unique: boolean;
-  primary: boolean;
-  default: SqlValueType | undefined | null;
+export class Column {
+  constructor(public data: ColumnData) {}
+  get name(): string {
+    return this.data.columnName;
+  }
+  sqlType(): SasatColumnTypes {
+    return this.data.type;
+  }
+  tsType(): string {
+    return columnTypeToTsType(this.sqlType());
+  }
+  gqlType(): GqlPrimitive {
+    return columnTypeToGqlPrimitive(this.sqlType());
+  }
+
+  // TODO Use user-defined type guard
+  toSql(): string {
+    const words = [this.name, this.sqlType()];
+    // @ts-ignore
+    if (this.data.length)
+      words.push(`(${[this.data.length, this.data.scale].filter(it => it !== undefined).join(',')})`);
+    // @ts-ignore
+    if (this.data.signed === true) words.push('SIGNED');
+    // @ts-ignore
+    else if (this.data.signed === false) words.push('UNSIGNED');
+    // @ts-ignore
+    if (this.data.zerofill) words.push('ZEROFILL');
+    // @ts-ignore
+    if (this.data.autoIncrement) words.push('AUTO_INCREMENT');
+    if (this.data.notNull) words.push('NOT NULL');
+    else if (!this.data.notNull) words.push('NULL');
+    if (
+      (this.sqlType() === SasatColumnTypes.timestamp || this.sqlType() === SasatColumnTypes.dateTime) &&
+      this.data.default === 'CURRENT_TIMESTAMP'
+    )
+      words.push('DEFAULT CURRENT_TIMESTAMP');
+    else if (this.data.default !== undefined) words.push('DEFAULT ' + SqlString.escape(this.data.default));
+    // @ts-ignore
+    if (this.data.onUpdateCurrentTimeStamp) words.push('ON UPDATE CURRENT_TIMESTAMP');
+    return words.join(' ');
+  }
 }
-
-export interface StringColumn extends ColumnBase {
-  type: SasatStringTypes;
-  length: number;
-  default: string | null | undefined;
-}
-
-export interface TextColumn extends ColumnBase {
-  type: SasatTextTypes;
-  default: string | null | undefined;
-}
-
-export interface IntegerColumn extends ColumnBase {
-  type: SasatIntegerTypes;
-  zerofill: boolean;
-  signed: boolean | undefined;
-  autoIncrement: boolean;
-  default: number | null | undefined;
-  length: number;
-}
-
-export interface FloatColumn extends ColumnBase {
-  type: SasatFloatingTypes;
-  zerofill: boolean;
-  signed: boolean;
-  autoIncrement: boolean;
-  default: number | null | undefined;
-  length: number;
-  scale: number;
-}
-
-export interface DecimalColumn extends ColumnBase {
-  type: SasatColumnTypes.decimal;
-  zerofill: boolean;
-  signed: boolean;
-  default: number | null | undefined;
-  length: number;
-  scale: number;
-}
-
-export interface TimeStampColumn extends ColumnBase {
-  type: SasatColumnTypes.timestamp | SasatColumnTypes.dateTime;
-  default: 'CURRENT_TIMESTAMP' | string | null | undefined;
-  onUpdateCurrentTimeStamp: boolean;
-}
-
-export interface DateColumn extends ColumnBase {
-  type: SasatDateTypes;
-  default: string | number | null | undefined;
-}
-
-export interface BooleanColumn extends ColumnBase {
-  type: SasatColumnTypes.boolean;
-  default: boolean | undefined;
-}
-
-export type ColumnInfo =
-  | StringColumn
-  | TextColumn
-  | IntegerColumn
-  | FloatColumn
-  | DecimalColumn
-  | TimeStampColumn
-  | DateColumn
-  | BooleanColumn;
 
 export interface AllColumnInfo {
   columnName: string;
@@ -95,5 +61,5 @@ export interface AllColumnInfo {
   signed?: boolean;
   default?: SqlValueType;
   onUpdateCurrentTimeStamp: boolean;
-  reference?: ReferenceColumnInfo;
+  reference?: ColumnReference;
 }

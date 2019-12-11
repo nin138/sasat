@@ -1,9 +1,9 @@
-import { DataStoreBuilder } from '../dataStore';
+import { DataStore } from '../dataStore';
 import { ColumnBuilder } from './columnBuilder';
 import { AllColumnInfo } from './column';
 import { ForeignKey } from '../table/foreignKey';
 
-export interface ReferenceColumnInfo {
+export interface ColumnReference {
   targetTable: string;
   targetColumn: string;
   columnName: string;
@@ -11,8 +11,8 @@ export interface ReferenceColumnInfo {
 }
 
 export const referenceToColumnInfo = (
-  store: DataStoreBuilder,
-  reference: ReferenceColumnInfo,
+  store: DataStore,
+  reference: ColumnReference,
 ): AllColumnInfo & { primary: boolean } => ({
   ...(store
     .table(reference.targetTable)!
@@ -22,7 +22,7 @@ export const referenceToColumnInfo = (
   unique: reference.unique,
 });
 
-export const referenceToForeignKey = (reference: ReferenceColumnInfo): ForeignKey => ({
+export const referenceToForeignKey = (reference: ColumnReference): ForeignKey => ({
   constraintName: `ref_${reference.targetTable}_${reference.targetColumn}`,
   columnName: reference.targetColumn,
   referenceTable: reference.targetTable,

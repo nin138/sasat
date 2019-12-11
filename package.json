@@ -84,7 +84,7 @@
       }
     },
     "testMatch": [
-      "**/test/**/*.+(ts|tsx|js)"
+      "**/*.test.+(ts|tsx|js)"
     ]
   }
 }

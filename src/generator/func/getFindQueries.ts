@@ -1,4 +1,4 @@
-import { ReferenceColumnInfo } from '../../migration/column/referenceColumn';
+import { ColumnReference } from '../../migration/column/referenceColumn';
 import { capitalizeFirstLetter } from '../../util/stringUtil';
 import { TableGenerator } from '../store';
 
@@ -6,7 +6,7 @@ export interface QueryInfo {
   entity: string;
   keys: string[];
   unique: boolean;
-  ref?: Pick<ReferenceColumnInfo, 'targetTable' | 'targetColumn'>;
+  ref?: Pick<ColumnReference, 'targetTable' | 'targetColumn'>;
 }
 
 export const getFindQueries = (table: TableGenerator): QueryInfo[] => {

@@ -1,9 +1,9 @@
 import { ColumnCreator } from '../column/columnCreator';
 import { TableBase } from './tableBase';
-import { DataStoreBuilder } from '../dataStore';
+import { DataStore } from '../dataStore';
 
 export class TableBuilder extends TableBase {
-  constructor(protected store: DataStoreBuilder, readonly tableName: string) {
+  constructor(protected store: DataStore, readonly tableName: string) {
     super(store, tableName);
   }
 

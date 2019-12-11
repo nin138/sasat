@@ -2,26 +2,29 @@ import { TableBuilder } from './table/tableBuilder';
 import { addIndex } from './sqlCreater';
 import { TableMigrator } from './table/tableMigrator';
 import { DataStoreSchema } from './table/dataStoreSchema';
+import { SasatError } from '../error';
 
-export abstract class DataStoreBuilder {
-  protected tables: TableMigrator[] = [];
-
-  abstract createTable(tableName: string, tableCreator: (table: TableBuilder) => void): DataStoreBuilder;
-  abstract dropTable(tableName: string): void;
-
-  table(tableName: string): TableMigrator | undefined {
-    return this.tables.find(it => it.tableName === tableName);
-  }
+export interface DataStore {
+  createTable(tableName: string, tableCreator: (table: TableBuilder) => void): DataStore;
+  dropTable(tableName: string): DataStore;
+  table(tableName: string): TableMigrator;
 }
 
-export class DataStoreMigrator extends DataStoreBuilder {
+export class DataStoreMigrator implements DataStore {
+  protected tables: TableMigrator[] = [];
   protected migrationQueue: string[] = [];
+
+  table(tableName: string): TableMigrator {
+    const target = this.tables.find(it => it.tableName === tableName);
+    if (!target) throw new SasatError(`TABLE \`${tableName}\` NOT FOUND`);
+    return target;
+  }
 
   addMigrationQuery(query: string) {
     this.migrationQueue.push(query);
   }
 
-  createTable(tableName: string, tableCreator: (table: TableBuilder) => void): DataStoreBuilder {
+  createTable(tableName: string, tableCreator: (table: TableBuilder) => void): DataStore {
     const tmp = new TableBuilder(this, tableName);
     tableCreator(tmp);
     const table = TableMigrator.fromTableBuilder(this, tmp);
@@ -33,6 +36,7 @@ export class DataStoreMigrator extends DataStoreBuilder {
 
   dropTable(tableName: string) {
     this.migrationQueue.push(`DROP TABLE ${tableName}`);
+    return this;
   }
 
   getSql() {

@@ -5,6 +5,7 @@ import { ColumnCreator } from '../column/columnCreator';
 import { TableBase } from './tableBase';
 import { TableBuilder } from './tableBuilder';
 import { referenceToColumnInfo } from '../column/referenceColumn';
+
 export class TableMigrator extends TableBase {
   static fromTableBuilder(store: DataStoreMigrator, table: TableBuilder): TableMigrator {
     const result: TableMigrator = Object.assign(Object.create(this.prototype), table, { store });
@@ -72,6 +73,11 @@ export class TableMigrator extends TableBase {
 
   private applyAddColumn(column: ColumnBuilder, after?: string) {
     if (!after) this.columns.push(column);
-    else this.columns.splice(this.columns.findIndex(it => it.name === after), 0, column);
+    else
+      this.columns.splice(
+        this.columns.findIndex(it => it.name === after),
+        0,
+        column,
+      );
   }
 }
