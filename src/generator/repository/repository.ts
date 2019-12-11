@@ -1,10 +1,9 @@
 import * as path from 'path';
 import { writeFile } from 'fs-extra';
 import { TableGenerator } from '../store';
-import { SasatColumnTypes } from '../../migration/column/columnTypes';
+import { columnTypeToTsType, SasatColumnTypes } from '../../migration/column/columnTypes';
 import { camelize, capitalizeFirstLetter } from '../../util/stringUtil';
 import { writeFileIfNotExists } from '../../util/fsUtil';
-import { arrayEq } from '../../util/arrayUtil';
 
 export interface Import {
   name: string[];
@@ -26,30 +25,41 @@ export class FindQueryCreator implements FindQueryCreatable {
     this.returnEntity = creatable.returnEntity;
     this.isReturnUnique = creatable.isReturnUnique;
   }
+  private fnName = (): string => {
+    return (
+      'find' +
+      this.returnEntity +
+      'By' +
+      this.params
+        .map(it => it.name)
+        .map(capitalizeFirstLetter)
+        .join('And')
+    );
+  };
+
+  toTsFn = () => {
+    const name = this.fnName();
+    const returnType = this.isReturnUnique ? `${this.returnEntity} | undefined` : `${this.returnEntity}[]`;
+    const whereClause = this.params.map(it => it.name);
+    return `\
+  async findBy${capitalizeFirstLetter(camelize(name))}(${this.params
+      .map(it => `${it.name}: ${columnTypeToTsType(it.type)}`)
+      .join(', ')}): Promise<${returnType}> {
+    const result = await this.find({
+      where: {
+        ${whereClause.join(',\n        ')},
+      }
+    });
+    ${this.isReturnUnique ? `if (result.length === 0) return;\n    return result[0];` : 'return result;'}
+  }
+`;
+  };
 }
 
 export interface RepositoryCreatable {
   entityName: string;
   findQueries: FindQueryCreator[];
 }
-
-// TODO refactoring
-const createFindFunction = (
-  name: string,
-  params: string[],
-  returns: string,
-  findParamMap: string[],
-  unique: boolean,
-) => `\
-  async findBy${capitalizeFirstLetter(camelize(name))}(${params.join(', ')}): Promise<${returns}> {
-    const result = await this.find({
-      where: {
-        ${findParamMap.join(',\n        ')},
-      }
-    });
-    ${unique ? `if (result.length === 0) return;\n    return result[0];` : 'return result;'}
-  }
-`;
 
 export const toRepoFnName = (keys: string[], table: TableGenerator) => {
   return keys
@@ -68,41 +78,11 @@ export class RepositoryGenerator {
     );
   }
 
-  private createFindBy = (keys: string[], table: TableGenerator) => {
-    const isUnique = () =>
-      [
-        table.primaryKey,
-        ...table.uniqueKeys,
-        ...table.columns.filter(it => it.isReference() && it.info.reference!.unique).map(it => [it.name]),
-      ].find(it => arrayEq(it, keys)) !== undefined;
-
-    const columns = keys.map(it => table.column(it));
-    columns.forEach(it => {
-      if (it.isReference()) this.importEntities.push(it.info.reference!.targetTable);
-    });
-    const name = toRepoFnName(keys, table);
-    const params = columns.map(it =>
-      it.isReference()
-        ? `${it.info.reference!.targetTable}: Pick<${capitalizeFirstLetter(it.info.reference!.targetTable)}, '${
-            it.info.reference!.targetColumn
-          }'>`
-        : `${it.name}: ${it.getTsType(true)}`,
-    );
-
-    const returns = isUnique() ? `${table.entityName()} | undefined` : `${table.entityName()}[]`;
-    const findParamMap = columns.map(it =>
-      it.isReference()
-        ? `${it.info.reference!.columnName}: ${it.info.reference!.targetTable}.${it.info.reference!.targetColumn}`
-        : it.name,
-    );
-    return createFindFunction(name, params, returns, findParamMap, isUnique());
-  };
-
   private functions = (table: TableGenerator) => {
     // return getFindQueries(table)
     return table
       .getFindQueries()
-      .map(it => this.createFindBy(it, table))
+      .map(it => it.toTsFn())
       .join('\n');
   };
 

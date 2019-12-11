@@ -50,7 +50,7 @@ export class TableGenerator implements Omit<TableInfo, 'columns' | 'references'>
   isPrimary = (columnName: string) => this.primaryKey.includes(columnName);
   references = (): ColumnGenerator[] => this.columns.filter(it => it.isReference());
 
-  getFindQueries2 = (): FindQueryCreator[] => {
+  getFindQueries = (): FindQueryCreator[] => {
     const queries: FindQueryCreator[] = [
       new FindQueryCreator({
         params: this.primaryKey.map(it => ({
@@ -63,7 +63,13 @@ export class TableGenerator implements Omit<TableInfo, 'columns' | 'references'>
     ];
 
     const isDuplicate = (columns: string[]) =>
-      queries.find(query => !arrayEq(query.params.map(param => param.name), columns)) !== null;
+      queries.find(
+        query =>
+          !arrayEq(
+            query.params.map(param => param.name),
+            columns,
+          ),
+      ) !== null;
 
     this.references().forEach(column => {
       if (isDuplicate([column.name])) {
@@ -110,7 +116,7 @@ export class TableGenerator implements Omit<TableInfo, 'columns' | 'references'>
     })),
   });
 
-  getFindQueries = (): string[][] => {
+  getFindQueries2 = (): string[][] => {
     return uniqueDeep([
       this.primaryKey,
       ...this.columns.filter(it => it.isReference()).map(it => [it.name]),
