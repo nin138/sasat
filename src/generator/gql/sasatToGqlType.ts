@@ -1,5 +1,5 @@
-import { GqlPrimitive } from '../types';
-import { SasatColumnTypes } from '../../../migration/column/columnTypes';
+import { GqlPrimitive } from './types';
+import { SasatColumnTypes } from '../../migration/column/columnTypes';
 
 export const columnTypeToGqlPrimitive = (type: SasatColumnTypes) => {
   switch (type) {
