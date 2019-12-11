@@ -39,9 +39,9 @@ export abstract class SasatRepository<Entity, Creatable> implements Repository<E
   async find(condition: Condition<Entity>): Promise<Entity[]> {
     const select = condition.select ? condition.select.map(it => SqlString.escapeId(it)).join(', ') : '*';
     const where = condition.where ? ' WHERE ' + whereToSQL(condition.where) : '';
-    const order = condition.order ? ' ORDER BY' + orderToSQL(condition.order) : '';
-    const limit = condition.limit ? ' LIMIT' + condition.limit : '';
-    const offset = condition.offset ? ' OFFSET' : '';
+    const order = condition.order ? ' ORDER BY ' + orderToSQL(condition.order) : '';
+    const limit = condition.limit ? ' LIMIT ' + condition.limit : '';
+    const offset = condition.offset ? ' OFFSET ' : '';
     const result = await this.client.rawQuery(
       `SELECT ${select} FROM ${this.tableName}${where}${order}${limit}${offset}`,
     );
