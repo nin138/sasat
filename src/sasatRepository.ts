@@ -1,9 +1,10 @@
 import { getDbClient } from './db/getDbClient';
-import { CommandResponse, SQLExecutor, SqlValueType } from './db/dbClient';
-import { Condition, orderToSQL, whereToSQL } from './condition';
+import { CommandResponse, SQLExecutor } from './db/dbClient';
+import { Condition, conditionToSql } from './condition';
 import * as SqlString from 'sqlstring';
 
-interface Repository<Entity, Creatable> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+interface Repository<Entity extends Record<string, any>, Creatable extends Record<string, any>> {
   create(entity: Creatable): Promise<CommandResponse>;
   list(): Promise<Entity[]>;
   update(entity: Entity): Promise<CommandResponse>;
@@ -36,15 +37,8 @@ export abstract class SasatRepository<Entity, Creatable> implements Repository<E
     );
   }
 
-  async find(condition: Condition<Entity>): Promise<Entity[]> {
-    const select = condition.select ? condition.select.map(it => SqlString.escapeId(it)).join(', ') : '*';
-    const where = condition.where ? ' WHERE ' + whereToSQL(condition.where) : '';
-    const order = condition.order ? ' ORDER BY ' + orderToSQL(condition.order) : '';
-    const limit = condition.limit ? ' LIMIT ' + condition.limit : '';
-    const offset = condition.offset ? ' OFFSET ' : '';
-    const result = await this.client.rawQuery(
-      `SELECT ${select} FROM ${this.tableName}${where}${order}${limit}${offset}`,
-    );
+  async find(condition: Omit<Condition<Entity>, 'from'>): Promise<Entity[]> {
+    const result = await this.client.rawQuery(conditionToSql({ ...condition, from: this.tableName }));
     return result.map(it => this.resultToEntity(it));
   }
 
@@ -55,9 +49,9 @@ export abstract class SasatRepository<Entity, Creatable> implements Repository<E
     return result.map(it => this.resultToEntity(it));
   }
 
-  update(entity: Entity) {
+  update(entity: Entity): Promise<CommandResponse> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const values = this.objToSql(entity as any).join(', ');
+    const values = this.objToSql(entity).join(', ');
     return this.client.rawCommand(
       `UPDATE ${this.tableName} SET ${values} WHERE ${this.getWhereClauseIdentifiedByPrimaryKey(entity)}`,
     );
@@ -67,7 +61,8 @@ export abstract class SasatRepository<Entity, Creatable> implements Repository<E
     return (obj as unknown) as Entity;
   }
 
-  private objToSql(obj: Record<string, SqlValueType>): string[] {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private objToSql(obj: Record<string, any>): string[] {
     return Object.entries(obj).map(([column, value]) => `${SqlString.escapeId(column)} = ${SqlString.escape(value)}`);
   }
 
