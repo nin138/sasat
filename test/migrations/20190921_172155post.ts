@@ -1,8 +1,8 @@
 import { builtInColumns } from '../../src/migration/column/builtInColumns';
-import { DataStoreBuilder, SasatMigration } from '../../src';
+import { DataStore, SasatMigration } from '../../src';
 
 export class Post implements SasatMigration {
-  up: (store: DataStoreBuilder) => void = store => {
+  up: (store: DataStore) => void = store => {
     store.createTable('post', table => {
       table
         .column('post_id')
@@ -30,7 +30,7 @@ export class Post implements SasatMigration {
       });
     });
   };
-  down: (store: DataStoreBuilder) => void = store => {
+  down: (store: DataStore) => void = store => {
     store.dropTable('post');
   };
 }

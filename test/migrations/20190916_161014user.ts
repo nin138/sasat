@@ -1,7 +1,7 @@
-import { DataStoreBuilder, SasatMigration } from '../../src';
+import { DataStore, SasatMigration } from '../../src';
 
 export class User implements SasatMigration {
-  up: (store: DataStoreBuilder) => void = store => {
+  up: (store: DataStore) => void = store => {
     store.createTable('user', table => {
       table
         .column('user_id')
@@ -30,7 +30,7 @@ export class User implements SasatMigration {
         .notNull();
     });
   };
-  down: (store: DataStoreBuilder) => void = store => {
+  down: (store: DataStore) => void = store => {
     store.dropTable('user');
   };
 }

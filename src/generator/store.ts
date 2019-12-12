@@ -2,7 +2,7 @@ import { TableInfo } from '../migration/table/tableInfo';
 import { AllColumnInfo } from '../migration/column/column';
 import { ForeignKey } from '../migration/table/foreignKey';
 import { Index } from '../migration/table';
-import { ReferenceColumnInfo } from '../migration/column/referenceColumn';
+import { ColumnReference } from '../migration/column/referenceColumn';
 import { DataStoreSchema } from '../migration/table/dataStoreSchema';
 import { columnTypeToTsType } from '../migration/column/columnTypes';
 import { GqlType } from './gql/types';
@@ -50,7 +50,7 @@ export class TableGenerator implements Omit<TableInfo, 'columns' | 'references'>
   isPrimary = (columnName: string) => this.primaryKey.includes(columnName);
   references = (): ColumnGenerator[] => this.columns.filter(it => it.isReference());
 
-  getFindQueries2 = (): FindQueryCreator[] => {
+  getFindQueries = (): FindQueryCreator[] => {
     const queries: FindQueryCreator[] = [
       new FindQueryCreator({
         params: this.primaryKey.map(it => ({
@@ -116,7 +116,7 @@ export class TableGenerator implements Omit<TableInfo, 'columns' | 'references'>
     })),
   });
 
-  getFindQueries = (): string[][] => {
+  getFindQueries2 = (): string[][] => {
     return uniqueDeep([
       this.primaryKey,
       ...this.columns.filter(it => it.isReference()).map(it => [it.name]),
@@ -136,7 +136,7 @@ export class StoreGenerator {
     });
   }
 
-  private refToColumn = (ref: ReferenceColumnInfo, tables: TableInfo[]): AllColumnInfo => {
+  private refToColumn = (ref: ColumnReference, tables: TableInfo[]): AllColumnInfo => {
     const target = tables
       .find(it => it.tableName === ref.targetTable)!
       .columns.find(it => it.columnName === ref.targetColumn)!;

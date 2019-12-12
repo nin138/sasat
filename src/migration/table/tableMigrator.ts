@@ -5,6 +5,7 @@ import { ColumnCreator } from '../column/columnCreator';
 import { TableBase } from './tableBase';
 import { TableBuilder } from './tableBuilder';
 import { referenceToColumnInfo } from '../column/referenceColumn';
+
 export class TableMigrator extends TableBase {
   static fromTableBuilder(store: DataStoreMigrator, table: TableBuilder): TableMigrator {
     const result: TableMigrator = Object.assign(Object.create(this.prototype), table, { store });
