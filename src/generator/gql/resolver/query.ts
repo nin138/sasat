@@ -35,7 +35,7 @@ const generateMutationStrings = (tables: TableGenerator[]) => {
 const getImportStatements = (tables: TableGenerator[]) => {
   return tables
     .map(it => [
-      `import { ${it.entityName()}, Creatable${it.entityName()} from './entity/${it.tableName}'`,
+      `import { ${it.entityName()}, Creatable${it.entityName()} } from './entity/${it.tableName}'`,
       `import { ${it.entityName()}Repository } from '../repository/${it.tableName}'`,
     ])
     .flat();
