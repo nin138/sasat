@@ -63,7 +63,13 @@ export class TableGenerator implements Omit<TableInfo, 'columns' | 'references'>
     ];
 
     const isDuplicate = (columns: string[]) =>
-      queries.find(query => !arrayEq(query.params.map(param => param.name), columns)) !== null;
+      queries.find(
+        query =>
+          !arrayEq(
+            query.params.map(param => param.name),
+            columns,
+          ),
+      ) !== null;
 
     this.references().forEach(column => {
       if (isDuplicate([column.name])) {

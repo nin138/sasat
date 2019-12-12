@@ -33,6 +33,7 @@ export const generateGqlString = (tables: TableGenerator[]) => {
   const schema: GqlSchema = {
     types: tables.map(it => it.createGqlType()),
     queries: queries.concat(findQueries),
+    mutation: [], // TODO
   };
   return {
     typeDefs: generateTypeDefs(schema),

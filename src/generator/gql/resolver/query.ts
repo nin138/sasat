@@ -8,9 +8,9 @@ const generateQueryStrings = (tables: TableGenerator[]) => {
       const queries = getGqlQueries(table);
       return queries.map(query => {
         const params = query.params.map(it => it.name).join(', ');
-        return `${query.name}: (_: any, { ${params} }: Pick<${table.entityName()}, ${query.params
+        return `${query.name}: (_: {}, { ${params} }: Pick<${table.entityName()}, ${query.params
           .map(it => `'${it.name}'`)
-          .join(' | ')}>) => new ${table.entityName()}Repository().${toRepoFnName(
+          .join(' | ')}>) => new ${table.entityName()}Repository().findBy${toRepoFnName(
           query.params.map(it => it.name),
           table,
         )}(${params}),`;
@@ -19,7 +19,19 @@ const generateQueryStrings = (tables: TableGenerator[]) => {
     .flat();
 };
 
+const getImportStatements = (tables: TableGenerator[]) => {
+  return tables
+    .map(it => [
+      `import { ${it.entityName()} } from './entity/${it.tableName}'`,
+      `import { ${it.entityName()}Repository } from '../repository/${it.tableName}'`,
+    ])
+    .flat();
+};
+
 export const generateGqlQueryString = (tables: TableGenerator[]) => `\
+${getImportStatements(tables).join('\n')}
+
 export const query = {
   ${generateQueryStrings(tables).join('\n  ')}
+};
 `;

@@ -1,7 +1,7 @@
 export interface GqlSchema {
   types: GqlType[];
   queries: GqlQuery[];
-  // TODO mutations
+  mutation: GqlMutation[];
 }
 
 export interface GqlType {
@@ -28,3 +28,5 @@ export interface GqlQuery {
   params: Array<{ name: string; type: string }>;
   returnType: string;
 }
+
+export type GqlMutation = GqlQuery;

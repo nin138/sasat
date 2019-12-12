@@ -53,8 +53,8 @@ const createFindFunction = (
 
 export const toRepoFnName = (keys: string[], table: TableGenerator) => {
   return keys
-    .map(it => table.column(it))
-    .map(column => (column.isReference() ? column.info.reference!.targetTable : column.name))
+    .map(it => table.column(it).name)
+    .map(camelize)
     .map(capitalizeFirstLetter)
     .join('And');
 };
@@ -77,24 +77,11 @@ export class RepositoryGenerator {
       ].find(it => arrayEq(it, keys)) !== undefined;
 
     const columns = keys.map(it => table.column(it));
-    columns.forEach(it => {
-      if (it.isReference()) this.importEntities.push(it.info.reference!.targetTable);
-    });
     const name = toRepoFnName(keys, table);
-    const params = columns.map(it =>
-      it.isReference()
-        ? `${it.info.reference!.targetTable}: Pick<${capitalizeFirstLetter(it.info.reference!.targetTable)}, '${
-            it.info.reference!.targetColumn
-          }'>`
-        : `${it.name}: ${it.getTsType(true)}`,
-    );
+    const params = columns.map(it => `${it.name}: ${table.entityName()}['${it.name}']`);
 
     const returns = isUnique() ? `${table.entityName()} | undefined` : `${table.entityName()}[]`;
-    const findParamMap = columns.map(it =>
-      it.isReference()
-        ? `${it.info.reference!.columnName}: ${it.info.reference!.targetTable}.${it.info.reference!.targetColumn}`
-        : it.name,
-    );
+    const findParamMap = columns.map(it => it.name);
     return createFindFunction(name, params, returns, findParamMap, isUnique());
   };
 

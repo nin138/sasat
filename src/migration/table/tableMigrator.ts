@@ -72,6 +72,11 @@ export class TableMigrator extends TableBase {
 
   private applyAddColumn(column: ColumnBuilder, after?: string) {
     if (!after) this.columns.push(column);
-    else this.columns.splice(this.columns.findIndex(it => it.name === after), 0, column);
+    else
+      this.columns.splice(
+        this.columns.findIndex(it => it.name === after),
+        0,
+        column,
+      );
   }
 }
