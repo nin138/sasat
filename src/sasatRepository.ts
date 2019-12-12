@@ -26,9 +26,9 @@ export abstract class SasatRepository<Entity, Creatable> implements Repository<E
       values.push(value);
     });
     return this.client.rawCommand(
-      `INSERT INTO ${this.tableName}(${columns.map(it => SqlString.escapeId(it)).join(', ')}) VALUES ${values
+      `INSERT INTO ${this.tableName}(${columns.map(it => SqlString.escapeId(it)).join(', ')}) VALUES (${values
         .map(SqlString.escape)
-        .join(', ')}`,
+        .join(', ')})`,
     );
   }
 
