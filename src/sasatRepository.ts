@@ -73,7 +73,7 @@ export abstract class SasatRepository<Entity, Creatable> implements Repository<E
       this.primaryKeys
         .map(it => {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          if ((entity as any)[it]) throw new SasatError('Require Primary Key');
+          if ((entity as any)[it] === undefined) throw new SasatError('Require Primary Key');
           return it;
         })
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
