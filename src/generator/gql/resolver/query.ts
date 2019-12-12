@@ -23,10 +23,19 @@ const generateQueryStrings = (tables: TableGenerator[]) => {
     .flat();
 };
 
+const generateMutationStrings = (tables: TableGenerator[]) => {
+  return tables.flatMap(table => {
+    return [
+      `create${table.entityName()}: (_: {}, entity: Creatable${table.entityName()}) => new ${table.entityName()}Repository().create(entity).then(() => true),`,
+      `update${table.entityName()}: (_: {}, entity: Partial<${table.entityName()}>) => new ${table.entityName()}Repository().update(entity).then(() => true),`,
+    ];
+  });
+};
+
 const getImportStatements = (tables: TableGenerator[]) => {
   return tables
     .map(it => [
-      `import { ${it.entityName()} } from './entity/${it.tableName}'`,
+      `import { ${it.entityName()}, Creatable${it.entityName()} from './entity/${it.tableName}'`,
       `import { ${it.entityName()}Repository } from '../repository/${it.tableName}'`,
     ])
     .flat();
@@ -37,5 +46,9 @@ ${getImportStatements(tables).join('\n')}
 
 export const query = {
   ${generateQueryStrings(tables).join('\n  ')}
+};
+
+export const mutation = {
+  ${generateMutationStrings(tables).join('\n  ')}
 };
 `;

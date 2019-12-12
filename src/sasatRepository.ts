@@ -2,6 +2,7 @@ import { getDbClient } from './db/getDbClient';
 import { CommandResponse, SQLExecutor } from './db/dbClient';
 import { Condition, conditionToSql } from './condition';
 import * as SqlString from 'sqlstring';
+import { SasatError } from './error';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 interface Repository<Entity extends Record<string, any>, Creatable extends Record<string, any>> {
@@ -49,7 +50,8 @@ export abstract class SasatRepository<Entity, Creatable> implements Repository<E
     return result.map(it => this.resultToEntity(it));
   }
 
-  update(entity: Entity): Promise<CommandResponse> {
+  // TODO & primaryKey
+  update(entity: Partial<Entity>): Promise<CommandResponse> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const values = this.objToSql(entity).join(', ');
     return this.client.rawCommand(
@@ -66,9 +68,14 @@ export abstract class SasatRepository<Entity, Creatable> implements Repository<E
     return Object.entries(obj).map(([column, value]) => `${SqlString.escapeId(column)} = ${SqlString.escape(value)}`);
   }
 
-  private getWhereClauseIdentifiedByPrimaryKey(entity: Entity) {
+  private getWhereClauseIdentifiedByPrimaryKey(entity: Partial<Entity>) {
     return (
       this.primaryKeys
+        .map(it => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          if ((entity as any)[it]) throw new SasatError('Require Primary Key');
+          return it;
+        })
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .map(it => `${SqlString.escapeId(it)} = ${SqlString.escape((entity as any)[it])}`)
         .join(' AND ')

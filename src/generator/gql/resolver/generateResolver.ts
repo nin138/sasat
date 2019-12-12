@@ -1,7 +1,8 @@
 export const getResolverString = () => `\
-import { query } from './query';
+import { query, mutation } from './query';
 
 export const resolvers = {
-  Query: query
+  Query: query,
+  Mutation: mutation,
 };
 `;
