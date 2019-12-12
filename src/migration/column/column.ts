@@ -26,6 +26,7 @@ export class Column {
     const words = [this.name, this.sqlType()];
     // @ts-ignore
     if (this.data.length)
+      // @ts-ignore
       words.push(`(${[this.data.length, this.data.scale].filter(it => it !== undefined).join(',')})`);
     // @ts-ignore
     if (this.data.signed === true) words.push('SIGNED');
