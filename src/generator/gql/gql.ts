@@ -1,4 +1,4 @@
-import { GqlQuery, GqlSchema } from './types';
+import { GqlMutation, GqlParam, GqlQuery, GqlSchema } from './types';
 import { columnTypeToGqlPrimitive } from './sasatToGqlType';
 import { getFindQueries, QueryInfo } from '../func/getFindQueries';
 import { generateTypeDefs } from './generateTypeDefs';
@@ -30,10 +30,22 @@ export const generateGqlString = (tables: TableGenerator[]) => {
   }));
 
   const findQueries: GqlQuery[] = tables.map(it => getGqlQueries(it)).flat();
+  const mutations: GqlMutation[] = tables.map(table => {
+    return {
+      modelName: table.entityName(),
+      creatable: table.columns.map(
+        it => new GqlParam(it.name, columnTypeToGqlPrimitive(it.info.type), it.isNullableOnCreate()),
+      ),
+      pKeys: table.primaryKey.map(it => new GqlParam(it, columnTypeToGqlPrimitive(table.column(it).info.type), false)),
+      updatable: table.columns
+        .filter(column => !table.isPrimary(column.name))
+        .map(column => new GqlParam(column.name, columnTypeToGqlPrimitive(column.info.type), true)),
+    };
+  });
   const schema: GqlSchema = {
     types: tables.map(it => it.createGqlType()),
     queries: queries.concat(findQueries),
-    mutation: [], // TODO
+    mutations,
   };
   return {
     typeDefs: generateTypeDefs(schema),
