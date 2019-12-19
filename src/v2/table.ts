@@ -1,30 +1,39 @@
-import { Index } from './index';
-import { columnToSql, foreignKeyToSql } from '../sqlCreater';
-import { ColumnReference, referenceToColumnInfo, referenceToForeignKey } from '../column/referenceColumn';
-import { DataStore } from '../dataStore';
-import { Column } from '../column/column';
-import { SasatError } from '../../error';
+import { Index } from '../migration/table';
+import { ReferenceColumn } from './referenceColumn';
+import { Column, NormalColumn } from './column';
+import { SasatError } from '../error';
+import { DataStore } from './dataStore';
 
 export class Table {
   readonly indexes: Index[] = [];
   readonly columns: Column[] = [];
   protected primaryKey: string[] = [];
   protected uniqueKeys: string[][] = [];
-  protected references: ColumnReference[] = [];
 
-  protected constructor(protected store: DataStore, readonly tableName: string) {}
+  protected constructor(public store: DataStore, readonly tableName: string) {}
+
+  column(columnName: string): Column | undefined {
+    return this.columns.find(it => it.name === columnName);
+  }
 
   serialize() {
     // TODO IMPL
   }
 
   addReferences(table: string, column: string, unique = false): this {
-    this.references.push({
-      targetTable: table,
-      targetColumn: column,
-      columnName: column,
-      unique,
-    });
+    this.columns.push(
+      new ReferenceColumn(
+        {
+          type: 'REFERENCE',
+          targetTable: table,
+          targetColumn: column,
+          columnName: column,
+          unique,
+        },
+        this,
+      ),
+    );
+
     return this;
   }
 
@@ -33,7 +42,7 @@ export class Table {
     return this;
   }
 
-  addBuiltInColumn(column: Column) {
+  addBuiltInColumn(column: NormalColumn) {
     if (this.isColumnExists(column.name)) throw new Error(`${this.tableName}.${column.name} already exists`);
     this.columns.push(column);
   }
@@ -51,20 +60,11 @@ export class Table {
 
   showCreateTable(): string {
     const columns = this.columns.map(it => it.toSql());
-    if (this.references.length !== 0) {
-      columns.splice(
-        this.primaryKey.length,
-        0,
-        ...this.references.map(it => columnToSql(referenceToColumnInfo(this.store, it))),
-      );
-    }
     const rows = [...columns];
     if (this.primaryKey.length !== 0) rows.push(`PRIMARY KEY (${this.primaryKey.join(',')})`);
     this.uniqueKeys.forEach(it => {
       if (this.uniqueKeys.length !== 0) rows.push(`UNIQUE KEY (${it.join(',')})`);
     });
-    if (this.references.length !== 0)
-      rows.push(...this.references.map(it => foreignKeyToSql(referenceToForeignKey(it))));
     return `CREATE TABLE ${this.tableName} ( ${rows.join(', ')} )`;
   }
 

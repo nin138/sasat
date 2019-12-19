@@ -4,7 +4,7 @@ import { addColumn, addForeignKey, addIndex, addPrimaryKey, addUniqueKey } from 
 import { ColumnCreator } from '../column/columnCreator';
 import { TableBase } from './tableBase';
 import { TableBuilder } from './tableBuilder';
-import { referenceToColumnInfo } from '../column/referenceColumn';
+import { referenceToColumnInfo } from '../../v2/referenceColumn';
 
 export class TableMigrator extends TableBase {
   static fromTableBuilder(store: DataStoreMigrator, table: TableBuilder): TableMigrator {

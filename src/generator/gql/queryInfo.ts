@@ -1,8 +1,8 @@
-import { ColumnReference } from '../../migration/column/referenceColumn';
+import { ReferenceColumnData } from '../../v2/referenceColumn';
 
 export interface QueryInfo {
   entity: string;
   keys: string[];
   unique: boolean;
-  ref?: Pick<ColumnReference, 'targetTable' | 'targetColumn'>;
+  ref?: Pick<ReferenceColumnData, 'targetTable' | 'targetColumn'>;
 }

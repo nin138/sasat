@@ -1,6 +1,6 @@
 import * as SqlString from 'sqlstring';
-import { SasatColumnTypes } from './column/columnTypes';
-import { AllColumnInfo } from './column/column';
+import { DBColumnTypes } from './column/columnTypes';
+import { AllColumnInfo } from '../v2/column';
 import { Index } from './table';
 import { ForeignKey } from './table/foreignKey';
 
@@ -16,7 +16,7 @@ export const columnToSql = (column: AllColumnInfo) => {
   else if (column.notNull === false) structure.push('NULL');
   if (column.unique) structure.push('UNIQUE');
   if (
-    (column.type === SasatColumnTypes.timestamp || column.type === SasatColumnTypes.dateTime) &&
+    (column.type === DBColumnTypes.timestamp || column.type === DBColumnTypes.dateTime) &&
     column.default === 'CURRENT_TIMESTAMP'
   )
     structure.push('DEFAULT CURRENT_TIMESTAMP');

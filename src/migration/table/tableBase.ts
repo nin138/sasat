@@ -3,7 +3,7 @@ import { Index } from './index';
 import { ForeignKey } from './foreignKey';
 import { columnToSql, foreignKeyToSql } from '../sqlCreater';
 import { TableInfo } from './tableInfo';
-import { ColumnReference, referenceToColumnInfo, referenceToForeignKey } from '../column/referenceColumn';
+import { ReferenceColumnData, referenceToColumnInfo, referenceToForeignKey } from '../../v2/referenceColumn';
 import { DataStore } from '../dataStore';
 
 // TODO REFACTOR AND ADD INTERFACE
@@ -13,7 +13,7 @@ export abstract class TableBase {
   protected foreignKeys: ForeignKey[] = [];
   protected primaryKey: string[] = [];
   protected uniqueKeys: string[][] = [];
-  protected references: ColumnReference[] = [];
+  protected references: ReferenceColumnData[] = [];
 
   protected constructor(protected store: DataStore, readonly tableName: string) {}
 

@@ -1,28 +1,28 @@
 import { GqlPrimitive } from './types';
-import { SasatColumnTypes } from '../../migration/column/columnTypes';
+import { DBColumnTypes } from '../../migration/column/columnTypes';
 
-export const columnTypeToGqlPrimitive = (type: SasatColumnTypes) => {
+export const columnTypeToGqlPrimitive = (type: DBColumnTypes) => {
   switch (type) {
-    case SasatColumnTypes.tinyInt:
-    case SasatColumnTypes.smallInt:
-    case SasatColumnTypes.mediumInt:
-    case SasatColumnTypes.int:
-    case SasatColumnTypes.bigInt:
-    case SasatColumnTypes.decimal:
-    case SasatColumnTypes.year:
+    case DBColumnTypes.tinyInt:
+    case DBColumnTypes.smallInt:
+    case DBColumnTypes.mediumInt:
+    case DBColumnTypes.int:
+    case DBColumnTypes.bigInt:
+    case DBColumnTypes.decimal:
+    case DBColumnTypes.year:
       return GqlPrimitive.Int;
-    case SasatColumnTypes.float:
-    case SasatColumnTypes.double:
+    case DBColumnTypes.float:
+    case DBColumnTypes.double:
       return GqlPrimitive.Float;
-    case SasatColumnTypes.char:
-    case SasatColumnTypes.varchar:
-    case SasatColumnTypes.text:
-    case SasatColumnTypes.time:
-    case SasatColumnTypes.date:
-    case SasatColumnTypes.dateTime:
-    case SasatColumnTypes.timestamp:
+    case DBColumnTypes.char:
+    case DBColumnTypes.varchar:
+    case DBColumnTypes.text:
+    case DBColumnTypes.time:
+    case DBColumnTypes.date:
+    case DBColumnTypes.dateTime:
+    case DBColumnTypes.timestamp:
       return GqlPrimitive.String;
-    case SasatColumnTypes.boolean:
+    case DBColumnTypes.boolean:
       return GqlPrimitive.Boolean;
   }
 };

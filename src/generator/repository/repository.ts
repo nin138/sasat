@@ -1,7 +1,7 @@
 import * as path from 'path';
 import { writeFile } from 'fs-extra';
 import { TableGenerator } from '../store';
-import { columnTypeToTsType, SasatColumnTypes } from '../../migration/column/columnTypes';
+import { columnTypeToTsType, DBColumnTypes } from '../../migration/column/columnTypes';
 import { camelize, capitalizeFirstLetter } from '../../util/stringUtil';
 import { writeFileIfNotExists } from '../../util/fsUtil';
 
@@ -11,13 +11,13 @@ export interface Import {
 }
 
 export interface FindQueryCreatable {
-  params: Array<{ name: string; type: SasatColumnTypes }>;
+  params: Array<{ name: string; type: DBColumnTypes }>;
   returnEntity: string;
   isReturnUnique: boolean;
 }
 
 export class FindQueryCreator implements FindQueryCreatable {
-  params: Array<{ name: string; type: SasatColumnTypes }>;
+  params: Array<{ name: string; type: DBColumnTypes }>;
   returnEntity: string;
   isReturnUnique: boolean;
   constructor(creatable: FindQueryCreatable) {

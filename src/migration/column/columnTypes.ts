@@ -1,4 +1,4 @@
-export enum SasatColumnTypes {
+export enum DBColumnTypes {
   char = 'char',
   varchar = 'varchar',
   text = 'text',
@@ -18,41 +18,41 @@ export enum SasatColumnTypes {
   boolean = 'boolean',
 }
 
-export type SasatStringTypes = SasatColumnTypes.char | SasatColumnTypes.varchar;
-export type SasatTextTypes = SasatColumnTypes.text;
-export type SasatIntegerTypes =
-  | SasatColumnTypes.tinyInt
-  | SasatColumnTypes.smallInt
-  | SasatColumnTypes.mediumInt
-  | SasatColumnTypes.int
-  | SasatColumnTypes.bigInt;
+export type DBStringTypes = DBColumnTypes.char | DBColumnTypes.varchar;
+export type DBTextTypes = DBColumnTypes.text;
+export type DBIntegerTypes =
+  | DBColumnTypes.tinyInt
+  | DBColumnTypes.smallInt
+  | DBColumnTypes.mediumInt
+  | DBColumnTypes.int
+  | DBColumnTypes.bigInt;
 
-export type SasatFloatingTypes = SasatColumnTypes.float | SasatColumnTypes.double;
-export type SasatNumberTypes = SasatIntegerTypes | SasatFloatingTypes | SasatColumnTypes.decimal;
-export type SasatDateTypes = SasatColumnTypes.time | SasatColumnTypes.date | SasatColumnTypes.year;
+export type DBFloatingTypes = DBColumnTypes.float | DBColumnTypes.double;
+export type DBNumberTypes = DBIntegerTypes | DBFloatingTypes | DBColumnTypes.decimal;
+export type DBDateTypes = DBColumnTypes.time | DBColumnTypes.date | DBColumnTypes.year;
 
-export const columnTypeToTsType = (type: SasatColumnTypes): string => {
+export const columnTypeToTsType = (type: DBColumnTypes): string => {
   switch (type) {
-    case SasatColumnTypes.tinyInt:
-    case SasatColumnTypes.smallInt:
-    case SasatColumnTypes.mediumInt:
-    case SasatColumnTypes.int:
-    case SasatColumnTypes.bigInt:
-    case SasatColumnTypes.float:
-    case SasatColumnTypes.double:
-    case SasatColumnTypes.decimal:
-    case SasatColumnTypes.year:
+    case DBColumnTypes.tinyInt:
+    case DBColumnTypes.smallInt:
+    case DBColumnTypes.mediumInt:
+    case DBColumnTypes.int:
+    case DBColumnTypes.bigInt:
+    case DBColumnTypes.float:
+    case DBColumnTypes.double:
+    case DBColumnTypes.decimal:
+    case DBColumnTypes.year:
       return 'number';
-    case SasatColumnTypes.char:
-    case SasatColumnTypes.varchar:
-    case SasatColumnTypes.text:
-    case SasatColumnTypes.time:
+    case DBColumnTypes.char:
+    case DBColumnTypes.varchar:
+    case DBColumnTypes.text:
+    case DBColumnTypes.time:
       return 'string';
-    case SasatColumnTypes.date:
-    case SasatColumnTypes.dateTime:
-    case SasatColumnTypes.timestamp:
+    case DBColumnTypes.date:
+    case DBColumnTypes.dateTime:
+    case DBColumnTypes.timestamp:
       return 'Date';
-    case SasatColumnTypes.boolean:
+    case DBColumnTypes.boolean:
       return 'boolean';
   }
 };

@@ -1,19 +1,16 @@
 import { IntegerColumnBuilder, TimeStampColumnBuilder } from './columnBuilder';
-import { SasatColumnTypes } from './columnTypes';
+import { DBColumnTypes } from './columnTypes';
 
 export const builtInColumns = {
   autoIncrementPrimaryKey: (columnName: string) =>
-    new IntegerColumnBuilder(columnName, SasatColumnTypes.int)
+    new IntegerColumnBuilder(columnName, DBColumnTypes.int)
       .autoIncrement()
       .unsigned()
       .autoIncrement()
       .primary(),
-  // eslint-disable-next-line @typescript-eslint/camelcase
-  created_at: () =>
-    new TimeStampColumnBuilder('created_at', SasatColumnTypes.timestamp).defaultCurrentTimeStamp().notNull(),
-  // eslint-disable-next-line @typescript-eslint/camelcase
-  updated_at: () =>
-    new TimeStampColumnBuilder('updated_at', SasatColumnTypes.timestamp)
+  createdAt: () => new TimeStampColumnBuilder('createdAt', DBColumnTypes.timestamp).defaultCurrentTimeStamp().notNull(),
+  updatedAt: () =>
+    new TimeStampColumnBuilder('updatedAt', DBColumnTypes.timestamp)
       .defaultCurrentTimeStamp()
       .onUpdateCurrentTimeStamp()
       .notNull(),

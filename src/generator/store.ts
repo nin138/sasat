@@ -1,8 +1,8 @@
 import { TableInfo } from '../migration/table/tableInfo';
-import { AllColumnInfo } from '../migration/column/column';
+import { AllColumnInfo } from '../v2/column';
 import { ForeignKey } from '../migration/table/foreignKey';
 import { Index } from '../migration/table';
-import { ColumnReference } from '../migration/column/referenceColumn';
+import { ReferenceColumnData } from '../v2/referenceColumn';
 import { DataStoreSchema } from '../migration/table/dataStoreSchema';
 import { columnTypeToTsType } from '../migration/column/columnTypes';
 import { GqlType } from './gql/types';
@@ -136,7 +136,7 @@ export class StoreGenerator {
     });
   }
 
-  private refToColumn = (ref: ColumnReference, tables: TableInfo[]): AllColumnInfo => {
+  private refToColumn = (ref: ReferenceColumnData, tables: TableInfo[]): AllColumnInfo => {
     const target = tables
       .find(it => it.tableName === ref.targetTable)!
       .columns.find(it => it.columnName === ref.targetColumn)!;

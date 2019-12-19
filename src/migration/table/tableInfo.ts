@@ -1,7 +1,7 @@
-import { AllColumnInfo } from '../column/column';
+import { AllColumnInfo } from '../../v2/column';
 import { Index } from './index';
 import { ForeignKey } from './foreignKey';
-import { ColumnReference } from '../column/referenceColumn';
+import { ReferenceColumnData } from '../../v2/referenceColumn';
 
 export interface TableInfo {
   tableName: string;
@@ -10,7 +10,7 @@ export interface TableInfo {
   foreignKeys: ForeignKey[];
   primaryKey: string[];
   uniqueKeys: string[][];
-  references: ColumnReference[];
+  references: ReferenceColumnData[];
 }
 
 export const isPrimary = (key: string, table: TableInfo) => table.primaryKey.includes(key);

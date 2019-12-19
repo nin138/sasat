@@ -1,3 +1,4 @@
+import { DBColumnTypes } from '../../migration/column/columnTypes';
 import {
   ColumnBuilder,
   DateColumnBuilder,
@@ -7,12 +8,11 @@ import {
   StringColumnBuilder,
   TextColumnBuilder,
   TimeStampColumnBuilder,
-} from './columnBuilder';
-import { TableBase } from '../table/tableBase';
-import { DBColumnTypes } from './columnTypes';
+} from '../../migration/column/columnBuilder';
+import { TableCreator } from './tableCreator';
 
 export class ColumnCreator {
-  constructor(private table: TableBase, private name: string, private callAddColumn = true) {}
+  constructor(private table: TableCreator, private name: string) {}
   char = (length: number) => this.create(new StringColumnBuilder(this.name, DBColumnTypes.char, length));
   varchar = (length: number) => this.create(new StringColumnBuilder(this.name, DBColumnTypes.varchar, length));
   text = () => this.create(new TextColumnBuilder(this.name, DBColumnTypes.text));
@@ -35,7 +35,7 @@ export class ColumnCreator {
   // boolean = () => this.create(new BooleanColumnBuilder(this.name));
 
   private create<T extends ColumnBuilder>(column: T): T {
-    if (this.callAddColumn) this.table.addBuiltInColumn(column);
+    this.table.addColumn(column);
     return column;
   }
 }
