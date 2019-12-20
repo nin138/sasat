@@ -46,20 +46,22 @@ export abstract class ColumnBuilder {
     this._default = value;
     return this;
   }
-  build(): ColumnData & { primary: boolean; unique: boolean } {
+  build(): { data: ColumnData; isPrimary: boolean; isUnique: boolean } {
     return {
-      columnName: this.name,
-      type: this.type,
-      length: this.length,
-      scale: this.scale,
-      primary: this._primary,
-      notNull: this._notNull,
-      unique: this._unique,
-      zerofill: this._zerofill,
-      signed: this._signed,
-      autoIncrement: this._autoIncrement,
-      default: this._default,
-      onUpdateCurrentTimeStamp: this._onUpdateCurrentTimeStamp,
+      data: {
+        columnName: this.name,
+        type: this.type,
+        length: this.length,
+        scale: this.scale,
+        notNull: this._notNull,
+        zerofill: this._zerofill,
+        signed: this._signed,
+        autoIncrement: this._autoIncrement,
+        default: this._default,
+        onUpdateCurrentTimeStamp: this._onUpdateCurrentTimeStamp,
+      },
+      isPrimary: this._primary,
+      isUnique: this._unique,
     };
   }
 }

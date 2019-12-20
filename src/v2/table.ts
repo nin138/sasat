@@ -4,16 +4,31 @@ import { Column, NormalColumn } from './column';
 import { SasatError } from '../error';
 import { DataStore } from './dataStore';
 
-export class Table {
+export interface Table {
+  column(columnName: string): Column | undefined;
+  // primaryKey: string[];
+  // uniqueKeys: string[][];
+  // indexes: Index[];
+  // store: DataStore;
+  tableName: string;
+}
+
+export class TableHandler implements Table {
   readonly indexes: Index[] = [];
   readonly columns: Column[] = [];
-  protected primaryKey: string[] = [];
-  protected uniqueKeys: string[][] = [];
+  primaryKey: string[] = [];
+  readonly uniqueKeys: string[][] = [];
 
-  protected constructor(public store: DataStore, readonly tableName: string) {}
+  constructor(readonly tableName: string, public store: DataStore) {}
 
   column(columnName: string): Column | undefined {
     return this.columns.find(it => it.name === columnName);
+  }
+
+  addColumn(column: Column, isPrimary = false, isUnique = false) {
+    this.columns.push(column);
+    if (isPrimary) this.setPrimaryKey(column.name);
+    if (isUnique) this.addUniqueKey(column.name);
   }
 
   serialize() {
@@ -43,7 +58,7 @@ export class Table {
   }
 
   addBuiltInColumn(column: NormalColumn) {
-    if (this.isColumnExists(column.name)) throw new Error(`${this.tableName}.${column.name} already exists`);
+    if (this.hasColumn(column.name)) throw new Error(`${this.tableName}.${column.name} already exists`);
     this.columns.push(column);
   }
 
@@ -68,7 +83,7 @@ export class Table {
     return `CREATE TABLE ${this.tableName} ( ${rows.join(', ')} )`;
   }
 
-  protected isColumnExists(columnName: string): boolean {
+  hasColumn(columnName: string): boolean {
     return !!this.columns.find(it => it.name === columnName);
   }
 }

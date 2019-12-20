@@ -1,6 +1,6 @@
 import { ColumnCreator } from '../column/columnCreator';
 import { TableBase } from './tableBase';
-import { DataStore } from '../dataStore';
+import { DataStore } from '../../v2/dataStore';
 
 export class TableBuilder extends TableBase {
   constructor(protected store: DataStore, readonly tableName: string) {

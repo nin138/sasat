@@ -3,14 +3,14 @@ import { addIndex } from './sqlCreater';
 import { TableMigrator } from './table/tableMigrator';
 import { DataStoreSchema } from './table/dataStoreSchema';
 import { SasatError } from '../error';
+import { DataStore } from '../v2/dataStore';
 
-export interface DataStore {
+export interface MigratableDataStore extends DataStore {
   createTable(tableName: string, tableCreator: (table: TableBuilder) => void): DataStore;
   dropTable(tableName: string): DataStore;
-  table(tableName: string): TableMigrator;
 }
 
-export class DataStoreMigrator implements DataStore {
+export class DataStoreMigrator implements MigratableDataStore {
   protected tables: TableMigrator[] = [];
   protected migrationQueue: string[] = [];
 
