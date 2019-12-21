@@ -8,8 +8,8 @@ export const mkDirIfNotExists = (path: string) => {
   if (!fs.pathExistsSync(path)) fs.mkdirpSync(path);
 };
 
-export const writeFileIfNotExists = (path: string, data: string) => {
-  if (fs.existsSync(path)) return;
+export const writeFileIfNotExists = (path: string, data: string): Promise<void> => {
+  if (fs.existsSync(path)) return Promise.resolve();
   return fs.writeFile(path, data);
 };
 

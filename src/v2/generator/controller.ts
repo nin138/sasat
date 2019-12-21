@@ -5,7 +5,7 @@ import { config } from '../../config/config';
 import * as path from 'path';
 import { IrEntity } from '../../ir/entity';
 import { emptyDir, writeFile } from 'fs-extra';
-import { mkDirIfNotExists } from '../../util/fsUtil';
+import { mkDirIfNotExists, writeFileIfNotExists } from '../../util/fsUtil';
 import { IrRepository } from '../../ir/repository';
 
 export class CodeGenerateController {
@@ -21,6 +21,7 @@ export class CodeGenerateController {
     await Promise.all([
       ...this.ir.entities.map(it => this.generateEntity(it)),
       ...this.ir.repositories.map(it => this.generateRepository(it)),
+      ...this.ir.repositories.map(it => this.generateGeneratedRepository(it)),
     ]);
   }
 
@@ -41,6 +42,16 @@ export class CodeGenerateController {
   }
 
   private generateRepository(ir: IrRepository) {
-    return writeFile(this.getFullPath(this.generateRepositoryDir, ir.entityName), this.codeGen.generateRepository(ir));
+    return writeFileIfNotExists(
+      this.getFullPath(this.repositoryDir, ir.entityName),
+      this.codeGen.generateRepository(ir),
+    );
+  }
+
+  private generateGeneratedRepository(ir: IrRepository) {
+    return writeFile(
+      this.getFullPath(this.generateRepositoryDir, ir.entityName),
+      this.codeGen.generateGeneratedRepository(ir),
+    );
   }
 }
