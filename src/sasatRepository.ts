@@ -4,16 +4,15 @@ import { Condition, conditionToSql } from './condition';
 import * as SqlString from 'sqlstring';
 import { SasatError } from './error';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-interface Repository<Entity extends Record<string, any>, Creatable extends Record<string, any>> {
+interface Repository<Entity, Creatable, Primary> {
   create(entity: Creatable): Promise<CommandResponse>;
   list(): Promise<Entity[]>;
-  update(entity: Entity): Promise<CommandResponse>;
-  delete(entity: Entity): Promise<CommandResponse>;
+  update(entity: Partial<Entity> & Primary): Promise<CommandResponse>;
+  delete(entity: Primary): Promise<CommandResponse>;
   find(condition: Condition<Entity>): Promise<Entity[]>;
 }
 
-export abstract class SasatRepository<Entity, Creatable> implements Repository<Entity, Creatable> {
+export abstract class SasatRepository<Entity, Creatable, Primary> implements Repository<Entity, Creatable, Primary> {
   protected abstract tableName: string;
   protected abstract primaryKeys: string[];
   constructor(protected client: SQLExecutor = getDbClient()) {}
@@ -32,7 +31,7 @@ export abstract class SasatRepository<Entity, Creatable> implements Repository<E
     );
   }
 
-  async delete(entity: Entity) {
+  async delete(entity: Primary) {
     return this.client.rawCommand(
       `DELETE FROM ${this.tableName} WHERE ${this.getWhereClauseIdentifiedByPrimaryKey(entity)}`,
     );
