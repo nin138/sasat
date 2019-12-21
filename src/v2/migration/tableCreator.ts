@@ -6,25 +6,25 @@ import { NormalColumn } from '../column';
 
 export interface TableBuilder {
   column(columnName: string): ColumnCreator;
-  references(table: string, column: string, unique: boolean): TableBuilder;
+  references(table: string, column: string, unique?: boolean): TableBuilder;
   setPrimaryKey(...columnNames: string[]): TableBuilder;
   addUniqueKey(...columnNames: string[]): TableBuilder;
 }
 
 export class TableCreator implements TableBuilder {
   private readonly table: TableHandler;
+  private readonly columns: ColumnBuilder[] = [];
+
   constructor(public tableName: string, store: DataStore) {
     this.table = new TableHandler({ tableName }, store);
   }
-  columns: ColumnBuilder[] = [];
+
   column(name: string): ColumnCreator {
     if (this.table.hasColumn(name)) throw new Error(`${this.tableName}.${name} already exists`);
     return new ColumnCreator(this, name);
   }
 
   addColumn(column: ColumnBuilder) {
-    const { data, isPrimary, isUnique } = column.build();
-    this.table.addColumn(new NormalColumn(data, this.table), isPrimary, isUnique);
     this.columns.push(column);
   }
 
@@ -33,7 +33,7 @@ export class TableCreator implements TableBuilder {
     return this;
   }
 
-  references(table: string, column: string, unique: boolean): TableBuilder {
+  references(table: string, column: string, unique = false): TableBuilder {
     this.table.addReferences(table, column, unique);
     return this;
   }
@@ -43,7 +43,11 @@ export class TableCreator implements TableBuilder {
     return this;
   }
 
-  getTable(): TableHandler {
+  create(): TableHandler {
+    this.columns.forEach(column => {
+      const { data, isPrimary, isUnique } = column.build();
+      this.table.addColumn(new NormalColumn(data, this.table), isPrimary, isUnique);
+    });
     return this.table;
   }
 }

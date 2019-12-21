@@ -1,8 +1,8 @@
-import { DataStore } from './dataStore';
+import { MigrationStore } from '../v2/migration/storeMigrator';
 
 export interface SasatMigration {
-  up: (store: DataStore) => void;
-  down: (store: DataStore) => void;
+  up: (store: MigrationStore) => void;
+  down: (store: MigrationStore) => void;
   beforeUp?: () => void;
   afterUp?: () => void;
   beforeDown?: () => void;

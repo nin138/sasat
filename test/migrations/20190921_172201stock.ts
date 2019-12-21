@@ -1,18 +1,24 @@
-import { builtInColumns } from '../../src';
-import { DataStore, SasatMigration } from '../../src';
+import { MigrationStore } from '../../src';
+import { SasatMigration } from '../../src';
 
 export class Stock implements SasatMigration {
-  up: (store: DataStore) => void = store => {
+  up: (store: MigrationStore) => void = store => {
     store.createTable('stock', table => {
-      table.addBuiltInColumn(builtInColumns.autoIncrementPrimaryKey('id'));
-      table.addReferences('user', 'user_id');
-      table.addReferences('post', 'post_id');
-      table.addBuiltInColumn(builtInColumns.created_at());
-      table.addBuiltInColumn(builtInColumns.updated_at());
+      table
+        .column('id')
+        .int()
+        .autoIncrement()
+        .unsigned()
+        .primary();
+      // table.addBuiltInColumn(builtInColumns.autoIncrementPrimaryKey('id'));
+      table.references('user', 'user_id');
+      table.references('post', 'post_id');
+      // table.addBuiltInColumn(builtInColumns.createdAt());
+      // table.addBuiltInColumn(builtInColumns.updatedAt());
       table.addUniqueKey('user_id', 'post_id');
     });
   };
-  down: (store: DataStore) => void = store => {
+  down: (store: MigrationStore) => void = store => {
     store.dropTable('stock');
   };
 }

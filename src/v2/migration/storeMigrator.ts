@@ -24,9 +24,9 @@ export class StoreMigrator implements MigrationStore {
 
   createTable(tableName: string, tableCreator: (table: TableBuilder) => void): MigrationStore {
     if (this.table(tableName)) throw new SasatError(`${tableName} is already exist`);
-    const builder = new TableCreator(tableName, this);
-    tableCreator(builder);
-    const table = new TableMigrator(builder.getTable());
+    const creator = new TableCreator(tableName, this);
+    tableCreator(creator);
+    const table = new TableMigrator(creator.create());
     this.tables.push(table);
     this.addQuery(table.showCreateTable());
     this.addQuery(...table.getIndexes().map(it => addIndex(table.tableName, it)));

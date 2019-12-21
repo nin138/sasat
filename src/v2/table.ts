@@ -5,6 +5,7 @@ import { SasatError } from '../error';
 import { DataStore } from './dataStore';
 import { SerializedTable } from './serializedStore';
 import { assembleColumn } from './assembleColumn';
+import { capitalizeFirstLetter } from '../util/stringUtil';
 
 export interface Table {
   column(columnName: string): Column | undefined;
@@ -85,6 +86,7 @@ export class TableHandler implements Table {
   }
 
   showCreateTable(): string {
+    console.log(this);
     const columns = this.columns.map(it => it.toSql());
     const rows = [...columns];
     if (this.primaryKey.length !== 0) rows.push(`PRIMARY KEY (${this.primaryKey.join(',')})`);
@@ -96,5 +98,12 @@ export class TableHandler implements Table {
 
   hasColumn(columnName: string): boolean {
     return !!this.columns.find(it => it.name === columnName);
+  }
+  isColumnPrimary(columnName: string): boolean {
+    return this.primaryKey.includes(columnName);
+  }
+
+  getEntityName(): string {
+    return capitalizeFirstLetter(this.tableName);
   }
 }

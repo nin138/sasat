@@ -1,5 +1,5 @@
-import { TableInfo } from './tableInfo';
+import { Table } from '../../v2/table';
 
 export interface DataStoreSchema {
-  tables: TableInfo[];
+  tables: Table[];
 }

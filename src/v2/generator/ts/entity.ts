@@ -6,7 +6,7 @@ const fieldToString = (field: IrEntityField, nullable: boolean) => {
 };
 
 const toInterface = (entityName: string, fields: string[]) => `\
-export interface ${entityName}Creatable { ${fields.join('')}};
+export interface ${entityName} { ${fields.join('')}};
 `;
 
 const entityCreatableString = (entity: IrEntity): string => {

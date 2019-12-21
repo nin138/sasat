@@ -6,9 +6,9 @@ export interface DataStore {
 }
 
 export class DataStoreHandler implements DataStore {
-  tables: TableHandler[] = [];
+  tables: TableHandler[];
   constructor(store: SerializedStore) {
-    store.tables.map(it => new TableHandler(it, this));
+    this.tables = store.tables.map(it => new TableHandler(it, this));
   }
   table(tableName: string): Table | undefined {
     return this.tables.find(it => it.tableName === tableName);

@@ -8,7 +8,7 @@ import { emptyDir, writeFile } from 'fs-extra';
 import { mkDirIfNotExists } from '../../util/fsUtil';
 import { IrRepository } from '../ir/repository';
 
-export class GenerateController {
+export class CodeGenerateController {
   private codeGen: CodeGenerator = new TsCodeGenerator();
   private outDir = config().migration.out;
   private repositoryDir = path.join(this.outDir, 'repository');

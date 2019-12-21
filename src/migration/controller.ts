@@ -2,9 +2,10 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { config } from '../config/config';
 import { getDbClient } from '../db/getDbClient';
-import { DataStoreMigrator } from './dataStore';
 import * as ts from 'typescript';
-import { GenerateController } from '../generator/controller';
+import { StoreMigrator } from '../v2/migration/storeMigrator';
+import { Compiler } from '../v2/compiler/compiler';
+import { CodeGenerateController } from '../v2/generator/controller';
 
 const migrationTable = '__migration__';
 
@@ -24,9 +25,10 @@ export class MigrationController {
     for (const fileName of target.files) {
       this.readMigration(store, fileName, target.direction);
       await this.execMigration(store, fileName, target.direction);
-      store.reset();
+      store.resetQueue();
     }
-    await new GenerateController(store.serialize()).execute();
+    const ir = new Compiler(store.serialize()).compile();
+    await new CodeGenerateController(ir).generate();
     return config().migration.target || this.files[this.files.length - 1];
   }
 
@@ -60,15 +62,15 @@ export class MigrationController {
     };
   }
   private getCurrentDataStore(files: string[], current: string | undefined) {
-    const store = new DataStoreMigrator();
+    const store = new StoreMigrator();
     if (!current) return store;
     files = files.slice(0, files.indexOf(current) + 1);
     files.forEach(fileName => this.readMigration(store, fileName, Direction.Up));
-    store.reset();
+    store.resetQueue();
     return store;
   }
 
-  private async execMigration(store: DataStoreMigrator, migrationName: string, direction: Direction) {
+  private async execMigration(store: StoreMigrator, migrationName: string, direction: Direction) {
     const sqls = store.getSql();
     const transaction = await getDbClient().transaction();
     try {
@@ -84,7 +86,7 @@ export class MigrationController {
     }
   }
 
-  private readMigration(store: DataStoreMigrator, fileName: string, direction: Direction) {
+  private readMigration(store: StoreMigrator, fileName: string, direction: Direction) {
     const file = fs.readFileSync(path.join(this.migrationDir, fileName)).toString();
     // tslint:disable-next-line
     const Class = eval(ts.transpile(file));

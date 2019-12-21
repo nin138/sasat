@@ -3,9 +3,9 @@ import { columnTypeToTsType } from '../../../migration/column/columnTypes';
 
 const importStatement = (ir: IrRepository): string => {
   return [
-    "import { SasatRepository } from 'sasat';",
-    ...ir.useClasses.map(it => `import {${it.classNames.join(', ')}} from '../${it.path}' `),
-  ].join('\n');
+    "import { SasatRepository } from 'sasat';\n",
+    ...ir.useClasses.map(it => `import {${it.classNames.join(', ')}} from '../${it.path}';\n`),
+  ].join('');
 };
 
 const getReturnType = (ir: IrQuery): string => {

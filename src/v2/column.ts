@@ -9,6 +9,8 @@ import { SerializedColumn } from './serializedStore';
 
 export interface Column {
   name: string;
+  type: DBColumnTypes;
+  getData(): ColumnData;
   toSql: () => string;
   isReference: () => this is ReferenceColumn;
   serialize: () => SerializedColumn;
@@ -19,6 +21,14 @@ export class NormalColumn implements Column {
   get name(): string {
     return this.data.columnName;
   }
+  get type(): DBColumnTypes {
+    return this.data.type;
+  }
+
+  getData(): ColumnData {
+    return this.data;
+  }
+
   sqlType(): DBColumnTypes {
     return this.data.type;
   }
@@ -30,7 +40,7 @@ export class NormalColumn implements Column {
   }
 
   toSql(): string {
-    return columnToSql(this);
+    return columnToSql(this.data);
   }
 
   isReference() {

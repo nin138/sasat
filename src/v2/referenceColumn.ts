@@ -18,8 +18,17 @@ export class ReferenceColumn implements Column {
   get name() {
     return this.data.columnName;
   }
+
+  get type() {
+    return this.getRootColumn().type;
+  }
+
+  getData() {
+    return this.getRootColumn().data;
+  }
+
   toSql(): string {
-    return columnToSql(this.getRootColumn());
+    return columnToSql({ ...this.getRootColumn().data, ...{ autoIncrement: false, default: undefined } });
   }
 
   getTargetColumn() {
