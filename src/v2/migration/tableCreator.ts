@@ -14,7 +14,7 @@ export interface TableBuilder {
 export class TableCreator implements TableBuilder {
   private readonly table: TableHandler;
   constructor(public tableName: string, store: DataStore) {
-    this.table = new TableHandler(tableName, store);
+    this.table = new TableHandler({ tableName }, store);
   }
   columns: ColumnBuilder[] = [];
   column(name: string): ColumnCreator {
@@ -41,5 +41,9 @@ export class TableCreator implements TableBuilder {
   setPrimaryKey(...columnNames: string[]): TableBuilder {
     this.table.setPrimaryKey(...columnNames);
     return this;
+  }
+
+  getTable(): TableHandler {
+    return this.table;
   }
 }

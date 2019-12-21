@@ -1,16 +1,17 @@
 import { columnTypeToTsType, DBColumnTypes } from '../migration/column/columnTypes';
-import { SqlValueType } from '../db/dbClient';
-import { ReferenceColumn, ReferenceColumnData } from './referenceColumn';
+import { ReferenceColumn } from './referenceColumn';
 import { columnTypeToGqlPrimitive } from '../generator/gql/sasatToGqlType';
 import { GqlPrimitive } from '../generator/gql/types';
 import { ColumnData } from '../migration/column/columnData';
 import { Table } from './table';
 import { columnToSql } from './sql/columnToSql';
+import { SerializedColumn } from './serializedStore';
 
 export interface Column {
   name: string;
   toSql: () => string;
   isReference: () => this is ReferenceColumn;
+  serialize: () => SerializedColumn;
 }
 
 export class NormalColumn implements Column {
@@ -35,20 +36,8 @@ export class NormalColumn implements Column {
   isReference() {
     return false;
   }
-}
 
-// TODO RM
-export interface AllColumnInfo {
-  columnName: string;
-  type: DBColumnTypes;
-  unique: boolean;
-  zerofill: boolean;
-  autoIncrement: boolean;
-  length?: number;
-  scale?: number;
-  notNull?: boolean;
-  signed?: boolean;
-  default?: SqlValueType;
-  onUpdateCurrentTimeStamp: boolean;
-  reference?: ReferenceColumnData;
+  serialize() {
+    return this.data;
+  }
 }

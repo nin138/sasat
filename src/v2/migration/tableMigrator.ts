@@ -1,13 +1,9 @@
 import { Table, TableHandler } from '../table';
 import { Column } from '../column';
-import { DataStore } from '../dataStore';
+import { SerializedTable } from '../serializedStore';
 
 export class TableMigrator implements Table {
-  private table: TableHandler;
-
-  constructor(tableName: string, store: DataStore) {
-    this.table = new TableHandler(tableName, store);
-  }
+  constructor(private table: TableHandler) {}
 
   get tableName() {
     return this.table.tableName;
@@ -15,5 +11,17 @@ export class TableMigrator implements Table {
 
   column(columnName: string): Column | undefined {
     return this.table.column(columnName);
+  }
+
+  showCreateTable() {
+    return this.table.showCreateTable();
+  }
+
+  getIndexes() {
+    return this.table.indexes;
+  }
+
+  serialize(): SerializedTable {
+    return this.table.serialize();
   }
 }

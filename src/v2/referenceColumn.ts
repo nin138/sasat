@@ -1,8 +1,6 @@
-import { DataStore } from '../migration/dataStore';
-import { ColumnBuilder } from '../migration/column/columnBuilder';
-import { AllColumnInfo, Column, NormalColumn } from './column';
+import { Column, NormalColumn } from './column';
 import { ForeignKey, ForeignKeyReferentialAction } from '../migration/table/foreignKey';
-import { Table } from './table';
+import { TableHandler } from './table';
 import { columnToSql } from './sql/columnToSql';
 
 export interface ReferenceColumnData {
@@ -16,7 +14,7 @@ export interface ReferenceColumnData {
 }
 
 export class ReferenceColumn implements Column {
-  constructor(public data: ReferenceColumnData, public table: Table) {}
+  constructor(public data: ReferenceColumnData, public table: TableHandler) {}
   get name() {
     return this.data.columnName;
   }
@@ -39,19 +37,11 @@ export class ReferenceColumn implements Column {
   isReference(): this is ReferenceColumn {
     return true;
   }
-}
 
-export const referenceToColumnInfo = (
-  store: DataStore,
-  reference: ReferenceColumnData,
-): AllColumnInfo & { primary: boolean } => ({
-  ...(store
-    .table(reference.targetTable)!
-    .columns.find(it => it.build().columnName === reference.targetColumn) as ColumnBuilder).build(),
-  primary: false,
-  autoIncrement: false,
-  unique: reference.unique,
-});
+  serialize() {
+    return this.data;
+  }
+}
 
 export const referenceToForeignKey = (reference: ReferenceColumnData): ForeignKey => ({
   constraintName: `ref_${reference.targetTable}_${reference.targetColumn}`,

@@ -1,8 +1,9 @@
-import { TableBuilder } from '../../migration/table/tableBuilder';
 import { SasatError } from '../../error';
 import { addIndex } from '../../migration/sqlCreater';
 import { DataStore } from '../dataStore';
 import { TableMigrator } from './tableMigrator';
+import { TableBuilder, TableCreator } from './tableCreator';
+import { SerializedStore } from '../serializedStore';
 
 export interface MigrationStore extends DataStore {
   createTable(tableName: string, tableCreator: (table: TableBuilder) => void): MigrationStore;
@@ -23,17 +24,17 @@ export class StoreMigrator implements MigrationStore {
 
   createTable(tableName: string, tableCreator: (table: TableBuilder) => void): MigrationStore {
     if (this.table(tableName)) throw new SasatError(`${tableName} is already exist`);
-    const builder = new TableBuilder(this, tableName);
+    const builder = new TableCreator(tableName, this);
     tableCreator(builder);
-    const table = TableMigrator.fromTableBuilder(this, builder);
+    const table = new TableMigrator(builder.getTable());
     this.tables.push(table);
     this.addQuery(table.showCreateTable());
-    this.addQuery(...table.indexes.map(it => addIndex(table.tableName, it)));
+    this.addQuery(...table.getIndexes().map(it => addIndex(table.tableName, it)));
     return this;
   }
 
   dropTable(tableName: string) {
-    this.migrationQueue.push(`DROP TABLE ${tableName}`);
+    this.addQuery(`DROP TABLE ${tableName}`);
     return this;
   }
 
@@ -41,7 +42,13 @@ export class StoreMigrator implements MigrationStore {
     return this.migrationQueue;
   }
 
-  private resetQueue() {
+  resetQueue() {
     this.migrationQueue = [];
+  }
+
+  serialize(): SerializedStore {
+    return {
+      tables: this.tables.map(it => it.serialize()),
+    };
   }
 }

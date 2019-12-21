@@ -3,23 +3,28 @@ import { ReferenceColumn } from './referenceColumn';
 import { Column, NormalColumn } from './column';
 import { SasatError } from '../error';
 import { DataStore } from './dataStore';
+import { SerializedTable } from './serializedStore';
+import { assembleColumn } from './assembleColumn';
 
 export interface Table {
   column(columnName: string): Column | undefined;
-  // primaryKey: string[];
-  // uniqueKeys: string[][];
-  // indexes: Index[];
-  // store: DataStore;
   tableName: string;
 }
 
 export class TableHandler implements Table {
-  readonly indexes: Index[] = [];
-  readonly columns: Column[] = [];
-  primaryKey: string[] = [];
-  readonly uniqueKeys: string[][] = [];
+  readonly indexes: Index[];
+  readonly columns: Column[];
+  primaryKey: string[];
+  readonly uniqueKeys: string[][];
+  readonly tableName: string;
 
-  constructor(readonly tableName: string, public store: DataStore) {}
+  constructor(table: Partial<SerializedTable> & Pick<SerializedTable, 'tableName'>, public store: DataStore) {
+    this.tableName = table.tableName;
+    this.primaryKey = table.primaryKey || [];
+    this.uniqueKeys = table.uniqueKeys || [];
+    this.indexes = table.indexes || [];
+    this.columns = (table.columns || []).map(it => assembleColumn(it, this));
+  }
 
   column(columnName: string): Column | undefined {
     return this.columns.find(it => it.name === columnName);
@@ -31,8 +36,14 @@ export class TableHandler implements Table {
     if (isUnique) this.addUniqueKey(column.name);
   }
 
-  serialize() {
-    // TODO IMPL
+  serialize(): SerializedTable {
+    return {
+      columns: this.columns.map(it => it.serialize()),
+      primaryKey: this.primaryKey,
+      uniqueKeys: this.uniqueKeys,
+      indexes: this.indexes,
+      tableName: this.tableName,
+    };
   }
 
   addReferences(table: string, column: string, unique = false): this {
