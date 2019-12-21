@@ -1,4 +1,4 @@
-import { SasatError } from './error';
+import { SasatError } from '../error';
 import * as SqlString from 'sqlstring';
 
 export interface Condition<T> {

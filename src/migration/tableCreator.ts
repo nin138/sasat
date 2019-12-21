@@ -1,8 +1,8 @@
-import { ColumnCreator } from './columnCreator';
-import { ColumnBuilder } from '../../migration/column/columnBuilder';
-import { TableHandler } from '../table';
-import { DataStore } from '../dataStore';
-import { NormalColumn } from '../column';
+import { ColumnCreator } from './column/columnCreator';
+import { ColumnBuilder } from './column/columnBuilder';
+import { TableHandler } from '../entity/table';
+import { DataStore } from '../entity/dataStore';
+import { NormalColumn } from '../entity/column';
 
 export interface TableBuilder {
   column(columnName: string): ColumnCreator;

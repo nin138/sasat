@@ -1,4 +1,4 @@
-import { ReferenceColumnData } from '../../v2/referenceColumn';
+import { ReferenceColumnData } from '../../entity/referenceColumn';
 
 export interface QueryInfo {
   entity: string;

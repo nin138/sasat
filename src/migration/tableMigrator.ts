@@ -1,6 +1,6 @@
-import { Table, TableHandler } from '../table';
-import { Column } from '../column';
-import { SerializedTable } from '../serializedStore';
+import { Table, TableHandler } from '../entity/table';
+import { Column } from '../entity/column';
+import { SerializedTable } from '../entity/serializedStore';
 
 export class TableMigrator implements Table {
   constructor(private table: TableHandler) {}

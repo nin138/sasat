@@ -7,15 +7,15 @@ import { mkDirIfNotExists } from '../../util/fsUtil';
 
 const getMigrationFile = (className: string) =>
   `import { SasatMigration } from "sasat";
-import { DataStore } from "sasat";
+import { MigrationStore } from "sasat";
 
 export class ${capitalizeFirstLetter(className)} implements SasatMigration {
   
-  up: (store: DataStore) => void = store => {
+  up: (store: MigrationStore) => void = store => {
 
   };
   
-  down: (store: DataStore) => void = store => {
+  down: (store: MigrationStore) => void = store => {
     throw new Error('Down is not implemented on ${className}');
   };
 }

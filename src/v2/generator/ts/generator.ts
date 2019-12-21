@@ -1,6 +1,6 @@
-import { IrEntity } from '../../ir/entity';
+import { IrEntity } from '../../../ir/entity';
 import { generateEntityFileString } from './entity';
-import { IrRepository } from '../../ir/repository';
+import { IrRepository } from '../../../ir/repository';
 import { generateRepositoryString } from './repository';
 import { CodeGenerator } from '../generator';
 import * as prettier from 'prettier';

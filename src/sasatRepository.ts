@@ -1,6 +1,6 @@
 import { getDbClient } from './db/getDbClient';
 import { CommandResponse, SQLExecutor } from './db/dbClient';
-import { Condition, conditionToSql } from './condition';
+import { Condition, conditionToSql } from './sql/condition';
 import * as SqlString from 'sqlstring';
 import { SasatError } from './error';
 

@@ -1,4 +1,4 @@
-import { ReferenceColumnData } from '../../v2/referenceColumn';
+import { ReferenceColumnData } from '../../entity/referenceColumn';
 import { capitalizeFirstLetter } from '../../util/stringUtil';
 import { TableGenerator } from '../store';
 

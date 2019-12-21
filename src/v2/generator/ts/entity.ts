@@ -1,4 +1,4 @@
-import { IrEntity, IrEntityField } from '../../ir/entity';
+import { IrEntity, IrEntityField } from '../../../ir/entity';
 import { columnTypeToTsType } from '../../../migration/column/columnTypes';
 
 const fieldToString = (field: IrEntityField, nullable: boolean) => {
@@ -20,7 +20,7 @@ const primaryString = (entity: IrEntity): string => {
 };
 
 const entityString = (entity: IrEntity): string => {
-  const fields = entity.fields.filter(it => it.isPrimary).map(it => fieldToString(it, it.nullable));
+  const fields = entity.fields.map(it => fieldToString(it, it.nullable));
   return toInterface(entity.entityName, fields);
 };
 

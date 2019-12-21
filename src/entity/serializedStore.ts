@@ -1,4 +1,4 @@
-import { Index } from '../migration/table';
+import { Index } from './index';
 import { ColumnData } from '../migration/column/columnData';
 import { ReferenceColumnData } from './referenceColumn';
 

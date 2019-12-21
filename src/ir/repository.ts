@@ -1,4 +1,4 @@
-import { DBColumnTypes } from '../../migration/column/columnTypes';
+import { DBColumnTypes } from '../migration/column/columnTypes';
 
 export interface IrRepository {
   tableName: string;

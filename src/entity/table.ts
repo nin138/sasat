@@ -1,4 +1,4 @@
-import { Index } from '../migration/table';
+import { Index } from './index';
 import { ReferenceColumn } from './referenceColumn';
 import { Column, NormalColumn } from './column';
 import { SasatError } from '../error';
@@ -86,7 +86,6 @@ export class TableHandler implements Table {
   }
 
   showCreateTable(): string {
-    console.log(this);
     const columns = this.columns.map(it => it.toSql());
     const rows = [...columns];
     if (this.primaryKey.length !== 0) rows.push(`PRIMARY KEY (${this.primaryKey.join(',')})`);

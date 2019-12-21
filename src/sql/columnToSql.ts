@@ -1,6 +1,6 @@
-import { DBColumnTypes } from '../../migration/column/columnTypes';
+import { DBColumnTypes } from '../migration/column/columnTypes';
 import * as SqlString from 'sqlstring';
-import { ColumnData } from '../../migration/column/columnData';
+import { ColumnData } from '../migration/column/columnData';
 
 export const columnToSql = (column: ColumnData) => {
   const words = [column.columnName, column.type];

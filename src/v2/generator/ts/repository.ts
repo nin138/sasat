@@ -1,4 +1,4 @@
-import { IrQuery, IrRepository } from '../../ir/repository';
+import { IrQuery, IrRepository } from '../../../ir/repository';
 import { columnTypeToTsType } from '../../../migration/column/columnTypes';
 
 const importStatement = (ir: IrRepository): string => {

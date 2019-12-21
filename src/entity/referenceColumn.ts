@@ -1,7 +1,7 @@
 import { Column, NormalColumn } from './column';
-import { ForeignKey, ForeignKeyReferentialAction } from '../migration/table/foreignKey';
+import { ForeignKey, ForeignKeyReferentialAction } from './foreignKey';
 import { TableHandler } from './table';
-import { columnToSql } from './sql/columnToSql';
+import { columnToSql } from '../sql/columnToSql';
 
 export interface ReferenceColumnData {
   type: 'REFERENCE';

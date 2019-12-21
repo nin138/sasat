@@ -3,8 +3,8 @@ import * as path from 'path';
 import { config } from '../config/config';
 import { getDbClient } from '../db/getDbClient';
 import * as ts from 'typescript';
-import { StoreMigrator } from '../v2/migration/storeMigrator';
-import { Compiler } from '../v2/compiler/compiler';
+import { StoreMigrator } from './storeMigrator';
+import { Compiler } from '../compiler/compiler';
 import { CodeGenerateController } from '../v2/generator/controller';
 
 const migrationTable = '__migration__';

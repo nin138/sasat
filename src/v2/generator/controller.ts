@@ -1,12 +1,12 @@
-import { Ir } from '../ir/ir';
+import { Ir } from '../../ir/ir';
 import { CodeGenerator } from './generator';
 import { TsCodeGenerator } from './ts/generator';
 import { config } from '../../config/config';
 import * as path from 'path';
-import { IrEntity } from '../ir/entity';
+import { IrEntity } from '../../ir/entity';
 import { emptyDir, writeFile } from 'fs-extra';
 import { mkDirIfNotExists } from '../../util/fsUtil';
-import { IrRepository } from '../ir/repository';
+import { IrRepository } from '../../ir/repository';
 
 export class CodeGenerateController {
   private codeGen: CodeGenerator = new TsCodeGenerator();

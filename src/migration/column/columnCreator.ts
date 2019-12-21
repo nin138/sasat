@@ -1,4 +1,4 @@
-import { DBColumnTypes } from '../../migration/column/columnTypes';
+import { DBColumnTypes } from './columnTypes';
 import {
   ColumnBuilder,
   DateColumnBuilder,
@@ -8,8 +8,8 @@ import {
   StringColumnBuilder,
   TextColumnBuilder,
   TimeStampColumnBuilder,
-} from '../../migration/column/columnBuilder';
-import { TableCreator } from './tableCreator';
+} from './columnBuilder';
+import { TableCreator } from '../tableCreator';
 
 export class ColumnCreator {
   constructor(private table: TableCreator, private name: string) {}

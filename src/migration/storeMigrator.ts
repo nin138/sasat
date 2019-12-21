@@ -1,9 +1,9 @@
-import { SasatError } from '../../error';
-import { addIndex } from '../../migration/sqlCreater';
-import { DataStore } from '../dataStore';
+import { SasatError } from '../error';
+import { addIndex } from '../sql/sqlCreater';
+import { DataStore } from '../entity/dataStore';
 import { TableMigrator } from './tableMigrator';
 import { TableBuilder, TableCreator } from './tableCreator';
-import { SerializedStore } from '../serializedStore';
+import { SerializedStore } from '../entity/serializedStore';
 
 export interface MigrationStore extends DataStore {
   createTable(tableName: string, tableCreator: (table: TableBuilder) => void): MigrationStore;

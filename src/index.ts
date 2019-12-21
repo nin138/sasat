@@ -1,4 +1,4 @@
-export { MigrationStore } from './v2/migration/storeMigrator';
+export { MigrationStore } from './migration/storeMigrator';
 export { SasatMigration } from './migration/migration';
 export { SasatClient } from './sasat/client';
 export { SasatRepository } from './sasatRepository';

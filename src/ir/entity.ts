@@ -1,5 +1,5 @@
-import { DBColumnTypes } from '../../migration/column/columnTypes';
-import { SqlValueType } from '../../db/dbClient';
+import { DBColumnTypes } from '../migration/column/columnTypes';
+import { SqlValueType } from '../db/dbClient';
 
 export interface IrEntity {
   entityName: string;

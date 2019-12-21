@@ -1,8 +1,8 @@
 import { TableInfo } from '../migration/table/tableInfo';
-import { AllColumnInfo } from '../v2/column';
-import { ForeignKey } from '../migration/table/foreignKey';
-import { Index } from '../migration/table';
-import { ReferenceColumnData } from '../v2/referenceColumn';
+import { AllColumnInfo } from '../entity/column';
+import { ForeignKey } from '../entity/foreignKey';
+import { Index } from '../entity';
+import { ReferenceColumnData } from '../entity/referenceColumn';
 import { DataStoreSchema } from '../migration/table/dataStoreSchema';
 import { columnTypeToTsType } from '../migration/column/columnTypes';
 import { GqlType } from './gql/types';

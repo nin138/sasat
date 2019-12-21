@@ -1,6 +1,6 @@
 import { formatQuery } from '../../src/db/formatQuery';
 import * as SQLString from 'sqlstring';
-import { whereToSQL } from '../../src/condition';
+import { whereToSQL } from '../../src/sql/condition';
 import { User } from '../out/__generated/entity/user';
 
 test('mysql DBClient', () => {

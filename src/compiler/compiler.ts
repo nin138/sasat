@@ -1,11 +1,11 @@
 import { Ir } from '../ir/ir';
-import { DataStoreHandler } from '../dataStore';
-import { SerializedStore } from '../serializedStore';
+import { DataStoreHandler } from '../entity/dataStore';
+import { SerializedStore } from '../entity/serializedStore';
 import { IrEntity } from '../ir/entity';
-import { TableHandler } from '../table';
-import { capitalizeFirstLetter } from '../../util/stringUtil';
+import { TableHandler } from '../entity/table';
+import { capitalizeFirstLetter } from '../util/stringUtil';
 import { IrQuery, IrRepository } from '../ir/repository';
-import { ReferenceColumn } from '../referenceColumn';
+import { ReferenceColumn } from '../entity/referenceColumn';
 
 export class Compiler {
   store: DataStoreHandler;
