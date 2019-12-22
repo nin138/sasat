@@ -1,13 +1,14 @@
 import { SasatError } from '../error';
 import { addIndex } from '../sql/sqlCreater';
 import { DataStore } from '../entity/dataStore';
-import { TableMigrator } from './tableMigrator';
+import { MigrationTable, TableMigrator } from './tableMigrator';
 import { TableBuilder, TableCreator } from './tableCreator';
 import { SerializedStore } from '../entity/serializedStore';
 
 export interface MigrationStore extends DataStore {
   createTable(tableName: string, tableCreator: (table: TableBuilder) => void): MigrationStore;
   dropTable(tableName: string): MigrationStore;
+  table(tableName: string): MigrationTable | undefined;
 }
 
 export class StoreMigrator implements MigrationStore {
@@ -18,7 +19,7 @@ export class StoreMigrator implements MigrationStore {
     return this.tables.find(it => it.tableName === tableName);
   }
 
-  protected addQuery(...query: string[]) {
+  addQuery(...query: string[]) {
     this.migrationQueue.push(...query);
   }
 
@@ -26,7 +27,7 @@ export class StoreMigrator implements MigrationStore {
     if (this.table(tableName)) throw new SasatError(`${tableName} is already exist`);
     const creator = new TableCreator(tableName, this);
     tableCreator(creator);
-    const table = new TableMigrator(creator.create());
+    const table = new TableMigrator(creator.create(), this);
     this.tables.push(table);
     this.addQuery(table.showCreateTable());
     this.addQuery(...table.getIndexes().map(it => addIndex(table.tableName, it)));

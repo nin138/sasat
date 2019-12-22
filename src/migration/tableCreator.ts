@@ -9,6 +9,9 @@ export interface TableBuilder {
   references(table: string, column: string, unique?: boolean): TableBuilder;
   setPrimaryKey(...columnNames: string[]): TableBuilder;
   addUniqueKey(...columnNames: string[]): TableBuilder;
+  onCreateColumn(): TableBuilder;
+  onUpdateColumn(): TableBuilder;
+  addIndex(...columns: string[]): TableBuilder;
 }
 
 export class TableCreator implements TableBuilder {
@@ -49,5 +52,27 @@ export class TableCreator implements TableBuilder {
       this.table.addColumn(new NormalColumn(data, this.table), isPrimary, isUnique);
     });
     return this.table;
+  }
+
+  onCreateColumn(): TableBuilder {
+    this.column('createdAt')
+      .timestamp()
+      .defaultCurrentTimeStamp()
+      .notNull();
+    return this;
+  }
+
+  onUpdateColumn(): TableBuilder {
+    this.column('updatedAt')
+      .timestamp()
+      .defaultCurrentTimeStamp()
+      .onUpdateCurrentTimeStamp()
+      .notNull();
+    return this;
+  }
+
+  addIndex(...columns: string[]): TableBuilder {
+    this.table.addIndex(`index_${this.tableName}__${columns.join('_')}`, ...columns);
+    return this;
   }
 }

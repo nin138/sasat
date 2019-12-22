@@ -1,6 +1,6 @@
 import { Index } from './index';
 import { ReferenceColumn } from './referenceColumn';
-import { Column, NormalColumn } from './column';
+import { Column } from './column';
 import { SasatError } from '../error';
 import { DataStore } from './dataStore';
 import { SerializedTable } from './serializedStore';
@@ -13,7 +13,10 @@ export interface Table {
 }
 
 export class TableHandler implements Table {
-  readonly indexes: Index[];
+  private indexes: Index[];
+  get index() {
+    return this.indexes;
+  }
   readonly columns: Column[];
   primaryKey: string[];
   readonly uniqueKeys: string[][];
@@ -64,14 +67,19 @@ export class TableHandler implements Table {
     return this;
   }
 
-  addIndex(constraintName: string, ...columns: string[]): this {
-    this.indexes.push({ constraintName, columns });
+  private getIndexConstraintName(columns: string[]): string {
+    return `index_${this.tableName}__${columns.join('_')}`;
+  }
+
+  addIndex(...columns: string[]): this {
+    this.indexes.push({ constraintName: this.getIndexConstraintName(columns), columns });
     return this;
   }
 
-  addBuiltInColumn(column: NormalColumn) {
-    if (this.hasColumn(column.name)) throw new Error(`${this.tableName}.${column.name} already exists`);
-    this.columns.push(column);
+  removeIndex(...columns: string[]): this {
+    const constraint = this.getIndexConstraintName(columns);
+    this.indexes = this.indexes.filter(it => it.constraintName !== constraint);
+    return this;
   }
 
   addUniqueKey(...columnNames: string[]): this {
