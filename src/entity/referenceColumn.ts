@@ -50,6 +50,10 @@ export class ReferenceColumn implements Column {
   serialize() {
     return this.data;
   }
+
+  isNullable(): boolean {
+    return false;
+  }
 }
 
 export const referenceToForeignKey = (reference: ReferenceColumnData): ForeignKey => ({

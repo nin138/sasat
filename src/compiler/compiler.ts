@@ -1,17 +1,13 @@
 import { Ir } from '../ir/ir';
 import { DataStoreHandler } from '../entity/dataStore';
-import { SerializedStore } from '../entity/serializedStore';
 import { IrEntity } from '../ir/entity';
 import { TableHandler } from '../entity/table';
 import { capitalizeFirstLetter } from '../util/stringUtil';
-import { IrQuery, IrRepository } from '../ir/repository';
+import { IrQuery, IrQueryType, IrRepository } from '../ir/repository';
 import { ReferenceColumn } from '../entity/referenceColumn';
 
 export class Compiler {
-  store: DataStoreHandler;
-  constructor(data: SerializedStore) {
-    this.store = new DataStoreHandler(data);
-  }
+  constructor(private store: DataStoreHandler) {}
   compile(): Ir {
     return {
       repositories: this.store.tables.map(it => this.createRepository(it)),
@@ -44,6 +40,7 @@ export class Compiler {
   private createPrimaryQuery(table: TableHandler): IrQuery {
     return {
       queryName: this.paramsToQueryName(...table.primaryKey),
+      queryType: IrQueryType.Primary,
       returnType: table.getEntityName(),
       isReturnsArray: false,
       isReturnDefinitelyExist: false,
@@ -54,6 +51,7 @@ export class Compiler {
   private createRefQuery(ref: ReferenceColumn): IrQuery {
     return {
       queryName: this.paramsToQueryName(ref.name),
+      queryType: IrQueryType.Reference,
       returnType: ref.table.getEntityName(),
       isReturnsArray: !ref.data.unique,
       isReturnDefinitelyExist: false, // TODO RELATION

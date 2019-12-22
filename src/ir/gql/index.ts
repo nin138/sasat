@@ -2,6 +2,6 @@ import { IrGqlType } from './types';
 import { IrGqlQuery } from './query';
 
 export interface IrGql {
-  type: IrGqlType[];
+  types: IrGqlType[];
   queries: IrGqlQuery[];
 }

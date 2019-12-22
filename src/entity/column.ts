@@ -11,9 +11,11 @@ export interface Column {
   name: string;
   type: DBColumnTypes;
   getData(): ColumnData;
-  toSql: () => string;
-  isReference: () => this is ReferenceColumn;
-  serialize: () => SerializedColumn;
+  toSql(): string;
+  isReference(): this is ReferenceColumn;
+  isNullable(): boolean;
+  serialize(): SerializedColumn;
+  gqlType(): GqlPrimitive;
 }
 
 export class NormalColumn implements Column {
@@ -49,5 +51,9 @@ export class NormalColumn implements Column {
 
   serialize() {
     return this.data;
+  }
+
+  isNullable(): boolean {
+    return !this.data.notNull;
   }
 }

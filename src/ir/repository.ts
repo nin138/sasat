@@ -8,8 +8,15 @@ export interface IrRepository {
   useClasses: IrUseClasses[];
 }
 
+export enum IrQueryType {
+  List,
+  Primary,
+  Reference,
+}
+
 export interface IrQuery {
   queryName: string;
+  queryType: IrQueryType;
   returnType: string;
   isReturnsArray: boolean;
   isReturnDefinitelyExist: boolean;
