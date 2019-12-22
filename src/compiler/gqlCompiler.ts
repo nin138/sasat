@@ -3,6 +3,8 @@ import { DataStoreHandler } from '../entity/dataStore';
 import { IrGqlType } from '../ir/gql/types';
 import { IrGqlQuery, IrGqlQueryType } from '../ir/gql/query';
 import { capitalizeFirstLetter, plural } from '../util/stringUtil';
+import { IrGqlMutation, IrGqlMutationEntity } from '../ir/gql/mutation';
+import { TableHandler } from '../entity/table';
 
 export class GqlCompiler {
   constructor(private store: DataStoreHandler) {}
@@ -21,8 +23,38 @@ export class GqlCompiler {
     return {
       types: types,
       queries: [...this.listQuery(), ...this.primaryQuery()],
+      mutations: this.getMutations(),
     };
   }
+
+  private getMutation(table: TableHandler): IrGqlMutationEntity {
+    return {
+      entityName: table.getEntityName(),
+      onCreateParams: table.columns.map(it => {
+        return {
+          name: it.name,
+          type: it.gqlType(),
+          isNullable: it.isNullableOnCreate(),
+          isArray: false,
+        };
+      }),
+      onUpdateParams: table.columns.map(it => {
+        return {
+          name: it.name,
+          type: it.gqlType(),
+          isNullable: !table.isColumnPrimary(it.name),
+          isArray: false,
+        };
+      }),
+    };
+  }
+
+  private getMutations(): IrGqlMutation {
+    return {
+      entities: this.store.tables.map(it => this.getMutation(it)),
+    };
+  }
+
   private listQuery(): IrGqlQuery[] {
     return this.store.tables.map(it => ({
       queryName: plural(it.tableName),

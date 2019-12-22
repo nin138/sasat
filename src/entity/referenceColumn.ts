@@ -59,6 +59,10 @@ export class ReferenceColumn implements Column {
   gqlType(): GqlPrimitive {
     return this.getRootColumn().gqlType();
   }
+
+  isNullableOnCreate(): boolean {
+    return false;
+  }
 }
 
 export const referenceToForeignKey = (reference: ReferenceColumnData): ForeignKey => ({

@@ -9,6 +9,7 @@ import { IrGql } from '../../../ir/gql';
 import { generateTsTypeDefString } from './gql/typeDef';
 import { generateTsResolverString } from './gql/resolver';
 import { generateTsGqlQueryString } from './gql/query';
+import { generateTsGqlMutationString } from './gql/mutation';
 
 export class TsCodeGenerator implements CodeGenerator {
   readonly fileExt = 'ts';
@@ -39,5 +40,9 @@ export class TsCodeGenerator implements CodeGenerator {
 
   generateGqlResolver(): string {
     return generateTsResolverString();
+  }
+
+  generateGqlMutation(gql: IrGql): string {
+    return this.formatCode(generateTsGqlMutationString(gql));
   }
 }

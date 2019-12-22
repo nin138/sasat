@@ -16,6 +16,7 @@ export interface Column {
   isNullable(): boolean;
   serialize(): SerializedColumn;
   gqlType(): GqlPrimitive;
+  isNullableOnCreate(): boolean;
 }
 
 export class NormalColumn implements Column {
@@ -55,5 +56,9 @@ export class NormalColumn implements Column {
 
   isNullable(): boolean {
     return !this.data.notNull;
+  }
+
+  isNullableOnCreate(): boolean {
+    return !this.data.notNull || this.data.default !== undefined || this.data.autoIncrement;
   }
 }

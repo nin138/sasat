@@ -10,4 +10,5 @@ export interface CodeGenerator {
   generateGqlTypeDefs(gql: IrGql): string;
   generateGqlResolver(): string;
   generateGqlQuery(gql: IrGql): string;
+  generateGqlMutation(gql: IrGql): string;
 }
