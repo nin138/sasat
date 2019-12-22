@@ -3,7 +3,7 @@ import { DataStoreHandler } from '../entity/dataStore';
 import { IrEntity } from '../ir/entity';
 import { TableHandler } from '../entity/table';
 import { capitalizeFirstLetter } from '../util/stringUtil';
-import { IrQuery, IrQueryType, IrRepository } from '../ir/repository';
+import { IrQuery, IrRepository } from '../ir/repository';
 import { ReferenceColumn } from '../entity/referenceColumn';
 
 export class Compiler {
@@ -40,7 +40,6 @@ export class Compiler {
   private createPrimaryQuery(table: TableHandler): IrQuery {
     return {
       queryName: this.paramsToQueryName(...table.primaryKey),
-      queryType: IrQueryType.Primary,
       returnType: table.getEntityName(),
       isReturnsArray: false,
       isReturnDefinitelyExist: false,
@@ -51,7 +50,6 @@ export class Compiler {
   private createRefQuery(ref: ReferenceColumn): IrQuery {
     return {
       queryName: this.paramsToQueryName(ref.name),
-      queryType: IrQueryType.Reference,
       returnType: ref.table.getEntityName(),
       isReturnsArray: !ref.data.unique,
       isReturnDefinitelyExist: false, // TODO RELATION

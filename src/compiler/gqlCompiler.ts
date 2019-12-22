@@ -1,7 +1,7 @@
 import { IrGql } from '../ir/gql';
 import { DataStoreHandler } from '../entity/dataStore';
 import { IrGqlType } from '../ir/gql/types';
-import { IrGqlQuery } from '../ir/gql/query';
+import { IrGqlQuery, IrGqlQueryType } from '../ir/gql/query';
 import { plural } from '../util/stringUtil';
 
 export class GqlCompiler {
@@ -26,6 +26,7 @@ export class GqlCompiler {
   private listQuery(): IrGqlQuery[] {
     return this.store.tables.map(it => ({
       queryName: plural(it.tableName),
+      queryType: IrGqlQueryType.List,
       entity: it.getEntityName(),
       params: [],
       repositoryFunctionName: 'list',
@@ -37,6 +38,7 @@ export class GqlCompiler {
   private primaryQuery(): IrGqlQuery[] {
     return this.store.tables.map(table => ({
       queryName: table.tableName,
+      queryType: IrGqlQueryType.Primary,
       entity: table.getEntityName(),
       params: table.primaryKey.map(it => ({
         name: it,

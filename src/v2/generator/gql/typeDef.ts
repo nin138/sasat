@@ -21,7 +21,8 @@ const createQueryTypeString = (ir: IrGqlQuery[]) => {
 type Query {
 ${ir
   .map(it => {
-    const param = it.params.length === 0 ? '' : `(${it.params.map(it => getGqlTypeString(it)).join(', ')})`;
+    const param =
+      it.params.length === 0 ? '' : `(${it.params.map(it => `${it.name}: ${getGqlTypeString(it)}`).join(', ')})`;
     const returnType = getGqlTypeString({ type: it.entity, isNullable: it.isNullable, isArray: it.isArray });
     return `  ${it.queryName}${param}: ${returnType}`;
   })
@@ -30,12 +31,7 @@ ${ir
 `;
 };
 
-export const generateTypeDefString = (ir: IrGql) => {
-  return `\
-export const typeDefs = \`
-${ir.type.map(createTypeString).join('\n')}
-\`;
-
+export const generateTypeDefString = (ir: IrGql) => `\
+${ir.types.map(createTypeString).join('\n')}
 ${createQueryTypeString(ir.queries)}
 `;
-};

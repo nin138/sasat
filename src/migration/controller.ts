@@ -6,6 +6,8 @@ import * as ts from 'typescript';
 import { StoreMigrator } from './storeMigrator';
 import { Compiler } from '../compiler/compiler';
 import { CodeGenerateController } from '../v2/generator/controller';
+import { GqlCompiler } from '../compiler/gqlCompiler';
+import { DataStoreHandler } from '../entity/dataStore';
 
 const migrationTable = '__migration__';
 
@@ -27,8 +29,10 @@ export class MigrationController {
       await this.execMigration(store, fileName, target.direction);
       store.resetQueue();
     }
-    const ir = new Compiler(store.serialize()).compile();
-    await new CodeGenerateController(ir).generate();
+    const storeHandler = new DataStoreHandler(store.serialize());
+    const ir = new Compiler(storeHandler).compile();
+    const gql = new GqlCompiler(storeHandler).compile();
+    await new CodeGenerateController(ir, gql).generate();
     return config().migration.target || this.files[this.files.length - 1];
   }
 

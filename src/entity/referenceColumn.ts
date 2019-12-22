@@ -2,6 +2,7 @@ import { Column, NormalColumn } from './column';
 import { ForeignKey, ForeignKeyReferentialAction } from './foreignKey';
 import { TableHandler } from './table';
 import { columnToSql } from '../sql/columnToSql';
+import { GqlPrimitive } from '../generator/gql/types';
 
 export interface ReferenceColumnData {
   type: 'REFERENCE';
@@ -53,6 +54,10 @@ export class ReferenceColumn implements Column {
 
   isNullable(): boolean {
     return false;
+  }
+
+  gqlType(): GqlPrimitive {
+    return this.getRootColumn().gqlType();
   }
 }
 
