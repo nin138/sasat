@@ -5,7 +5,7 @@ import { getDbClient } from '../db/getDbClient';
 import * as ts from 'typescript';
 import { StoreMigrator } from './storeMigrator';
 import { Compiler } from '../compiler/compiler';
-import { CodeGenerateController } from '../v2/generator/controller';
+import { CodeGenerateController } from '../generator/controller';
 import { GqlCompiler } from '../compiler/gqlCompiler';
 import { DataStoreHandler } from '../entity/dataStore';
 

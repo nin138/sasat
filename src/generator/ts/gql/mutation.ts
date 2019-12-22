@@ -1,5 +1,5 @@
-import { IrGql } from '../../../../ir/gql';
-import { IrGqlMutation } from '../../../../ir/gql/mutation';
+import { IrGql } from '../../../ir/gql';
+import { IrGqlMutation } from '../../../ir/gql/mutation';
 
 const getImportStatement = (ir: IrGqlMutation) => {
   return ir.entities

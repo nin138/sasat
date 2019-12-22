@@ -1,8 +1,8 @@
-import { IrGql } from '../../../ir/gql';
-import { IrGqlParam, IrGqlType } from '../../../ir/gql/types';
-import { IrGqlQuery } from '../../../ir/gql/query';
-import { GqlPrimitive } from '../../../generator/gql/types';
-import { IrGqlMutation } from '../../../ir/gql/mutation';
+import { IrGql } from '../../ir/gql';
+import { IrGqlParam, IrGqlType } from '../../ir/gql/types';
+import { IrGqlQuery } from '../../ir/gql/query';
+import { GqlPrimitive } from './types';
+import { IrGqlMutation } from '../../ir/gql/mutation';
 
 const getGqlTypeString = (param: { type: string | GqlPrimitive; isNullable: boolean; isArray: boolean }) => {
   let type = param.type;

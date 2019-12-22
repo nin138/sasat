@@ -1,6 +1,6 @@
-import { IrEntity } from '../../ir/entity';
-import { IrRepository } from '../../ir/repository';
-import { IrGql } from '../../ir/gql';
+import { IrEntity } from '../ir/entity';
+import { IrRepository } from '../ir/repository';
+import { IrGql } from '../ir/gql';
 
 export interface CodeGenerator {
   readonly fileExt: string;
