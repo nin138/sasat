@@ -8,4 +8,6 @@ export interface CodeGenerator {
   generateGeneratedRepository(repository: IrRepository): string;
   generateRepository(repository: IrRepository): string;
   generateGqlTypeDefs(gql: IrGql): string;
+  generateGqlResolver(): string;
+  generateGqlQuery(gql: IrGql): string;
 }

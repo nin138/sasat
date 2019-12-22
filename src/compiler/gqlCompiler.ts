@@ -2,7 +2,7 @@ import { IrGql } from '../ir/gql';
 import { DataStoreHandler } from '../entity/dataStore';
 import { IrGqlType } from '../ir/gql/types';
 import { IrGqlQuery, IrGqlQueryType } from '../ir/gql/query';
-import { plural } from '../util/stringUtil';
+import { capitalizeFirstLetter, plural } from '../util/stringUtil';
 
 export class GqlCompiler {
   constructor(private store: DataStoreHandler) {}
@@ -46,7 +46,7 @@ export class GqlCompiler {
         isNullable: false,
         isArray: false,
       })),
-      repositoryFunctionName: 'find',
+      repositoryFunctionName: 'findBy' + table.primaryKey.map(capitalizeFirstLetter).join('And'),
       isArray: false,
       isNullable: true,
     }));

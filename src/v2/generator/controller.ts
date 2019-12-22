@@ -23,7 +23,7 @@ export class CodeGenerateController {
       ...this.ir.entities.map(it => this.generateEntity(it)),
       ...this.ir.repositories.map(it => this.generateRepository(it)),
       ...this.ir.repositories.map(it => this.generateGeneratedRepository(it)),
-      this.generateGql(this.gql),
+      ...this.generateGql(this.gql),
     ]);
   }
 
@@ -58,6 +58,10 @@ export class CodeGenerateController {
   }
 
   private generateGql(ir: IrGql) {
-    return writeFile(this.getFullPath(this.generateDir, 'typeDefs'), this.codeGen.generateGqlTypeDefs(ir));
+    return [
+      writeFile(this.getFullPath(this.generateDir, 'typeDefs'), this.codeGen.generateGqlTypeDefs(ir)),
+      writeFile(this.getFullPath(this.generateDir, 'resolver'), this.codeGen.generateGqlResolver()),
+      writeFile(this.getFullPath(this.generateDir, 'query'), this.codeGen.generateGqlQuery(ir)),
+    ];
   }
 }
