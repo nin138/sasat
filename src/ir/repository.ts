@@ -6,6 +6,9 @@ export interface IrRepository {
   primaryKeys: string[];
   queries: IrQuery[];
   useClasses: IrUseClasses[];
+  autoIncrementColumn: string | undefined;
+  defaultValues: Array<{ columnName: string; value: string | number | null }>;
+  defaultCurrentTimestampColumns: string[];
 }
 
 export interface IrQuery {

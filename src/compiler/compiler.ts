@@ -5,6 +5,8 @@ import { TableHandler } from '../entity/table';
 import { capitalizeFirstLetter } from '../util/stringUtil';
 import { IrQuery, IrRepository } from '../ir/repository';
 import { ReferenceColumn } from '../entity/referenceColumn';
+import { NormalColumn } from '../entity/column';
+import { DBColumnTypes } from '../migration/column/columnTypes';
 
 export class Compiler {
   constructor(private store: DataStoreHandler) {}
@@ -67,10 +69,32 @@ export class Compiler {
       ...table.columns.filter(column => column.isReference()).map(it => this.createRefQuery(it as ReferenceColumn)),
     );
 
+    const defaultValues: Array<{ columnName: string; value: string | number | null }> = [];
+    const defaultCurrentTimestampColumns: string[] = [];
+    table.columns
+      .filter(it => !it.isReference())
+      .filter(it => (it as NormalColumn).data.default || !(it as NormalColumn).data.notNull)
+      .forEach(it => {
+        const column: NormalColumn = it as NormalColumn;
+        if (
+          (column.type === DBColumnTypes.timestamp || column.type === DBColumnTypes.dateTime) &&
+          column.data.default === 'CURRENT_TIMESTAMP'
+        ) {
+          defaultCurrentTimestampColumns.push(column.name);
+          return;
+        }
+        defaultValues.push({
+          columnName: column.name,
+          value: column.data.default === undefined ? null : (column.data.default as string),
+        });
+      });
     return {
       tableName: table.tableName,
       entityName,
       primaryKeys: table.primaryKey,
+      autoIncrementColumn: table.columns.find(it => !it.isReference() && it.getData().autoIncrement)?.name,
+      defaultValues,
+      defaultCurrentTimestampColumns,
       queries,
       useClasses: [
         {

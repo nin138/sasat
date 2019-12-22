@@ -5,7 +5,7 @@ import * as SqlString from 'sqlstring';
 import { SasatError } from './error';
 
 interface Repository<Entity, Creatable, Primary> {
-  create(entity: Creatable): Promise<CommandResponse>;
+  create(entity: Creatable): Promise<Entity>;
   list(): Promise<Entity[]>;
   update(entity: Partial<Entity> & Primary): Promise<CommandResponse>;
   delete(entity: Primary): Promise<CommandResponse>;
@@ -13,22 +13,30 @@ interface Repository<Entity, Creatable, Primary> {
 }
 
 export abstract class SasatRepository<Entity, Creatable, Primary> implements Repository<Entity, Creatable, Primary> {
-  protected abstract tableName: string;
-  protected abstract primaryKeys: string[];
+  abstract readonly tableName: string;
+  protected abstract readonly primaryKeys: string[];
+  protected abstract readonly autoIncrementColumn: string | undefined;
   constructor(protected client: SQLExecutor = getDbClient()) {}
+  protected abstract getDefaultValueString(): { [P in keyof Entity]: string };
 
-  async create(entity: Creatable) {
+  async create(entity: Creatable): Promise<Entity> {
     const columns: string[] = [];
     const values: string[] = [];
-    Object.entries(entity).forEach(([column, value]) => {
+    Object.entries({ ...this.getDefaultValueString(), ...entity }).forEach(([column, value]) => {
       columns.push(column);
-      values.push(value);
+      values.push(value as string);
     });
-    return this.client.rawCommand(
+    const response = await this.client.rawCommand(
       `INSERT INTO ${this.tableName}(${columns.map(it => SqlString.escapeId(it)).join(', ')}) VALUES (${values
         .map(SqlString.escape)
         .join(', ')})`,
     );
+    const map: Record<string, number> = {};
+    if (this.autoIncrementColumn) map[this.autoIncrementColumn] = response.insertId;
+    return ({
+      ...map,
+      ...entity,
+    } as unknown) as Entity;
   }
 
   async delete(entity: Primary) {
@@ -49,8 +57,7 @@ export abstract class SasatRepository<Entity, Creatable, Primary> implements Rep
     return result.map(it => this.resultToEntity(it));
   }
 
-  // TODO & primaryKey
-  update(entity: Partial<Entity>): Promise<CommandResponse> {
+  update(entity: Primary & Partial<Entity>): Promise<CommandResponse> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const values = this.objToSql(entity).join(', ');
     return this.client.rawCommand(
@@ -67,7 +74,7 @@ export abstract class SasatRepository<Entity, Creatable, Primary> implements Rep
     return Object.entries(obj).map(([column, value]) => `${SqlString.escapeId(column)} = ${SqlString.escape(value)}`);
   }
 
-  private getWhereClauseIdentifiedByPrimaryKey(entity: Partial<Entity>) {
+  private getWhereClauseIdentifiedByPrimaryKey(entity: Primary) {
     return (
       this.primaryKeys
         .map(it => {

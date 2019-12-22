@@ -40,6 +40,13 @@ const classDeclaration = (ir: IrRepository): string => {
 <${ir.entityName}, ${ir.entityName}Creatable, ${ir.entityName}PrimaryKey> {
 readonly tableName = '${ir.tableName}';
 protected readonly primaryKeys = [${ir.primaryKeys.map(it => `'${it}',`).join('')}];
+protected readonly autoIncrementColumn = ${ir.autoIncrementColumn ? `'${ir.autoIncrementColumn}'` : 'undefined'};
+protected getDefaultValueString() {
+return {${[
+    ...ir.defaultValues.map(it => `${it.columnName}: '${it.value}'`),
+    ...ir.defaultCurrentTimestampColumns.map(it => it + ': `FROM_UNIXTIME(${Date.now()})`'),
+  ].join(',')}}
+};
 ${queries(ir)}
 };
 `;

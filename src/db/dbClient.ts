@@ -5,7 +5,7 @@ export interface CommandResponse {
   affectedRows: number;
 }
 
-export type SqlValueType = string | number | Date | boolean | null;
+export type SqlValueType = string | number | boolean | null;
 
 export interface SQLExecutor {
   rawQuery(sql: string): Promise<QueryResponse>;
