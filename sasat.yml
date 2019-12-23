@@ -3,6 +3,10 @@ migration:
   table: __migration__
   out: test/out
 
+generator:
+  gql:
+    subscription: true
+
 db:
   host: $DB_HOST
   port: $DB_PORT
