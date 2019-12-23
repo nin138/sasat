@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import { join } from 'path';
 import { config } from '../../config/config';
 import { capitalizeFirstLetter } from '../../util/stringUtil';
-import { mkDirIfNotExists } from '../../util/fsUtil';
+import { mkDirIfNotExist } from '../../util/fsUtil';
 
 const getMigrationFile = (className: string) =>
   `import { SasatMigration } from "sasat";
@@ -35,7 +35,7 @@ export const createMigrationFile = (migrationName: string) => {
     pad(date.getSeconds());
   const fileName = now + migrationName;
   const outDir = join(config().migration.dir);
-  mkDirIfNotExists(outDir);
+  mkDirIfNotExist(outDir);
   fs.writeFileSync(join(outDir, fileName) + '.ts', getMigrationFile(migrationName));
   return fileName;
 };

@@ -5,7 +5,7 @@ import { config } from '../config/config';
 import * as path from 'path';
 import { IrEntity } from '../ir/entity';
 import { emptyDir, writeFile } from 'fs-extra';
-import { mkDirIfNotExists, writeFileIfNotExists } from '../util/fsUtil';
+import { mkDirIfNotExist, writeFileIfNotExist } from '../util/fsUtil';
 import { IrRepository } from '../ir/repository';
 import { IrGql } from '../ir/gql';
 
@@ -28,11 +28,11 @@ export class CodeGenerateController {
   }
 
   private async prepareDirs() {
-    mkDirIfNotExists(this.generateDir);
+    mkDirIfNotExist(this.generateDir);
     await emptyDir(this.generateDir);
-    mkDirIfNotExists(this.generateEntityDir);
-    mkDirIfNotExists(this.generateRepositoryDir);
-    mkDirIfNotExists(this.repositoryDir);
+    mkDirIfNotExist(this.generateEntityDir);
+    mkDirIfNotExist(this.generateRepositoryDir);
+    mkDirIfNotExist(this.repositoryDir);
   }
 
   private getFullPath(basePath: string, entityName: string) {
@@ -44,7 +44,7 @@ export class CodeGenerateController {
   }
 
   private generateRepository(ir: IrRepository) {
-    return writeFileIfNotExists(
+    return writeFileIfNotExist(
       this.getFullPath(this.repositoryDir, ir.entityName),
       this.codeGen.generateRepository(ir),
     );
