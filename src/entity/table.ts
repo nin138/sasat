@@ -1,4 +1,4 @@
-import { Index } from './index';
+import { DBIndex } from './index';
 import { ReferenceColumn } from './referenceColumn';
 import { Column } from './column';
 import { SasatError } from '../error';
@@ -13,11 +13,14 @@ export interface Table {
 }
 
 export class TableHandler implements Table {
-  private indexes: Index[];
+  private indexes: DBIndex[];
   get index() {
     return this.indexes;
   }
-  readonly columns: Column[];
+  private _columns: Column[];
+  get columns() {
+    return this._columns;
+  }
   primaryKey: string[];
   readonly uniqueKeys: string[][];
   readonly tableName: string;
@@ -26,8 +29,8 @@ export class TableHandler implements Table {
     this.tableName = table.tableName;
     this.primaryKey = table.primaryKey || [];
     this.uniqueKeys = table.uniqueKeys || [];
-    this.indexes = table.indexes || [];
-    this.columns = (table.columns || []).map(it => assembleColumn(it, this));
+    this.indexes = table.indexes?.map(it => new DBIndex(this.tableName, it.columns)) || [];
+    this._columns = (table.columns || []).map(it => assembleColumn(it, this));
   }
 
   column(columnName: string): Column | undefined {
@@ -38,6 +41,10 @@ export class TableHandler implements Table {
     this.columns.push(column);
     if (isPrimary) this.setPrimaryKey(column.name);
     if (isUnique) this.addUniqueKey(column.name);
+  }
+
+  dropColumn(columnName: string) {
+    this._columns = this._columns.filter(it => it.name !== columnName);
   }
 
   serialize(): SerializedTable {
@@ -72,7 +79,7 @@ export class TableHandler implements Table {
   }
 
   addIndex(...columns: string[]): this {
-    this.indexes.push({ constraintName: this.getIndexConstraintName(columns), columns });
+    this.indexes.push(new DBIndex(this.tableName, columns));
     return this;
   }
 

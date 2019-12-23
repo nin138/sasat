@@ -1,5 +1,4 @@
 import { SasatError } from '../error';
-import { addIndex } from '../sql/sqlCreater';
 import { DataStore } from '../entity/dataStore';
 import { MigrationTable, TableMigrator } from './tableMigrator';
 import { TableBuilder, TableCreator } from './tableCreator';
@@ -30,7 +29,7 @@ export class StoreMigrator implements MigrationStore {
     const table = new TableMigrator(creator.create(), this);
     this.tables.push(table);
     this.addQuery(table.showCreateTable());
-    this.addQuery(...table.getIndexes().map(it => addIndex(table.tableName, it)));
+    this.addQuery(...table.getIndexes().map(it => it.addSql()));
     return this;
   }
 

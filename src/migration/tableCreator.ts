@@ -9,8 +9,8 @@ export interface TableBuilder {
   references(table: string, column: string, unique?: boolean): TableBuilder;
   setPrimaryKey(...columnNames: string[]): TableBuilder;
   addUniqueKey(...columnNames: string[]): TableBuilder;
-  onCreateColumn(): TableBuilder;
-  onUpdateColumn(): TableBuilder;
+  createdAt(): TableBuilder;
+  updatedAt(): TableBuilder;
   addIndex(...columns: string[]): TableBuilder;
 }
 
@@ -54,7 +54,7 @@ export class TableCreator implements TableBuilder {
     return this.table;
   }
 
-  onCreateColumn(): TableBuilder {
+  createdAt(): TableBuilder {
     this.column('createdAt')
       .timestamp()
       .defaultCurrentTimeStamp()
@@ -62,7 +62,7 @@ export class TableCreator implements TableBuilder {
     return this;
   }
 
-  onUpdateColumn(): TableBuilder {
+  updatedAt(): TableBuilder {
     this.column('updatedAt')
       .timestamp()
       .defaultCurrentTimeStamp()

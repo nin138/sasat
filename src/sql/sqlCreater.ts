@@ -1,4 +1,3 @@
-import { Index } from '../entity';
 import { ForeignKey } from '../entity/foreignKey';
 import { columnToSql } from './columnToSql';
 import { ColumnData } from '../migration/column/columnData';
@@ -15,17 +14,13 @@ export const foreignKeyToSql = (foreignKey: ForeignKey) => {
   );
 };
 
-export const addIndex = (tableName: string, index: Index) =>
-  `ALTER TABLE ${tableName} ADD INDEX ${index.constraintName}(${index.columns.join(',')})`;
-
-export const addColumn = (tableName: string, column: ColumnData) =>
-  `ALTER TABLE ${tableName} ADD COLUMN ${columnToSql(column)}`;
-
-export const addUniqueKey = (tableName: string, columns: string[]) =>
-  `ALTER TABLE ${tableName} ADD UNIQUE ${columns.join('__')}(${columns.join(',')})`;
-
-export const addPrimaryKey = (tableName: string, columns: string[]) =>
-  `ALTER TABLE ${tableName} ADD PRIMARY KEY ${columns.join('__')}(${columns.join(',')})`;
-
-export const addForeignKey = (tableName: string, foreignKey: ForeignKey) =>
-  `ALTER TABLE ${tableName} ADD ${foreignKeyToSql(foreignKey)}`;
+export const SqlCreator = {
+  addColumn: (tableName: string, column: ColumnData) => `ALTER TABLE ${tableName} ADD COLUMN ${columnToSql(column)}`,
+  dropColumn: (tableName: string, columnName: string) => `ALTER TABLE ${tableName} DROP COLUMN ${columnName}`,
+  addUniqueKey: (tableName: string, columns: string[]) =>
+    `ALTER TABLE ${tableName} ADD UNIQUE ${columns.join('__')}(${columns.join(',')})`,
+  addPrimaryKey: (tableName: string, columns: string[]) =>
+    `ALTER TABLE ${tableName} ADD PRIMARY KEY ${columns.join('__')}(${columns.join(',')})`,
+  addForeignKey: (tableName: string, foreignKey: ForeignKey) =>
+    `ALTER TABLE ${tableName} ADD ${foreignKeyToSql(foreignKey)}`,
+};

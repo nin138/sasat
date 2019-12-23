@@ -10,11 +10,10 @@ export class Stock implements SasatMigration {
         .autoIncrement()
         .unsigned()
         .primary();
-      // table.addBuiltInColumn(builtInColumns.autoIncrementPrimaryKey('id'));
       table.references('user', 'user_id');
       table.references('post', 'post_id');
-      // table.addBuiltInColumn(builtInColumns.createdAt());
-      // table.addBuiltInColumn(builtInColumns.updatedAt());
+      table.createdAt();
+      table.updatedAt();
       table.addUniqueKey('user_id', 'post_id');
     });
   };

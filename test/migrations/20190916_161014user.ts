@@ -1,5 +1,5 @@
 import { SasatMigration } from '../../src';
-import { MigrationStore } from '../../src/migration/storeMigrator';
+import { MigrationStore } from '../../src';
 
 export class User implements SasatMigration {
   up: (store: MigrationStore) => void = store => {
