@@ -107,6 +107,16 @@ export class TableHandler implements Table {
     this.uniqueKeys.forEach(it => {
       if (this.uniqueKeys.length !== 0) rows.push(`UNIQUE KEY (${it.join(',')})`);
     });
+    rows.push(
+      ...this._columns
+        .filter(it => it.isReference())
+        .map(it => {
+          const ref = it as ReferenceColumn;
+          return `CONSTRAINT ${ref.getConstraintName()} FOREIGN KEY (${it.name}) REFERENCES ${ref.data.targetTable} (${
+            ref.data.targetColumn
+          })`;
+        }),
+    );
     return `CREATE TABLE ${this.tableName} ( ${rows.join(', ')} )`;
   }
 

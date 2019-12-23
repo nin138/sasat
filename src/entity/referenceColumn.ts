@@ -63,6 +63,10 @@ export class ReferenceColumn implements Column {
   isNullableOnCreate(): boolean {
     return false;
   }
+
+  getConstraintName(): string {
+    return `ref_${this.table.tableName}_${this.name}__${this.data.targetTable}_${this.data.targetColumn}`;
+  }
 }
 
 export const referenceToForeignKey = (reference: ReferenceColumnData): ForeignKey => ({
