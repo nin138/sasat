@@ -12,11 +12,12 @@ export class User implements SasatMigration {
       table
         .column('name')
         .varchar(20)
+        .default('no name')
         .notNull();
       table
         .column('nick_name')
         .varchar(20)
-        .notNull()
+        .nullable()
         .unique();
       table
         .column('created_at')

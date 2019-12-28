@@ -1,5 +1,6 @@
 import { IrQuery, IrRepository } from '../../ir/repository';
 import { columnTypeToTsType } from '../../migration/column/columnTypes';
+import * as SqlString from 'sqlstring';
 
 const importStatement = (ir: IrRepository): string => {
   return [
@@ -43,7 +44,7 @@ protected readonly primaryKeys = [${ir.primaryKeys.map(it => `'${it}',`).join(''
 protected readonly autoIncrementColumn = ${ir.autoIncrementColumn ? `'${ir.autoIncrementColumn}'` : 'undefined'};
 protected getDefaultValueString() {
 return {${[
-    ...ir.defaultValues.map(it => `${it.columnName}: '${it.value}'`),
+    ...ir.defaultValues.map(it => `${it.columnName}: ${it.value === null ? 'null' : SqlString.escape(it.value)}`),
     ...ir.defaultCurrentTimestampColumns.map(it => it + ': `FROM_UNIXTIME(${Date.now()})`'),
   ].join(',')}}
 };

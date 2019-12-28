@@ -17,7 +17,7 @@ export abstract class SasatRepository<Entity, Creatable, Primary> implements Rep
   protected abstract readonly primaryKeys: string[];
   protected abstract readonly autoIncrementColumn: string | undefined;
   constructor(protected client: SQLExecutor = getDbClient()) {}
-  protected abstract getDefaultValueString(): { [P in keyof Entity]: string };
+  protected abstract getDefaultValueString(): Partial<{ [P in keyof Entity]: Entity[P] | string | null }>;
 
   async create(entity: Creatable): Promise<Entity> {
     const columns: string[] = [];
