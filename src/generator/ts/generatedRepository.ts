@@ -19,7 +19,7 @@ const getReturnType = (ir: IrQuery): string => {
 const getFunctionBody = (ir: IrQuery) => {
   const getFindStatement = (ir: IrQuery) => `this.find({ where: { ${ir.params.map(it => it.name).join(', ')} } });`;
   if (ir.isReturnsArray) return 'return ' + getFindStatement(ir);
-  return `const result = ${getFindStatement(ir)}
+  return `const result = await ${getFindStatement(ir)}
   if (result.length === 0) return;
   return result[0];
   `;
