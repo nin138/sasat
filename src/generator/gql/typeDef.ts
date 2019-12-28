@@ -41,7 +41,7 @@ const createMutationTypeString = (ir: IrGqlMutation): string => {
     ir.entities
       .flatMap(it => [
         `  create${it.entityName}${createParamString(it.onCreateParams)}: ${it.entityName}`,
-        `  update${it.entityName}${createParamString(it.onUpdateParams)}: boolean`,
+        `  update${it.entityName}${createParamString(it.onUpdateParams)}: Boolean`,
       ])
       .join('\n') +
     '\n}'

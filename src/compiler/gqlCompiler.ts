@@ -5,6 +5,7 @@ import { IrGqlQuery, IrGqlQueryType } from '../ir/gql/query';
 import { capitalizeFirstLetter, plural } from '../util/stringUtil';
 import { IrGqlMutation, IrGqlMutationEntity } from '../ir/gql/mutation';
 import { TableHandler } from '../entity/table';
+import { columnTypeToGqlPrimitive } from '../generator/gql/sasatToGqlType';
 
 export class GqlCompiler {
   constructor(private store: DataStoreHandler) {}
@@ -14,7 +15,7 @@ export class GqlCompiler {
       typeName: it.getEntityName(),
       params: it.columns.map(it => ({
         name: it.name,
-        type: it.type,
+        type: columnTypeToGqlPrimitive(it.type),
         isNullable: it.isNullable(),
         isArray: false,
       })),
