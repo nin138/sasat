@@ -1,45 +1,68 @@
-import * as path from 'path';
+import { Ir } from '../ir/ir';
+import { CodeGenerator } from './generator';
+import { TsCodeGenerator } from './ts/generator';
 import { config } from '../config/config';
-import { mkDirIfNotExists, writeYmlFile } from '../util/fsUtil';
-import { writeEntity } from './entity/entity';
-import { writeRepository } from './repository/repository';
+import * as path from 'path';
+import { IrEntity } from '../ir/entity';
 import { emptyDir, writeFile } from 'fs-extra';
-import { generateGqlString } from './gql/gql';
-import { DataStoreSchema } from '../migration/table/dataStoreSchema';
-import { StoreGenerator, TableGenerator } from './store';
+import { mkDirIfNotExist, writeFileIfNotExist } from '../util/fsUtil';
+import { IrRepository } from '../ir/repository';
+import { IrGql } from '../ir/gql';
 
-export class GenerateController {
+export class CodeGenerateController {
+  private codeGen: CodeGenerator = new TsCodeGenerator();
   private outDir = config().migration.out;
   private repositoryDir = path.join(this.outDir, 'repository');
-  private generateDir = path.join(this.outDir, '__generated');
+  private generateDir = path.join(this.outDir, '__generated__');
   private generateEntityDir = path.join(this.generateDir, 'entity');
   private generateRepositoryDir = path.join(this.generateDir, 'repository');
-
-  private store: StoreGenerator;
-  constructor(private schema: DataStoreSchema) {
-    this.store = new StoreGenerator(schema);
-  }
-
-  async execute() {
+  constructor(readonly ir: Ir, readonly gql: IrGql) {}
+  async generate() {
     await this.prepareDirs();
-    writeYmlFile(this.outDir, 'current_schema.yml', this.schema.tables);
-    await Promise.all(this.store.tables.map(this.generate));
-    const gqlStrings = generateGqlString(this.store.tables);
-    await writeFile(path.join(this.generateDir, 'typeDefs.ts'), gqlStrings.typeDefs);
-    await writeFile(path.join(this.generateDir, 'query.ts'), gqlStrings.query);
-    await writeFile(path.join(this.generateDir, 'resolver.ts'), gqlStrings.resolver);
+    await Promise.all([
+      ...this.ir.entities.map(it => this.generateEntity(it)),
+      ...this.ir.repositories.map(it => this.generateRepository(it)),
+      ...this.ir.repositories.map(it => this.generateGeneratedRepository(it)),
+      ...this.generateGql(this.gql),
+    ]);
   }
 
   private async prepareDirs() {
-    mkDirIfNotExists(this.generateDir);
+    mkDirIfNotExist(this.generateDir);
     await emptyDir(this.generateDir);
-    mkDirIfNotExists(this.generateEntityDir);
-    mkDirIfNotExists(this.generateRepositoryDir);
-    mkDirIfNotExists(this.repositoryDir);
+    mkDirIfNotExist(this.generateEntityDir);
+    mkDirIfNotExist(this.generateRepositoryDir);
+    mkDirIfNotExist(this.repositoryDir);
   }
 
-  private generate = async (table: TableGenerator) => {
-    await writeEntity(table, this.generateEntityDir);
-    await writeRepository(table, this.generateRepositoryDir, this.repositoryDir);
-  };
+  private getFullPath(basePath: string, entityName: string) {
+    return path.join(basePath, `${entityName}.${this.codeGen.fileExt}`);
+  }
+
+  private generateEntity(ir: IrEntity) {
+    return writeFile(this.getFullPath(this.generateEntityDir, ir.entityName), this.codeGen.generateEntity(ir));
+  }
+
+  private generateRepository(ir: IrRepository) {
+    return writeFileIfNotExist(
+      this.getFullPath(this.repositoryDir, ir.entityName),
+      this.codeGen.generateRepository(ir),
+    );
+  }
+
+  private generateGeneratedRepository(ir: IrRepository) {
+    return writeFile(
+      this.getFullPath(this.generateRepositoryDir, ir.entityName),
+      this.codeGen.generateGeneratedRepository(ir),
+    );
+  }
+
+  private generateGql(ir: IrGql) {
+    return [
+      writeFile(this.getFullPath(this.generateDir, 'typeDefs'), this.codeGen.generateGqlTypeDefs(ir)),
+      writeFile(this.getFullPath(this.generateDir, 'resolver'), this.codeGen.generateGqlResolver()),
+      writeFile(this.getFullPath(this.generateDir, 'query'), this.codeGen.generateGqlQuery(ir)),
+      writeFile(this.getFullPath(this.generateDir, 'mutation'), this.codeGen.generateGqlMutation(ir)),
+    ];
+  }
 }

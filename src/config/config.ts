@@ -41,17 +41,35 @@ const defaultConfMigration: SasatConfigMigration = {
   out: 'sasat',
 };
 
+export interface SasatConfigGenerator {
+  gql: {
+    subscription: boolean;
+  };
+}
+
+type NestedPartial<T> = {
+  [K in keyof T]?: T[K] extends Array<infer R> ? Array<NestedPartial<R>> : NestedPartial<T[K]>;
+};
+
 export interface SasatConfig {
   db: SasatConfigDb;
+  migration: SasatConfigMigration;
+  generator: SasatConfigGenerator;
   redis: SasatConfigRedis;
   initCaches: SasatRedisCacheType[];
-  migration: SasatConfigMigration;
 }
+
+export type PartialSasatConfig = NestedPartial<SasatConfig>;
 
 export const defaultConf: SasatConfig = {
   db: defaultConfDb,
-  initCaches: [],
   migration: defaultConfMigration,
+  generator: {
+    gql: {
+      subscription: true,
+    },
+  },
+  initCaches: [],
   redis: defaultCofRedis,
 };
 

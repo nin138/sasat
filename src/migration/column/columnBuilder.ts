@@ -1,18 +1,18 @@
 import {
-  SasatColumnTypes,
-  SasatDateTypes,
-  SasatFloatingTypes,
-  SasatIntegerTypes,
-  SasatNumberTypes,
-  SasatStringTypes,
-  SasatTextTypes,
+  DBColumnTypes,
+  DBDateTypes,
+  DBFloatingTypes,
+  DBIntegerTypes,
+  DBNumberTypes,
+  DBStringTypes,
+  DBTextTypes,
 } from './columnTypes';
-import { AllColumnInfo } from './column';
 import { SqlValueType } from '../../db/dbClient';
+import { ColumnData } from './columnData';
 
 export abstract class ColumnBuilder {
   protected _primary = false;
-  protected _notNull: boolean | undefined;
+  protected _notNull = true;
   protected _unique = false;
   protected _zerofill = false;
   protected _signed: boolean | undefined;
@@ -21,7 +21,7 @@ export abstract class ColumnBuilder {
   protected _onUpdateCurrentTimeStamp = false;
   protected constructor(
     readonly name: string,
-    protected type: SasatColumnTypes,
+    protected type: DBColumnTypes,
     protected length?: number,
     protected scale?: number,
   ) {}
@@ -46,26 +46,28 @@ export abstract class ColumnBuilder {
     this._default = value;
     return this;
   }
-  build(): AllColumnInfo & { primary: boolean } {
+  build(): { data: ColumnData; isPrimary: boolean; isUnique: boolean } {
     return {
-      columnName: this.name,
-      type: this.type,
-      length: this.length,
-      scale: this.scale,
-      primary: this._primary,
-      notNull: this._notNull,
-      unique: this._unique,
-      zerofill: this._zerofill,
-      signed: this._signed,
-      autoIncrement: this._autoIncrement,
-      default: this._default,
-      onUpdateCurrentTimeStamp: this._onUpdateCurrentTimeStamp,
+      data: {
+        columnName: this.name,
+        type: this.type,
+        length: this.length,
+        scale: this.scale,
+        notNull: this._notNull,
+        zerofill: this._zerofill,
+        signed: this._signed,
+        autoIncrement: this._autoIncrement,
+        default: this._default,
+        onUpdateCurrentTimeStamp: this._onUpdateCurrentTimeStamp,
+      },
+      isPrimary: this._primary,
+      isUnique: this._unique,
     };
   }
 }
 
 export class StringColumnBuilder extends ColumnBuilder {
-  constructor(readonly name: string, protected type: SasatStringTypes, protected length?: number) {
+  constructor(readonly name: string, protected type: DBStringTypes, protected length?: number) {
     super(name, type);
   }
 
@@ -76,7 +78,7 @@ export class StringColumnBuilder extends ColumnBuilder {
 }
 
 export class TextColumnBuilder extends ColumnBuilder {
-  constructor(readonly name: string, protected type: SasatTextTypes) {
+  constructor(readonly name: string, protected type: DBTextTypes) {
     super(name, type);
   }
 
@@ -87,7 +89,7 @@ export class TextColumnBuilder extends ColumnBuilder {
 }
 
 export class NumberColumnBuilder extends ColumnBuilder {
-  constructor(name: string, type: SasatNumberTypes, length?: number, scale?: number) {
+  constructor(name: string, type: DBNumberTypes, length?: number, scale?: number) {
     super(name, type, length, scale);
   }
   signed(): this {
@@ -109,7 +111,7 @@ export class NumberColumnBuilder extends ColumnBuilder {
 }
 
 export class IntegerColumnBuilder extends NumberColumnBuilder {
-  constructor(readonly name: string, protected type: SasatIntegerTypes, protected length?: number) {
+  constructor(readonly name: string, protected type: DBIntegerTypes, protected length?: number) {
     super(name, type, length);
   }
   autoIncrement() {
@@ -121,7 +123,7 @@ export class IntegerColumnBuilder extends NumberColumnBuilder {
 export class FloatColumnBuilder extends NumberColumnBuilder {
   constructor(
     readonly name: string,
-    protected type: SasatFloatingTypes,
+    protected type: DBFloatingTypes,
     protected length?: number,
     protected scale?: number,
   ) {
@@ -136,7 +138,7 @@ export class FloatColumnBuilder extends NumberColumnBuilder {
 export class DecimalColumnBuilder extends NumberColumnBuilder {
   constructor(
     readonly name: string,
-    protected type: SasatColumnTypes.decimal,
+    protected type: DBColumnTypes.decimal,
     protected length?: number,
     protected scale?: number,
   ) {
@@ -145,7 +147,7 @@ export class DecimalColumnBuilder extends NumberColumnBuilder {
 }
 
 export class DateColumnBuilder extends ColumnBuilder {
-  constructor(readonly name: string, protected type: SasatDateTypes) {
+  constructor(readonly name: string, protected type: DBDateTypes) {
     super(name, type);
   }
   default(value: string | number | null | undefined): this {
@@ -155,7 +157,7 @@ export class DateColumnBuilder extends ColumnBuilder {
 }
 
 export class TimeStampColumnBuilder extends ColumnBuilder {
-  constructor(readonly name: string, protected type: SasatColumnTypes.timestamp | SasatColumnTypes.dateTime) {
+  constructor(readonly name: string, protected type: DBColumnTypes.timestamp | DBColumnTypes.dateTime) {
     super(name, type);
   }
   default(value: 'CURRENT_TIMESTAMP' | string | null | undefined): this {
@@ -173,7 +175,7 @@ export class TimeStampColumnBuilder extends ColumnBuilder {
 
 export class BooleanColumnBuilder extends ColumnBuilder {
   constructor(name: string) {
-    super(name, SasatColumnTypes.boolean);
+    super(name, DBColumnTypes.boolean);
   }
   default(value: boolean | null) {
     this._default = value;

@@ -1,11 +1,11 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import { SasatRedisCacheType } from '../sasat/redisCacheConf';
-import { defaultConf, SasatConfig } from './config';
+import { defaultConf, PartialSasatConfig, SasatConfig } from './config';
 import { readYmlFile } from '../util/fsUtil';
 
 export class SasatConfigLoader {
-  private static loadFile() {
+  private static loadFile(): PartialSasatConfig {
     const fileName = 'sasat.yml';
     const filepath = path.join(process.cwd(), fileName);
     if (!fs.existsSync(filepath)) throw new Error(`${fileName} not Found in Project root folder`);
@@ -15,31 +15,15 @@ export class SasatConfigLoader {
   readonly conf: SasatConfig;
 
   constructor() {
-    const obj = SasatConfigLoader.loadFile();
+    const conf: SasatConfig = this.readValue({ ...defaultConf, ...SasatConfigLoader.loadFile() });
     this.conf = {
-      db: this.readConf(defaultConf.db, obj.db),
-      redis: this.readConf(defaultConf.redis, obj.redis),
-      migration: this.readConf(defaultConf.migration, obj.migration),
-      initCaches: this.readCacheConf(obj.cache),
+      ...conf,
+      initCaches: this.readCacheConf(conf.initCaches),
     };
   }
 
   getConfig(): SasatConfig {
     return this.conf;
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private readConf(def: any, conf: { [key: string]: any }): any {
-    return {
-      ...def,
-      ...this.readObj(conf),
-    };
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private readObj(obj: { [key: string]: any }) {
-    for (const key in obj) obj[key] = this.readValue(obj[key]);
-    return obj;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
