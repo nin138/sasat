@@ -5,6 +5,7 @@ import * as SqlString from 'sqlstring';
 const importStatement = (ir: IrRepository): string => {
   return [
     "import { SasatRepository } from 'sasat';\n",
+    "import { getCurrentDateTimeString } from 'sasat';\n",
     ...ir.useClasses.map(it => `import {${it.classNames.join(', ')}} from '../${it.path}';\n`),
   ].join('');
 };
@@ -45,7 +46,7 @@ protected readonly autoIncrementColumn = ${ir.autoIncrementColumn ? `'${ir.autoI
 protected getDefaultValueString() {
 return {${[
     ...ir.defaultValues.map(it => `${it.columnName}: ${it.value === null ? 'null' : SqlString.escape(it.value)}`),
-    ...ir.defaultCurrentTimestampColumns.map(it => it + ': `FROM_UNIXTIME(${Date.now()})`'),
+    ...ir.defaultCurrentTimestampColumns.map(it => it + ': getCurrentDateTimeString()'),
   ].join(',')}}
 };
 ${queries(ir)}
