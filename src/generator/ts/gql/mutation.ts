@@ -14,7 +14,7 @@ export const generateTsGqlMutationString = (ir: IrGql) => {
   const body = ir.mutations.entities
     .flatMap(it => [
       `  create${it.entityName}: (_: {}, entity: ${it.entityName}Creatable) => new ${it.entityName}Repository().create(entity),`,
-      `  update${it.entityName}: (_: {}, entity: ${it.entityName}PrimaryKey & Partial<${it.entityName}>) => new ${it.entityName}Repository().update(entity).then(it => it.affectedRow === 1),`,
+      `  update${it.entityName}: (_: {}, entity: ${it.entityName}PrimaryKey & Partial<${it.entityName}>) => new ${it.entityName}Repository().update(entity).then(it => it.affectedRows === 1),`,
     ])
     .join('\n');
   return `\
