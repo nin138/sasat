@@ -22,7 +22,8 @@ export abstract class SasatRepository<Entity, Creatable, Primary> implements Rep
   async create(entity: Creatable): Promise<Entity> {
     const columns: string[] = [];
     const values: string[] = [];
-    Object.entries({ ...this.getDefaultValueString(), ...entity }).forEach(([column, value]) => {
+    const obj: Entity = ({ ...this.getDefaultValueString(), ...entity } as unknown) as Entity;
+    Object.entries(obj).forEach(([column, value]) => {
       columns.push(column);
       values.push(value as string);
     });
@@ -31,8 +32,9 @@ export abstract class SasatRepository<Entity, Creatable, Primary> implements Rep
         .map(SqlString.escape)
         .join(', ')})`,
     );
+    if (!this.autoIncrementColumn) return obj;
     const map: Record<string, number> = {};
-    if (this.autoIncrementColumn) map[this.autoIncrementColumn] = response.insertId;
+    map[this.autoIncrementColumn] = response.insertId;
     return ({
       ...map,
       ...entity,
