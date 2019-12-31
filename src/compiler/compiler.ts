@@ -26,7 +26,7 @@ export class Compiler {
         type: data.type,
         nullable: !data.notNull,
         default: data.default,
-        isNullableOnCreate: data.default !== undefined || !data.notNull,
+        isNullableOnCreate: data.default !== undefined || !data.notNull || data.autoIncrement,
       };
     });
     return {
