@@ -4,10 +4,7 @@ import { config } from '../config/config';
 import { getDbClient } from '../db/getDbClient';
 import * as ts from 'typescript';
 import { StoreMigrator } from './storeMigrator';
-import { Compiler } from '../compiler/compiler';
-import { CodeGenerateController } from '../generator/controller';
-import { GqlCompiler } from '../compiler/gqlCompiler';
-import { DataStoreHandler } from '../entity/dataStore';
+import { SerializedStore } from '../entity/serializedStore';
 
 const migrationTable = '__migration__';
 
@@ -20,7 +17,7 @@ export class MigrationController {
   private migrationDir = path.join(process.cwd(), config().migration.dir);
   private files = fs.readdirSync(this.migrationDir).filter(it => it.split('.').pop() === 'ts');
 
-  async migrate(): Promise<string> {
+  async migrate(): Promise<{ store: SerializedStore; currentMigration: string }> {
     const currentMigration = await this.getCurrentMigration();
     const store = this.getCurrentDataStore(this.files, currentMigration);
     const target = this.getTargets(this.files, currentMigration);
@@ -29,11 +26,10 @@ export class MigrationController {
       await this.execMigration(store, fileName, target.direction);
       store.resetQueue();
     }
-    const storeHandler = new DataStoreHandler(store.serialize());
-    const ir = new Compiler(storeHandler).compile();
-    const gql = new GqlCompiler(storeHandler).compile();
-    await new CodeGenerateController(ir, gql).generate();
-    return config().migration.target || this.files[this.files.length - 1];
+    return {
+      store: store.serialize(),
+      currentMigration: config().migration.target || this.files[this.files.length - 1],
+    };
   }
 
   private async getCurrentMigration(): Promise<string | undefined> {
