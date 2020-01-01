@@ -37,7 +37,7 @@ export abstract class SasatRepository<Entity, Creatable, Primary> implements Rep
     map[this.autoIncrementColumn] = response.insertId;
     return ({
       ...map,
-      ...entity,
+      ...obj,
     } as unknown) as Entity;
   }
 
