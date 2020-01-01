@@ -8,7 +8,8 @@ export class User implements SasatMigration {
         .column('user_id')
         .int()
         .primary()
-        .unsigned();
+        .unsigned()
+        .autoIncrement();
       table
         .column('name')
         .varchar(20)

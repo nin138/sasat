@@ -18,7 +18,7 @@
     "lint": "eslint 'src/**/*.ts'",
     "fmt": "yarn lint --fix && yarn prettier",
     "prettier": "prettier --write './**/*.ts'",
-    "pretest": "yarn resetdb",
+    "pretest": "yarn resetdb && yarn sasat migrate",
     "test": "env-cmd jest --coverage --silent=false --verbose false",
     "redis": "docker-compose exec redis redis-cli",
     "resetdb": "docker-compose exec db sh -c \"mysql -u root < /docker-entrypoint-initdb.d/temp.sql\"",
@@ -39,7 +39,7 @@
   },
   "devDependencies": {
     "@types/fs-extra": "8.0.1",
-    "@types/jest": "24.0.23",
+    "@types/jest": "24.0.25",
     "@types/js-yaml": "3.12.1",
     "@types/mysql": "2.15.8",
     "@types/node": "12.12.17",
@@ -81,7 +81,8 @@
     },
     "globals": {
       "ts-jest": {
-        "tsConfigFile": "tsconfig.json"
+        "tsConfig": "tsconfig.json",
+        "diagnostics": true
       }
     },
     "testMatch": [
