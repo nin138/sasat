@@ -56,7 +56,7 @@ const updateFn = (ir: IrRepository) => {
   return `\
 async update(entity: ${ir.entityName}PrimaryKey & Partial<${ir.entityName}>) {
   const result = await super.update(entity);
-  if(result.affectedRows === 1) {
+  if(result.changedRows === 1) {
     await pubsub.publish(SubscriptionName.${ir.entityName}Updated, { ${ir.entityName}Updated: { _isUpdated: true ,${onUpdateColumns}...entity } });
   }
   return result;

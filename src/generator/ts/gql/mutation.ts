@@ -16,7 +16,7 @@ const createCreateMutation = (entityName: string): string => {
 };
 
 const createUpdateMutation = (entityName: string): string => {
-  return `update${entityName}: (_: {}, entity: ${entityName}PrimaryKey & Partial<${entityName}>) => new ${entityName}Repository().update(entity).then(it => it.affectedRows === 1),`;
+  return `update${entityName}: (_: {}, entity: ${entityName}PrimaryKey & Partial<${entityName}>) => new ${entityName}Repository().update(entity).then(it => it.changedRows === 1),`;
 };
 
 export const generateTsGqlMutationString = (ir: IrGql) => {

@@ -3,6 +3,7 @@ export type QueryResponse = Array<{ [key: string]: string }>;
 export interface CommandResponse {
   insertId: number;
   affectedRows: number;
+  changedRows: number;
 }
 
 export type SqlValueType = string | number | boolean | null;
