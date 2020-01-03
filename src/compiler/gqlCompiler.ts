@@ -48,8 +48,8 @@ export class GqlCompiler {
         };
       }),
       subscription: {
-        onCreate: true, //TODO
-        onUpdate: false, // TODO
+        onCreate: table.gqlOption.subscription.onCreate,
+        onUpdate: table.gqlOption.subscription.onUpdate,
       },
     };
   }

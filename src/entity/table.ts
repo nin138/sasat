@@ -6,6 +6,7 @@ import { DataStore } from './dataStore';
 import { SerializedTable } from './serializedStore';
 import { assembleColumn } from './assembleColumn';
 import { capitalizeFirstLetter } from '../util/stringUtil';
+import { getDefaultGqlOption, GqlOption } from '../migration/gqlOption';
 
 export interface Table {
   column(columnName: string): Column | undefined;
@@ -24,12 +25,14 @@ export class TableHandler implements Table {
   primaryKey: string[];
   readonly uniqueKeys: string[][];
   readonly tableName: string;
+  gqlOption: GqlOption = getDefaultGqlOption();
 
   constructor(table: Partial<SerializedTable> & Pick<SerializedTable, 'tableName'>, public store: DataStore) {
     this.tableName = table.tableName;
     this.primaryKey = table.primaryKey || [];
     this.uniqueKeys = table.uniqueKeys || [];
     this.indexes = table.indexes?.map(it => new DBIndex(this.tableName, it.columns)) || [];
+    this.gqlOption = table.gqlOption || getDefaultGqlOption();
     this._columns = (table.columns || []).map(it => assembleColumn(it, this));
   }
 
@@ -54,6 +57,7 @@ export class TableHandler implements Table {
       uniqueKeys: this.uniqueKeys,
       indexes: this.indexes,
       tableName: this.tableName,
+      gqlOption: this.gqlOption,
     };
   }
 

@@ -3,6 +3,7 @@ import { ColumnBuilder } from './column/columnBuilder';
 import { TableHandler } from '../entity/table';
 import { DataStore } from '../entity/dataStore';
 import { NormalColumn } from '../entity/column';
+import { GqlOption } from './gqlOption';
 
 export interface TableBuilder {
   column(columnName: string): ColumnCreator;
@@ -12,6 +13,7 @@ export interface TableBuilder {
   createdAt(): TableBuilder;
   updatedAt(): TableBuilder;
   addIndex(...columns: string[]): TableBuilder;
+  setGqlOption(option: GqlOption): TableBuilder;
 }
 
 export class TableCreator implements TableBuilder {
@@ -73,6 +75,11 @@ export class TableCreator implements TableBuilder {
 
   addIndex(...columns: string[]): TableBuilder {
     this.table.addIndex(`index_${this.tableName}__${columns.join('_')}`, ...columns);
+    return this;
+  }
+
+  setGqlOption(option: GqlOption): TableBuilder {
+    this.table.gqlOption = option;
     return this;
   }
 }
