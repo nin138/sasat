@@ -54,10 +54,10 @@ const updateFn = (ir: IrRepository) => {
   if (!ir.subscription.onUpdate) return '';
   const onUpdateColumns = ir.onUpdateCurrentTimestampColumns.map(it => `${it}: getCurrentDateTimeString(),`).join('');
   return `\
-async update(entity: ${ir.entityName}Primary & Partial<${ir.entityName}>) {
+async update(entity: ${ir.entityName}PrimaryKey & Partial<${ir.entityName}>) {
   const result = await super.update(entity);
   if(result.affectedRows === 1) {
-    await pubsub.publish(SubscriptionName.${ir.entityName}Updated, { ${ir.entityName}Updated: { __isUpdated: true ,${onUpdateColumns}...entity } });
+    await pubsub.publish(SubscriptionName.${ir.entityName}Updated, { ${ir.entityName}Updated: { _isUpdated: true ,${onUpdateColumns}...entity } });
   }
   return result;
 }

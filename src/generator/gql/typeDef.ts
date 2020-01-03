@@ -18,7 +18,7 @@ ${ir.params.map(it => `  ${it.name}: ${getGqlTypeString(it)}`).join('\n')}
 
 type ${ir.typeName}UpdateResult {
 ${[
-  '  __isUpdated: Boolean!',
+  '  _isUpdated: Boolean!',
   ...ir.params.map(it => `  ${it.name}: ${getGqlTypeString({ ...it, isNullable: true })}`),
 ].join('\n')}
 }
@@ -62,15 +62,9 @@ const createSubscriptionTypeString = (ir: IrGqlMutation): string => {
   const onUpdate = ir.entities
     .filter(it => it.subscription.onUpdate)
     .map(it => `  ${it.entityName}Updated: ${it.entityName}UpdateResult`);
-
-  return (
-    'type Subscription {\n' +
-    onCreate
-      .concat(onUpdate)
-      .sort()
-      .join('\n') +
-    '\n}'
-  );
+  const list = onCreate.concat(onUpdate);
+  if (list.length === 0) return '';
+  return 'type Subscription {\n' + list.sort().join('\n') + '\n}';
 };
 
 export const generateTypeDefString = (ir: IrGql) => `\
