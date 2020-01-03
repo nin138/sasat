@@ -11,4 +11,5 @@ export interface CodeGenerator {
   generateGqlResolver(): string;
   generateGqlQuery(gql: IrGql): string;
   generateGqlMutation(gql: IrGql): string;
+  generateGqlSubscription(gql: IrGql): string;
 }

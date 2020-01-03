@@ -7,7 +7,7 @@ import { IrGqlMutation } from '../../ir/gql/mutation';
 const getGqlTypeString = (param: { type: string | GqlPrimitive; isNullable: boolean; isArray: boolean }) => {
   let type = param.type;
   if (!param.isNullable) type = type + '!';
-  if (param.isArray) type = `[${type}]`;
+  if (param.isArray) type = `[${type}]!`;
   return type;
 };
 
@@ -48,8 +48,27 @@ const createMutationTypeString = (ir: IrGqlMutation): string => {
   );
 };
 
+const createSubscriptionTypeString = (ir: IrGqlMutation): string => {
+  const onCreate = ir.entities
+    .filter(it => it.subscription.onCreate)
+    .map(it => `  ${it.entityName}Created: ${it.entityName}`);
+  const onUpdate = ir.entities
+    .filter(it => it.subscription.onUpdate)
+    .map(it => `  ${it.entityName}Updated: ${it.entityName}`); // TODO return type
+
+  return (
+    'type Subscription {\n' +
+    onCreate
+      .concat(onUpdate)
+      .sort()
+      .join('\n') +
+    '\n}'
+  );
+};
+
 export const generateTypeDefString = (ir: IrGql) => `\
 ${ir.types.map(createTypeString).join('\n')}
 ${createQueryTypeString(ir.queries)}
 ${createMutationTypeString(ir.mutations)}
+${createSubscriptionTypeString(ir.mutations)}
 `;

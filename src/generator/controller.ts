@@ -63,6 +63,7 @@ export class CodeGenerateController {
       writeFile(this.getFullPath(this.generateDir, 'resolver'), this.codeGen.generateGqlResolver()),
       writeFile(this.getFullPath(this.generateDir, 'query'), this.codeGen.generateGqlQuery(ir)),
       writeFile(this.getFullPath(this.generateDir, 'mutation'), this.codeGen.generateGqlMutation(ir)),
+      writeFile(this.getFullPath(this.generateDir, 'subscription'), this.codeGen.generateGqlSubscription(ir)),
     ];
   }
 }

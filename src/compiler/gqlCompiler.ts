@@ -47,6 +47,10 @@ export class GqlCompiler {
           isArray: false,
         };
       }),
+      subscription: {
+        onCreate: true, //TODO
+        onUpdate: false, // TODO
+      },
     };
   }
 
