@@ -5,7 +5,7 @@ import * as SqlString from 'sqlstring';
 const importStatement = (ir: IrRepository): string => {
   const imports = ["import { SasatRepository } from 'sasat';\n", "import { getCurrentDateTimeString } from 'sasat';\n"];
   if (ir.subscription.onCreate || ir.subscription.onUpdate) {
-    imports.push('import {pubsub, SubscriptionName} from "../pubsub";\n');
+    imports.push('import {pubsub, SubscriptionName} from "../subscription";\n');
   }
   return [...imports, ...ir.useClasses.map(it => `import {${it.classNames.join(', ')}} from '../${it.path}';\n`)].join(
     '',

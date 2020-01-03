@@ -1,9 +1,9 @@
 import { DBClient } from './dbClient';
-import { MariaDBClient } from './mariadb/client';
+import { MysqlClient } from './mysql/client';
 
 let client: DBClient | undefined;
 
 export const getDbClient = () => {
-  if (!client) client = new MariaDBClient();
+  if (!client) client = new MysqlClient();
   return client;
 };
