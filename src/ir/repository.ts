@@ -9,6 +9,11 @@ export interface IrRepository {
   autoIncrementColumn: string | undefined;
   defaultValues: Array<{ columnName: string; value: string | number | null }>;
   defaultCurrentTimestampColumns: string[];
+  onUpdateCurrentTimestampColumns: string[];
+  subscription: {
+    onCreate: boolean;
+    onUpdate: boolean;
+  };
 }
 
 export interface IrQuery {

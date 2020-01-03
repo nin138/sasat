@@ -95,6 +95,9 @@ export class Compiler {
       autoIncrementColumn: table.columns.find(it => !it.isReference() && it.getData().autoIncrement)?.name,
       defaultValues,
       defaultCurrentTimestampColumns,
+      onUpdateCurrentTimestampColumns: table.columns
+        .filter(it => it.getData().onUpdateCurrentTimeStamp)
+        .map(it => it.name),
       queries,
       useClasses: [
         {
@@ -102,6 +105,7 @@ export class Compiler {
           classNames: [entityName, `${entityName}Creatable`, `${entityName}PrimaryKey`],
         },
       ],
+      subscription: table.gqlOption.subscription,
     };
   }
 }

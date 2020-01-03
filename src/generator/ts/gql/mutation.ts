@@ -11,32 +11,17 @@ const getImportStatement = (ir: IrGqlMutation) => {
   ].join('\n');
 };
 
-const createCreateMutation = (entityName: string, subscription: boolean): string => {
-  if (!subscription)
-    return `create${entityName}: (_: {}, entity: ${entityName}Creatable) => new ${entityName}Repository().create(entity),`;
-  return `create${entityName}: async (_: {}, entity: ${entityName}Creatable) => {
-    const result = await new ${entityName}Repository().create(entity);
-    await pubsub.publish(SubscriptionName.${entityName}Created, { ${entityName}Created: result });
-    return result;
-  },`;
+const createCreateMutation = (entityName: string): string => {
+  return `create${entityName}: (_: {}, entity: ${entityName}Creatable) => new ${entityName}Repository().create(entity),`;
 };
 
-const createUpdateMutation = (entityName: string, subscription: boolean): string => {
-  if (!subscription)
-    return `update${entityName}: (_: {}, entity: ${entityName}PrimaryKey & Partial<${entityName}>) => new ${entityName}Repository().update(entity).then(it => it.affectedRows === 1),`;
-  return `  update${entityName}: async (_: {}, entity: ${entityName}PrimaryKey & Partial<${entityName}>) => {
-    const result = await new ${entityName}Repository().update(entity).then(it => it.affectedRows === 1) ;
-    await pubsub.publish(SubscriptionName.${entityName}Created, { ${entityName}Created: result });
-    return result;
-  },`;
+const createUpdateMutation = (entityName: string): string => {
+  return `update${entityName}: (_: {}, entity: ${entityName}PrimaryKey & Partial<${entityName}>) => new ${entityName}Repository().update(entity).then(it => it.affectedRows === 1),`;
 };
 
 export const generateTsGqlMutationString = (ir: IrGql) => {
   const body = ir.mutations.entities
-    .flatMap(it => [
-      createCreateMutation(it.entityName, it.subscription.onCreate),
-      createUpdateMutation(it.entityName, it.subscription.onUpdate),
-    ])
+    .flatMap(it => [createCreateMutation(it.entityName), createUpdateMutation(it.entityName)])
     .join('\n');
   return `\
 ${getImportStatement(ir.mutations)}

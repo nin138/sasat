@@ -3,11 +3,13 @@ import { columnTypeToTsType } from '../../migration/column/columnTypes';
 import * as SqlString from 'sqlstring';
 
 const importStatement = (ir: IrRepository): string => {
-  return [
-    "import { SasatRepository } from 'sasat';\n",
-    "import { getCurrentDateTimeString } from 'sasat';\n",
-    ...ir.useClasses.map(it => `import {${it.classNames.join(', ')}} from '../${it.path}';\n`),
-  ].join('');
+  const imports = ["import { SasatRepository } from 'sasat';\n", "import { getCurrentDateTimeString } from 'sasat';\n"];
+  if (ir.subscription.onCreate || ir.subscription.onUpdate) {
+    imports.push('import {pubsub, SubscriptionName} from "../pubsub";\n');
+  }
+  return [...imports, ...ir.useClasses.map(it => `import {${it.classNames.join(', ')}} from '../${it.path}';\n`)].join(
+    '',
+  );
 };
 
 const getReturnType = (ir: IrQuery): string => {
@@ -37,6 +39,31 @@ const queries = (ir: IrRepository): string => {
     .join('\n');
 };
 
+const createFn = (ir: IrRepository) => {
+  if (!ir.subscription.onCreate) return '';
+  return `\
+async create(entity: ${ir.entityName}Creatable): Promise<${ir.entityName}> {
+  const result = super.create(entity);
+  await pubsub.publish(SubscriptionName.${ir.entityName}Created, { ${ir.entityName}Created: result });
+  return result;
+}
+`;
+};
+
+const updateFn = (ir: IrRepository) => {
+  if (!ir.subscription.onUpdate) return '';
+  const onUpdateColumns = ir.onUpdateCurrentTimestampColumns.map(it => `${it}: getCurrentDateTimeString(),`).join('');
+  return `\
+async update(entity: ${ir.entityName}Primary & Partial<${ir.entityName}>) {
+  const result = await super.update(entity);
+  if(result.affectedRows === 1) {
+    await pubsub.publish(SubscriptionName.${ir.entityName}Updated, { ${ir.entityName}Updated: { __isUpdated: true ,${onUpdateColumns}...entity } });
+  }
+  return result;
+}
+`;
+};
+
 const classDeclaration = (ir: IrRepository): string => {
   return `export abstract class Generated${ir.entityName}Repository extends SasatRepository\
 <${ir.entityName}, ${ir.entityName}Creatable, ${ir.entityName}PrimaryKey> {
@@ -49,6 +76,8 @@ return {${[
     ...ir.defaultCurrentTimestampColumns.map(it => it + ': getCurrentDateTimeString()'),
   ].join(',')}}
 };
+${createFn(ir)}
+${updateFn(ir)}
 ${queries(ir)}
 };
 `;

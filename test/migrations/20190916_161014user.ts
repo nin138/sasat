@@ -31,7 +31,7 @@ export class User implements SasatMigration {
         .defaultCurrentTimeStamp()
         .onUpdateCurrentTimeStamp()
         .notNull();
-      table.setGqlOption({ subscription: { onCreate: true, onUpdate: false } });
+      table.setGqlOption({ subscription: { onCreate: true, onUpdate: true } });
     });
   };
   down: (store: MigrationStore) => void = store => {
