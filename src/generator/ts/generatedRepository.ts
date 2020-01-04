@@ -52,12 +52,13 @@ async create(entity: ${ir.entityName}Creatable): Promise<${ir.entityName}> {
 
 const updateFn = (ir: IrRepository) => {
   if (!ir.subscription.onUpdate) return '';
-  const onUpdateColumns = ir.onUpdateCurrentTimestampColumns.map(it => `${it}: getCurrentDateTimeString(),`).join('');
+  const onUpdateColumns = ir.onUpdateCurrentTimestampColumns.map(it => `'${it}',`).join('');
+  const onUpdateValues = ir.onUpdateCurrentTimestampColumns.map(it => `${it}: getCurrentDateTimeString(),`).join('');
   return `\
 async update(entity: ${ir.entityName}PrimaryKey & Partial<${ir.entityName}>) {
   const result = await super.update(entity);
   if(result.changedRows === 1) {
-    await pubsub.publish(SubscriptionName.${ir.entityName}Updated, { ${ir.entityName}Updated: { _isUpdated: true ,${onUpdateColumns}...entity } });
+    await pubsub.publish(SubscriptionName.${ir.entityName}Updated, { ${ir.entityName}Updated: { _updatedColumns: [${onUpdateColumns} ...Object.keys(entity)] ,${onUpdateValues}...entity } });
   }
   return result;
 }

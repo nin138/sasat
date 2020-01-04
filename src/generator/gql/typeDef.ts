@@ -18,7 +18,7 @@ ${ir.params.map(it => `  ${it.name}: ${getGqlTypeString(it)}`).join('\n')}
 
 type ${ir.typeName}UpdateResult {
 ${[
-  '  _isUpdated: Boolean!',
+  '  _updatedColumns: [String!]!',
   ...ir.params.map(it => `  ${it.name}: ${getGqlTypeString({ ...it, isNullable: true })}`),
 ].join('\n')}
 }
@@ -43,16 +43,16 @@ ${ir
 };
 
 const createMutationTypeString = (ir: IrGqlMutation): string => {
-  return (
-    'type Mutation {\n' +
-    ir.entities
-      .flatMap(it => [
-        `  create${it.entityName}${createParamString(it.onCreateParams)}: ${it.entityName}`,
-        `  update${it.entityName}${createParamString(it.onUpdateParams)}: Boolean`,
-      ])
-      .join('\n') +
-    '\n}'
-  );
+  return `\
+type Mutation {
+${ir.entities
+  .flatMap(it => [
+    `  create${it.entityName}${createParamString(it.onCreateParams)}: ${it.entityName}`,
+    `  update${it.entityName}${createParamString(it.onUpdateParams)}: Boolean`,
+  ])
+  .join('\n')}
+}
+`;
 };
 
 const createSubscriptionTypeString = (ir: IrGqlMutation): string => {
@@ -71,5 +71,4 @@ export const generateTypeDefString = (ir: IrGql) => `\
 ${ir.types.map(createTypeString).join('\n')}
 ${createQueryTypeString(ir.queries)}
 ${createMutationTypeString(ir.mutations)}
-${createSubscriptionTypeString(ir.mutations)}
-`;
+${createSubscriptionTypeString(ir.mutations)}`;
