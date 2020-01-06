@@ -1,5 +1,5 @@
-import { IrEntity, IrEntityField } from '../../ir/entity';
-import { columnTypeToTsType } from '../../migration/column/columnTypes';
+import { IrEntity, IrEntityField } from '../../../ir/entity';
+import { columnTypeToTsType } from '../../../migration/column/columnTypes';
 
 const fieldToString = (field: IrEntityField, nullable: boolean) => {
   return `${field.fieldName}${nullable ? '?' : ''}: ${columnTypeToTsType(field.type)};`;

@@ -3,7 +3,6 @@ import { IrGqlMutation } from '../../../ir/gql/mutation';
 
 const getImportStatement = (ir: IrGqlMutation) => {
   return [
-    'import {pubsub, SubscriptionName} from "./subscription"',
     ...ir.entities.flatMap(it => [
       `import { ${it.entityName}, ${it.entityName}Creatable, ${it.entityName}PrimaryKey } from './entity/${it.entityName}'`,
       `import { ${it.entityName}Repository } from '../repository/${it.entityName}'`,

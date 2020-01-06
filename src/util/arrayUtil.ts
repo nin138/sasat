@@ -9,3 +9,5 @@ export const arrayEq = (arr1: any[], arr2: any[]): boolean => {
 
 export const uniqueDeep = <T>(arr: T[]): T[] =>
   [...new Set(arr.map(it => JSON.stringify(it)))].map(it => JSON.parse(it));
+
+export const unique = <T>(arr: T[]): T[] => [...new Set(arr)];

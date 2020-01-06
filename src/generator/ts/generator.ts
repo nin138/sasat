@@ -1,10 +1,10 @@
 import { IrEntity } from '../../ir/entity';
-import { generateEntityFileString } from './entity';
+import { generateEntityFileString } from './file/entity';
 import { IrRepository } from '../../ir/repository';
-import { generateGeneratedRepositoryString } from './generatedRepository';
+import { generateGeneratedRepositoryString } from './file/generatedRepository';
 import { CodeGenerator } from '../generator';
 import * as prettier from 'prettier';
-import { generateRepositoryString } from './repository';
+import { generateRepositoryString } from './file/repository';
 import { IrGql } from '../../ir/gql';
 import { generateTsTypeDefString } from './gql/typeDef';
 import { generateTsResolverString } from './gql/resolver';
