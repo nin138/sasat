@@ -15,7 +15,7 @@ export interface TsClassField {
   accessor?: TsAccessor;
   readonly?: boolean;
   static?: boolean;
-  type: string;
+  type?: string;
   defaultValue: string;
 }
 
@@ -26,13 +26,14 @@ export interface TsClassMethod {
   async?: boolean;
   static?: boolean;
   args: TsArg[];
-  returnType: string | undefined;
+  returnType?: string;
   body: string;
 }
 
 export interface TsClassOption {
   abstract?: boolean;
   exportClass?: boolean;
+  extends?: string;
 }
 
 export class TsClassGenerator {
@@ -40,19 +41,20 @@ export class TsClassGenerator {
   protected readonly methods: TsClassMethod[] = [];
   constructor(readonly className: string, protected readonly option: TsClassOption = { exportClass: true }) {}
 
-  addField(field: TsClassField) {
-    this.fields.push(field);
+  addField(...field: TsClassField[]) {
+    this.fields.push(...field);
   }
 
-  addMethod(method: TsClassMethod) {
-    this.methods.push(method);
+  addMethod(...method: TsClassMethod[]) {
+    this.methods.push(...method);
   }
 
   generate() {
     const classPrefix = [this.option.exportClass ? 'export' : '', this.option.abstract ? 'abstract' : '']
       .filter(it => it)
       .join(' ');
-    return `${classPrefix} class ${this.className} {
+    const extend = this.option.extends ? ` extends ${this.option.extends}` : '';
+    return `${classPrefix} class ${this.className}${extend} {
       ${this.fields.map(it => this.createField(it)).join('\n')}
       ${this.methods.map(it => this.createMethod(it)).join('\n')}
     }\n`;
@@ -67,8 +69,9 @@ export class TsClassGenerator {
     ]
       .filter(it => it)
       .join(' ');
+    const type = field.type ? `: ${field.type}` : '';
     const defaultValue = field.defaultValue ? ` = ${field.defaultValue}` : '';
-    return `${fieldPrefix} ${field.name}: ${field.type}${defaultValue};`;
+    return `${fieldPrefix} ${field.name}${type}${defaultValue};`;
   }
 
   protected createMethod(method: TsClassMethod): string {
