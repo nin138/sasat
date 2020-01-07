@@ -5,12 +5,15 @@ import { StoreMigrator } from './storeMigrator';
 import { DBIndex } from '../entity';
 import { ColumnData } from './column/columnData';
 import { SqlCreator } from '../sql/sqlCreater';
+import { NestedPartial } from '../util/type';
+import { GqlOption } from './gqlOption';
 
 export interface MigrationTable extends Table {
   addIndex(...columns: string[]): MigrationTable;
   removeIndex(...columns: string[]): MigrationTable;
   addColumn(column: ColumnData): MigrationTable;
   dropColumn(columnName: string): MigrationTable;
+  setGqlOption(option: NestedPartial<GqlOption>): MigrationTable;
 }
 
 export class TableMigrator implements MigrationTable {
@@ -58,6 +61,11 @@ export class TableMigrator implements MigrationTable {
   dropColumn(columnName: string): MigrationTable {
     this.table.dropColumn(columnName);
     this.store.addQuery(SqlCreator.dropColumn(this.tableName, columnName));
+    return this;
+  }
+
+  setGqlOption(option: NestedPartial<GqlOption>): MigrationTable {
+    this.table.setGqlOption(option);
     return this;
   }
 }

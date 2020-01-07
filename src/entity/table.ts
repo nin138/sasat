@@ -6,7 +6,8 @@ import { DataStore } from './dataStore';
 import { SerializedTable } from './serializedStore';
 import { assembleColumn } from './assembleColumn';
 import { capitalizeFirstLetter } from '../util/stringUtil';
-import { getDefaultGqlOption, GqlOption } from '../migration/gqlOption';
+import { getDefaultGqlOption, GqlOption, mergeGqlOption } from '../migration/gqlOption';
+import { NestedPartial } from '../util/type';
 
 export interface Table {
   column(columnName: string): Column | undefined;
@@ -25,14 +26,17 @@ export class TableHandler implements Table {
   primaryKey: string[];
   readonly uniqueKeys: string[][];
   readonly tableName: string;
-  gqlOption: GqlOption = getDefaultGqlOption();
+  private _gqlOption: GqlOption = getDefaultGqlOption();
+  get gqlOption() {
+    return this._gqlOption;
+  }
 
   constructor(table: Partial<SerializedTable> & Pick<SerializedTable, 'tableName'>, public store: DataStore) {
     this.tableName = table.tableName;
     this.primaryKey = table.primaryKey || [];
     this.uniqueKeys = table.uniqueKeys || [];
     this.indexes = table.indexes?.map(it => new DBIndex(this.tableName, it.columns)) || [];
-    this.gqlOption = table.gqlOption || getDefaultGqlOption();
+    this._gqlOption = table.gqlOption || getDefaultGqlOption();
     this._columns = (table.columns || []).map(it => assembleColumn(it, this));
   }
 
@@ -133,5 +137,9 @@ export class TableHandler implements Table {
 
   getEntityName(): string {
     return capitalizeFirstLetter(this.tableName);
+  }
+
+  setGqlOption(option: NestedPartial<GqlOption>) {
+    this._gqlOption = mergeGqlOption(this.gqlOption, option);
   }
 }

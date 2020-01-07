@@ -4,6 +4,7 @@ import { TableHandler } from '../entity/table';
 import { DataStore } from '../entity/dataStore';
 import { NormalColumn } from '../entity/column';
 import { GqlOption } from './gqlOption';
+import { NestedPartial } from '../util/type';
 
 export interface TableBuilder {
   column(columnName: string): ColumnCreator;
@@ -13,7 +14,7 @@ export interface TableBuilder {
   createdAt(): TableBuilder;
   updatedAt(): TableBuilder;
   addIndex(...columns: string[]): TableBuilder;
-  setGqlOption(option: GqlOption): TableBuilder;
+  setGqlOption(option: NestedPartial<GqlOption>): TableBuilder;
 }
 
 export class TableCreator implements TableBuilder {
@@ -78,8 +79,8 @@ export class TableCreator implements TableBuilder {
     return this;
   }
 
-  setGqlOption(option: GqlOption): TableBuilder {
-    this.table.gqlOption = option;
+  setGqlOption(option: NestedPartial<GqlOption>): TableBuilder {
+    this.table.setGqlOption(option);
     return this;
   }
 }

@@ -1,5 +1,6 @@
 import { SasatRedisCacheType } from '../sasat/redisCacheConf';
 import { SasatConfigLoader } from './loader';
+import { NestedPartial } from '../util/type';
 
 export interface SasatConfigDb {
   host: string;
@@ -46,10 +47,6 @@ export interface SasatConfigGenerator {
     subscription: boolean;
   };
 }
-
-type NestedPartial<T> = {
-  [K in keyof T]?: T[K] extends Array<infer R> ? Array<NestedPartial<R>> : NestedPartial<T[K]>;
-};
 
 export interface SasatConfig {
   db: SasatConfigDb;
