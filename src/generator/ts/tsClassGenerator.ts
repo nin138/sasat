@@ -85,6 +85,6 @@ export class TsClassGenerator {
       .join(' ');
     const params = method.args.map(it => `${it.name}: ${it.type}`).join(',');
     const returnType = method.returnType ? `: ${method.returnType}` : '';
-    return `${methodPrefix} ${method.name}(${params})${returnType} {${method.body}`;
+    return `${methodPrefix} ${method.name}(${params})${returnType} {${method.body}}`;
   }
 }

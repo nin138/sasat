@@ -1,7 +1,7 @@
 import { IrEntity } from '../../ir/entity';
 import { generateEntityFileString } from './file/entity';
 import { IrRepository } from '../../ir/repository';
-import { generateGeneratedRepositoryString } from './file/generatedRepository';
+import { TsGeneratorGeneratedRepository } from './file/generatedRepository';
 import { CodeGenerator } from '../generator';
 import * as prettier from 'prettier';
 import { generateRepositoryString } from './file/repository';
@@ -24,7 +24,7 @@ export class TsCodeGenerator implements CodeGenerator {
   }
 
   generateGeneratedRepository(repository: IrRepository): string {
-    return this.formatCode(generateGeneratedRepositoryString(repository));
+    return this.formatCode(new TsGeneratorGeneratedRepository(repository).generate());
   }
 
   generateRepository(repository: IrRepository): string {

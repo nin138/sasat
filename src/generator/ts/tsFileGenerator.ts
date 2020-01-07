@@ -23,7 +23,7 @@ export class TsFileGenerator {
   }
 
   generate() {
-    const importStatement = this.imports.map(it => `import { ${it.names.join(',')} } from '${it.from}'`).join('\n');
+    const importStatement = this.imports.map(it => `import { ${it.names.join(',')} } from '${it.from}';\n`).join('');
     return importStatement + this.lines.join('\n');
   }
 }
