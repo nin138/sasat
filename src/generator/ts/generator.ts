@@ -11,6 +11,8 @@ import { generateTsResolverString } from './gql/resolver';
 import { generateTsGqlQueryString } from './gql/query';
 import { generateTsGqlMutationString } from './gql/mutation';
 import { generateTsGqlSubscriptionString } from './gql/subscription';
+import { IrGqlContext } from '../../ir/gql/context';
+import { TsGeneratorGqlContext } from './gql/context';
 
 export class TsCodeGenerator implements CodeGenerator {
   readonly fileExt = 'ts';
@@ -49,5 +51,22 @@ export class TsCodeGenerator implements CodeGenerator {
 
   generateGqlSubscription(gql: IrGql): string {
     return this.formatCode(generateTsGqlSubscriptionString(gql.mutations));
+  }
+
+  generateGqlContext(contexts: IrGqlContext[]): string {
+    return this.formatCode(new TsGeneratorGqlContext(contexts).generate());
+  }
+
+  generateOnceFiles(): Array<{ name: string; body: string }> {
+    const contextFile = `\
+import { BaseGqlContext } from './__generated__/context';
+export interface GqlContext extends BaseGqlContext {}
+`;
+    return [
+      {
+        name: 'context',
+        body: contextFile,
+      },
+    ];
   }
 }

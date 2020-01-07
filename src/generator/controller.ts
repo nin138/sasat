@@ -24,6 +24,7 @@ export class CodeGenerateController {
       ...this.ir.repositories.map(it => this.generateRepository(it)),
       ...this.ir.repositories.map(it => this.generateGeneratedRepository(it)),
       ...this.generateGql(this.gql),
+      ...this.generateOnceFiles(this.ir),
     ]);
   }
 
@@ -64,6 +65,13 @@ export class CodeGenerateController {
       writeFile(this.getFullPath(this.generateDir, 'query'), this.codeGen.generateGqlQuery(ir)),
       writeFile(this.getFullPath(this.generateDir, 'mutation'), this.codeGen.generateGqlMutation(ir)),
       writeFile(this.getFullPath(this.generateDir, 'subscription'), this.codeGen.generateGqlSubscription(ir)),
+      writeFile(this.getFullPath(this.generateDir, 'context'), this.codeGen.generateGqlContext(ir.contexts)),
     ];
+  }
+
+  private generateOnceFiles(ir: Ir) {
+    return this.codeGen
+      .generateOnceFiles(ir)
+      .map(it => writeFileIfNotExist(this.getFullPath(this.outDir, it.name), it.body));
   }
 }

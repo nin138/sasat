@@ -8,6 +8,9 @@ export interface IrGqlMutationEntity {
   entityName: string;
   onCreateParams: IrGqlParam[];
   onUpdateParams: IrGqlParam[];
+  create: boolean;
+  update: boolean;
+  fromContextColumns: Array<{ columnName: string; contextName: string }>;
   subscription: IrGqlSubscription;
 }
 
