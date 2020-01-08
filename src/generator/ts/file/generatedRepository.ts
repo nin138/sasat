@@ -45,7 +45,7 @@ export class TsGeneratorGeneratedRepository extends TsFileGenerator {
 
   private generateClass(repository: IrRepository): string {
     const entityName = repository.entityName;
-    const classGenerator = new TsClassGenerator(`Generated${repository.entityName}`, {
+    const classGenerator = new TsClassGenerator(`Generated${repository.entityName}Repository`, {
       exportClass: true,
       extends: `SasatRepository<${entityName}, ${entityName}Creatable, ${entityName}PrimaryKey>`,
       abstract: true,

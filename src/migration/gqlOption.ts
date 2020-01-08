@@ -24,12 +24,17 @@ export const getDefaultGqlOption = (): GqlOption => ({
   },
 });
 
-export const mergeGqlOption = (prev: GqlOption, update: NestedPartial<GqlOption>) => {
+export const mergeGqlOption = (prev: GqlOption, update: NestedPartial<GqlOption>): GqlOption => {
   return {
     ...prev,
     mutation: {
       ...prev.mutation,
       ...update.mutation,
+      fromContextColumns:
+        (update.mutation?.fromContextColumns?.filter(it => it.column) as Array<{
+          column: string;
+          contextName?: string;
+        }>) || prev.mutation.fromContextColumns,
     },
     subscription: {
       ...prev.subscription,

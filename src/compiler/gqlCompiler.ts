@@ -25,28 +25,44 @@ export class GqlCompiler {
       types: types,
       queries: [...this.listQuery(), ...this.primaryQuery()],
       mutations: this.getMutations(),
+      contexts: this.store.tables.flatMap(table =>
+        table.gqlOption.mutation.fromContextColumns.map(it => ({
+          name: it.contextName || it.column,
+          type: table.column(it.column)!.type,
+        })),
+      ),
     };
   }
 
   private getMutation(table: TableHandler): IrGqlMutationEntity {
     return {
       entityName: table.getEntityName(),
-      onCreateParams: table.columns.map(it => {
-        return {
-          name: it.name,
-          type: it.gqlType(),
-          isNullable: it.isNullableOnCreate(),
-          isArray: false,
-        };
-      }),
-      onUpdateParams: table.columns.map(it => {
-        return {
-          name: it.name,
-          type: it.gqlType(),
-          isNullable: !table.isColumnPrimary(it.name),
-          isArray: false,
-        };
-      }),
+      create: table.gqlOption.mutation.create,
+      update: table.gqlOption.mutation.create,
+      fromContextColumns: table.gqlOption.mutation.fromContextColumns.map(it => ({
+        columnName: it.column,
+        contextName: it.contextName || it.column,
+      })),
+      onCreateParams: table.columns
+        .filter(it => !table.gqlOption.mutation.fromContextColumns.map(it => it.column).includes(it.name))
+        .map(it => {
+          return {
+            name: it.name,
+            type: it.gqlType(),
+            isNullable: it.isNullableOnCreate(),
+            isArray: false,
+          };
+        }),
+      onUpdateParams: table.columns
+        .filter(it => !table.gqlOption.mutation.fromContextColumns.map(it => it.column).includes(it.name))
+        .map(it => {
+          return {
+            name: it.name,
+            type: it.gqlType(),
+            isNullable: !table.isColumnPrimary(it.name),
+            isArray: false,
+          };
+        }),
       subscription: {
         onCreate: table.gqlOption.subscription.onCreate,
         onUpdate: table.gqlOption.subscription.onUpdate,
