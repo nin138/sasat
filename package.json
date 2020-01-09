@@ -30,7 +30,7 @@
     "chalk": "3.0.0",
     "fs-extra": "^8.1.0",
     "js-yaml": "^3.13.1",
-    "mariadb": "^2.1.0",
+    "mariadb": "^2.1.5",
     "mysql": "^2.17.1",
     "pluralize": "^8.0.0",
     "prettier": "^1.19.1",
@@ -42,23 +42,24 @@
     "@types/jest": "24.0.25",
     "@types/js-yaml": "3.12.1",
     "@types/mysql": "2.15.8",
-    "@types/node": "12.12.17",
+    "@types/node": "13.1.5",
     "@types/pluralize": "0.0.29",
     "@types/prettier": "^1.19.0",
     "@types/redis": "2.8.14",
     "@types/sqlstring": "2.2.1",
-    "@typescript-eslint/eslint-plugin": "2.11.0",
-    "@typescript-eslint/parser": "2.11.0",
+    "@typescript-eslint/eslint-plugin": "2.15.0",
+    "@typescript-eslint/parser": "2.15.0",
+    "apollo-server": "^2.9.15",
     "env-cmd": "10.0.1",
-    "eslint": "6.7.2",
-    "eslint-config-prettier": "6.7.0",
-    "eslint-plugin-prettier": "3.1.1",
-    "husky": "3.1.0",
+    "eslint": "6.8.0",
+    "eslint-config-prettier": "6.9.0",
+    "eslint-plugin-prettier": "3.1.2",
+    "husky": "4.0.3",
     "jest": "24.9.0",
     "lint-staged": "9.5.0",
-    "ts-jest": "24.2.0",
+    "ts-jest": "24.3.0",
     "ts-node": "8.5.4",
-    "typescript": "3.7.3"
+    "typescript": "3.7.4"
   },
   "peerDependencies": {
     "apollo-server": "^2.0.0"
@@ -79,6 +80,9 @@
       "ts",
       "js"
     ],
+    "moduleNameMapper": {
+      "^sasat": "<rootDir>/lib"
+    },
     "transform": {
       "^.+\\.(ts|tsx)$": "ts-jest"
     },
