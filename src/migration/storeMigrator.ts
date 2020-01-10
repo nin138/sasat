@@ -8,6 +8,7 @@ export interface MigrationStore extends DataStore {
   createTable(tableName: string, tableCreator: (table: TableBuilder) => void): MigrationStore;
   dropTable(tableName: string): MigrationStore;
   table(tableName: string): MigrationTable | undefined;
+  sql(sql: string): MigrationStore;
 }
 
 export class StoreMigrator implements MigrationStore {
@@ -35,6 +36,11 @@ export class StoreMigrator implements MigrationStore {
 
   dropTable(tableName: string) {
     this.addQuery(`DROP TABLE ${tableName}`);
+    return this;
+  }
+
+  sql(sql: string): MigrationStore {
+    this.addQuery(sql);
     return this;
   }
 
