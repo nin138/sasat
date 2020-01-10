@@ -1,6 +1,6 @@
 import { getDbClient } from './db/getDbClient';
 import { CommandResponse, SQLExecutor } from './db/dbClient';
-import { Condition, conditionToSql } from './sql/condition';
+import { SQLCondition, conditionToSql } from './sql/condition';
 import * as SqlString from 'sqlstring';
 import { SasatError } from './error';
 
@@ -9,7 +9,7 @@ interface Repository<Entity, Creatable, Primary> {
   list(): Promise<Entity[]>;
   update(entity: Partial<Entity> & Primary): Promise<CommandResponse>;
   delete(entity: Primary): Promise<CommandResponse>;
-  find(condition: Condition<Entity>): Promise<Entity[]>;
+  find(condition: SQLCondition<Entity>): Promise<Entity[]>;
 }
 
 export abstract class SasatRepository<Entity, Creatable, Primary> implements Repository<Entity, Creatable, Primary> {
@@ -47,7 +47,7 @@ export abstract class SasatRepository<Entity, Creatable, Primary> implements Rep
     );
   }
 
-  async find(condition: Omit<Condition<Entity>, 'from'>): Promise<Entity[]> {
+  async find(condition: Omit<SQLCondition<Entity>, 'from'>): Promise<Entity[]> {
     const result = await this.client.rawQuery(conditionToSql({ ...condition, from: this.tableName }));
     return result.map(it => this.resultToEntity(it));
   }

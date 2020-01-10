@@ -1,7 +1,7 @@
 import { SasatError } from '../error';
 import * as SqlString from 'sqlstring';
 
-export interface Condition<T> {
+export interface SQLCondition<T> {
   select?: Array<keyof T>;
   from: string;
   where?: SQLWhereConditions<T>;
@@ -70,7 +70,7 @@ export const whereToSQL = <T>(where: SQLWhereConditions<T>, type: 'AND' | 'OR' =
 export const orderToSQL = <T>(order: SQLOrder<T>[]): string =>
   order.map(it => `${SqlString.escapeId(it[0])} ${it[1] === 'DESC' ? 'DESC' : 'ASK'}`).join(', ');
 
-export const conditionToSql = <T>(condition: Condition<T>): string => {
+export const conditionToSql = <T>(condition: SQLCondition<T>): string => {
   const select = condition.select ? condition.select.map(it => SqlString.escapeId(it)).join(', ') : '*';
   const where = condition.where ? ' WHERE ' + whereToSQL(condition.where) : '';
   const order = condition.order ? ' ORDER BY ' + orderToSQL(condition.order) : '';

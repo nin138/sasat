@@ -1,5 +1,5 @@
 import { DBIndex } from './index';
-import { ReferenceColumn } from './referenceColumn';
+import { ReferenceColumn, ReferenceColumnData } from './referenceColumn';
 import { Column } from './column';
 import { SasatError } from '../error';
 import { DataStore } from './dataStore';
@@ -65,19 +65,8 @@ export class TableHandler implements Table {
     };
   }
 
-  addReferences(table: string, column: string, unique = false): this {
-    this.columns.push(
-      new ReferenceColumn(
-        {
-          type: 'REFERENCE',
-          targetTable: table,
-          targetColumn: column,
-          columnName: column,
-          unique,
-        },
-        this,
-      ),
-    );
+  addReferences(data: ReferenceColumnData): this {
+    this.columns.push(new ReferenceColumn(data, this));
 
     return this;
   }

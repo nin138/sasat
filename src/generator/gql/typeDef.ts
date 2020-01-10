@@ -4,10 +4,15 @@ import { IrGqlQuery } from '../../ir/gql/query';
 import { GqlPrimitive } from './types';
 import { IrGqlMutation } from '../../ir/gql/mutation';
 
-const getGqlTypeString = (param: { type: string | GqlPrimitive; isNullable: boolean; isArray: boolean }) => {
+const getGqlTypeString = (param: {
+  type: string | GqlPrimitive;
+  isNullable: boolean;
+  isArray: boolean;
+  isArrayNullable?: boolean;
+}) => {
   let type = param.type;
   if (!param.isNullable) type = type + '!';
-  if (param.isArray) type = `[${type}]!`;
+  if (param.isArray) type = `[${type}]${param.isArrayNullable ? '' : '!'}`;
   return type;
 };
 
@@ -19,7 +24,9 @@ ${ir.params.map(it => `  ${it.name}: ${getGqlTypeString(it)}`).join('\n')}
 type ${ir.typeName}UpdateResult {
 ${[
   '  _updatedColumns: [String!]!',
-  ...ir.params.map(it => `  ${it.name}: ${getGqlTypeString({ ...it, isNullable: true })}`),
+  ...ir.params
+    .filter(it => !it.isReference)
+    .map(it => `  ${it.name}: ${getGqlTypeString({ ...it, isNullable: true, isArrayNullable: true })}`),
 ].join('\n')}
 }
 `;
@@ -34,7 +41,12 @@ type Query {
 ${ir
   .map(it => {
     const param = createParamString(it.params);
-    const returnType = getGqlTypeString({ type: it.entity, isNullable: it.isNullable, isArray: it.isArray });
+    const returnType = getGqlTypeString({
+      type: it.entity,
+      isNullable: it.isNullable,
+      isArray: it.isArray,
+      isArrayNullable: false,
+    });
     return `  ${it.queryName}${param}: ${returnType}`;
   })
   .join('\n')}${additionalQuery}

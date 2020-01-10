@@ -6,6 +6,8 @@ import { capitalizeFirstLetter, plural } from '../util/stringUtil';
 import { IrGqlMutation, IrGqlMutationEntity } from '../ir/gql/mutation';
 import { TableHandler } from '../entity/table';
 import { columnTypeToGqlPrimitive } from '../generator/gql/sasatToGqlType';
+import { ReferenceColumn } from '../entity/referenceColumn';
+import { Relation } from '..';
 
 export class GqlCompiler {
   constructor(private store: DataStoreHandler) {}
@@ -13,12 +15,26 @@ export class GqlCompiler {
   compile(): IrGql {
     const types: IrGqlType[] = this.store.tables.map(it => ({
       typeName: it.getEntityName(),
-      params: it.columns.map(it => ({
-        name: it.name,
-        type: columnTypeToGqlPrimitive(it.type),
-        isNullable: it.isNullable(),
-        isArray: false,
-      })),
+      params: [
+        ...it.columns.map(it => ({
+          name: it.name,
+          type: columnTypeToGqlPrimitive(it.type),
+          isNullable: it.isNullable(),
+          isArray: false,
+        })),
+        ...it.columns
+          .filter(it => it.isReference())
+          .map(it => {
+            const ref = it as ReferenceColumn;
+            return {
+              name: ref.data.relationName || ref.data.targetTable,
+              type: capitalizeFirstLetter(ref.data.targetTable),
+              isNullable: ref.data.relation === Relation.OneOrZero,
+              isArray: ref.data.relation === Relation.Many,
+              isReference: true,
+            };
+          }),
+      ],
     }));
 
     return {

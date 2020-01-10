@@ -3,13 +3,15 @@ import { ForeignKey, ForeignKeyReferentialAction } from './foreignKey';
 import { TableHandler } from './table';
 import { columnToSql } from '../sql/columnToSql';
 import { GqlPrimitive } from '../generator/gql/types';
+import { Relation } from './relation';
 
 export interface ReferenceColumnData {
   type: 'REFERENCE';
   targetTable: string;
   targetColumn: string;
   columnName: string;
-  unique: boolean; // TODO change to Relation
+  relation: Relation;
+  relationName?: string;
   onUpdate?: ForeignKeyReferentialAction;
   onDelete?: ForeignKeyReferentialAction;
 }

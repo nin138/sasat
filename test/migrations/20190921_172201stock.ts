@@ -1,5 +1,5 @@
-import { MigrationStore } from '../../src';
-import { SasatMigration } from '../../src';
+import { MigrationStore, SasatMigration } from '../../src';
+import { Relation } from '../../src/entity/relation';
 
 export class Stock implements SasatMigration {
   up: (store: MigrationStore) => void = store => {
@@ -10,8 +10,18 @@ export class Stock implements SasatMigration {
         .autoIncrement()
         .unsigned()
         .primary();
-      table.references('user', 'user_id');
-      table.references('post', 'post_id');
+      table.references({
+        targetTable: 'user',
+        targetColumn: 'user_id',
+        columnName: 'user_id',
+        relation: Relation.Many,
+      });
+      table.references({
+        targetTable: 'post',
+        targetColumn: 'post_id',
+        columnName: 'post_id',
+        relation: Relation.One,
+      });
       table.createdAt();
       table.updatedAt();
       table.addUniqueKey('user_id', 'post_id');

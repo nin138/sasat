@@ -7,6 +7,7 @@ import { IrQuery, IrRepository } from '../ir/repository';
 import { ReferenceColumn } from '../entity/referenceColumn';
 import { NormalColumn } from '../entity/column';
 import { DBColumnTypes } from '../migration/column/columnTypes';
+import { Relation } from '../entity/relation';
 
 export class Compiler {
   constructor(private store: DataStoreHandler) {}
@@ -53,7 +54,7 @@ export class Compiler {
     return {
       queryName: this.paramsToQueryName(ref.name),
       returnType: ref.table.getEntityName(),
-      isReturnsArray: !ref.data.unique,
+      isReturnsArray: ref.data.relation === Relation.Many,
       isReturnDefinitelyExist: false, // TODO RELATION
       params: [{ name: ref.name, type: ref.type }],
     };
