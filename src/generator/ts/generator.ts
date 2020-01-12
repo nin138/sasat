@@ -41,8 +41,14 @@ export class TsCodeGenerator implements CodeGenerator {
     return this.formatCode(generateTsGqlQueryString(gql));
   }
 
-  generateGqlResolver(): string {
-    return generateTsResolverString();
+  generateGqlResolver(gql: IrGql): string {
+    // TODO
+    // gql.types.filter(it => it.params.find(it => it.isReference))
+    //   .map(it => {
+    //
+    //   });
+    console.log(gql);
+    return generateTsResolverString([]); //TODO
   }
 
   generateGqlMutation(gql: IrGql): string {

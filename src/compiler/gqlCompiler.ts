@@ -29,11 +29,18 @@ export class GqlCompiler {
             return {
               name: ref.data.relationName || ref.data.targetTable,
               type: capitalizeFirstLetter(ref.data.targetTable),
-              isNullable: ref.data.relation === Relation.OneOrZero,
-              isArray: ref.data.relation === Relation.Many,
+              isNullable: false,
+              isArray: false,
               isReference: true,
             };
           }),
+        ...this.store.referencedBy(it.tableName).map(it => ({
+          name: it.table.tableName,
+          type: it.table.getEntityName(),
+          isNullable: it.data.relation === Relation.OneOrZero,
+          isArray: it.data.relation === Relation.Many,
+          isReference: true,
+        })),
       ],
     }));
 
