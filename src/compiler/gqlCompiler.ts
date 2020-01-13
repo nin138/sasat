@@ -8,6 +8,7 @@ import { TableHandler } from '../entity/table';
 import { columnTypeToGqlPrimitive } from '../generator/gql/sasatToGqlType';
 import { ReferenceColumn } from '../entity/referenceColumn';
 import { Relation } from '..';
+import { IrGqlResolver } from '../ir/gql/resolver';
 
 export class GqlCompiler {
   constructor(private store: DataStoreHandler) {}
@@ -54,6 +55,7 @@ export class GqlCompiler {
           type: table.column(it.column)!.type,
         })),
       ),
+      resolvers: [], // TODO
     };
   }
 
@@ -126,5 +128,31 @@ export class GqlCompiler {
       isArray: false,
       isNullable: true,
     }));
+  }
+
+  private resolver(): IrGqlResolver[] {
+    return this.store.tables.flatMap(table =>
+      table.columns
+        .filter(it => it.isReference())
+        .flatMap(it => {
+          const ref = it as ReferenceColumn;
+          return [
+            {
+              entity: table.getEntityName(),
+              fieldName: ref.data.columnName,
+              referenceEntity: capitalizeFirstLetter(ref.data.targetTable),
+              referenceColumn: ref.data.targetColumn,
+              referenceName: ref.data.relationName || ref.table.tableName,
+            },
+            {
+              entity: capitalizeFirstLetter(ref.data.targetTable),
+              fieldName: ref.data.targetColumn,
+              referenceEntity: table.getEntityName(),
+              referenceColumn: ref.data.columnName,
+              referenceName: ref.table.tableName,
+            },
+          ];
+        }),
+    );
   }
 }

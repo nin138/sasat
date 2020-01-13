@@ -42,12 +42,7 @@ export class TsCodeGenerator implements CodeGenerator {
   }
 
   generateGqlResolver(gql: IrGql): string {
-    // TODO
-    // gql.types.filter(it => it.params.find(it => it.isReference))
-    //   .map(it => {
-    //
-    //   });
-    console.log(gql);
+    gql.resolvers.map(it => `${it.entity}: {  }`);
     return generateTsResolverString([]); //TODO
   }
 
