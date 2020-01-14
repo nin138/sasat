@@ -14,35 +14,3 @@ db:
   password: $DB_PASSWORD
   database: $DATABASE
   connectionLimit: 10
-
-redis:
-  host: $REDIS_HOST
-  port: $REDIS_PORT
-  password: $REDIS_PASSWORD
-
-cache:
-  name1:
-    type: string
-    table: user
-    key: id
-    key_auto_increment: true
-    value: name
-  name2:
-    type: json
-    table: test
-    key: id
-    key_auto_increment: true
-    values:
-      - c1
-      - c2
-  name3:
-    type: hash
-    table: test
-    key: id
-    key_auto_increment: true
-    values:
-      - c1
-      - c2
-
-
-

@@ -1,6 +1,5 @@
 import * as path from 'path';
 import * as fs from 'fs';
-import { SasatRedisCacheType } from '../sasat/redisCacheConf';
 import { defaultConf, PartialSasatConfig, SasatConfig } from './config';
 import { readYmlFile } from '../util/fsUtil';
 
@@ -18,27 +17,11 @@ export class SasatConfigLoader {
     const conf: SasatConfig = this.readValue({ ...defaultConf, ...SasatConfigLoader.loadFile() });
     this.conf = {
       ...conf,
-      initCaches: this.readCacheConf(conf.initCaches),
     };
   }
 
   getConfig(): SasatConfig {
     return this.conf;
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private readCacheConf(conf: { [key: string]: any }): SasatRedisCacheType[] {
-    if (typeof conf !== 'object') return [];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return Object.entries(conf).map(([key, value]: any, index) => {
-      return {
-        name: key,
-        type: value.type.toLowerCase(),
-        keyPrefix: value.keyPrefix || `${index}__`,
-        isKeyAutoIncrement: value.key_auto_increment,
-        ...value,
-      };
-    });
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

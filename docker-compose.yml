@@ -18,8 +18,3 @@ services:
       MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
     ports:
       - '3306:3306'
-  redis:
-    build:
-      context: ./docker/redis
-    ports:
-      - 6379:6379

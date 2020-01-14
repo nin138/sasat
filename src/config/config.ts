@@ -1,4 +1,3 @@
-import { SasatRedisCacheType } from '../sasat/redisCacheConf';
 import { SasatConfigLoader } from './loader';
 import { NestedPartial } from '../util/type';
 
@@ -53,7 +52,6 @@ export interface SasatConfig {
   migration: SasatConfigMigration;
   generator: SasatConfigGenerator;
   redis: SasatConfigRedis;
-  initCaches: SasatRedisCacheType[];
 }
 
 export type PartialSasatConfig = NestedPartial<SasatConfig>;
@@ -66,7 +64,6 @@ export const defaultConf: SasatConfig = {
       subscription: true,
     },
   },
-  initCaches: [],
   redis: defaultCofRedis,
 };
 

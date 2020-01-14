@@ -20,7 +20,6 @@
     "prettier": "prettier --write './**/*.ts'",
     "pretest": "yarn resetdb && yarn sasat migrate",
     "test": "env-cmd jest --coverage --silent=false --verbose false",
-    "redis": "docker-compose exec redis redis-cli",
     "resetdb": "docker-compose exec db sh -c \"mysql -u root < /docker-entrypoint-initdb.d/temp.sql\"",
     "prepare": "yarn build",
     "sasat": "yarn env-cmd ts-node ./src/cli/cli.ts"
@@ -34,7 +33,6 @@
     "mysql": "^2.17.1",
     "pluralize": "^8.0.0",
     "prettier": "^1.19.1",
-    "redis": "^2.8.0",
     "sqlstring": "^2.3.1"
   },
   "devDependencies": {
@@ -45,7 +43,6 @@
     "@types/node": "13.1.6",
     "@types/pluralize": "0.0.29",
     "@types/prettier": "1.19.0",
-    "@types/redis": "2.8.14",
     "@types/sqlstring": "2.2.1",
     "@typescript-eslint/eslint-plugin": "2.16.0",
     "@typescript-eslint/parser": "2.16.0",
