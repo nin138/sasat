@@ -1,8 +1,8 @@
 export interface IrGqlResolver {
-  entity: string;
-  fieldName: string;
+  currentEntity: string;
+  currentColumn: string;
   parentEntity: string;
   parentColumn: string;
-  referenceName: string;
+  gqlReferenceName: string;
   functionName: string;
 }

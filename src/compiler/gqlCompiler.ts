@@ -9,6 +9,7 @@ import { columnTypeToGqlPrimitive } from '../generator/gql/sasatToGqlType';
 import { ReferenceColumn } from '../entity/referenceColumn';
 import { Relation } from '..';
 import { IrGqlResolver } from '../ir/gql/resolver';
+import { Compiler } from './compiler';
 
 export class GqlCompiler {
   constructor(private store: DataStoreHandler) {}
@@ -55,7 +56,7 @@ export class GqlCompiler {
           type: table.column(it.column)!.type,
         })),
       ),
-      resolvers: [], // TODO
+      resolvers: this.resolver(),
     };
   }
 
@@ -138,18 +139,22 @@ export class GqlCompiler {
           const ref = it as ReferenceColumn;
           return [
             {
-              entity: table.getEntityName(),
-              fieldName: ref.data.columnName,
-              referenceEntity: capitalizeFirstLetter(ref.data.targetTable),
-              referenceColumn: ref.data.targetColumn,
-              referenceName: ref.data.relationName || ref.table.tableName,
+              __type: 1,
+              currentEntity: table.getEntityName(),
+              currentColumn: ref.data.columnName,
+              parentEntity: capitalizeFirstLetter(ref.data.targetTable),
+              parentColumn: ref.data.targetColumn,
+              gqlReferenceName: ref.data.relationName || ref.table.tableName,
+              functionName: Compiler.paramsToQueryName(ref.data.columnName),
             },
             {
-              entity: capitalizeFirstLetter(ref.data.targetTable),
-              fieldName: ref.data.targetColumn,
-              referenceEntity: table.getEntityName(),
-              referenceColumn: ref.data.columnName,
-              referenceName: ref.table.tableName,
+              __type: 2,
+              currentEntity: capitalizeFirstLetter(ref.data.targetTable),
+              currentColumn: ref.data.targetColumn,
+              parentEntity: table.getEntityName(),
+              parentColumn: ref.data.columnName,
+              gqlReferenceName: ref.data.targetTable,
+              functionName: Compiler.paramsToQueryName(ref.data.columnName),
             },
           ];
         }),

@@ -7,12 +7,12 @@ import * as prettier from 'prettier';
 import { generateRepositoryString } from './file/repository';
 import { IrGql } from '../../ir/gql';
 import { generateTsTypeDefString } from './gql/typeDef';
-import { generateTsResolverString } from './gql/resolver';
 import { generateTsGqlQueryString } from './gql/query';
 import { generateTsGqlMutationString } from './gql/mutation';
 import { generateTsGqlSubscriptionString } from './gql/subscription';
 import { IrGqlContext } from '../../ir/gql/context';
 import { TsGeneratorGqlContext } from './gql/context';
+import { TsGeneratorGqlResolver } from './gql/resolver';
 
 export class TsCodeGenerator implements CodeGenerator {
   readonly fileExt = 'ts';
@@ -42,8 +42,7 @@ export class TsCodeGenerator implements CodeGenerator {
   }
 
   generateGqlResolver(gql: IrGql): string {
-    gql.resolvers.map(it => `${it.entity}: {  }`);
-    return generateTsResolverString([]); //TODO
+    return this.formatCode(new TsGeneratorGqlResolver(gql.resolvers).generate());
   }
 
   generateGqlMutation(gql: IrGql): string {

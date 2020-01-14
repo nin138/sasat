@@ -36,13 +36,13 @@ export class Compiler {
     };
   }
 
-  private paramsToQueryName(...params: string[]) {
+  static paramsToQueryName(...params: string[]) {
     return 'findBy' + params.map(capitalizeFirstLetter).join('And');
   }
 
   private createPrimaryQuery(table: TableHandler): IrQuery {
     return {
-      queryName: this.paramsToQueryName(...table.primaryKey),
+      queryName: Compiler.paramsToQueryName(...table.primaryKey),
       returnType: table.getEntityName(),
       isReturnsArray: false,
       isReturnDefinitelyExist: false,
@@ -52,7 +52,7 @@ export class Compiler {
 
   private createRefQuery(ref: ReferenceColumn): IrQuery {
     return {
-      queryName: this.paramsToQueryName(ref.name),
+      queryName: Compiler.paramsToQueryName(ref.name),
       returnType: ref.table.getEntityName(),
       isReturnsArray: ref.data.relation === Relation.Many,
       isReturnDefinitelyExist: false, // TODO RELATION

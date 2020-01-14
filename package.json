@@ -63,7 +63,8 @@
     "typescript": "3.7.4"
   },
   "peerDependencies": {
-    "apollo-server": "^2.0.0"
+    "apollo-server": "^2.0.0",
+    "typescript": "^3.7.4"
   },
   "lint-staged": {
     "*.ts": [
