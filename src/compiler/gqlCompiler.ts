@@ -92,6 +92,7 @@ export class GqlCompiler {
       subscription: {
         onCreate: table.gqlOption.subscription.onCreate,
         onUpdate: table.gqlOption.subscription.onUpdate,
+        filter: table.gqlOption.subscription.filter,
       },
     };
   }
@@ -139,7 +140,7 @@ export class GqlCompiler {
           const ref = it as ReferenceColumn;
           return [
             {
-              __type: 1,
+              __type: 'child',
               currentEntity: table.getEntityName(),
               currentColumn: ref.data.columnName,
               parentEntity: capitalizeFirstLetter(ref.data.targetTable),
@@ -148,7 +149,7 @@ export class GqlCompiler {
               functionName: Compiler.paramsToQueryName(ref.data.columnName),
             },
             {
-              __type: 2,
+              __type: 'parent',
               currentEntity: capitalizeFirstLetter(ref.data.targetTable),
               currentColumn: ref.data.targetColumn,
               parentEntity: table.getEntityName(),

@@ -9,6 +9,7 @@ export interface GqlOption {
   subscription: {
     onCreate: boolean;
     onUpdate: boolean;
+    filter: string[];
   };
 }
 
@@ -21,6 +22,7 @@ export const getDefaultGqlOption = (): GqlOption => ({
   subscription: {
     onCreate: false,
     onUpdate: false,
+    filter: [],
   },
 });
 

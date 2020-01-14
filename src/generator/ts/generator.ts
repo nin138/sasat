@@ -9,10 +9,10 @@ import { IrGql } from '../../ir/gql';
 import { generateTsTypeDefString } from './gql/typeDef';
 import { generateTsGqlQueryString } from './gql/query';
 import { generateTsGqlMutationString } from './gql/mutation';
-import { generateTsGqlSubscriptionString } from './gql/subscription';
 import { IrGqlContext } from '../../ir/gql/context';
 import { TsGeneratorGqlContext } from './gql/context';
 import { TsGeneratorGqlResolver } from './gql/resolver';
+import { TsGeneratorGqlSubscription } from './gql/subscription';
 
 export class TsCodeGenerator implements CodeGenerator {
   readonly fileExt = 'ts';
@@ -50,7 +50,7 @@ export class TsCodeGenerator implements CodeGenerator {
   }
 
   generateGqlSubscription(gql: IrGql): string {
-    return this.formatCode(generateTsGqlSubscriptionString(gql.mutations));
+    return this.formatCode(new TsGeneratorGqlSubscription(gql.mutations).generate());
   }
 
   generateGqlContext(contexts: IrGqlContext[]): string {

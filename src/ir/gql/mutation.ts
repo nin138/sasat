@@ -17,4 +17,5 @@ export interface IrGqlMutationEntity {
 export interface IrGqlSubscription {
   onCreate: boolean;
   onUpdate: boolean;
+  filter: string[];
 }

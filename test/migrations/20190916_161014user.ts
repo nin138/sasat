@@ -35,7 +35,7 @@ export class User implements SasatMigration {
         mutation: {
           fromContextColumns: [],
         },
-        subscription: { onCreate: true, onUpdate: true },
+        subscription: { onCreate: true, onUpdate: true, filter: ['name'] },
       });
     });
     store.table('a');
