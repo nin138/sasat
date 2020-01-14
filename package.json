@@ -47,8 +47,8 @@
     "@types/prettier": "1.19.0",
     "@types/redis": "2.8.14",
     "@types/sqlstring": "2.2.1",
-    "@typescript-eslint/eslint-plugin": "2.15.0",
-    "@typescript-eslint/parser": "2.15.0",
+    "@typescript-eslint/eslint-plugin": "2.16.0",
+    "@typescript-eslint/parser": "2.16.0",
     "apollo-server": "2.9.16",
     "env-cmd": "10.0.1",
     "eslint": "6.8.0",
@@ -59,7 +59,7 @@
     "jest": "24.9.0",
     "lint-staged": "9.5.0",
     "ts-jest": "24.3.0",
-    "ts-node": "8.5.4",
+    "ts-node": "8.6.2",
     "typescript": "3.7.4"
   },
   "peerDependencies": {
