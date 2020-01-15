@@ -1,37 +1,6 @@
 import { IrGqlMutation } from '../../../ir/gql/mutation';
 import { TsFileGenerator } from '../tsFileGenerator';
-
-// export const generateTsGqlSubscriptionString = (ir: IrGqlMutation) => {
-//   const subscriptionNames = ir.entities.flatMap(it => {
-//     const result = [];
-//     if (it.subscription.onCreate) {
-//       result.push(`${it.entityName}Created`);
-//     }
-//     if (it.subscription.onUpdate) {
-//       result.push(`${it.entityName}Updated`);
-//     }
-//     return result;
-//   });
-//   const names = subscriptionNames.map(it => `${it} = '${it}',`);
-//   const subscriptions = subscriptionNames.map(
-//     it => `${it}: { subscribe: () => pubsub.asyncIterator([SubscriptionName.${it}]), },`,
-//   );
-//
-//   return `\
-// import { PubSub } from "apollo-server";
-//
-// export const pubsub: PubSubEngine = new PubSub();
-//
-// export enum SubscriptionName {
-// ${names.join('\n')}
-// };
-//
-// export const subscription = {
-// ${subscriptions.join('\n')}
-// };
-//
-// `;
-// };
+import { tsArrowFunction } from '../code/arrowFunction';
 
 export class TsGeneratorGqlSubscription extends TsFileGenerator {
   constructor(ir: IrGqlMutation) {
@@ -44,10 +13,10 @@ export class TsGeneratorGqlSubscription extends TsFileGenerator {
     const subscriptions = ir.entities.flatMap(it => {
       const result = [];
       if (it.subscription.onCreate) {
-        result.push({ name: `${it.entityName}Created`, filter: it.subscription.filter });
+        result.push({ name: `${it.entityName}Created`, filter: it.subscription.filter, entity: it.entityName });
       }
       if (it.subscription.onUpdate) {
-        result.push({ name: `${it.entityName}Updated`, filter: it.subscription.filter });
+        result.push({ name: `${it.entityName}Updated`, filter: it.subscription.filter, entity: it.entityName });
       }
       return result;
     });
@@ -63,10 +32,20 @@ export class TsGeneratorGqlSubscription extends TsFileGenerator {
     ),},`;
     });
 
+    const publishFunctions = subscriptions.map(it => {
+      this.addImport(`./entity/${it.entity}`, it.entity);
+      return `export const publish${it.name} = ${tsArrowFunction(
+        [{ name: 'entity', type: it.entity }],
+        'Promise<void>',
+        `pubsub.publish(SubscriptionName.${it.name}, { ${it.name}: entity })`,
+      )}`;
+    });
+
     this.addLine(
       'export const pubsub: PubSubEngine = new PubSub();',
       `export enum SubscriptionName {${names.join('\n')}};`,
       `export const subscription = {${functions.join('\n')}};`,
+      ...publishFunctions,
     );
   }
 }
