@@ -2,7 +2,7 @@ import { IrGql } from '../../ir/gql';
 import { IrGqlParam, IrGqlType } from '../../ir/gql/types';
 import { IrGqlQuery } from '../../ir/gql/query';
 import { GqlPrimitive } from './types';
-import { IrGqlMutation } from '../../ir/gql/mutation';
+import { IrGqlMutation, IrGqlSubscription } from '../../ir/gql/mutation';
 
 const getGqlTypeString = (param: {
   type: string | GqlPrimitive;
@@ -68,12 +68,16 @@ ${ir.entities
 };
 
 const createSubscriptionTypeString = (ir: IrGqlMutation, additionalSubscription: string): string => {
+  const createParam = (subscription: IrGqlSubscription): string => {
+    if (subscription.filter.length === 0) return '';
+    return `(${subscription.filter.map(it => `${it.column}: ${it.type}!`).join(', ')})`;
+  };
   const onCreate = ir.entities
     .filter(it => it.subscription.onCreate)
-    .map(it => `  ${it.entityName}Created: ${it.entityName}`);
+    .map(it => `  ${it.entityName}Created${createParam(it.subscription)}: ${it.entityName}`);
   const onUpdate = ir.entities
     .filter(it => it.subscription.onUpdate)
-    .map(it => `  ${it.entityName}Updated: ${it.entityName}UpdateResult`);
+    .map(it => `  ${it.entityName}Updated${createParam(it.subscription)}: ${it.entityName}UpdateResult`);
   const list = onCreate.concat(onUpdate);
   if (list.length === 0) return '';
   return `\

@@ -92,7 +92,10 @@ export class GqlCompiler {
       subscription: {
         onCreate: table.gqlOption.subscription.onCreate,
         onUpdate: table.gqlOption.subscription.onUpdate,
-        filter: table.gqlOption.subscription.filter,
+        filter: table.gqlOption.subscription.filter.map(it => ({
+          column: it,
+          type: table.column(it)!.gqlType(),
+        })),
       },
     };
   }

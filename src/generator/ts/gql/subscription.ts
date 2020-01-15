@@ -58,7 +58,7 @@ export class TsGeneratorGqlSubscription extends TsFileGenerator {
       return `${it.name}: { subscribe: withFilter(() => pubsub.asyncIterator([SubscriptionName.${it.name}]),
       async (payload, variables) => {
         const result = await payload.${it.name};
-        return ${it.filter.map(it => `result.${it} === variables.${it}`).join('&&')};
+        return ${it.filter.map(it => `result.${it.column} === variables.${it.column}`).join('&&')};
       },
     ),},`;
     });

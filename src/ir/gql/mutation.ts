@@ -1,4 +1,5 @@
 import { IrGqlParam } from './types';
+import { GqlPrimitive } from '../../generator/gql/types';
 
 export interface IrGqlMutation {
   entities: IrGqlMutationEntity[];
@@ -17,5 +18,5 @@ export interface IrGqlMutationEntity {
 export interface IrGqlSubscription {
   onCreate: boolean;
   onUpdate: boolean;
-  filter: string[];
+  filter: Array<{ column: string; type: GqlPrimitive | string }>;
 }
