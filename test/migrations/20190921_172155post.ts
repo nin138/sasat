@@ -18,6 +18,7 @@ export class Post implements SasatMigration {
         .column('title')
         .varchar(50)
         .notNull();
+      table.setGqlOption({ mutation: { fromContextColumns: [{ column: 'user_id', contextName: 'userId' }] } });
     });
   };
   down: (store: MigrationStore) => void = store => {
