@@ -20,15 +20,6 @@ const createTypeString = (ir: IrGqlType) => `\
 type ${ir.typeName} {
 ${ir.params.map(it => `  ${it.name}: ${getGqlTypeString(it)}`).join('\n')}
 }
-
-type ${ir.typeName}UpdateResult {
-${[
-  '  _updatedColumns: [String!]!',
-  ...ir.params
-    .filter(it => !it.isReference)
-    .map(it => `  ${it.name}: ${getGqlTypeString({ ...it, isNullable: true, isArrayNullable: true })}`),
-].join('\n')}
-}
 `;
 
 const createParamString = (params: IrGqlParam[]) => {
@@ -59,8 +50,8 @@ const createMutationTypeString = (ir: IrGqlMutation, additionalMutation: string)
 type Mutation {
 ${ir.entities
   .flatMap(it => [
-    `  create${it.entityName}${createParamString(it.onCreateParams)}: ${it.entityName}`,
-    `  update${it.entityName}${createParamString(it.onUpdateParams)}: Boolean`,
+    `  create${it.entityName}${createParamString(it.onCreateParams)}: ${it.entityName}!`,
+    `  update${it.entityName}${createParamString(it.onUpdateParams)}: Boolean!`,
   ])
   .join('\n')}${additionalMutation}
 }
@@ -74,10 +65,10 @@ const createSubscriptionTypeString = (ir: IrGqlMutation, additionalSubscription:
   };
   const onCreate = ir.entities
     .filter(it => it.subscription.onCreate)
-    .map(it => `  ${it.entityName}Created${createParam(it.subscription)}: ${it.entityName}`);
+    .map(it => `  ${it.entityName}Created${createParam(it.subscription)}: ${it.entityName}!`);
   const onUpdate = ir.entities
     .filter(it => it.subscription.onUpdate)
-    .map(it => `  ${it.entityName}Updated${createParam(it.subscription)}: ${it.entityName}UpdateResult`);
+    .map(it => `  ${it.entityName}Updated${createParam(it.subscription)}: ${it.entityName}!`);
   const list = onCreate.concat(onUpdate);
   if (list.length === 0) return '';
   return `\
