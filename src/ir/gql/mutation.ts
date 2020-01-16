@@ -7,6 +7,7 @@ export interface IrGqlMutation {
 
 export interface IrGqlMutationEntity {
   entityName: string;
+  primaryKeys: string[];
   onCreateParams: IrGqlParam[];
   onUpdateParams: IrGqlParam[];
   create: boolean;

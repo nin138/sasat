@@ -63,6 +63,7 @@ export class GqlCompiler {
   private getMutation(table: TableHandler): IrGqlMutationEntity {
     return {
       entityName: table.getEntityName(),
+      primaryKeys: table.primaryKey,
       create: table.gqlOption.mutation.create,
       update: table.gqlOption.mutation.create,
       fromContextColumns: table.gqlOption.mutation.fromContextColumns.map(it => ({
