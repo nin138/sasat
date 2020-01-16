@@ -27,9 +27,6 @@ export class TsGeneratorGeneratedRepository extends TsFileGenerator {
 
   private addImports(repository: IrRepository) {
     this.addImport('sasat', 'SasatRepository');
-    if (repository.subscription.onCreate || repository.subscription.onUpdate) {
-      this.addImport('../subscription', 'pubsub', 'SubscriptionName');
-    }
 
     if (
       repository.onUpdateCurrentTimestampColumns.length !== 0 ||
@@ -116,7 +113,6 @@ export class TsGeneratorGeneratedRepository extends TsFileGenerator {
   }
 
   private getMethods(repository: IrRepository) {
-    const entityName = repository.entityName;
     const methods: TsClassMethod[] = [
       {
         accessor: TsAccessor.protected,
@@ -130,14 +126,6 @@ export class TsGeneratorGeneratedRepository extends TsFileGenerator {
         args: [],
       },
     ];
-
-    if (repository.subscription.onCreate) {
-      methods.push(this.methodCreate(entityName));
-    }
-
-    if (repository.subscription.onUpdate) {
-      methods.push(this.methodUpdate(entityName, repository.onUpdateCurrentTimestampColumns));
-    }
 
     methods.push(
       ...repository.queries.map(it => ({
