@@ -3,15 +3,16 @@ import * as maria from 'mariadb';
 import { config } from '../../config/config';
 import { MariaDBTransaction } from './transaction';
 
+const connectionConfig = { ...config().db, dateStrings: false };
 export class MariaDBClient extends DBClient {
   private readonly pool: maria.Pool;
   constructor() {
     super();
-    this.pool = maria.createPool(config().db);
+    this.pool = maria.createPool(connectionConfig);
   }
 
   async transaction(): Promise<SQLTransaction> {
-    const connection = await maria.createConnection(config().db);
+    const connection = await maria.createConnection(connectionConfig);
     await connection.beginTransaction();
     await connection.query('SET autocommit = 1');
     return new MariaDBTransaction(connection);

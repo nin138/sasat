@@ -47,11 +47,10 @@ export const columnTypeToTsType = (type: DBColumnTypes): string => {
     case DBColumnTypes.varchar:
     case DBColumnTypes.text:
     case DBColumnTypes.time:
-      return 'string';
     case DBColumnTypes.date:
     case DBColumnTypes.dateTime:
     case DBColumnTypes.timestamp:
-      return 'Date';
+      return 'string';
     case DBColumnTypes.boolean:
       return 'boolean';
   }

@@ -4,15 +4,16 @@ import { MySqlTransaction } from './transaction';
 import { config } from '../../config/config';
 import { promisify } from 'util';
 
+const connectionConfig = { ...config().db, dateStrings: false };
 export class MysqlClient extends DBClient {
   private readonly pool: mysql.Pool;
   constructor() {
     super();
-    this.pool = mysql.createPool(config().db);
+    this.pool = mysql.createPool(connectionConfig);
   }
 
   async transaction(): Promise<SQLTransaction> {
-    const connection = mysql.createConnection(config().db);
+    const connection = mysql.createConnection(connectionConfig);
     await promisify(connection.beginTransaction).bind(connection)();
     await promisify(connection.query).bind(connection)('SET autocommit = 1');
     return new MySqlTransaction(connection);
