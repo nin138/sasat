@@ -84,9 +84,9 @@ export class TsCodeGeneratorGqlMutation extends TsFileGenerator {
     if (subscription) {
       fn = `{const result = await ${fn};
        if(result) await publish${entityName}Updated(
-        new ${entityName}Repository.${Compiler.paramsToQueryName(...primaryKeys)}(
+        (await (new ${entityName}Repository().${Compiler.paramsToQueryName(...primaryKeys)}(
           ${primaryKeys.map(it => `entity.${it}`).join(',')}
-        ));
+        )))!);
        return result;
       }`;
       this.addImport('./subscription', `publish${entityName}Updated`);
