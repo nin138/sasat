@@ -5,8 +5,7 @@ import { tsArrowFunction } from '../code/arrowFunction';
 export class TsGeneratorGqlSubscription extends TsFileGenerator {
   constructor(ir: IrGqlMutation) {
     super();
-    this.addImport('graphql-subscriptions', 'PubSubEngine');
-    this.addImport('apollo-server', 'PubSub');
+    this.addImport('../pubsub', 'pubsub');
     if (ir.entities.find(it => it.subscription.filter.length !== 0)) {
       this.addImport('graphql-subscriptions', 'withFilter');
     }
@@ -42,7 +41,6 @@ export class TsGeneratorGqlSubscription extends TsFileGenerator {
     });
 
     this.addLine(
-      'export const pubsub: PubSubEngine = new PubSub();',
       `export enum SubscriptionName {${names.join('\n')}};`,
       `export const subscription = {${functions.join('\n')}};`,
       ...publishFunctions,

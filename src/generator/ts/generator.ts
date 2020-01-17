@@ -6,7 +6,7 @@ import { CodeGenerator } from '../generator';
 import * as prettier from 'prettier';
 import { generateRepositoryString } from './file/repository';
 import { IrGql } from '../../ir/gql';
-import { generateTsTypeDefString } from './gql/typeDef';
+import { generateTsTypeDef } from './gql/typeDef';
 import { generateTsGqlQueryString } from './gql/query';
 import { TsCodeGeneratorGqlMutation } from './gql/mutation';
 import { IrGqlContext } from '../../ir/gql/context';
@@ -34,7 +34,7 @@ export class TsCodeGenerator implements CodeGenerator {
   }
 
   generateGqlTypeDefs(gql: IrGql): string {
-    return generateTsTypeDefString(gql);
+    return this.formatCode(generateTsTypeDef(gql));
   }
 
   generateGqlQuery(gql: IrGql): string {
@@ -62,10 +62,36 @@ export class TsCodeGenerator implements CodeGenerator {
 import { BaseGqlContext } from './__generated__/context';
 export interface GqlContext extends BaseGqlContext {}
 `;
+    const pubsubFile = `\
+import { PubSub } from "apollo-server";
+import { PubSubEngine } from "graphql-subscriptions";
+
+export const pubsub: PubSubEngine = new PubSub();
+`;
+    const schemaFile = `\
+import { makeExecutableSchema } from 'graphql-tools';
+import { assignDeep, createTypeDef } from "sasat";
+import { typeDef } from "./__generated__/typeDefs";
+import { resolvers } from "./__generated__/resolver";
+
+export const schema = makeExecutableSchema({
+  typeDefs: createTypeDef(assignDeep(typeDef, {})),
+  resolvers: assignDeep(resolvers, {}),
+});
+
+`;
     return [
       {
         name: 'context',
         body: contextFile,
+      },
+      {
+        name: 'pubsub',
+        body: pubsubFile,
+      },
+      {
+        name: 'schema',
+        body: schemaFile,
       },
     ];
   }

@@ -17,8 +17,6 @@ export const getCurrentDateTimeString = () => {
     ':' +
     pad(date.getMinutes()) +
     ':' +
-    pad(date.getSeconds()) //+
-    // '.' +
-    // (date.getMilliseconds() / 1000).toFixed(3).slice(2, 5)
+    pad(date.getSeconds())
   );
 };
