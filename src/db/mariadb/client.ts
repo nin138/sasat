@@ -3,7 +3,7 @@ import * as maria from 'mariadb';
 import { config } from '../../config/config';
 import { MariaDBTransaction } from './transaction';
 
-const connectionConfig = { ...config().db, dateStrings: false };
+const connectionConfig = { ...config().db, dateStrings: true };
 export class MariaDBClient extends DBClient {
   private readonly pool: maria.Pool;
   constructor() {

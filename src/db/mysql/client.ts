@@ -4,7 +4,7 @@ import { MySqlTransaction } from './transaction';
 import { config } from '../../config/config';
 import { promisify } from 'util';
 
-const connectionConfig = { ...config().db, dateStrings: false };
+const connectionConfig = { ...config().db, dateStrings: true };
 export class MysqlClient extends DBClient {
   private readonly pool: mysql.Pool;
   constructor() {
