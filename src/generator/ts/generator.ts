@@ -62,10 +62,20 @@ export class TsCodeGenerator implements CodeGenerator {
 import { BaseGqlContext } from './__generated__/context';
 export interface GqlContext extends BaseGqlContext {}
 `;
+    const pubsubFile = `\
+import { PubSub } from "apollo-server";
+import { PubSubEngine } from "graphql-subscriptions";
+
+export const pubsub: PubSubEngine = new PubSub();
+`;
     return [
       {
         name: 'context',
         body: contextFile,
+      },
+      {
+        name: 'pubsub',
+        body: pubsubFile,
       },
     ];
   }
