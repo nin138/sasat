@@ -25,7 +25,9 @@ export class Stock implements SasatMigration {
       table.createdAt();
       table.updatedAt();
       table.addUniqueKey('user_id', 'post_id');
-      table.setGqlOption({ mutation: { fromContextColumns: [{ column: 'user_id', contextName: 'userId' }] } });
+      table.setGqlOption({
+        mutation: { delete: true, fromContextColumns: [{ column: 'user_id', contextName: 'userId' }] },
+      });
     });
   };
   down: (store: MigrationStore) => void = store => {

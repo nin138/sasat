@@ -27,10 +27,14 @@ export const generateTsTypeDef = (gql: IrGql) => {
   obj.set(
     'Mutation',
     tsArrayString(
-      gql.mutations.entities.flatMap(it => [
-        `create${it.entityName}${createParamString(it.onCreateParams)}: ${it.entityName}!`,
-        `update${it.entityName}${createParamString(it.onUpdateParams)}: Boolean!`,
-      ]),
+      gql.mutations.entities.flatMap(it => {
+        const mutations = [];
+        if (it.create)
+          mutations.push(`create${it.entityName}${createParamString(it.onCreateParams)}: ${it.entityName}!`);
+        if (it.update) mutations.push(`update${it.entityName}${createParamString(it.onUpdateParams)}: Boolean!`);
+        if (it.delete) mutations.push(`delete${it.entityName}${createParamString(it.primaryKeys)}: Boolean!`);
+        return mutations;
+      }),
     ),
   );
 

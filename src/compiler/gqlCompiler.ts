@@ -10,6 +10,7 @@ import { ReferenceColumn } from '../entity/referenceColumn';
 import { Relation } from '..';
 import { IrGqlResolver } from '../ir/gql/resolver';
 import { Compiler } from './compiler';
+import { GqlPrimitive } from '../generator/gql/types';
 
 export class GqlCompiler {
   constructor(private store: DataStoreHandler) {}
@@ -63,9 +64,15 @@ export class GqlCompiler {
   private getMutation(table: TableHandler): IrGqlMutationEntity {
     return {
       entityName: table.getEntityName(),
-      primaryKeys: table.primaryKey,
+      primaryKeys: table.primaryKey.map(it => ({
+        name: it,
+        type: columnTypeToGqlPrimitive(table.column(it)!.type),
+        isNullable: false,
+        isArray: false,
+      })),
       create: table.gqlOption.mutation.create,
       update: table.gqlOption.mutation.create,
+      delete: table.gqlOption.mutation.delete,
       fromContextColumns: table.gqlOption.mutation.fromContextColumns.map(it => ({
         columnName: it.column,
         contextName: it.contextName || it.column,
@@ -93,6 +100,7 @@ export class GqlCompiler {
       subscription: {
         onCreate: table.gqlOption.subscription.onCreate,
         onUpdate: table.gqlOption.subscription.onUpdate,
+        onDelete: table.gqlOption.subscription.onDelete,
         filter: table.gqlOption.subscription.filter.map(it => ({
           column: it,
           type: table.column(it)!.gqlType(),
