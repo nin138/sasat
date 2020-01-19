@@ -1,6 +1,6 @@
 import { columnTypeToTsType, DBColumnTypes } from '../migration/column/columnTypes';
 import { ReferenceColumn } from './referenceColumn';
-import { columnTypeToGqlPrimitive } from '../generator/gql/sasatToGqlType';
+import { columnTypeToGqlPrimitive } from '../generator/gql/columnToGqlType';
 import { GqlPrimitive } from '../generator/gql/types';
 import { ColumnData } from '../migration/column/columnData';
 import { Table } from './table';

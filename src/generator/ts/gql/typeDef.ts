@@ -50,7 +50,7 @@ export const generateTsTypeDef = (gql: IrGql) => {
     .map(it => `${it.entityName}Updated${createParam(it.subscription)}: ${it.entityName}!`);
   const onDelete = gql.mutations.entities
     .filter(it => it.subscription.onDelete)
-    .map(it => `${it.entityName}Deleted${createParam(it.subscription)}: ${it.entityName}!`);
+    .map(it => `${it.entityName}Deleted${createParam(it.subscription)}: Deleted${it.entityName}!`);
   const list = [...onCreate, ...onUpdate, ...onDelete];
   if (list.length === 0) return '';
   obj.set('Subscription', tsArrayString(list.sort()));

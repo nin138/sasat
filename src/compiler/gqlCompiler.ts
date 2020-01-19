@@ -1,51 +1,64 @@
 import { IrGql } from '../ir/gql';
 import { DataStoreHandler } from '../entity/dataStore';
-import { IrGqlType } from '../ir/gql/types';
+import { IrGqlParam, IrGqlType } from '../ir/gql/types';
 import { IrGqlQuery, IrGqlQueryType } from '../ir/gql/query';
 import { capitalizeFirstLetter, plural } from '../util/stringUtil';
 import { IrGqlMutation, IrGqlMutationEntity } from '../ir/gql/mutation';
 import { TableHandler } from '../entity/table';
-import { columnTypeToGqlPrimitive } from '../generator/gql/sasatToGqlType';
+import { columnTypeToGqlPrimitive } from '../generator/gql/columnToGqlType';
 import { ReferenceColumn } from '../entity/referenceColumn';
 import { Relation } from '..';
 import { IrGqlResolver } from '../ir/gql/resolver';
 import { Compiler } from './compiler';
-import { GqlPrimitive } from '../generator/gql/types';
+import { Column } from '../entity/column';
 
 export class GqlCompiler {
   constructor(private store: DataStoreHandler) {}
 
   compile(): IrGql {
-    const types: IrGqlType[] = this.store.tables.map(it => ({
-      typeName: it.getEntityName(),
-      params: [
-        ...it.columns.map(it => ({
-          name: it.name,
-          type: columnTypeToGqlPrimitive(it.type),
-          isNullable: it.isNullable(),
-          isArray: false,
+    const columnToParam = (column: Column): IrGqlParam => ({
+      name: column.name,
+      type: columnTypeToGqlPrimitive(column.type),
+      isNullable: column.isNullable(),
+      isArray: false,
+    });
+
+    const referenceToParam = (ref: ReferenceColumn): IrGqlParam => ({
+      name: ref.data.relationName || ref.data.targetTable,
+      type: capitalizeFirstLetter(ref.data.targetTable),
+      isNullable: false,
+      isArray: false,
+      isReference: true,
+    });
+
+    const getReferencedType = (tableName: string): IrGqlParam[] =>
+      this.store.referencedBy(tableName).map(it => ({
+        name: it.table.tableName,
+        type: it.table.getEntityName(),
+        isNullable: it.data.relation === Relation.OneOrZero,
+        isArray: it.data.relation === Relation.Many,
+        isReference: true,
+      }));
+
+    const types: IrGqlType[] = [
+      ...this.store.tables.map(it => ({
+        typeName: it.getEntityName(),
+        params: [
+          ...it.columns.map(columnToParam),
+          ...it.columns.filter(it => it.isReference()).map(it => referenceToParam(it as ReferenceColumn)),
+          ...getReferencedType(it.tableName),
+        ],
+      })),
+      ...this.store.tables
+        .filter(it => it.gqlOption.subscription.onDelete)
+        .map(it => ({
+          typeName: `Deleted${it.getEntityName()}`,
+          params: [
+            ...it.columns.filter(column => it.isColumnPrimary(column.name)).map(columnToParam),
+            ...it.columns.filter(it => it.isReference()).map(it => referenceToParam(it as ReferenceColumn)),
+          ],
         })),
-        ...it.columns
-          .filter(it => it.isReference())
-          .map(it => {
-            const ref = it as ReferenceColumn;
-            return {
-              name: ref.data.relationName || ref.data.targetTable,
-              type: capitalizeFirstLetter(ref.data.targetTable),
-              isNullable: false,
-              isArray: false,
-              isReference: true,
-            };
-          }),
-        ...this.store.referencedBy(it.tableName).map(it => ({
-          name: it.table.tableName,
-          type: it.table.getEntityName(),
-          isNullable: it.data.relation === Relation.OneOrZero,
-          isArray: it.data.relation === Relation.Many,
-          isReference: true,
-        })),
-      ],
-    }));
+    ];
 
     return {
       types: types,
