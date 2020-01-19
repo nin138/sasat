@@ -62,17 +62,28 @@ export class TsCodeGeneratorGqlMutation extends TsFileGenerator {
     return `{...entity,${contextDestructuringAssignmentString(fromContextColumns)}}`;
   }
 
+  private createMutationParam(
+    entityType: string,
+    fromContextColumns: Array<{ columnName: string; contextName: string }>,
+  ) {
+    const type =
+      fromContextColumns.length === 0
+        ? entityType
+        : `Omit<${entityType}, ${fromContextColumns.map(it => `'${it.columnName}'`).join('|')}>`;
+    const base = [
+      { name: '_', type: '{}' },
+      { name: 'entity', type },
+    ];
+    if (fromContextColumns.length === 0) return base;
+    return [...base, { name: 'context', type: 'GqlContext' }];
+  }
+
   private createMutation(
     entityName: string,
     fromContextColumns: Array<{ columnName: string; contextName: string }>,
     subscription: boolean,
   ): string {
-    const params = [
-      { name: '_', type: '{}' },
-      { name: 'entity', type: `${entityName}Creatable` },
-    ];
-    if (fromContextColumns.length !== 0) params.push({ name: 'context', type: 'GqlContext' });
-
+    const params = this.createMutationParam(`${entityName}Creatable`, fromContextColumns);
     let fn = `new ${entityName}Repository().create(${this.createParam(fromContextColumns)})`;
     if (subscription) {
       fn = `{const result = await ${fn};
@@ -89,11 +100,7 @@ export class TsCodeGeneratorGqlMutation extends TsFileGenerator {
     subscription: boolean,
     primaryKeys: string[],
   ): string {
-    const params = [
-      { name: '_', type: '{}' },
-      { name: 'entity', type: `${entityName}PrimaryKey & Partial<${entityName}>` },
-    ];
-    if (fromContextColumns.length !== 0) params.push({ name: 'context', type: 'GqlContext' });
+    const params = this.createMutationParam(`${entityName}PrimaryKey & Partial<${entityName}>`, fromContextColumns);
     let fn = `new ${entityName}Repository().update(${this.createParam(
       fromContextColumns,
     )}).then(it => it.changedRows === 1)`;
@@ -116,16 +123,12 @@ export class TsCodeGeneratorGqlMutation extends TsFileGenerator {
     subscription: boolean,
     primaryKeys: string[],
   ) {
-    const params = [
-      { name: '_', type: '{}' },
-      { name: 'entity', type: `${entityName}PrimaryKey` },
-    ];
     const fromContext = fromContextColumns.filter(it => primaryKeys.includes(it.columnName));
-    if (fromContext.length !== 0) params.push({ name: 'context', type: 'GqlContext' });
+    const params = this.createMutationParam(`${entityName}PrimaryKey`, fromContext);
     let fn = `new ${entityName}Repository().delete(${this.createParam(fromContext)}).then(it => it.changedRows === 1)`;
     if (subscription) {
       fn = `{const result = await ${fn};
-       if(result) await publish${entityName}Deleted(entity);
+       if(result) await publish${entityName}Deleted(${this.createParam(fromContext)});
        return result;
       }`;
       this.addImport('./subscription', `publish${entityName}Deleted`);

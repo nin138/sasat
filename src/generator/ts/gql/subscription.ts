@@ -13,10 +13,21 @@ export class TsGeneratorGqlSubscription extends TsFileGenerator {
       const result = [];
       if (it.subscription.onCreate) {
         result.push({ name: `${it.entityName}Created`, filter: it.subscription.filter, entity: it.entityName });
+        this.addImport(`./entity/${it.entityName}`, it.entityName);
       }
       if (it.subscription.onUpdate) {
         result.push({ name: `${it.entityName}Updated`, filter: it.subscription.filter, entity: it.entityName });
+        this.addImport(`./entity/${it.entityName}`, it.entityName);
       }
+      if (it.subscription.onDelete) {
+        result.push({
+          name: `${it.entityName}Deleted`,
+          filter: it.subscription.filter,
+          entity: `${it.entityName}PrimaryKey`,
+        });
+        this.addImport(`./entity/${it.entityName}`, it.entityName + 'PrimaryKey');
+      }
+
       return result;
     });
     const names = subscriptions.map(it => `${it.name} = '${it.name}',`);
@@ -32,7 +43,6 @@ export class TsGeneratorGqlSubscription extends TsFileGenerator {
     });
 
     const publishFunctions = subscriptions.map(it => {
-      this.addImport(`./entity/${it.entity}`, it.entity);
       return `export const publish${it.name} = ${tsArrowFunction(
         [{ name: 'entity', type: it.entity }],
         'Promise<void>',
