@@ -125,7 +125,7 @@ export class TsCodeGeneratorGqlMutation extends TsFileGenerator {
   ) {
     const fromContext = fromContextColumns.filter(it => primaryKeys.includes(it.columnName));
     const params = this.createMutationParam(`${entityName}PrimaryKey`, fromContext);
-    let fn = `new ${entityName}Repository().delete(${this.createParam(fromContext)}).then(it => it.changedRows === 1)`;
+    let fn = `new ${entityName}Repository().delete(${this.createParam(fromContext)}).then(it => it.affectedRows === 1)`;
     if (subscription) {
       fn = `{const result = await ${fn};
        if(result) await publish${entityName}Deleted(${this.createParam(fromContext)});
