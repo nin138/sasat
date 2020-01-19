@@ -11,6 +11,7 @@ export interface IrGqlMutationEntity {
   primaryKeys: IrGqlParam[];
   onCreateParams: IrGqlParam[];
   onUpdateParams: IrGqlParam[];
+  onDeleteParams: IrGqlParam[];
   create: boolean;
   update: boolean;
   delete: boolean;

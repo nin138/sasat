@@ -32,7 +32,7 @@ export const generateTsTypeDef = (gql: IrGql) => {
         if (it.create)
           mutations.push(`create${it.entityName}${createParamString(it.onCreateParams)}: ${it.entityName}!`);
         if (it.update) mutations.push(`update${it.entityName}${createParamString(it.onUpdateParams)}: Boolean!`);
-        if (it.delete) mutations.push(`delete${it.entityName}${createParamString(it.primaryKeys)}: Boolean!`);
+        if (it.delete) mutations.push(`delete${it.entityName}${createParamString(it.onDeleteParams)}: Boolean!`);
         return mutations;
       }),
     ),

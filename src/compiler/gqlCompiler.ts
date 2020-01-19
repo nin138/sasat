@@ -15,14 +15,14 @@ import { Column } from '../entity/column';
 export class GqlCompiler {
   constructor(private store: DataStoreHandler) {}
 
-  compile(): IrGql {
-    const columnToParam = (column: Column): IrGqlParam => ({
-      name: column.name,
-      type: columnTypeToGqlPrimitive(column.type),
-      isNullable: column.isNullable(),
-      isArray: false,
-    });
+  private columnToParam = (column: Column): IrGqlParam => ({
+    name: column.name,
+    type: columnTypeToGqlPrimitive(column.type),
+    isNullable: column.isNullable(),
+    isArray: false,
+  });
 
+  compile(): IrGql {
     const referenceToParam = (ref: ReferenceColumn): IrGqlParam => ({
       name: ref.data.relationName || ref.data.targetTable,
       type: capitalizeFirstLetter(ref.data.targetTable),
@@ -44,7 +44,7 @@ export class GqlCompiler {
       ...this.store.tables.map(it => ({
         typeName: it.getEntityName(),
         params: [
-          ...it.columns.map(columnToParam),
+          ...it.columns.map(this.columnToParam),
           ...it.columns.filter(it => it.isReference()).map(it => referenceToParam(it as ReferenceColumn)),
           ...getReferencedType(it.tableName),
         ],
@@ -54,7 +54,7 @@ export class GqlCompiler {
         .map(it => ({
           typeName: `Deleted${it.getEntityName()}`,
           params: [
-            ...it.columns.filter(column => it.isColumnPrimary(column.name)).map(columnToParam),
+            ...it.columns.filter(column => it.isColumnPrimary(column.name)).map(this.columnToParam),
             ...it.columns.filter(it => it.isReference()).map(it => referenceToParam(it as ReferenceColumn)),
           ],
         })),
@@ -107,6 +107,17 @@ export class GqlCompiler {
             name: it.name,
             type: it.gqlType(),
             isNullable: !table.isColumnPrimary(it.name),
+            isArray: false,
+          };
+        }),
+      onDeleteParams: table
+        .primaryKeyColumns()
+        .filter(it => !table.gqlOption.mutation.fromContextColumns.map(it => it.column).includes(it.name))
+        .map(it => {
+          return {
+            name: it.name,
+            type: it.gqlType(),
+            isNullable: false,
             isArray: false,
           };
         }),
