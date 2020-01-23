@@ -40,7 +40,7 @@
     "@types/jest": "24.9.0",
     "@types/js-yaml": "3.12.1",
     "@types/mysql": "2.15.8",
-    "@types/node": "13.1.8",
+    "@types/node": "13.5.0",
     "@types/pluralize": "0.0.29",
     "@types/prettier": "1.19.0",
     "@types/sqlstring": "2.2.1",
