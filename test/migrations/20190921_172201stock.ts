@@ -8,8 +8,7 @@ export class Stock implements SasatMigration {
         .column('id')
         .int()
         .autoIncrement()
-        .unsigned()
-        .primary();
+        .unsigned();
       table.references({
         targetTable: 'user',
         targetColumn: 'user_id',
@@ -22,10 +21,14 @@ export class Stock implements SasatMigration {
         columnName: 'post_id',
         relation: Relation.One,
       });
+      table.setPrimaryKey('user_id');
       table.createdAt();
       table.updatedAt();
       table.addUniqueKey('user_id', 'post_id');
-      table.setGqlOption({ mutation: { fromContextColumns: [{ column: 'user_id', contextName: 'userId' }] } });
+      table.setGqlOption({
+        mutation: { delete: true, fromContextColumns: [{ column: 'user_id', contextName: 'userId' }] },
+        subscription: { onDelete: true },
+      });
     });
   };
   down: (store: MigrationStore) => void = store => {

@@ -4,11 +4,13 @@ export interface GqlOption {
   mutation: {
     create: boolean;
     update: boolean;
+    delete: boolean;
     fromContextColumns: Array<{ column: string; contextName?: string }>;
   };
   subscription: {
     onCreate: boolean;
     onUpdate: boolean;
+    onDelete: boolean;
     filter: string[];
   };
 }
@@ -17,11 +19,13 @@ export const getDefaultGqlOption = (): GqlOption => ({
   mutation: {
     create: true,
     update: true,
+    delete: false,
     fromContextColumns: [],
   },
   subscription: {
     onCreate: false,
     onUpdate: false,
+    onDelete: false,
     filter: [],
   },
 });

@@ -6,7 +6,7 @@ export const tsValueString = (value: any): string => {
   if (value === undefined) return 'undefined';
   if (typeof value === 'number') return '' + value;
   if (typeof value === 'boolean') return '' + value;
-  if (typeof value === 'string') return `'${value}'`;
+  if (typeof value === 'string') return `'${value.replace("'", "\\'")}'`;
   if (typeof value === 'bigint') return '' + value;
   if (typeof value === 'function') return value.toString();
   if (Array.isArray(value)) return `[${value.map(tsValueString).join(',')}]`;

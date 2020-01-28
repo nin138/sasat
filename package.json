@@ -1,6 +1,6 @@
 {
   "name": "sasat",
-  "version": "0.12.4",
+  "version": "0.13.4",
   "repository": "https://github.com/yanokunpei/sasat.git",
   "author": "yanokunpei <ninian138@gmail.com>",
   "license": "MIT",
@@ -25,7 +25,7 @@
     "sasat": "yarn env-cmd ts-node ./src/cli/cli.ts"
   },
   "dependencies": {
-    "cac": "6.5.4",
+    "cac": "6.5.5",
     "chalk": "3.0.0",
     "fs-extra": "^8.1.0",
     "js-yaml": "^3.13.1",
@@ -37,27 +37,27 @@
   },
   "devDependencies": {
     "@types/fs-extra": "8.0.1",
-    "@types/jest": "24.9.0",
+    "@types/jest": "24.9.1",
     "@types/js-yaml": "3.12.1",
     "@types/mysql": "2.15.8",
-    "@types/node": "13.1.7",
+    "@types/node": "13.5.0",
     "@types/pluralize": "0.0.29",
     "@types/prettier": "1.19.0",
     "@types/sqlstring": "2.2.1",
-    "@typescript-eslint/eslint-plugin": "2.16.0",
-    "@typescript-eslint/parser": "2.16.0",
+    "@typescript-eslint/eslint-plugin": "2.17.0",
+    "@typescript-eslint/parser": "2.17.0",
     "apollo-server": "2.9.16",
     "env-cmd": "10.0.1",
     "eslint": "6.8.0",
     "eslint-config-prettier": "6.9.0",
     "eslint-plugin-prettier": "3.1.2",
     "graphql": "14.5.8",
-    "husky": "4.0.9",
+    "husky": "4.2.1",
     "jest": "24.9.0",
     "lint-staged": "9.5.0",
     "ts-jest": "24.3.0",
     "ts-node": "8.6.2",
-    "typescript": "3.7.4"
+    "typescript": "3.7.5"
   },
   "peerDependencies": {
     "apollo-server": "^2.0.0",

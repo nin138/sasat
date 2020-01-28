@@ -131,4 +131,8 @@ export class TableHandler implements Table {
   setGqlOption(option: NestedPartial<GqlOption>) {
     this._gqlOption = mergeGqlOption(this.gqlOption, option);
   }
+
+  primaryKeyColumns(): Column[] {
+    return this.columns.filter(it => this.isColumnPrimary(it.name));
+  }
 }
