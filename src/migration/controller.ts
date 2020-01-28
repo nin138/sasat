@@ -1,28 +1,24 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { config } from '../config/config';
-import { getDbClient } from '../db/getDbClient';
+import { getDbClient } from '..';
 import * as ts from 'typescript';
 import { StoreMigrator } from './storeMigrator';
 import { SerializedStore } from '../entity/serializedStore';
+import { Direction, MigrationTargetResolver } from './migrationTargetResolver';
+import { MigrationReader } from './migrationReader';
 
-const migrationTable = '__migration__';
-
-enum Direction {
-  Up = 'up',
-  Down = 'down',
-}
-
+// TODO refactor
 export class MigrationController {
   private migrationDir = path.join(process.cwd(), config().migration.dir);
   private files = fs.readdirSync(this.migrationDir).filter(it => it.split('.').pop() === 'ts');
 
   async migrate(): Promise<{ store: SerializedStore; currentMigration: string }> {
-    const currentMigration = await this.getCurrentMigration();
+    const currentMigration = await new MigrationTargetResolver().getCurrentMigration();
     const store = this.getCurrentDataStore(this.files, currentMigration);
     const target = this.getTargets(this.files, currentMigration);
     for (const fileName of target.files) {
-      this.readMigration(store, fileName, target.direction);
+      MigrationReader.readMigration(store, fileName, target.direction);
       await this.execMigration(store, fileName, target.direction);
       store.resetQueue();
     }
@@ -30,21 +26,6 @@ export class MigrationController {
       store: store.serialize(),
       currentMigration: config().migration.target || this.files[this.files.length - 1],
     };
-  }
-
-  private async getCurrentMigration(): Promise<string | undefined> {
-    const client = getDbClient();
-    await client.rawQuery(
-      `CREATE TABLE IF NOT EXISTS ${migrationTable} ` +
-        '(id int auto_increment primary key , name varchar(100) not null,' +
-        "direction enum('up', 'down') not null, migrated_at timestamp default current_timestamp)",
-    );
-    const result = await client.rawQuery(`SELECT name, direction FROM ${migrationTable} ORDER BY id DESC LIMIT 1`);
-    if (!result.length) return;
-    if (result[0].direction === Direction.Up) return result[0].name;
-    const index = this.files.indexOf(result[0].name);
-    if (index === -1) throw new Error(`${result[0].name} not found`);
-    return this.files[index - 1];
   }
 
   private getTargets(files: string[], current: string | undefined): { direction: Direction; files: string[] } {
@@ -65,7 +46,7 @@ export class MigrationController {
     const store = new StoreMigrator();
     if (!current) return store;
     files = files.slice(0, files.indexOf(current) + 1);
-    files.forEach(fileName => this.readMigration(store, fileName, Direction.Up));
+    files.forEach(fileName => MigrationReader.readMigration(store, fileName, Direction.Up));
     store.resetQueue();
     return store;
   }
@@ -75,32 +56,12 @@ export class MigrationController {
     const transaction = await getDbClient().transaction();
     try {
       for (const sql of sqls) await transaction.rawQuery(sql);
-      await transaction.query`insert into ${() => migrationTable} (name, direction) values (${[
-        migrationName,
-        direction,
-      ]})`;
+      await transaction.query`insert into ${() =>
+        MigrationTargetResolver.getMigrationTable()} (name, direction) values (${[migrationName, direction]})`;
       return await transaction.commit();
     } catch (e) {
       await transaction.rollback();
       throw e;
     }
-  }
-
-  private readMigration(store: StoreMigrator, fileName: string, direction: Direction) {
-    const file = fs.readFileSync(path.join(this.migrationDir, fileName)).toString();
-    // tslint:disable-next-line
-    const Class = eval(ts.transpile(file));
-    const instance = new Class();
-    if (direction === Direction.Up) {
-      if (instance.beforeUp) instance.beforeUp();
-      instance.up(store);
-      if (instance.afterUp) instance.afterUp();
-    } else {
-      if (!instance.down) throw new Error(`${fileName} cannot down`);
-      if (instance.beforeDown) instance.beforeDown();
-      instance.down(store);
-      if (instance.afterDown) instance.afterDown();
-    }
-    return store;
   }
 }
