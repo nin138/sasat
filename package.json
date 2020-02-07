@@ -37,7 +37,7 @@
   },
   "devDependencies": {
     "@types/fs-extra": "8.0.1",
-    "@types/jest": "25.1.1",
+    "@types/jest": "25.1.2",
     "@types/js-yaml": "3.12.2",
     "@types/mysql": "2.15.8",
     "@types/node": "13.7.0",
