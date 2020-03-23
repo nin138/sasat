@@ -25,7 +25,7 @@
     "sasat": "yarn env-cmd ts-node ./src/cli/cli.ts"
   },
   "dependencies": {
-    "cac": "6.5.7",
+    "cac": "6.5.8",
     "chalk": "3.0.0",
     "fs-extra": "^9.0.0",
     "js-yaml": "^3.13.1",
