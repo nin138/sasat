@@ -8,6 +8,7 @@ import { assembleColumn } from './assembleColumn';
 import { capitalizeFirstLetter } from '../util/stringUtil';
 import { getDefaultGqlOption, GqlOption, mergeGqlOption } from '../migration/gqlOption';
 import { NestedPartial } from '../util/type';
+import { escapeName } from '../sql/escape';
 
 export interface Table {
   column(columnName: string): Column | undefined;
@@ -100,7 +101,7 @@ export class TableHandler implements Table {
   showCreateTable(): string {
     const columns = this.columns.map(it => it.toSql());
     const rows = [...columns];
-    if (this.primaryKey.length !== 0) rows.push(`PRIMARY KEY (${this.primaryKey.join(',')})`);
+    if (this.primaryKey.length !== 0) rows.push(`PRIMARY KEY (${this.primaryKey.map(escapeName).join(',')})`);
     this.uniqueKeys.forEach(it => {
       if (this.uniqueKeys.length !== 0) rows.push(`UNIQUE KEY (${it.join(',')})`);
     });
@@ -109,12 +110,14 @@ export class TableHandler implements Table {
         .filter(it => it.isReference())
         .map(it => {
           const ref = it as ReferenceColumn;
-          return `CONSTRAINT ${ref.getConstraintName()} FOREIGN KEY (${it.name}) REFERENCES ${ref.data.targetTable} (${
-            ref.data.targetColumn
-          })`;
+          return `\
+CONSTRAINT ${ref.getConstraintName()} \
+FOREIGN KEY (${escapeName(it.name)}) \
+REFERENCES ${escapeName(ref.data.targetTable)} \
+(${escapeName(ref.data.targetColumn)})`;
         }),
     );
-    return `CREATE TABLE ${this.tableName} ( ${rows.join(', ')} )`;
+    return `CREATE TABLE ${escapeName(this.tableName)} ( ${rows.join(', ')} )`;
   }
 
   hasColumn(columnName: string): boolean {
