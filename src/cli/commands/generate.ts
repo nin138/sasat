@@ -1,6 +1,6 @@
 import { DataStoreHandler } from '../../entity/dataStore';
-import { Compiler } from '../../compiler/compiler';
-import { GqlCompiler } from '../../compiler/gqlCompiler';
+import { Parser } from '../../parser/parser';
+import { GqlParser } from '../../parser/gqlParser';
 import { CodeGenerateController } from '../../generator/controller';
 import { Console } from '../console';
 import { MigrationReader } from '../../migration/migrationReader';
@@ -9,8 +9,8 @@ export const generate = async () => {
   try {
     const store = new MigrationReader().read();
     const storeHandler = new DataStoreHandler(store.serialize());
-    const ir = new Compiler(storeHandler).compile();
-    const gql = new GqlCompiler(storeHandler).compile();
+    const ir = new Parser(storeHandler).compile();
+    const gql = new GqlParser(storeHandler).compile();
     await new CodeGenerateController(ir, gql).generate();
   } catch (e) {
     Console.error(e.message);

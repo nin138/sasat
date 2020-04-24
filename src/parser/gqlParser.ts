@@ -9,10 +9,10 @@ import { columnTypeToGqlPrimitive } from '../generator/gql/columnToGqlType';
 import { ReferenceColumn } from '../entity/referenceColumn';
 import { Relation } from '..';
 import { IrGqlResolver } from '../ir/gql/resolver';
-import { Compiler } from './compiler';
+import { Parser } from './parser';
 import { Column } from '../entity/column';
 
-export class GqlCompiler {
+export class GqlParser {
   constructor(private store: DataStoreHandler) {}
 
   private columnToParam = (column: Column): IrGqlParam => ({
@@ -182,7 +182,7 @@ export class GqlCompiler {
               parentEntity: capitalizeFirstLetter(ref.data.targetTable),
               parentColumn: ref.data.targetColumn,
               gqlReferenceName: ref.data.relationName || ref.table.tableName,
-              functionName: Compiler.paramsToQueryName(ref.data.columnName),
+              functionName: Parser.paramsToQueryName(ref.data.columnName),
             },
             {
               __type: 'parent',
@@ -191,7 +191,7 @@ export class GqlCompiler {
               parentEntity: table.getEntityName(),
               parentColumn: ref.data.columnName,
               gqlReferenceName: ref.data.targetTable,
-              functionName: Compiler.paramsToQueryName(ref.data.columnName),
+              functionName: Parser.paramsToQueryName(ref.data.columnName),
             },
           ];
         }),

@@ -2,7 +2,7 @@ import { IrGql } from '../../../ir/gql';
 import { tsArrowFunction } from '../code/arrowFunction';
 import { TsFileGenerator } from '../tsFileGenerator';
 import { TsCodeGenObject } from '../code/object';
-import { Compiler } from '../../../compiler/compiler';
+import { Parser } from '../../../parser/parser';
 
 const contextDestructuringAssignmentString = (
   fromContextColumns: Array<{ columnName: string; contextName: string }>,
@@ -107,7 +107,7 @@ export class TsCodeGeneratorGqlMutation extends TsFileGenerator {
     if (subscription) {
       fn = `{const result = await ${fn};
        if(result) await publish${entityName}Updated(
-        (await (new ${entityName}Repository().${Compiler.paramsToQueryName(...primaryKeys)}(
+        (await (new ${entityName}Repository().${Parser.paramsToQueryName(...primaryKeys)}(
           ${primaryKeys.map(it => `entity.${it}`).join(',')}
         )))!);
        return result;

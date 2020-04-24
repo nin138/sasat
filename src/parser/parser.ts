@@ -7,9 +7,9 @@ import { IrQuery, IrRepository } from '../ir/repository';
 import { ReferenceColumn } from '../entity/referenceColumn';
 import { NormalColumn } from '../entity/column';
 import { DBColumnTypes } from '../migration/column/columnTypes';
-import { Relation } from '../entity/relation';
+import { Relation } from '..';
 
-export class Compiler {
+export class Parser {
   constructor(private store: DataStoreHandler) {}
   compile(): Ir {
     return {
@@ -42,7 +42,7 @@ export class Compiler {
 
   private createPrimaryQuery(table: TableHandler): IrQuery {
     return {
-      queryName: Compiler.paramsToQueryName(...table.primaryKey),
+      queryName: Parser.paramsToQueryName(...table.primaryKey),
       returnType: table.getEntityName(),
       isReturnsArray: false,
       isReturnDefinitelyExist: false,
@@ -52,7 +52,7 @@ export class Compiler {
 
   private createRefQuery(ref: ReferenceColumn): IrQuery {
     return {
-      queryName: Compiler.paramsToQueryName(ref.name),
+      queryName: Parser.paramsToQueryName(ref.name),
       returnType: ref.table.getEntityName(),
       isReturnsArray: ref.data.relation === Relation.Many,
       isReturnDefinitelyExist: false, // TODO RELATION

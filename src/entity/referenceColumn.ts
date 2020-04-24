@@ -8,6 +8,7 @@ import { Relation } from './relation';
 export interface ReferenceColumnData {
   type: 'REFERENCE';
   targetTable: string;
+  // TODO optional
   targetColumn: string;
   columnName: string;
   relation: Relation;
@@ -31,7 +32,7 @@ export class ReferenceColumn implements Column {
   }
 
   toSql(): string {
-    return columnToSql({ ...this.getRootColumn().data, ...{ autoIncrement: false, default: undefined } });
+    return columnToSql({ ...this.getRootColumn().data, ...{ autoIncrement: false, default: undefined, columnName: this.name } });
   }
 
   getTargetColumn() {
