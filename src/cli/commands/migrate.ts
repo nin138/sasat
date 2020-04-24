@@ -20,6 +20,7 @@ export const migrate = async (options: { [key: string]: boolean }) => {
       await new CodeGenerateController(ir, gql).generate();
     }
   } catch (e) {
+    console.log(e);
     Console.error(e.message);
     throw e;
   } finally {

@@ -7,6 +7,7 @@ import { StoreMigrator } from './storeMigrator';
 import { SerializedStore } from '../entity/serializedStore';
 import { Direction, MigrationTargetResolver } from './migrationTargetResolver';
 import { MigrationReader } from './migrationReader';
+import { Console } from '../cli/console';
 
 // TODO refactor
 export class MigrationController {
@@ -55,7 +56,14 @@ export class MigrationController {
     const sqls = store.getSql();
     const transaction = await getDbClient().transaction();
     try {
-      for (const sql of sqls) await transaction.rawQuery(sql);
+      for (const sql of sqls) {
+        await transaction.rawQuery(sql).catch((e: Error) => {
+          Console.error(`ERROR ON ${migrationName}`);
+          Console.error(`SQL: ${sql}`);
+          Console.error(`MESSAGE: ${e.message}`);
+          process.exit(1);
+        });
+      }
       await transaction.query`insert into ${() =>
         MigrationTargetResolver.getMigrationTable()} (name, direction) values (${[migrationName, direction]})`;
       return await transaction.commit();

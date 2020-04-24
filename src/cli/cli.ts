@@ -6,16 +6,24 @@ import { init } from './commands/init';
 import { generate } from './commands/generate';
 
 const cli = cac();
-cli
-  .command('migrate', 'execute migration')
-  .option('-g, --generateFiles', 'migrate with generate files')
-  .action(async options => {
-    await migrate(options);
-  });
-cli.command('generate', 'generate files').action(generate);
-cli.command('migration:create [name]', 'generate new migration file').action(createMigration);
+try {
+  cli
+    .command('migrate', 'execute migration')
+    .option('-g, --generateFiles', 'migrate with generate files')
+    .action(async options => {
+      await migrate(options).catch(() => {
+        process.exit(1);
+      });
+    });
+  cli.command('generate', 'generate files').action(generate);
+  cli.command('migration:create [name]', 'generate new migration file').action(createMigration);
 
-cli.command('init').action(init);
+  cli.command('init').action(init);
 
-cli.parse();
-if (!cli.matchedCommand) cli.outputHelp();
+  cli.parse();
+  if (!cli.matchedCommand) cli.outputHelp();
+} catch (e) {
+  console.error(e);
+  console.log(11111111111111);
+  process.exit(1);
+}
