@@ -5,7 +5,7 @@ export class User implements SasatMigration {
   up: (store: MigrationStore) => void = store => {
     store.createTable('user', table => {
       table
-        .column('user_id')
+        .column('userId')
         .int()
         .primary()
         .unsigned()
@@ -16,21 +16,11 @@ export class User implements SasatMigration {
         .default('no name')
         .notNull();
       table
-        .column('nick_name')
+        .column('nickName')
         .varchar(20)
         .nullable()
         .unique();
-      table
-        .column('created_at')
-        .timestamp()
-        .defaultCurrentTimeStamp()
-        .notNull();
-      table
-        .column('updated_at')
-        .timestamp()
-        .defaultCurrentTimeStamp()
-        .onUpdateCurrentTimeStamp()
-        .notNull();
+      table.createdAt().updatedAt();
       table.setGqlOption({
         mutation: {
           fromContextColumns: [],
@@ -38,7 +28,6 @@ export class User implements SasatMigration {
         subscription: { onCreate: true, onUpdate: true, filter: ['name'] },
       });
     });
-    store.table('a');
   };
   down: (store: MigrationStore) => void = store => {
     store.dropTable('user');

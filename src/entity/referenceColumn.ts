@@ -32,7 +32,10 @@ export class ReferenceColumn implements Column {
   }
 
   toSql(): string {
-    return columnToSql({ ...this.getRootColumn().data, ...{ autoIncrement: false, default: undefined, columnName: this.name } });
+    return columnToSql({
+      ...this.getRootColumn().data,
+      ...{ autoIncrement: false, default: undefined, columnName: this.name },
+    });
   }
 
   getTargetColumn() {

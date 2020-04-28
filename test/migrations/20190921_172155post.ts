@@ -1,24 +1,25 @@
-import { MigrationStore, SasatMigration } from '../../src';
+import { MigrationStore, Relation, SasatMigration } from '../../src';
 
 export class Post implements SasatMigration {
   up: (store: MigrationStore) => void = store => {
     store.createTable('post', table => {
       table
-        .column('post_id')
+        .column('postId')
         .int()
         .unsigned()
         .autoIncrement()
         .primary();
-      table
-        .column('user_id')
-        .int()
-        .notNull()
-        .unsigned();
+      table.references({
+        columnName: 'userId',
+        targetColumn: 'userId',
+        targetTable: 'user',
+        relation: Relation.Many,
+      });
       table
         .column('title')
         .varchar(50)
         .notNull();
-      table.setGqlOption({ mutation: { fromContextColumns: [{ column: 'user_id', contextName: 'userId' }] } });
+      table.setGqlOption({ mutation: { fromContextColumns: [{ column: 'userId', contextName: 'userId' }] } });
     });
   };
   down: (store: MigrationStore) => void = store => {

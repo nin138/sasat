@@ -1,5 +1,5 @@
 import { MigrationStore, SasatMigration } from '../../src';
-import { Relation } from '../../src/entity/relation';
+import { Relation } from '../../src';
 
 export class Stock implements SasatMigration {
   up: (store: MigrationStore) => void = store => {
@@ -11,22 +11,22 @@ export class Stock implements SasatMigration {
         .unsigned();
       table.references({
         targetTable: 'user',
-        targetColumn: 'user_id',
-        columnName: 'user_id',
+        targetColumn: 'userId',
+        columnName: 'user',
         relation: Relation.Many,
       });
       table.references({
         targetTable: 'post',
-        targetColumn: 'post_id',
-        columnName: 'post_id',
-        relation: Relation.One,
+        targetColumn: 'postId',
+        columnName: 'post',
+        relation: Relation.Many,
       });
-      table.setPrimaryKey('user_id');
+      table.setPrimaryKey('id');
       table.createdAt();
       table.updatedAt();
-      table.addUniqueKey('user_id', 'post_id');
+      table.addUniqueKey('user', 'post');
       table.setGqlOption({
-        mutation: { delete: true, fromContextColumns: [{ column: 'user_id', contextName: 'userId' }] },
+        mutation: { delete: true, fromContextColumns: [{ column: 'user', contextName: 'userId' }] },
         subscription: { onDelete: true },
       });
     });
