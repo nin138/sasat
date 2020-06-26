@@ -9,7 +9,7 @@ export const generate = async () => {
   try {
     const store = new MigrationReader().read();
     const storeHandler = new DataStoreHandler(store.serialize());
-    const ir = new Parser(storeHandler).compile();
+    const ir = new Parser(storeHandler).parse();
     const gql = new GqlParser(storeHandler).compile();
     await new CodeGenerateController(ir, gql).generate();
   } catch (e) {

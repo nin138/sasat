@@ -11,7 +11,7 @@ import { Relation } from '..';
 
 export class Parser {
   constructor(private store: DataStoreHandler) {}
-  compile(): Ir {
+  parse(): Ir {
     return {
       repositories: this.store.tables.map(it => this.createRepository(it)),
       entities: this.store.tables.map(it => this.createEntity(it)),
