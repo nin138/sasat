@@ -60,8 +60,7 @@ export class Parser {
     };
   }
 
-  private createRepository(table: TableHandler): IrRepository {
-    const entityName = table.getEntityName();
+  private getQueries(table: TableHandler): IrQuery[] {
     const queries: IrQuery[] = [];
     if (table.primaryKey.length > 1 || !table.column(table.primaryKey[0])!.isReference()) {
       queries.push(this.createPrimaryQuery(table));
@@ -69,7 +68,12 @@ export class Parser {
     queries.push(
       ...table.columns.filter(column => column.isReference()).map(it => this.createRefQuery(it as ReferenceColumn)),
     );
+    return queries;
+  }
 
+  private createRepository(table: TableHandler): IrRepository {
+    const entityName = table.getEntityName();
+    const queries = this.getQueries(table);
     const defaultValues: Array<{ columnName: string; value: string | number | null }> = [];
     const defaultCurrentTimestampColumns: string[] = [];
     table.columns

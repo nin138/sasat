@@ -1,7 +1,8 @@
 import { formatQuery } from '../../src/db/formatQuery';
 import * as SQLString from 'sqlstring';
 import { whereToSQL } from '../../src/sql/condition';
-import { User } from '../out/__generated__/entity/user';
+// @ts-ignore
+import { User } from '../out/__generated__/entity/User';
 
 test('mysql DBClient', () => {
   expect(formatQuery`select ${'a'},${'b'} from test`).toBe("select 'a','b' from test");
@@ -18,8 +19,8 @@ test('where to sql', () => {
   expect(
     whereToSQL<User>({
       name: ['IN', '1', '2'],
-      nick_name: 'a',
-      created_at: ['IS NULL'],
+      nickName: 'a',
+      createdAt: ['IS NULL'],
     }),
-  ).toBe("`name` IN ('1', '2') AND nick_name = 'a' AND `created_at` IS NULL");
+  ).toBe("`name` IN ('1', '2') AND nickName = 'a' AND `createdAt` IS NULL");
 });
