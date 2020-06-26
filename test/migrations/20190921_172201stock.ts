@@ -4,11 +4,7 @@ import { Relation } from '../../src';
 export class Stock implements SasatMigration {
   up: (store: MigrationStore) => void = store => {
     store.createTable('stock', table => {
-      table
-        .column('id')
-        .int()
-        .autoIncrement()
-        .unsigned();
+      table.column('id').int().autoIncrement().unsigned();
       table.references({
         targetTable: 'user',
         targetColumn: 'userId',

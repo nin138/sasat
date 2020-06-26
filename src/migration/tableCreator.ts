@@ -59,19 +59,12 @@ export class TableCreator implements TableBuilder {
   }
 
   createdAt(): TableBuilder {
-    this.column('createdAt')
-      .timestamp()
-      .defaultCurrentTimeStamp()
-      .notNull();
+    this.column('createdAt').timestamp().defaultCurrentTimeStamp().notNull();
     return this;
   }
 
   updatedAt(): TableBuilder {
-    this.column('updatedAt')
-      .timestamp()
-      .defaultCurrentTimeStamp()
-      .onUpdateCurrentTimeStamp()
-      .notNull();
+    this.column('updatedAt').timestamp().defaultCurrentTimeStamp().onUpdateCurrentTimeStamp().notNull();
     return this;
   }
 

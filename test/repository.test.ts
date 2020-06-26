@@ -14,7 +14,7 @@ describe('repository', () => {
     getDbClient().release();
   });
 
-  it('should PostRepository.create returns ...', function(done) {
+  it('should PostRepository.create returns ...', function (done) {
     const creatable: PostCreatable = {
       user_id: 1,
       title: 'tti',
@@ -28,7 +28,7 @@ describe('repository', () => {
       done();
     });
   });
-  it('should UserRepository.create returns ...', function(done) {
+  it('should UserRepository.create returns ...', function (done) {
     new UserRepository().create({}).then(it => {
       expect(it).toStrictEqual({
         user_id: 1,

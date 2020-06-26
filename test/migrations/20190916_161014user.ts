@@ -4,22 +4,9 @@ import { MigrationStore } from '../../src';
 export class User implements SasatMigration {
   up: (store: MigrationStore) => void = store => {
     store.createTable('user', table => {
-      table
-        .column('userId')
-        .int()
-        .primary()
-        .unsigned()
-        .autoIncrement();
-      table
-        .column('name')
-        .varchar(20)
-        .default('no name')
-        .notNull();
-      table
-        .column('nickName')
-        .varchar(20)
-        .nullable()
-        .unique();
+      table.column('userId').int().primary().unsigned().autoIncrement();
+      table.column('name').varchar(20).default('no name').notNull();
+      table.column('nickName').varchar(20).nullable().unique();
       table.createdAt().updatedAt();
       table.setGqlOption({
         mutation: {
