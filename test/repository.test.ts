@@ -13,29 +13,29 @@ describe('repository', () => {
     restoreDate();
     getDbClient().release();
   });
-
-  it('should PostRepository.create returns ...', function (done) {
-    const creatable: PostCreatable = {
-      user_id: 1,
-      title: 'tti',
-    };
-    new PostRepository().create(creatable).then(it => {
+  it('should UserRepository.create returns ...', function (done) {
+    new UserRepository().create({}).then(it => {
       expect(it).toStrictEqual({
-        user_id: 1,
-        title: 'tti',
-        post_id: 1,
+        userId: 1,
+        name: 'no name',
+        nickName: null,
+        createdAt: '2020-01-01 12:00:01',
+        updatedAt: '2020-01-01 12:00:01',
       });
       done();
     });
   });
-  it('should UserRepository.create returns ...', function (done) {
-    new UserRepository().create({}).then(it => {
+
+  it('should PostRepository.create returns ...', function (done) {
+    const creatable: PostCreatable = {
+      userId: 1,
+      title: 'tti',
+    };
+    new PostRepository().create(creatable).then(it => {
       expect(it).toStrictEqual({
-        user_id: 1,
-        name: 'no name',
-        nick_name: null,
-        created_at: '2020-01-01T12:00:01.221',
-        updated_at: '2020-01-01T12:00:01.221',
+        userId: 1,
+        title: 'tti',
+        postId: 1,
       });
       done();
     });
