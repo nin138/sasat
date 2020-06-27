@@ -14,5 +14,7 @@ export const getGqlTypeString = (param: {
 };
 
 export const createParamString = (params: IrGqlParam[]) => {
-  return params.length === 0 ? '' : `(${params.map(it => `${it.name}: ${getGqlTypeString(it)}`).join(', ')})`;
+  return params.length === 0
+    ? ''
+    : `(${params.map(it => `${it.name}: ${getGqlTypeString(it)}`).join(', ')})`;
 };

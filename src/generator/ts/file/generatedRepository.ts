@@ -2,10 +2,15 @@ import { IrQuery, IrRepository } from '../../../ir/repository';
 import { columnTypeToTsType } from '../../../migration/column/columnTypes';
 import * as SqlString from 'sqlstring';
 import { TsFileGenerator } from '../tsFileGenerator';
-import { TsAccessor, TsClassGenerator, TsClassMethod } from '../tsClassGenerator';
+import {
+  TsAccessor,
+  TsClassGenerator,
+  TsClassMethod,
+} from '../tsClassGenerator';
 
 const getFunctionBody = (ir: IrQuery) => {
-  const getFindStatement = (ir: IrQuery) => `this.find({ where: { ${ir.params.map(it => it.name).join(', ')} } });`;
+  const getFindStatement = (ir: IrQuery) =>
+    `this.find({ where: { ${ir.params.map(it => it.name).join(', ')} } });`;
   if (ir.isReturnsArray) return 'return ' + getFindStatement(ir);
   return `const result = await ${getFindStatement(ir)}
   if (result.length === 0) return;
@@ -42,11 +47,14 @@ export class TsGeneratorGeneratedRepository extends TsFileGenerator {
 
   private generateClass(repository: IrRepository): string {
     const entityName = repository.entityName;
-    const classGenerator = new TsClassGenerator(`Generated${repository.entityName}Repository`, {
-      exportClass: true,
-      extends: `SasatRepository<${entityName}, ${entityName}Creatable, ${entityName}PrimaryKey>`,
-      abstract: true,
-    });
+    const classGenerator = new TsClassGenerator(
+      `Generated${repository.entityName}Repository`,
+      {
+        exportClass: true,
+        extends: `SasatRepository<${entityName}, ${entityName}Creatable, ${entityName}PrimaryKey>`,
+        abstract: true,
+      },
+    );
     classGenerator.addField(...this.getFields(repository));
     classGenerator.addMethod(...this.getMethods(repository));
     return classGenerator.generate();
@@ -63,13 +71,17 @@ export class TsGeneratorGeneratedRepository extends TsFileGenerator {
         accessor: TsAccessor.protected,
         readonly: true,
         name: 'primaryKeys',
-        defaultValue: `[${repository.primaryKeys.map(it => `'${it}'`).join(',')}]`,
+        defaultValue: `[${repository.primaryKeys
+          .map(it => `'${it}'`)
+          .join(',')}]`,
       },
       {
         accessor: TsAccessor.protected,
         readonly: true,
         name: 'autoIncrementColumn',
-        defaultValue: repository.autoIncrementColumn ? `'${repository.autoIncrementColumn}'` : 'undefined',
+        defaultValue: repository.autoIncrementColumn
+          ? `'${repository.autoIncrementColumn}'`
+          : 'undefined',
       },
     ];
   }
@@ -91,9 +103,16 @@ export class TsGeneratorGeneratedRepository extends TsFileGenerator {
     };
   }
 
-  private methodUpdate(entityName: string, onUpdateCurrentTimestampColumns: string[]): TsClassMethod {
-    const onUpdateColumns = onUpdateCurrentTimestampColumns.map(it => `'${it}',`).join('');
-    const onUpdateValues = onUpdateCurrentTimestampColumns.map(it => `${it}: getCurrentDateTimeString(),`).join('');
+  private methodUpdate(
+    entityName: string,
+    onUpdateCurrentTimestampColumns: string[],
+  ): TsClassMethod {
+    const onUpdateColumns = onUpdateCurrentTimestampColumns
+      .map(it => `'${it}',`)
+      .join('');
+    const onUpdateValues = onUpdateCurrentTimestampColumns
+      .map(it => `${it}: getCurrentDateTimeString(),`)
+      .join('');
     const body = `const result = await super.update(entity);
         if(result.changedRows === 1) {
           await pubsub.publish(SubscriptionName.${entityName}Updated, { ${entityName}Updated: { _updatedColumns: [${onUpdateColumns} ...Object.keys(entity)] ,${onUpdateValues}...entity } });
@@ -119,9 +138,14 @@ export class TsGeneratorGeneratedRepository extends TsFileGenerator {
         name: 'getDefaultValueString',
         body: `return {${[
           ...repository.defaultValues.map(
-            it => `${it.columnName}: ${it.value === null ? 'null' : SqlString.escape(it.value)}`,
+            it =>
+              `${it.columnName}: ${
+                it.value === null ? 'null' : SqlString.escape(it.value)
+              }`,
           ),
-          ...repository.defaultCurrentTimestampColumns.map(it => it + ': getCurrentDateTimeString()'),
+          ...repository.defaultCurrentTimestampColumns.map(
+            it => it + ': getCurrentDateTimeString()',
+          ),
         ].join(',')}};`,
         args: [],
       },
@@ -131,7 +155,10 @@ export class TsGeneratorGeneratedRepository extends TsFileGenerator {
       ...repository.queries.map(it => ({
         name: it.queryName,
         async: !it.isReturnsArray,
-        args: it.params.map(it => ({ name: it.name, type: columnTypeToTsType(it.type) })),
+        args: it.params.map(it => ({
+          name: it.name,
+          type: columnTypeToTsType(it.type),
+        })),
         body: getFunctionBody(it),
       })),
     );

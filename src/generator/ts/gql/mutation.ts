@@ -7,7 +7,9 @@ import { Parser } from '../../../parser/parser';
 const contextDestructuringAssignmentString = (
   fromContextColumns: Array<{ columnName: string; contextName: string }>,
 ): string => {
-  return fromContextColumns.map(it => `${it.columnName}: context.${it.contextName},`).join('');
+  return fromContextColumns
+    .map(it => `${it.columnName}: context.${it.contextName},`)
+    .join('');
 };
 
 export class TsCodeGeneratorGqlMutation extends TsFileGenerator {
@@ -24,11 +26,18 @@ export class TsCodeGeneratorGqlMutation extends TsFileGenerator {
         `${it.entityName}Creatable`,
         `${it.entityName}PrimaryKey`,
       );
-      this.addImport(`../repository/${it.entityName}`, `${it.entityName}Repository`);
+      this.addImport(
+        `../repository/${it.entityName}`,
+        `${it.entityName}Repository`,
+      );
       if (it.create) {
         mutationObject.set(
           `create${it.entityName}`,
-          this.createMutation(it.entityName, it.fromContextColumns, it.subscription.onCreate),
+          this.createMutation(
+            it.entityName,
+            it.fromContextColumns,
+            it.subscription.onCreate,
+          ),
         );
       }
       if (it.update) {
@@ -57,9 +66,13 @@ export class TsCodeGeneratorGqlMutation extends TsFileGenerator {
     this.addLine(`export const mutation = ${mutationObject.toTsString()}`);
   }
 
-  private createParam(fromContextColumns: Array<{ columnName: string; contextName: string }>): string {
+  private createParam(
+    fromContextColumns: Array<{ columnName: string; contextName: string }>,
+  ): string {
     if (fromContextColumns.length === 0) return 'entity';
-    return `{...entity,${contextDestructuringAssignmentString(fromContextColumns)}}`;
+    return `{...entity,${contextDestructuringAssignmentString(
+      fromContextColumns,
+    )}}`;
   }
 
   private createMutationParam(
@@ -69,7 +82,9 @@ export class TsCodeGeneratorGqlMutation extends TsFileGenerator {
     const type =
       fromContextColumns.length === 0
         ? entityType
-        : `Omit<${entityType}, ${fromContextColumns.map(it => `'${it.columnName}'`).join('|')}>`;
+        : `Omit<${entityType}, ${fromContextColumns
+            .map(it => `'${it.columnName}'`)
+            .join('|')}>`;
     const base = [
       { name: '_', type: '{}' },
       { name: 'entity', type },
@@ -83,8 +98,13 @@ export class TsCodeGeneratorGqlMutation extends TsFileGenerator {
     fromContextColumns: Array<{ columnName: string; contextName: string }>,
     subscription: boolean,
   ): string {
-    const params = this.createMutationParam(`${entityName}Creatable`, fromContextColumns);
-    let fn = `new ${entityName}Repository().create(${this.createParam(fromContextColumns)})`;
+    const params = this.createMutationParam(
+      `${entityName}Creatable`,
+      fromContextColumns,
+    );
+    let fn = `new ${entityName}Repository().create(${this.createParam(
+      fromContextColumns,
+    )})`;
     if (subscription) {
       fn = `{const result = await ${fn};
     await publish${entityName}Created(result);
@@ -100,14 +120,19 @@ export class TsCodeGeneratorGqlMutation extends TsFileGenerator {
     subscription: boolean,
     primaryKeys: string[],
   ): string {
-    const params = this.createMutationParam(`${entityName}PrimaryKey & Partial<${entityName}>`, fromContextColumns);
+    const params = this.createMutationParam(
+      `${entityName}PrimaryKey & Partial<${entityName}>`,
+      fromContextColumns,
+    );
     let fn = `new ${entityName}Repository().update(${this.createParam(
       fromContextColumns,
     )}).then(it => it.changedRows === 1)`;
     if (subscription) {
       fn = `{const result = await ${fn};
        if(result) await publish${entityName}Updated(
-        (await (new ${entityName}Repository().${Parser.paramsToQueryName(...primaryKeys)}(
+        (await (new ${entityName}Repository().${Parser.paramsToQueryName(
+        ...primaryKeys,
+      )}(
           ${primaryKeys.map(it => `entity.${it}`).join(',')}
         )))!);
        return result;
@@ -123,12 +148,21 @@ export class TsCodeGeneratorGqlMutation extends TsFileGenerator {
     subscription: boolean,
     primaryKeys: string[],
   ) {
-    const fromContext = fromContextColumns.filter(it => primaryKeys.includes(it.columnName));
-    const params = this.createMutationParam(`${entityName}PrimaryKey`, fromContext);
-    let fn = `new ${entityName}Repository().delete(${this.createParam(fromContext)}).then(it => it.affectedRows === 1)`;
+    const fromContext = fromContextColumns.filter(it =>
+      primaryKeys.includes(it.columnName),
+    );
+    const params = this.createMutationParam(
+      `${entityName}PrimaryKey`,
+      fromContext,
+    );
+    let fn = `new ${entityName}Repository().delete(${this.createParam(
+      fromContext,
+    )}).then(it => it.affectedRows === 1)`;
     if (subscription) {
       fn = `{const result = await ${fn};
-       if(result) await publish${entityName}Deleted(${this.createParam(fromContext)});
+       if(result) await publish${entityName}Deleted(${this.createParam(
+        fromContext,
+      )});
        return result;
       }`;
       this.addImport('./subscription', `publish${entityName}Deleted`);

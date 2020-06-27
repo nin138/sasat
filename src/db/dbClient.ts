@@ -22,17 +22,29 @@ export abstract class SQLClient implements SQLExecutor {
     return this.execSql(sql) as Promise<CommandResponse>;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  query(templateString: TemplateStringsArray, ...params: any[]): Promise<QueryResponse> {
-    return this.execSql(formatQuery(templateString, ...params)) as Promise<QueryResponse>;
+  query(
+    templateString: TemplateStringsArray,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ...params: any[]
+  ): Promise<QueryResponse> {
+    return this.execSql(formatQuery(templateString, ...params)) as Promise<
+      QueryResponse
+    >;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  command(templateString: TemplateStringsArray, ...params: any[]): Promise<CommandResponse> {
-    return this.execSql(formatQuery(templateString, ...params)) as Promise<CommandResponse>;
+  command(
+    templateString: TemplateStringsArray,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ...params: any[]
+  ): Promise<CommandResponse> {
+    return this.execSql(formatQuery(templateString, ...params)) as Promise<
+      CommandResponse
+    >;
   }
 
-  protected abstract execSql(sql: string): Promise<QueryResponse | CommandResponse>;
+  protected abstract execSql(
+    sql: string,
+  ): Promise<QueryResponse | CommandResponse>;
 }
 
 export abstract class SQLTransaction extends SQLClient {

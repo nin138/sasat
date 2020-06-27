@@ -1,4 +1,9 @@
-import { CommandResponse, DBClient, QueryResponse, SQLTransaction } from '../dbClient';
+import {
+  CommandResponse,
+  DBClient,
+  QueryResponse,
+  SQLTransaction,
+} from '../dbClient';
 import * as maria from 'mariadb';
 import { config } from '../../config/config';
 import { MariaDBTransaction } from './transaction';

@@ -67,7 +67,11 @@ export abstract class ColumnBuilder {
 }
 
 export class StringColumnBuilder extends ColumnBuilder {
-  constructor(readonly name: string, protected type: DBStringTypes, protected length?: number) {
+  constructor(
+    readonly name: string,
+    protected type: DBStringTypes,
+    protected length?: number,
+  ) {
     super(name, type);
   }
 
@@ -89,7 +93,12 @@ export class TextColumnBuilder extends ColumnBuilder {
 }
 
 export class NumberColumnBuilder extends ColumnBuilder {
-  constructor(name: string, type: DBNumberTypes, length?: number, scale?: number) {
+  constructor(
+    name: string,
+    type: DBNumberTypes,
+    length?: number,
+    scale?: number,
+  ) {
     super(name, type, length, scale);
   }
   signed(): this {
@@ -111,7 +120,11 @@ export class NumberColumnBuilder extends ColumnBuilder {
 }
 
 export class IntegerColumnBuilder extends NumberColumnBuilder {
-  constructor(readonly name: string, protected type: DBIntegerTypes, protected length?: number) {
+  constructor(
+    readonly name: string,
+    protected type: DBIntegerTypes,
+    protected length?: number,
+  ) {
     super(name, type, length);
   }
   autoIncrement() {
@@ -157,7 +170,10 @@ export class DateColumnBuilder extends ColumnBuilder {
 }
 
 export class TimeStampColumnBuilder extends ColumnBuilder {
-  constructor(readonly name: string, protected type: DBColumnTypes.timestamp | DBColumnTypes.dateTime) {
+  constructor(
+    readonly name: string,
+    protected type: DBColumnTypes.timestamp | DBColumnTypes.dateTime,
+  ) {
     super(name, type);
   }
   default(value: 'CURRENT_TIMESTAMP' | string | null | undefined): this {

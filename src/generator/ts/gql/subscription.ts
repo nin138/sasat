@@ -12,11 +12,19 @@ export class TsGeneratorGqlSubscription extends TsFileGenerator {
     const subscriptions = ir.entities.flatMap(it => {
       const result = [];
       if (it.subscription.onCreate) {
-        result.push({ name: `${it.entityName}Created`, filter: it.subscription.filter, entity: it.entityName });
+        result.push({
+          name: `${it.entityName}Created`,
+          filter: it.subscription.filter,
+          entity: it.entityName,
+        });
         this.addImport(`./entity/${it.entityName}`, it.entityName);
       }
       if (it.subscription.onUpdate) {
-        result.push({ name: `${it.entityName}Updated`, filter: it.subscription.filter, entity: it.entityName });
+        result.push({
+          name: `${it.entityName}Updated`,
+          filter: it.subscription.filter,
+          entity: it.entityName,
+        });
         this.addImport(`./entity/${it.entityName}`, it.entityName);
       }
       if (it.subscription.onDelete) {
@@ -25,7 +33,10 @@ export class TsGeneratorGqlSubscription extends TsFileGenerator {
           filter: it.subscription.filter,
           entity: `${it.entityName}PrimaryKey`,
         });
-        this.addImport(`./entity/${it.entityName}`, it.entityName + 'PrimaryKey');
+        this.addImport(
+          `./entity/${it.entityName}`,
+          it.entityName + 'PrimaryKey',
+        );
       }
 
       return result;
@@ -34,10 +45,16 @@ export class TsGeneratorGqlSubscription extends TsFileGenerator {
     const functions = subscriptions.map(it => {
       if (it.filter.length === 0)
         return `${it.name}: { subscribe: () => pubsub.asyncIterator([SubscriptionName.${it.name}]), },`;
-      return `${it.name}: { subscribe: withFilter(() => pubsub.asyncIterator([SubscriptionName.${it.name}]),
+      return `${
+        it.name
+      }: { subscribe: withFilter(() => pubsub.asyncIterator([SubscriptionName.${
+        it.name
+      }]),
       async (payload, variables) => {
         const result = await payload.${it.name};
-        return ${it.filter.map(it => `result.${it.column} === variables.${it.column}`).join('&&')};
+        return ${it.filter
+          .map(it => `result.${it.column} === variables.${it.column}`)
+          .join('&&')};
       },
     ),},`;
     });

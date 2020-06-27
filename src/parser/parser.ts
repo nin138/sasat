@@ -27,7 +27,8 @@ export class Parser {
         type: data.type,
         nullable: !data.notNull,
         default: data.default,
-        isNullableOnCreate: data.default !== undefined || !data.notNull || data.autoIncrement,
+        isNullableOnCreate:
+          data.default !== undefined || !data.notNull || data.autoIncrement,
       };
     });
     return {
@@ -46,7 +47,10 @@ export class Parser {
       returnType: table.getEntityName(),
       isReturnsArray: false,
       isReturnDefinitelyExist: false,
-      params: table.primaryKey.map(it => ({ name: it, type: table.column(it)!.type })),
+      params: table.primaryKey.map(it => ({
+        name: it,
+        type: table.column(it)!.type,
+      })),
     };
   }
 
@@ -62,11 +66,16 @@ export class Parser {
 
   private getQueries(table: TableHandler): IrQuery[] {
     const queries: IrQuery[] = [];
-    if (table.primaryKey.length > 1 || !table.column(table.primaryKey[0])!.isReference()) {
+    if (
+      table.primaryKey.length > 1 ||
+      !table.column(table.primaryKey[0])!.isReference()
+    ) {
       queries.push(this.createPrimaryQuery(table));
     }
     queries.push(
-      ...table.columns.filter(column => column.isReference()).map(it => this.createRefQuery(it as ReferenceColumn)),
+      ...table.columns
+        .filter(column => column.isReference())
+        .map(it => this.createRefQuery(it as ReferenceColumn)),
     );
     return queries;
   }
@@ -74,15 +83,23 @@ export class Parser {
   private createRepository(table: TableHandler): IrRepository {
     const entityName = table.getEntityName();
     const queries = this.getQueries(table);
-    const defaultValues: Array<{ columnName: string; value: string | number | null }> = [];
+    const defaultValues: Array<{
+      columnName: string;
+      value: string | number | null;
+    }> = [];
     const defaultCurrentTimestampColumns: string[] = [];
     table.columns
       .filter(it => !it.isReference())
-      .filter(it => (it as NormalColumn).data.default || !(it as NormalColumn).data.notNull)
+      .filter(
+        it =>
+          (it as NormalColumn).data.default ||
+          !(it as NormalColumn).data.notNull,
+      )
       .forEach(it => {
         const column: NormalColumn = it as NormalColumn;
         if (
-          (column.type === DBColumnTypes.timestamp || column.type === DBColumnTypes.dateTime) &&
+          (column.type === DBColumnTypes.timestamp ||
+            column.type === DBColumnTypes.dateTime) &&
           column.data.default === 'CURRENT_TIMESTAMP'
         ) {
           defaultCurrentTimestampColumns.push(column.name);
@@ -90,14 +107,19 @@ export class Parser {
         }
         defaultValues.push({
           columnName: column.name,
-          value: column.data.default === undefined ? null : (column.data.default as string),
+          value:
+            column.data.default === undefined
+              ? null
+              : (column.data.default as string),
         });
       });
     return {
       tableName: table.tableName,
       entityName,
       primaryKeys: table.primaryKey,
-      autoIncrementColumn: table.columns.find(it => !it.isReference() && it.getData().autoIncrement)?.name,
+      autoIncrementColumn: table.columns.find(
+        it => !it.isReference() && it.getData().autoIncrement,
+      )?.name,
       defaultValues,
       defaultCurrentTimestampColumns,
       onUpdateCurrentTimestampColumns: table.columns
@@ -107,7 +129,11 @@ export class Parser {
       useClasses: [
         {
           path: `entity/${table.tableName}`,
-          classNames: [entityName, `${entityName}Creatable`, `${entityName}PrimaryKey`],
+          classNames: [
+            entityName,
+            `${entityName}Creatable`,
+            `${entityName}PrimaryKey`,
+          ],
         },
       ],
       subscription: table.gqlOption.subscription,

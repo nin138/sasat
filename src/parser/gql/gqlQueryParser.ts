@@ -31,7 +31,8 @@ export class GqlQueryParser {
         isArray: false,
         isReference: false,
       })),
-      repositoryFunctionName: 'findBy' + table.primaryKey.map(capitalizeFirstLetter).join('And'),
+      repositoryFunctionName:
+        'findBy' + table.primaryKey.map(capitalizeFirstLetter).join('And'),
       isArray: false,
       isNullable: true,
     }));

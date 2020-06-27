@@ -39,7 +39,10 @@ export interface TsClassOption {
 export class TsClassGenerator {
   protected readonly fields: TsClassField[] = [];
   protected readonly methods: TsClassMethod[] = [];
-  constructor(readonly className: string, protected readonly option: TsClassOption = { exportClass: true }) {}
+  constructor(
+    readonly className: string,
+    protected readonly option: TsClassOption = { exportClass: true },
+  ) {}
 
   addField(...field: TsClassField[]) {
     this.fields.push(...field);
@@ -50,7 +53,10 @@ export class TsClassGenerator {
   }
 
   generate() {
-    const classPrefix = [this.option.exportClass ? 'export' : '', this.option.abstract ? 'abstract' : '']
+    const classPrefix = [
+      this.option.exportClass ? 'export' : '',
+      this.option.abstract ? 'abstract' : '',
+    ]
       .filter(it => it)
       .join(' ');
     const extend = this.option.extends ? ` extends ${this.option.extends}` : '';

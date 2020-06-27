@@ -5,7 +5,10 @@ import { Parser } from '../parser';
 import { TableHandler } from '../../entity/table';
 
 export class GqlResolverParser {
-  private createChildResolver(ref: ReferenceColumn, tableName: string): IrGqlResolver {
+  private createChildResolver(
+    ref: ReferenceColumn,
+    tableName: string,
+  ): IrGqlResolver {
     return {
       __type: 'child',
       currentEntity: TableHandler.tableNameToEntityName(tableName),
@@ -17,7 +20,10 @@ export class GqlResolverParser {
     };
   }
 
-  private createParentResolver(ref: ReferenceColumn, tableName: string): IrGqlResolver {
+  private createParentResolver(
+    ref: ReferenceColumn,
+    tableName: string,
+  ): IrGqlResolver {
     return {
       __type: 'parent',
       currentEntity: capitalizeFirstLetter(ref.data.targetTable),
@@ -31,6 +37,9 @@ export class GqlResolverParser {
   parse(table: TableHandler): IrGqlResolver[] {
     return table
       .getReferenceColumns()
-      .flatMap(it => [this.createChildResolver(it, table.tableName), this.createParentResolver(it, table.tableName)]);
+      .flatMap(it => [
+        this.createChildResolver(it, table.tableName),
+        this.createParentResolver(it, table.tableName),
+      ]);
   }
 }

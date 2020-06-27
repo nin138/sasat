@@ -28,8 +28,14 @@ export type DBIntegerTypes =
   | DBColumnTypes.bigInt;
 
 export type DBFloatingTypes = DBColumnTypes.float | DBColumnTypes.double;
-export type DBNumberTypes = DBIntegerTypes | DBFloatingTypes | DBColumnTypes.decimal;
-export type DBDateTypes = DBColumnTypes.time | DBColumnTypes.date | DBColumnTypes.year;
+export type DBNumberTypes =
+  | DBIntegerTypes
+  | DBFloatingTypes
+  | DBColumnTypes.decimal;
+export type DBDateTypes =
+  | DBColumnTypes.time
+  | DBColumnTypes.date
+  | DBColumnTypes.year;
 
 export const columnTypeToTsType = (type: DBColumnTypes): string => {
   switch (type) {

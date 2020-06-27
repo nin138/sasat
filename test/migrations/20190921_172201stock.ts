@@ -22,7 +22,10 @@ export class Stock implements SasatMigration {
       table.updatedAt();
       table.addUniqueKey('user', 'post');
       table.setGqlOption({
-        mutation: { delete: true, fromContextColumns: [{ column: 'user', contextName: 'userId' }] },
+        mutation: {
+          delete: true,
+          fromContextColumns: [{ column: 'user', contextName: 'userId' }],
+        },
         subscription: { onDelete: true },
       });
     });

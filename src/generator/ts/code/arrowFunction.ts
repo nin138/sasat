@@ -4,4 +4,6 @@ export const tsArrowFunction = (
   body: string,
   async = false,
 ) => `\
-${async ? 'async ' : ''}(${params.map(it => `${it.name}: ${it.type}`).join(', ')}): ${returnType} => ${body}`;
+${async ? 'async ' : ''}(${params
+  .map(it => `${it.name}: ${it.type}`)
+  .join(', ')}): ${returnType} => ${body}`;

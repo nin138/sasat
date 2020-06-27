@@ -30,7 +30,10 @@ export const getDefaultGqlOption = (): GqlOption => ({
   },
 });
 
-export const mergeGqlOption = (prev: GqlOption, update: NestedPartial<GqlOption>): GqlOption => {
+export const mergeGqlOption = (
+  prev: GqlOption,
+  update: NestedPartial<GqlOption>,
+): GqlOption => {
   return {
     ...prev,
     mutation: {

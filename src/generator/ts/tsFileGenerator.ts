@@ -15,7 +15,10 @@ export class TsFileGenerator {
       this.imports.push({ from, names });
       return;
     }
-    this.imports[index] = { from, names: unique([...this.imports[index].names, ...names]) };
+    this.imports[index] = {
+      from,
+      names: unique([...this.imports[index].names, ...names]),
+    };
   }
 
   addLine(...line: string[]) {
@@ -27,7 +30,9 @@ export class TsFileGenerator {
 
   generate() {
     this.preGenerate();
-    const importStatement = this.imports.map(it => `import { ${it.names.join(',')} } from '${it.from}';\n`).join('');
+    const importStatement = this.imports
+      .map(it => `import { ${it.names.join(',')} } from '${it.from}';\n`)
+      .join('');
     return importStatement + this.lines.join('\n');
   }
 }

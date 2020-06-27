@@ -20,10 +20,12 @@ export const generateTsGqlQueryString = (ir: IrGql) => {
       const param =
         it.queryType === IrGqlQueryType.List
           ? '()'
-          : `(_: {}, { ${paramsNames.join(', ')} }: Pick<${it.entity}, ${paramsNames.map(it => `'${it}'`).join('|')}>)`;
-      return `${it.queryName}: ${param} => new ${it.entity}Repository().${it.repositoryFunctionName}(${paramsNames.join(
-        ', ',
-      )}),`;
+          : `(_: {}, { ${paramsNames.join(', ')} }: Pick<${
+              it.entity
+            }, ${paramsNames.map(it => `'${it}'`).join('|')}>)`;
+      return `${it.queryName}: ${param} => new ${it.entity}Repository().${
+        it.repositoryFunctionName
+      }(${paramsNames.join(', ')}),`;
     }),
     '};',
   ];

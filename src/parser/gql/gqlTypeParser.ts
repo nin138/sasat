@@ -9,7 +9,10 @@ import { DataStoreHandler } from '../../entity/dataStore';
 
 export class GqlTypeParser {
   parse(store: DataStoreHandler): IrGqlType[] {
-    return store.tables.flatMap(it => [this.getType(store, it), this.getDeletedType(it)]);
+    return store.tables.flatMap(it => [
+      this.getType(store, it),
+      this.getDeletedType(it),
+    ]);
   }
 
   private columnToParam = (column: Column): IrGqlParam => ({
@@ -30,7 +33,10 @@ export class GqlTypeParser {
     };
   }
 
-  private getReferencedType = (store: DataStoreHandler, tableName: string): IrGqlParam[] =>
+  private getReferencedType = (
+    store: DataStoreHandler,
+    tableName: string,
+  ): IrGqlParam[] =>
     store.referencedBy(tableName).map(it => ({
       name: it.table.tableName,
       type: it.table.getEntityName(),
@@ -56,7 +62,9 @@ export class GqlTypeParser {
     return {
       typeName: `Deleted${table.getEntityName()}`,
       params: [
-        ...table.columns.filter(column => table.isColumnPrimary(column.name)).map(this.columnToParam),
+        ...table.columns
+          .filter(column => table.isColumnPrimary(column.name))
+          .map(this.columnToParam),
         ...table.columns
           .filter(it => it.isReference())
           .map(it => GqlTypeParser.referenceToParam(it as ReferenceColumn)),

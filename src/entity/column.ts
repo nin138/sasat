@@ -1,4 +1,7 @@
-import { columnTypeToTsType, DBColumnTypes } from '../migration/column/columnTypes';
+import {
+  columnTypeToTsType,
+  DBColumnTypes,
+} from '../migration/column/columnTypes';
 import { ReferenceColumn } from './referenceColumn';
 import { columnTypeToGqlPrimitive } from '../generator/gql/columnToGqlType';
 import { GqlPrimitive } from '../generator/gql/types';
@@ -59,6 +62,10 @@ export class NormalColumn implements Column {
   }
 
   isNullableOnCreate(): boolean {
-    return !this.data.notNull || this.data.default !== undefined || this.data.autoIncrement;
+    return (
+      !this.data.notNull ||
+      this.data.default !== undefined ||
+      this.data.autoIncrement
+    );
   }
 }
