@@ -10,5 +10,5 @@ export interface IrGqlParam {
   type: GqlPrimitive | string;
   isNullable: boolean;
   isArray: boolean;
-  isReference?: boolean;
+  isReference: boolean;
 }

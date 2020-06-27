@@ -1,7 +1,7 @@
 import { SasatMigration } from '../../src';
 import { MigrationStore } from '../../src';
 
-export class User implements SasatMigration {
+export class CreateUser implements SasatMigration {
   up: (store: MigrationStore) => void = store => {
     store.createTable('user', table => {
       table.column('userId').int().primary().unsigned().autoIncrement();

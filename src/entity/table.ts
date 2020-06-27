@@ -16,6 +16,9 @@ export interface Table {
 }
 
 export class TableHandler implements Table {
+  static tableNameToEntityName(tableName: string) {
+    return capitalizeFirstLetter(tableName);
+  }
   private indexes: DBIndex[];
   get index() {
     return this.indexes;
@@ -128,7 +131,7 @@ REFERENCES ${escapeName(ref.data.targetTable)} \
   }
 
   getEntityName(): string {
-    return capitalizeFirstLetter(this.tableName);
+    return TableHandler.tableNameToEntityName(this.tableName);
   }
 
   setGqlOption(option: NestedPartial<GqlOption>) {
@@ -137,5 +140,9 @@ REFERENCES ${escapeName(ref.data.targetTable)} \
 
   primaryKeyColumns(): Column[] {
     return this.columns.filter(it => this.isColumnPrimary(it.name));
+  }
+
+  getReferenceColumns(): ReferenceColumn[] {
+    return this.columns.filter(it => it.isReference()) as ReferenceColumn[];
   }
 }

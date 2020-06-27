@@ -1,4 +1,5 @@
 export interface IrGqlResolver {
+  __type: 'child' | 'parent';
   currentEntity: string;
   currentColumn: string;
   parentEntity: string;
