@@ -19,8 +19,9 @@ export class MysqlClient extends DBClient {
     return new MySqlTransaction(connection);
   }
 
-  release(): Promise<void> {
-    return promisify(this.pool.end).bind(this.pool)();
+  async release(): Promise<void> {
+    await promisify(this.pool.end).bind(this.pool)();
+    this._released = true;
   }
 
   protected execSql(sql: string): Promise<QueryResponse | CommandResponse> {

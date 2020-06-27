@@ -18,8 +18,9 @@ export class MariaDBClient extends DBClient {
     return new MariaDBTransaction(connection);
   }
 
-  release(): Promise<void> {
-    return this.pool.end();
+  async release(): Promise<void> {
+    await this.pool.end();
+    this._released = true;
   }
 
   protected execSql(sql: string): Promise<QueryResponse | CommandResponse> {

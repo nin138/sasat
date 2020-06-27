@@ -81,6 +81,10 @@
     "moduleNameMapper": {
       "^sasat": "<rootDir>/lib"
     },
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "<rootDir>/lib"
+    ],
     "transform": {
       "^.+\\.(ts|tsx)$": "ts-jest"
     },

@@ -1,4 +1,3 @@
-// @ts-ignore
 import { testStoreHandler } from '../../test/testDataStore';
 import { Parser } from './parser';
 import { TableHandler } from '../entity/table';

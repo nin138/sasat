@@ -41,6 +41,14 @@ export abstract class SQLTransaction extends SQLClient {
 }
 
 export abstract class DBClient extends SQLClient {
+  protected _released: boolean;
+  protected constructor() {
+    super();
+    this._released = false;
+  }
+  public isReleased() {
+    return this._released;
+  }
   abstract transaction(): Promise<SQLTransaction>;
-  abstract release(): void;
+  abstract release(): Promise<void>;
 }
