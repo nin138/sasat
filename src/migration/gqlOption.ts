@@ -1,11 +1,16 @@
 import { NestedPartial } from '../util/type';
 
+export interface GqlFromContextParam {
+  column: string;
+  contextName?: string;
+}
+
 export interface GqlOption {
   mutation: {
     create: boolean;
     update: boolean;
     delete: boolean;
-    fromContextColumns: Array<{ column: string; contextName?: string }>;
+    fromContextColumns: GqlFromContextParam[];
   };
   subscription: {
     onCreate: boolean;
