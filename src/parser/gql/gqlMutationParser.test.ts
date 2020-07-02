@@ -2,7 +2,7 @@ import { GqlMutationParser } from './gqlMutationParser';
 import { testStoreHandler } from '../../../test/testDataStore';
 import { TableHandler } from '../../entity/table';
 
-describe('Parser', () => {
+describe('GqlMutationParser', () => {
   const parser = new GqlMutationParser();
   const post = testStoreHandler.table('post') as TableHandler;
   it('getFromContextColumns', () => {
