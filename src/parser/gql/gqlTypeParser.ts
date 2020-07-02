@@ -4,8 +4,8 @@ import { TableHandler } from '../../entity/table';
 import { Column } from '../../entity/column';
 import { columnTypeToGqlPrimitive } from '../../generator/gql/columnToGqlType';
 import { capitalizeFirstLetter } from '../../util/stringUtil';
-import { Relation } from 'sasat';
 import { DataStoreHandler } from '../../entity/dataStore';
+import { Relation } from '../..';
 
 export class GqlTypeParser {
   parse(store: DataStoreHandler): IrGqlType[] {

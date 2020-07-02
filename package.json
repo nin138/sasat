@@ -83,7 +83,8 @@
     },
     "coveragePathIgnorePatterns": [
       "/node_modules/",
-      "<rootDir>/lib"
+      "<rootDir>/lib",
+      "<rootDir>/test"
     ],
     "transform": {
       "^.+\\.(ts|tsx)$": "ts-jest"
