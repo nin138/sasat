@@ -1,44 +1,33 @@
-import { GqlMutationParser } from './gqlMutationParser';
 import { testStoreHandler } from '../../../test/testDataStore';
 import { TableHandler } from '../../entity/table';
-import { GqlQueryParser } from './gqlQueryParser';
+import { GqlResolverParser } from './gqlResolverParser';
+import { ReferenceColumn } from '../../entity/referenceColumn';
 
 describe('GqlResolverParser', () => {
-  const parser = new GqlQueryParser();
+  const parser = new GqlResolverParser();
   const post = testStoreHandler.table('post') as TableHandler;
+  const userId = post.column('userId') as ReferenceColumn;
   it('listQuery', () => {
-    expect(parser['listQuery']([post])).toStrictEqual([
-      {
-        entity: 'Post',
-        isArray: true,
-        isNullable: false,
-        params: [],
-        queryName: 'posts',
-        queryType: 0,
-        repositoryFunctionName: 'list',
-      },
-    ]);
+    expect(parser['createChildResolver'](userId, 'user')).toStrictEqual({
+      __type: 'child',
+      currentColumn: 'userId',
+      currentEntity: 'User',
+      functionName: 'findByUserId',
+      gqlReferenceName: 'post',
+      parentColumn: 'userId',
+      parentEntity: 'User',
+    });
   });
 
   it('primaryQuery', () => {
-    expect(parser['primaryQuery']([post])).toStrictEqual([
-      {
-        entity: 'Post',
-        isArray: false,
-        isNullable: true,
-        params: [
-          {
-            isArray: false,
-            isNullable: false,
-            isReference: false,
-            name: 'postId',
-            type: 'Int',
-          },
-        ],
-        queryName: 'post',
-        queryType: 1,
-        repositoryFunctionName: 'findByPostId',
-      },
-    ]);
+    expect(parser['createParentResolver'](userId, 'user')).toStrictEqual({
+      __type: 'parent',
+      currentColumn: 'userId',
+      currentEntity: 'User',
+      functionName: 'findByUserId',
+      gqlReferenceName: 'user',
+      parentColumn: 'userId',
+      parentEntity: 'User',
+    });
   });
 });
