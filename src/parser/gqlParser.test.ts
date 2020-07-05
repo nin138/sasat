@@ -5,14 +5,10 @@ import { GqlPrimitive } from '../generator/gql/types';
 
 describe('Parser', () => {
   const parser = new GqlParser(testStoreHandler);
-  it('columnToParam', () => {
-    const userName = testStoreHandler.table('user')!.column('name');
-    expect(parser['columnToParam'](userName!)).toStrictEqual({
-      name: 'name',
-      type: GqlPrimitive.String,
-      isNullable: false,
-      isArray: false,
-      isReference: false,
-    });
+  it('getContext', () => {
+    expect(parser['getContext']()).toStrictEqual([
+      { name: 'userId', type: 'int' },
+      { name: 'userId', type: 'int' },
+    ]);
   });
 });

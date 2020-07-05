@@ -10,15 +10,6 @@ import { GqlResolverParser } from './gql/gqlResolverParser';
 
 export class GqlParser {
   constructor(private store: DataStoreHandler) {}
-  private getContext(): IrGqlContext[] {
-    return this.store.tables.flatMap(table =>
-      table.gqlOption.mutation.fromContextColumns.map(it => ({
-        name: it.contextName || it.column,
-        type: table.column(it.column)!.type,
-      })),
-    );
-  }
-
   parse(): IrGql {
     return {
       types: new GqlTypeParser().parse(this.store),
@@ -27,6 +18,15 @@ export class GqlParser {
       contexts: this.getContext(),
       resolvers: this.getResolvers(),
     };
+  }
+
+  private getContext(): IrGqlContext[] {
+    return this.store.tables.flatMap(table =>
+      table.gqlOption.mutation.fromContextColumns.map(it => ({
+        name: it.contextName || it.column,
+        type: table.column(it.column)!.type,
+      })),
+    );
   }
 
   private getMutations(): IrGqlMutation {
