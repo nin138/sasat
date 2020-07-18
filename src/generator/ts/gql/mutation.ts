@@ -3,6 +3,10 @@ import { tsArrowFunction } from '../code/arrowFunction';
 import { TsFileGenerator } from '../tsFileGenerator';
 import { TsCodeGenObject } from '../code/object';
 import { Parser } from '../../../parser/parser';
+import {
+  creatableInterfaceName,
+  identifiableInterfaceName,
+} from '../../../constants/interfaceConstants';
 
 const contextDestructuringAssignmentString = (
   fromContextColumns: Array<{ columnName: string; contextName: string }>,
@@ -23,8 +27,8 @@ export class TsCodeGeneratorGqlMutation extends TsFileGenerator {
       this.addImport(
         `./entity/${it.entityName}`,
         it.entityName,
-        `${it.entityName}Creatable`,
-        `${it.entityName}PrimaryKey`,
+        creatableInterfaceName(it.entityName),
+        identifiableInterfaceName(it.entityName),
       );
       this.addImport(
         `../repository/${it.entityName}`,
@@ -121,7 +125,7 @@ export class TsCodeGeneratorGqlMutation extends TsFileGenerator {
     primaryKeys: string[],
   ): string {
     const params = this.createMutationParam(
-      `${entityName}PrimaryKey & Partial<${entityName}>`,
+      `${identifiableInterfaceName(entityName)} & Partial<${entityName}>`,
       fromContextColumns,
     );
     let fn = `new ${entityName}Repository().update(${this.createParam(
@@ -152,7 +156,7 @@ export class TsCodeGeneratorGqlMutation extends TsFileGenerator {
       primaryKeys.includes(it.columnName),
     );
     const params = this.createMutationParam(
-      `${entityName}PrimaryKey`,
+      identifiableInterfaceName(entityName),
       fromContext,
     );
     let fn = `new ${entityName}Repository().delete(${this.createParam(

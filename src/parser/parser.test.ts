@@ -92,7 +92,7 @@ describe('Parser', () => {
       useClasses: [
         {
           path: `entity/user`,
-          classNames: ['User', `UserCreatable`, `UserPrimaryKey`],
+          classNames: ['User', `UserCreatable`, `UserIdentifiable`],
         },
       ],
       subscription: {

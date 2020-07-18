@@ -5,14 +5,14 @@ import { Parser } from '../parser';
 import { TableHandler } from '../../entity/table';
 
 export class GqlResolverParser {
-  parse(table: TableHandler): IrGqlResolver[] {
+  parse = (table: TableHandler): IrGqlResolver[] => {
     return table
       .getReferenceColumns()
       .flatMap(it => [
         this.createChildResolver(it, table.tableName),
         this.createParentResolver(it, table.tableName),
       ]);
-  }
+  };
 
   private createChildResolver(
     ref: ReferenceColumn,

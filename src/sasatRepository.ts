@@ -4,16 +4,16 @@ import { SQLCondition, conditionToSql } from './sql/condition';
 import * as SqlString from 'sqlstring';
 import { SasatError } from './error';
 
-interface Repository<Entity, Creatable, Primary> {
+interface Repository<Entity, Creatable, Identifiable> {
   create(entity: Creatable): Promise<Entity>;
   list(): Promise<Entity[]>;
-  update(entity: Partial<Entity> & Primary): Promise<CommandResponse>;
-  delete(entity: Primary): Promise<CommandResponse>;
+  update(entity: Partial<Entity> & Identifiable): Promise<CommandResponse>;
+  delete(entity: Identifiable): Promise<CommandResponse>;
   find(condition: SQLCondition<Entity>): Promise<Entity[]>;
 }
 
-export abstract class SasatRepository<Entity, Creatable, Primary>
-  implements Repository<Entity, Creatable, Primary> {
+export abstract class SasatRepository<Entity, Creatable, Identifiable>
+  implements Repository<Entity, Creatable, Identifiable> {
   abstract readonly tableName: string;
   protected abstract readonly primaryKeys: string[];
   protected abstract readonly autoIncrementColumn: string | undefined;
@@ -47,11 +47,11 @@ export abstract class SasatRepository<Entity, Creatable, Primary>
     } as unknown) as Entity;
   }
 
-  async delete(entity: Primary) {
+  async delete(entity: Identifiable) {
     return this.client.rawCommand(
-      `DELETE FROM ${
-        this.tableName
-      } WHERE ${this.getWhereClauseIdentifiedByPrimaryKey(entity)}`,
+      `DELETE FROM ${this.tableName} WHERE ${this.getIdentifiableWhereClause(
+        entity,
+      )}`,
     );
   }
 
@@ -71,15 +71,13 @@ export abstract class SasatRepository<Entity, Creatable, Primary>
     return result.map(it => this.resultToEntity(it));
   }
 
-  update(entity: Primary & Partial<Entity>): Promise<CommandResponse> {
+  update(entity: Identifiable & Partial<Entity>): Promise<CommandResponse> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const values = this.objToSql(entity).join(', ');
     return this.client.rawCommand(
       `UPDATE ${
         this.tableName
-      } SET ${values} WHERE ${this.getWhereClauseIdentifiedByPrimaryKey(
-        entity,
-      )}`,
+      } SET ${values} WHERE ${this.getIdentifiableWhereClause(entity)}`,
     );
   }
 
@@ -95,12 +93,12 @@ export abstract class SasatRepository<Entity, Creatable, Primary>
     );
   }
 
-  private getWhereClauseIdentifiedByPrimaryKey(entity: Primary) {
+  private getIdentifiableWhereClause(entity: Identifiable) {
     return this.primaryKeys
       .map(it => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         if ((entity as any)[it] === undefined)
-          throw new SasatError('Require Primary Key');
+          throw new SasatError('Require Identifiable Key');
         return it;
       })
       .map(

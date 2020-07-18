@@ -8,6 +8,10 @@ import { ReferenceColumn } from '../entity/referenceColumn';
 import { NormalColumn } from '../entity/column';
 import { DBColumnTypes } from '../migration/column/columnTypes';
 import { Relation } from '..';
+import {
+  creatableInterfaceName,
+  identifiableInterfaceName,
+} from '../constants/interfaceConstants';
 
 export class Parser {
   constructor(private store: DataStoreHandler) {}
@@ -131,8 +135,8 @@ export class Parser {
           path: `entity/${table.tableName}`,
           classNames: [
             entityName,
-            `${entityName}Creatable`,
-            `${entityName}PrimaryKey`,
+            creatableInterfaceName(entityName),
+            identifiableInterfaceName(entityName),
           ],
         },
       ],

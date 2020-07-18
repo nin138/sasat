@@ -4,7 +4,7 @@ import { columnTypeToGqlPrimitive } from '../../generator/gql/columnToGqlType';
 import { IrGqlParam } from '../../ir/gql/types';
 
 export class GqlMutationParser {
-  parse(table: TableHandler): IrGqlMutationEntity {
+  parse = (table: TableHandler): IrGqlMutationEntity => {
     return {
       entityName: table.getEntityName(),
       primaryKeys: this.getPrimaryKeys(table),
@@ -17,7 +17,7 @@ export class GqlMutationParser {
       onDeleteParams: this.getOnDeleteParams(table),
       subscription: this.getSubscriptionSetting(table),
     };
-  }
+  };
 
   private getFromContextColumns(table: TableHandler) {
     return table.gqlOption.mutation.fromContextColumns.map(it => ({

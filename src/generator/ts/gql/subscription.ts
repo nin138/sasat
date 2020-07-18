@@ -1,6 +1,7 @@
 import { IrGqlMutation } from '../../../ir/gql/mutation';
 import { TsFileGenerator } from '../tsFileGenerator';
 import { tsArrowFunction } from '../code/arrowFunction';
+import { identifiableInterfaceName } from '../../../constants/interfaceConstants';
 
 export class TsGeneratorGqlSubscription extends TsFileGenerator {
   constructor(ir: IrGqlMutation) {
@@ -31,11 +32,11 @@ export class TsGeneratorGqlSubscription extends TsFileGenerator {
         result.push({
           name: `${it.entityName}Deleted`,
           filter: it.subscription.filter,
-          entity: `${it.entityName}PrimaryKey`,
+          entity: identifiableInterfaceName(it.entityName),
         });
         this.addImport(
           `./entity/${it.entityName}`,
-          it.entityName + 'PrimaryKey',
+          identifiableInterfaceName(it.entityName),
         );
       }
 

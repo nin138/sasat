@@ -7,6 +7,10 @@ import {
   TsClassGenerator,
   TsClassMethod,
 } from '../tsClassGenerator';
+import {
+  creatableInterfaceName,
+  identifiableInterfaceName,
+} from '../../../constants/interfaceConstants';
 
 const getFunctionBody = (ir: IrQuery) => {
   const getFindStatement = (ir: IrQuery) =>
@@ -51,7 +55,9 @@ export class TsGeneratorGeneratedRepository extends TsFileGenerator {
       `Generated${repository.entityName}Repository`,
       {
         exportClass: true,
-        extends: `SasatRepository<${entityName}, ${entityName}Creatable, ${entityName}PrimaryKey>`,
+        extends: `SasatRepository<${entityName}, ${creatableInterfaceName(
+          entityName,
+        )}, ${identifiableInterfaceName(entityName)}>`,
         abstract: true,
       },
     );
@@ -124,7 +130,9 @@ export class TsGeneratorGeneratedRepository extends TsFileGenerator {
       args: [
         {
           name: 'entity',
-          type: `${entityName}PrimaryKey & Partial<${entityName}>`,
+          type: `${identifiableInterfaceName(
+            entityName,
+          )} & Partial<${entityName}>`,
         },
       ],
       body,
