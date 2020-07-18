@@ -6,3 +6,4 @@ export { Relation } from './entity/relation';
 export { getDbClient } from './db/getDbClient';
 export { assignDeep } from './util/assignDeep';
 export { createTypeDef } from './createTypeDef';
+export { CompositeCondition } from './sql/expression/compositeCondition';
