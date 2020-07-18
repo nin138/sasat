@@ -34,7 +34,7 @@
     "pluralize": "^8.0.0",
     "prettier": "^2.0.0",
     "sqlstring": "^2.3.1",
-    "typescript": "3.8.3"
+    "typescript": "3.9.7"
   },
   "devDependencies": {
     "@types/fs-extra": "8.1.1",
