@@ -75,15 +75,14 @@ import { PubSubEngine } from "graphql-subscriptions";
 export const pubsub: PubSubEngine = new PubSub();
 `;
     const schemaFile = `\
-import { makeExecutableSchema } from 'graphql-tools';
 import { assignDeep, createTypeDef } from "sasat";
 import { typeDef } from "./__generated__/typeDefs";
 import { resolvers } from "./__generated__/resolver";
 
-export const schema = makeExecutableSchema({
+export const schema = {
   typeDefs: createTypeDef(assignDeep(typeDef, {})),
   resolvers: assignDeep(resolvers, {}),
-});
+};
 
 `;
     return [

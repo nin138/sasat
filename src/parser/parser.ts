@@ -16,17 +16,19 @@ import {
 export class Parser {
   constructor(private store: DataStoreHandler) {}
   parse(): Ir {
-    return {
+    const a = {
       repositories: this.store.tables.map(it => this.createRepository(it)),
       entities: this.store.tables.map(it => this.createEntity(it)),
     };
+    console.log(a.repositories.map(it => it.queries));
+    return a;
   }
 
   private createEntity(table: TableHandler): IrEntity {
     const fields = table.columns.map(column => {
       const data = column.getData();
       return {
-        fieldName: column.name,
+        fieldName: data.columnName,
         isPrimary: table.isColumnPrimary(column.name),
         type: data.type,
         nullable: !data.notNull,
@@ -60,11 +62,15 @@ export class Parser {
 
   private createRefQuery(ref: ReferenceColumn): IrQuery {
     return {
-      queryName: Parser.paramsToQueryName(ref.name),
+      queryName: Parser.paramsToQueryName(
+        ref.getTargetColumn().getData().columnName,
+      ),
       returnType: ref.table.getEntityName(),
       isReturnsArray: ref.data.relation === Relation.Many,
       isReturnDefinitelyExist: false, // TODO RELATION
-      params: [{ name: ref.name, type: ref.type }],
+      params: [
+        { name: ref.getTargetColumn().getData().columnName, type: ref.type },
+      ],
     };
   }
 

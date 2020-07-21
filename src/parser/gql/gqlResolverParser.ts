@@ -18,14 +18,15 @@ export class GqlResolverParser {
     ref: ReferenceColumn,
     tableName: string,
   ): IrGqlResolver {
+    const parentColumnName = ref.getTargetColumn().getData().columnName;
     return {
       __type: 'child',
       currentEntity: TableHandler.tableNameToEntityName(tableName),
       currentColumn: ref.data.columnName,
       parentEntity: capitalizeFirstLetter(ref.data.targetTable),
-      parentColumn: ref.data.targetColumn,
+      parentColumn: parentColumnName,
       gqlReferenceName: ref.data.relationName || ref.table.tableName,
-      functionName: Parser.paramsToQueryName(ref.data.columnName),
+      functionName: Parser.paramsToQueryName(parentColumnName),
     };
   }
 
@@ -33,14 +34,15 @@ export class GqlResolverParser {
     ref: ReferenceColumn,
     tableName: string,
   ): IrGqlResolver {
+    const parentColumnName = ref.getTargetColumn().getData().columnName;
     return {
       __type: 'parent',
       currentEntity: capitalizeFirstLetter(ref.data.targetTable),
       currentColumn: ref.data.targetColumn,
       parentEntity: TableHandler.tableNameToEntityName(tableName),
-      parentColumn: ref.data.columnName,
+      parentColumn: parentColumnName,
       gqlReferenceName: ref.data.targetTable,
-      functionName: Parser.paramsToQueryName(ref.data.columnName),
+      functionName: Parser.paramsToQueryName(parentColumnName),
     };
   }
 }

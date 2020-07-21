@@ -11,13 +11,15 @@ import { GqlResolverParser } from './gql/gqlResolverParser';
 export class GqlParser {
   constructor(private store: DataStoreHandler) {}
   parse(): IrGql {
-    return {
+    const a = {
       types: new GqlTypeParser().parse(this.store),
       queries: new GqlQueryParser().parse(this.store.tables),
       mutations: this.getMutations(),
       contexts: this.getContext(),
       resolvers: this.getResolvers(),
     };
+    // console.log(a);
+    return a;
   }
 
   private getContext(): IrGqlContext[] {

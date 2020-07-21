@@ -51,7 +51,7 @@ export class GqlMutationParser {
         it =>
           !table.gqlOption.mutation.fromContextColumns
             .map(it => it.column)
-            .includes(it.name),
+            .includes(it.getData().columnName),
       )
       .map(it => {
         return {
