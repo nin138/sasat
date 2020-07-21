@@ -13,6 +13,7 @@ import { IrGqlContext } from '../../ir/gql/context';
 import { TsGeneratorGqlContext } from './gql/context';
 import { TsGeneratorGqlResolver } from './gql/resolver';
 import { TsGeneratorGqlSubscription } from './gql/subscription';
+import { EntityNode } from '../../generatable/entity';
 
 export class TsCodeGenerator implements CodeGenerator {
   readonly fileExt = 'ts';
@@ -21,7 +22,7 @@ export class TsCodeGenerator implements CodeGenerator {
     return prettier.format(code, { parser: 'typescript' });
   }
 
-  generateEntity(entity: IrEntity): string {
+  generateEntity(entity: EntityNode): string {
     return this.formatCode(generateEntityFileString(entity));
   }
 

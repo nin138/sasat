@@ -12,16 +12,26 @@ import {
   creatableInterfaceName,
   identifiableInterfaceName,
 } from '../constants/interfaceConstants';
+import { CodeGeneratable } from '../generatable/codeGeneratable';
+import { RepositoryNode } from '../generatable/repository';
+import { EntityNode } from '../generatable/entity';
+import { FieldNode } from '../generatable/field';
 
 export class Parser {
   constructor(private store: DataStoreHandler) {}
-  parse(): Ir {
-    const a = {
-      repositories: this.store.tables.map(it => this.createRepository(it)),
-      entities: this.store.tables.map(it => this.createEntity(it)),
+  parse(): CodeGeneratable {
+    return {
+      repositories: this.store.tables.map(
+        it => new RepositoryNode(this.createRepository(it)),
+      ),
+      entities: this.store.tables.map(it => {
+        const e = this.createEntity(it);
+        return new EntityNode(
+          e.entityName,
+          e.fields.map(it => new FieldNode(it)),
+        );
+      }),
     };
-    console.log(a.repositories.map(it => it.queries));
-    return a;
   }
 
   private createEntity(table: TableHandler): IrEntity {

@@ -16,7 +16,7 @@ export class CodeGenerateController {
   private generateDir = path.join(this.outDir, '__generated__');
   private generateEntityDir = path.join(this.generateDir, 'entity');
   private generateRepositoryDir = path.join(this.generateDir, 'repository');
-  constructor(readonly ir: Ir, readonly gql: IrGql) {}
+  constructor(readonly ir: CodeGenerator, readonly gql: IrGql) {}
   async generate() {
     await this.prepareDirs();
     await Promise.all([
