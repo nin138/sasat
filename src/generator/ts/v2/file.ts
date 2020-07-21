@@ -1,6 +1,7 @@
 import { TsStatement } from './code/statement';
 import { TsCode } from './code/tsCode';
 import * as prettier from 'prettier';
+import { ImportDeclaration } from './code/importDeclaration';
 
 export class TsFile extends TsCode {
   constructor(private readonly statements: TsStatement[]) {
@@ -9,9 +10,23 @@ export class TsFile extends TsCode {
   }
   toTsString() {
     return TsFile.prettier(
-      [...this.importDeclarations, ...this.statements]
+      [...this.resolveImport(this.importDeclarations), ...this.statements]
         .map(it => it.toTsString())
         .join('\n'),
+    );
+  }
+
+  resolveImport(imports: ImportDeclaration[]) {
+    const map: Record<string, string[]> = {};
+    imports.forEach(it => {
+      if (!map[it.module]) {
+        map[it.module] = it.types;
+      } else {
+        map[it.module] = [...map[it.module], ...it.types];
+      }
+    });
+    return Object.entries(map).map(
+      ([module, types]) => new ImportDeclaration(types, module),
     );
   }
 
