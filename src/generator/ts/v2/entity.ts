@@ -1,5 +1,5 @@
 import { EntityNode } from '../../../generatable/entity';
-import { TsInterface } from './code/node/statement/interface';
+import { TsInterface } from './code/node/interface';
 import { TsStatement } from './code/abstruct/statement';
 import { TypeAliasDeclaration } from './code/node/type/typeAliasDeclaration';
 import {

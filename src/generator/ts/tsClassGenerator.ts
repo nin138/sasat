@@ -5,7 +5,7 @@ export interface TsArg {
 
 export enum TsAccessor {
   public = '',
-  protected = 'protected',
+  protected = 'protected ',
   private = 'private',
 }
 

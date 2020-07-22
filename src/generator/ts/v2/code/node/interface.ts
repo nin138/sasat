@@ -1,7 +1,7 @@
-import { PropertySignature } from '../propertySignature';
-import { Declaration } from '../../abstruct/declaration';
+import { PropertySignature } from './propertySignature';
+import { ExportableDeclaration } from '../abstruct/exportableDeclaration';
 
-export class TsInterface extends Declaration {
+export class TsInterface extends ExportableDeclaration {
   private properties: PropertySignature[] = [];
   constructor(private readonly name: string) {
     super();

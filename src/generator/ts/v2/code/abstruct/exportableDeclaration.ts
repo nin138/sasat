@@ -1,6 +1,6 @@
 import { TsStatement } from './statement';
 
-export abstract class Declaration extends TsStatement {
+export abstract class ExportableDeclaration extends TsStatement {
   private isExported = false;
 
   protected codePrefix() {
