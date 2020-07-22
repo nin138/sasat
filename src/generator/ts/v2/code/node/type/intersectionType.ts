@@ -1,4 +1,4 @@
-import { TsCode } from '../../tsCode';
+import { TsCode } from '../../abstruct/tsCode';
 import { TypeLiteral } from './typeLiteral';
 import { TypeReference } from './typeReference';
 
@@ -8,7 +8,7 @@ export class IntersectionType extends TsCode {
     this.mergeImport(...types);
   }
 
-  toTsString(): string {
-    return this.types.map(it => it.toTsString).join(' & ');
+  protected toTsString(): string {
+    return this.types.map(it => it.toString()).join(' & ');
   }
 }

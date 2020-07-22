@@ -1,4 +1,4 @@
-import { TsCode } from '../tsCode';
+import { TsCode } from '../abstruct/tsCode';
 import { TsUtil } from '../tsUtil';
 
 export class PropertySignature extends TsCode {
@@ -11,9 +11,13 @@ export class PropertySignature extends TsCode {
     super();
   }
 
-  toTsString(): string {
-    return `${TsUtil.readonly(this.isReadOnly)}${
-      this.propertyName
-    }${TsUtil.questionToken(this.isOptional)}: ${this.type}`;
+  protected codePrefix(): string {
+    return TsUtil.readonly(this.isReadOnly);
+  }
+
+  protected toTsString(): string {
+    return `${this.propertyName}${TsUtil.questionToken(this.isOptional)}: ${
+      this.type
+    }`;
   }
 }

@@ -19,7 +19,7 @@ export class FieldNode {
   }
 
   public tsType() {
-    return columnTypeToTsType(this.dbType) + this.isNullable ? '| null' : '';
+    return columnTypeToTsType(this.dbType) + (this.isNullable ? '| null' : '');
   }
 
   public isRequiredOnCreate() {

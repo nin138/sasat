@@ -1,4 +1,4 @@
-import { TsCode } from '../../tsCode';
+import { TsCode } from '../../abstruct/tsCode';
 import { PropertySignature } from '../propertySignature';
 
 export class TypeLiteral extends TsCode {
@@ -19,7 +19,7 @@ export class TypeLiteral extends TsCode {
     return this;
   }
 
-  toTsString(): string {
-    return `{${this.properties.map(it => it.toTsString()).join(';')}}`;
+  protected toTsString(): string {
+    return `{${this.properties.map(it => it.toString()).join(';')}}`;
   }
 }

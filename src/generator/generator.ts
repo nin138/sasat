@@ -9,7 +9,7 @@ import { CodeGeneratable } from '../generatable/codeGeneratable';
 export interface CodeGenerator {
   readonly fileExt: string;
   generateEntity(entity: EntityNode): string;
-  generateGeneratedRepository(repository: RepositoryNode): string;
+  generateGeneratedRepository(repository: IrRepository): string;
   generateRepository(repository: IrRepository): string;
   generateGqlTypeDefs(gql: IrGql): string;
   generateGqlResolver(gql: IrGql): string;

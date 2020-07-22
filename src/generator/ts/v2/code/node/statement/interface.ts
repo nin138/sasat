@@ -1,16 +1,10 @@
 import { PropertySignature } from '../propertySignature';
-import { TsStatement } from '../../statement';
-import { TsUtil } from '../../tsUtil';
+import { Declaration } from '../../abstruct/declaration';
 
-export class TsInterface extends TsStatement {
-  private isExported = false;
+export class TsInterface extends Declaration {
   private properties: PropertySignature[] = [];
   constructor(private readonly name: string) {
     super();
-  }
-  export(): this {
-    this.isExported = true;
-    return this;
   }
   addProperty(
     propertyName: string,
@@ -30,9 +24,9 @@ export class TsInterface extends TsStatement {
     return this;
   }
 
-  toTsString(): string {
-    return `${TsUtil.export(
-      this.isExported,
-    )}interface {${this.properties.map(it => it.toTsString()).join(';')}}`;
+  protected toTsString(): string {
+    return `interface ${this.name}{${this.properties
+      .map(it => it.toString())
+      .join(';')}}`;
   }
 }

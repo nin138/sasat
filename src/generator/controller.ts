@@ -8,6 +8,8 @@ import { emptyDir, writeFile } from 'fs-extra';
 import { mkDirIfNotExist, writeFileIfNotExist } from '../util/fsUtil';
 import { IrRepository } from '../ir/repository';
 import { IrGql } from '../ir/gql';
+import { CodeGeneratable } from '../generatable/codeGeneratable';
+import { EntityNode } from '../generatable/entity';
 
 export class CodeGenerateController {
   private codeGen: CodeGenerator = new TsCodeGenerator();
@@ -16,13 +18,15 @@ export class CodeGenerateController {
   private generateDir = path.join(this.outDir, '__generated__');
   private generateEntityDir = path.join(this.generateDir, 'entity');
   private generateRepositoryDir = path.join(this.generateDir, 'repository');
-  constructor(readonly ir: CodeGenerator, readonly gql: IrGql) {}
+  constructor(readonly ir: CodeGeneratable, readonly gql: IrGql) {}
   async generate() {
     await this.prepareDirs();
     await Promise.all([
       ...this.ir.entities.map(it => this.generateEntity(it)),
-      ...this.ir.repositories.map(it => this.generateRepository(it)),
-      ...this.ir.repositories.map(it => this.generateGeneratedRepository(it)),
+      ...this.ir.repositories.map(it => this.generateRepository(it.data)),
+      ...this.ir.repositories.map(it =>
+        this.generateGeneratedRepository(it.data),
+      ),
       ...this.generateGql(this.gql),
       ...this.generateOnceFiles(this.ir),
     ]);
@@ -40,7 +44,7 @@ export class CodeGenerateController {
     return path.join(basePath, `${entityName}.${this.codeGen.fileExt}`);
   }
 
-  private generateEntity(ir: IrEntity) {
+  private generateEntity(ir: EntityNode) {
     return writeFile(
       this.getFullPath(this.generateEntityDir, ir.entityName),
       this.codeGen.generateEntity(ir),
@@ -90,7 +94,7 @@ export class CodeGenerateController {
     ];
   }
 
-  private generateOnceFiles(ir: Ir) {
+  private generateOnceFiles(ir: CodeGeneratable) {
     return this.codeGen
       .generateOnceFiles(ir)
       .map(it =>

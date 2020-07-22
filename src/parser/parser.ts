@@ -24,12 +24,22 @@ export class Parser {
       repositories: this.store.tables.map(
         it => new RepositoryNode(this.createRepository(it)),
       ),
-      entities: this.store.tables.map(it => {
-        const e = this.createEntity(it);
+      entities: this.store.tables.map(table => {
         return new EntityNode(
-          e.entityName,
-          e.fields.map(it => new FieldNode(it)),
+          table.getEntityName(),
+          table.columns.map(
+            column =>
+              new FieldNode(
+                column.name,
+                column.type,
+                table.isColumnPrimary(column.name),
+                column.getData().default,
+                column.isNullable(),
+                column.getData().autoIncrement,
+              ),
+          ),
         );
+        // const e = this.createEntity(table);
       }),
     };
   }

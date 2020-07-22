@@ -1,6 +1,6 @@
 import { EntityNode } from '../../../generatable/entity';
 import { TsInterface } from './code/node/statement/interface';
-import { TsStatement } from './code/statement';
+import { TsStatement } from './code/abstruct/statement';
 import { TypeAliasDeclaration } from './code/node/type/typeAliasDeclaration';
 import {
   creatableInterfaceName,
@@ -41,9 +41,9 @@ export class TsEntityGenerator {
     );
   }
   private identifiable(): TsStatement {
-    return new TsInterface(
-      identifiableInterfaceName(this.node.entityName),
-    ).addProperties(this.node.identifiableFields().map(this.fieldToProperty));
+    return new TsInterface(identifiableInterfaceName(this.node.entityName))
+      .addProperties(this.node.identifiableFields().map(this.fieldToProperty))
+      .export();
   }
 
   private fieldToProperty(field: FieldNode) {

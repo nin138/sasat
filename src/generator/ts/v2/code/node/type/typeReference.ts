@@ -1,4 +1,4 @@
-import { TsCode } from '../../tsCode';
+import { TsCode } from '../../abstruct/tsCode';
 
 export class TypeReference extends TsCode {
   private isPartial = false;
@@ -13,7 +13,7 @@ export class TypeReference extends TsCode {
     return this;
   }
 
-  toTsString(): string {
+  protected toTsString(): string {
     if (this.isPartial) return `Partial<${this.typeName}>`;
     return this.typeName;
   }

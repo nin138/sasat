@@ -3,7 +3,7 @@ export class ImportDeclaration {
     public readonly types: string[],
     public readonly module: string,
   ) {}
-  toTsString() {
+  protected toTsString() {
     return `import {${this.types.join(',')} from "${module}";`;
   }
 }

@@ -1,13 +1,13 @@
-import { TsCode } from '../../tsCode';
 import { TsType } from './type';
+import { Declaration } from '../../abstruct/declaration';
 
-export class TypeAliasDeclaration extends TsCode {
+export class TypeAliasDeclaration extends Declaration {
   constructor(private readonly alias: string, private readonly type: TsType) {
     super();
     this.mergeImport(type);
   }
 
-  toTsString(): string {
-    return `type ${this.alias} = ${this.type.toTsString}`;
+  protected toTsString(): string {
+    return `type ${this.alias} = ${this.type.toString()}`;
   }
 }

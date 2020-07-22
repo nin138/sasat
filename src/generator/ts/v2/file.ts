@@ -1,4 +1,4 @@
-import { TsStatement } from './code/statement';
+import { TsStatement } from './code/abstruct/statement';
 import { TsCode } from './code/tsCode';
 import * as prettier from 'prettier';
 import { ImportDeclaration } from './code/importDeclaration';
@@ -11,7 +11,7 @@ export class TsFile extends TsCode {
   toTsString() {
     return TsFile.prettier(
       [...this.resolveImport(this.importDeclarations), ...this.statements]
-        .map(it => it.toTsString())
+        .map(it => it.toString())
         .join('\n'),
     );
   }

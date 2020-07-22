@@ -1,5 +1,3 @@
-import { IrEntity } from '../../ir/entity';
-import { generateEntityFileString } from './file/entity';
 import { IrRepository } from '../../ir/repository';
 import { TsGeneratorGeneratedRepository } from './file/generatedRepository';
 import { CodeGenerator } from '../generator';
@@ -14,6 +12,7 @@ import { TsGeneratorGqlContext } from './gql/context';
 import { TsGeneratorGqlResolver } from './gql/resolver';
 import { TsGeneratorGqlSubscription } from './gql/subscription';
 import { EntityNode } from '../../generatable/entity';
+import { TsEntityGenerator } from './v2/entity';
 
 export class TsCodeGenerator implements CodeGenerator {
   readonly fileExt = 'ts';
@@ -23,7 +22,7 @@ export class TsCodeGenerator implements CodeGenerator {
   }
 
   generateEntity(entity: EntityNode): string {
-    return this.formatCode(generateEntityFileString(entity));
+    return new TsEntityGenerator(entity).generate();
   }
 
   generateGeneratedRepository(repository: IrRepository): string {
