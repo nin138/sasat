@@ -1,10 +1,10 @@
 import { TsCode } from '../../abstruct/tsCode';
-import { TsType } from './type';
+import { isCode, TsType } from './type';
 
 export class ArrayType extends TsCode {
   constructor(private readonly type: TsType) {
     super();
-    if (type instanceof TsCode) this.mergeImport(type);
+    if (isCode(type)) this.mergeImport(type);
   }
 
   protected toTsString(): string {

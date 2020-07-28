@@ -1,9 +1,9 @@
-import { IrEntityField } from '../ir/entity';
 import {
   columnTypeToTsType,
   DBColumnTypes,
 } from '../migration/column/columnTypes';
 import { SqlValueType } from '../db/dbClient';
+import { PropertySignature } from '../generator/ts/v2/code/node/propertySignature';
 
 export class FieldNode {
   constructor(
@@ -25,5 +25,9 @@ export class FieldNode {
   public isRequiredOnCreate() {
     if (this.isAutoIncrement) return false;
     return this.defaultValue == null && !this.isNullable;
+  }
+
+  public toPropertySignature(): PropertySignature {
+    return new PropertySignature(this.fieldName, this.tsType(), false, true);
   }
 }

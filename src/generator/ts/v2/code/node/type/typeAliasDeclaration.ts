@@ -1,10 +1,10 @@
-import { TsType } from './type';
+import { isCode, TsType } from './type';
 import { ExportableDeclaration } from '../../abstruct/exportableDeclaration';
 
 export class TypeAliasDeclaration extends ExportableDeclaration {
   constructor(private readonly alias: string, private readonly type: TsType) {
     super();
-    this.mergeImport(type);
+    if (isCode(type)) this.mergeImport(type);
   }
 
   protected toTsString(): string {

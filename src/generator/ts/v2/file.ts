@@ -1,12 +1,14 @@
 import { TsStatement } from './code/abstruct/statement';
-import { TsCode } from './code/tsCode';
 import * as prettier from 'prettier';
 import { ImportDeclaration } from './code/importDeclaration';
+import { TsCode } from './code/abstruct/tsCode';
 
 export class TsFile extends TsCode {
-  constructor(private readonly statements: TsStatement[]) {
+  private readonly statements: TsStatement[];
+  constructor(...statements: TsStatement[]) {
     super();
     this.mergeImport(...statements);
+    this.statements = statements;
   }
   toTsString() {
     return TsFile.prettier(

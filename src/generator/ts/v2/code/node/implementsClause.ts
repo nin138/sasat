@@ -1,13 +1,15 @@
 import { TsCode } from '../abstruct/tsCode';
+import { TypeReference } from './type/typeReference';
 
 export class ImplementsClause extends TsCode {
-  private readonly identifiers: string[];
-  constructor(...identifiers: string[]) {
+  private readonly types: TypeReference[];
+  constructor(...types: TypeReference[]) {
     super();
-    this.identifiers = identifiers;
+    this.types = types;
+    this.mergeImport(...types);
   }
 
   protected toTsString(): string {
-    return `implements ${this.identifiers.join(',')}`;
+    return `implements ${this.types.join(',')}`;
   }
 }
