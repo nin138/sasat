@@ -16,7 +16,7 @@ export abstract class SasatRepository<Entity, Creatable, Identifiable>
   implements Repository<Entity, Creatable, Identifiable> {
   abstract readonly tableName: string;
   protected abstract readonly primaryKeys: string[];
-  protected abstract readonly autoIncrementColumn: string | undefined;
+  protected abstract readonly autoIncrementColumn?: string;
   constructor(protected client: SQLExecutor = getDbClient()) {}
   protected abstract getDefaultValueString(): Partial<
     { [P in keyof Entity]: Entity[P] | string | null }

@@ -15,6 +15,11 @@ export class Class extends ExportableDeclaration {
     super();
   }
 
+  abstract(): this {
+    this.isAbstract = true;
+    return this;
+  }
+
   extends(value: ExtendsClause): this {
     this._extends = value;
     return this;
