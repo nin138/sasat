@@ -1,15 +1,28 @@
 import { ExportableDeclaration } from '../abstruct/exportableDeclaration';
 import { PropertyDeclaration } from './propertyDeclaration';
 import { MethodDeclaration } from './methodDeclaration';
+import { ExtendsClause } from './extendsClause';
+import { ImplementsClause } from './implementsClause';
 
 export class Class extends ExportableDeclaration {
   private properties: PropertyDeclaration[] = [];
-  private extends?: string;
-  private methods: MethodDeclaration = [];
-  // modifiers todo Class modifiers
+  private _extends?: ExtendsClause;
+  private _implements?: ImplementsClause;
+  private methods: MethodDeclaration[] = [];
+  private isAbstract = false;
 
   constructor(private readonly name: string) {
     super();
+  }
+
+  extends(value: ExtendsClause): this {
+    this._extends = value;
+    return this;
+  }
+
+  implements(value: ImplementsClause): this {
+    this._implements = value;
+    return this;
   }
 
   addProperty(...properties: PropertyDeclaration[]): this {
@@ -18,9 +31,19 @@ export class Class extends ExportableDeclaration {
     return this;
   }
 
+  addMethod(...methods: MethodDeclaration[]): this {
+    this.methods.push(...methods);
+    this.mergeImport(...methods);
+    return this;
+  }
+
   protected toTsString(): string {
-    return `interface ${this.name}{${this.properties
-      .map(it => it.toString())
-      .join(';')}}`;
+    const properties = this.properties.map(it => it.toString()).join(';');
+    const methods = this.methods.map(it => it.toString()).join('');
+    const implement = this._implements?.toString() + ' ' || '';
+    const extend = this._extends?.toString() + '' || '';
+    return this.isAbstract
+      ? 'abstract '
+      : '' + `class ${this.name}${implement}${extend}{${properties}${methods}}`;
   }
 }
