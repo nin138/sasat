@@ -31,24 +31,22 @@ describe('GqlTypeParser', () => {
   });
 
   it('getReferencedType', () => {
-    expect(parser['getReferencedType'](testStoreHandler, 'user')).toStrictEqual(
-      [
-        {
-          isArray: true,
-          isNullable: false,
-          isReference: true,
-          name: 'post',
-          type: 'Post',
-        },
-        {
-          isArray: true,
-          isNullable: false,
-          isReference: true,
-          name: 'stock',
-          type: 'Stock',
-        },
-      ],
-    );
+    expect(parser['getReferencedType'](testStoreHandler, 'user')).toStrictEqual([
+      {
+        isArray: true,
+        isNullable: false,
+        isReference: true,
+        name: 'post',
+        type: 'Post',
+      },
+      {
+        isArray: true,
+        isNullable: false,
+        isReference: true,
+        name: 'stock',
+        type: 'Stock',
+      },
+    ]);
   });
 
   it('getType', () => {

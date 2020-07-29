@@ -6,11 +6,7 @@ import { DataStore } from './dataStore';
 import { SerializedTable } from './serializedStore';
 import { assembleColumn } from './assembleColumn';
 import { capitalizeFirstLetter } from '../util/stringUtil';
-import {
-  getDefaultGqlOption,
-  GqlOption,
-  mergeGqlOption,
-} from '../migration/gqlOption';
+import { getDefaultGqlOption, GqlOption, mergeGqlOption } from '../migration/gqlOption';
 import { NestedPartial } from '../util/type';
 import { escapeName } from '../sql/escape';
 
@@ -39,15 +35,11 @@ export class TableHandler implements Table {
     return this._gqlOption;
   }
 
-  constructor(
-    table: Partial<SerializedTable> & Pick<SerializedTable, 'tableName'>,
-    public store: DataStore,
-  ) {
+  constructor(table: Partial<SerializedTable> & Pick<SerializedTable, 'tableName'>, public store: DataStore) {
     this.tableName = table.tableName;
     this.primaryKey = table.primaryKey || [];
     this.uniqueKeys = table.uniqueKeys || [];
-    this.indexes =
-      table.indexes?.map(it => new DBIndex(this.tableName, it.columns)) || [];
+    this.indexes = table.indexes?.map(it => new DBIndex(this.tableName, it.columns)) || [];
     this._gqlOption = table.gqlOption || getDefaultGqlOption();
     this._columns = (table.columns || []).map(it => assembleColumn(it, this));
   }
@@ -99,8 +91,7 @@ export class TableHandler implements Table {
   }
 
   addUniqueKey(...columnNames: string[]): this {
-    if (columnNames.length === 0)
-      throw new SasatError('No column name specified');
+    if (columnNames.length === 0) throw new SasatError('No column name specified');
     this.uniqueKeys.push(columnNames);
     return this;
   }
@@ -113,11 +104,9 @@ export class TableHandler implements Table {
   showCreateTable(): string {
     const columns = this.columns.map(it => it.toSql());
     const rows = [...columns];
-    if (this.primaryKey.length !== 0)
-      rows.push(`PRIMARY KEY (${this.primaryKey.map(escapeName).join(',')})`);
+    if (this.primaryKey.length !== 0) rows.push(`PRIMARY KEY (${this.primaryKey.map(escapeName).join(',')})`);
     this.uniqueKeys.forEach(it => {
-      if (this.uniqueKeys.length !== 0)
-        rows.push(`UNIQUE KEY (${it.join(',')})`);
+      if (this.uniqueKeys.length !== 0) rows.push(`UNIQUE KEY (${it.join(',')})`);
     });
     rows.push(
       ...this._columns

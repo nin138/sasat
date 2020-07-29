@@ -26,9 +26,7 @@ export class TsCodeGenerator implements CodeGenerator {
   }
 
   generateGeneratedRepository(repository: IrRepository): string {
-    return this.formatCode(
-      new TsGeneratorGeneratedRepository(repository).generate(),
-    );
+    return this.formatCode(new TsGeneratorGeneratedRepository(repository).generate());
   }
 
   generateRepository(repository: IrRepository): string {
@@ -44,9 +42,7 @@ export class TsCodeGenerator implements CodeGenerator {
   }
 
   generateGqlResolver(gql: IrGql): string {
-    return this.formatCode(
-      new TsGeneratorGqlResolver(gql.resolvers).generate(),
-    );
+    return this.formatCode(new TsGeneratorGqlResolver(gql.resolvers).generate());
   }
 
   generateGqlMutation(gql: IrGql): string {
@@ -54,9 +50,7 @@ export class TsCodeGenerator implements CodeGenerator {
   }
 
   generateGqlSubscription(gql: IrGql): string {
-    return this.formatCode(
-      new TsGeneratorGqlSubscription(gql.mutations).generate(),
-    );
+    return this.formatCode(new TsGeneratorGqlSubscription(gql.mutations).generate());
   }
 
   generateGqlContext(contexts: IrGqlContext[]): string {

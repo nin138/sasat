@@ -39,9 +39,7 @@ export class ReferenceColumn implements Column {
   }
 
   getTargetColumn() {
-    return this.table.store
-      .table(this.data.targetTable)!
-      .column(this.data.targetColumn)!;
+    return this.table.store.table(this.data.targetTable)!.column(this.data.targetColumn)!;
   }
 
   getRootColumn(): NormalColumn {
@@ -77,9 +75,7 @@ export class ReferenceColumn implements Column {
   }
 }
 
-export const referenceToForeignKey = (
-  reference: ReferenceColumnData,
-): ForeignKey => ({
+export const referenceToForeignKey = (reference: ReferenceColumnData): ForeignKey => ({
   constraintName: `ref_${reference.targetTable}_${reference.targetColumn}`,
   columnName: reference.targetColumn,
   referenceTable: reference.targetTable,

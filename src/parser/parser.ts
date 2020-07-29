@@ -8,10 +8,7 @@ import { ReferenceColumn } from '../entity/referenceColumn';
 import { NormalColumn } from '../entity/column';
 import { DBColumnTypes } from '../migration/column/columnTypes';
 import { Relation } from '..';
-import {
-  creatableInterfaceName,
-  identifiableInterfaceName,
-} from '../constants/interfaceConstants';
+import { creatableInterfaceName, identifiableInterfaceName } from '../constants/interfaceConstants';
 import { CodeGeneratable } from '../generatable/codeGeneratable';
 import { RepositoryNode } from '../generatable/repository';
 import { EntityNode } from '../generatable/entity';
@@ -21,9 +18,7 @@ export class Parser {
   constructor(private store: DataStoreHandler) {}
   parse(): CodeGeneratable {
     return {
-      repositories: this.store.tables.map(
-        it => new RepositoryNode(this.createRepository(it)),
-      ),
+      repositories: this.store.tables.map(it => new RepositoryNode(this.createRepository(it))),
       entities: this.store.tables.map(table => {
         return new EntityNode(
           table.getEntityName(),
@@ -53,8 +48,7 @@ export class Parser {
         type: data.type,
         nullable: !data.notNull,
         default: data.default,
-        isNullableOnCreate:
-          data.default !== undefined || !data.notNull || data.autoIncrement,
+        isNullableOnCreate: data.default !== undefined || !data.notNull || data.autoIncrement,
       };
     });
     return {
@@ -82,30 +76,21 @@ export class Parser {
 
   private createRefQuery(ref: ReferenceColumn): IrQuery {
     return {
-      queryName: Parser.paramsToQueryName(
-        ref.getTargetColumn().getData().columnName,
-      ),
+      queryName: Parser.paramsToQueryName(ref.getTargetColumn().getData().columnName),
       returnType: ref.table.getEntityName(),
       isReturnsArray: ref.data.relation === Relation.Many,
       isReturnDefinitelyExist: false, // TODO RELATION
-      params: [
-        { name: ref.getTargetColumn().getData().columnName, type: ref.type },
-      ],
+      params: [{ name: ref.getTargetColumn().getData().columnName, type: ref.type }],
     };
   }
 
   private getQueries(table: TableHandler): IrQuery[] {
     const queries: IrQuery[] = [];
-    if (
-      table.primaryKey.length > 1 ||
-      !table.column(table.primaryKey[0])!.isReference()
-    ) {
+    if (table.primaryKey.length > 1 || !table.column(table.primaryKey[0])!.isReference()) {
       queries.push(this.createPrimaryQuery(table));
     }
     queries.push(
-      ...table.columns
-        .filter(column => column.isReference())
-        .map(it => this.createRefQuery(it as ReferenceColumn)),
+      ...table.columns.filter(column => column.isReference()).map(it => this.createRefQuery(it as ReferenceColumn)),
     );
     return queries;
   }
@@ -120,16 +105,11 @@ export class Parser {
     const defaultCurrentTimestampColumns: string[] = [];
     table.columns
       .filter(it => !it.isReference())
-      .filter(
-        it =>
-          (it as NormalColumn).data.default ||
-          !(it as NormalColumn).data.notNull,
-      )
+      .filter(it => (it as NormalColumn).data.default || !(it as NormalColumn).data.notNull)
       .forEach(it => {
         const column: NormalColumn = it as NormalColumn;
         if (
-          (column.type === DBColumnTypes.timestamp ||
-            column.type === DBColumnTypes.dateTime) &&
+          (column.type === DBColumnTypes.timestamp || column.type === DBColumnTypes.dateTime) &&
           column.data.default === 'CURRENT_TIMESTAMP'
         ) {
           defaultCurrentTimestampColumns.push(column.name);
@@ -137,19 +117,14 @@ export class Parser {
         }
         defaultValues.push({
           columnName: column.name,
-          value:
-            column.data.default === undefined
-              ? null
-              : (column.data.default as string),
+          value: column.data.default === undefined ? null : (column.data.default as string),
         });
       });
     return {
       tableName: table.tableName,
       entityName,
       primaryKeys: table.primaryKey,
-      autoIncrementColumn: table.columns.find(
-        it => !it.isReference() && it.getData().autoIncrement,
-      )?.name,
+      autoIncrementColumn: table.columns.find(it => !it.isReference() && it.getData().autoIncrement)?.name,
       defaultValues,
       defaultCurrentTimestampColumns,
       onUpdateCurrentTimestampColumns: table.columns
@@ -159,11 +134,7 @@ export class Parser {
       useClasses: [
         {
           path: `entity/${table.tableName}`,
-          classNames: [
-            entityName,
-            creatableInterfaceName(entityName),
-            identifiableInterfaceName(entityName),
-          ],
+          classNames: [entityName, creatableInterfaceName(entityName), identifiableInterfaceName(entityName)],
         },
       ],
       subscription: table.gqlOption.subscription,

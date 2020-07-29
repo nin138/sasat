@@ -36,10 +36,7 @@ export const createMigrationFile = (migrationName: string) => {
   const fileName = now + migrationName;
   const outDir = join(config().migration.dir);
   mkDirIfNotExist(outDir);
-  fs.writeFileSync(
-    join(outDir, fileName) + '.ts',
-    getMigrationFile(migrationName),
-  );
+  fs.writeFileSync(join(outDir, fileName) + '.ts', getMigrationFile(migrationName));
   return fileName;
 };
 

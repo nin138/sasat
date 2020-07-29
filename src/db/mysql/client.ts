@@ -1,9 +1,4 @@
-import {
-  CommandResponse,
-  DBClient,
-  QueryResponse,
-  SQLTransaction,
-} from '../dbClient';
+import { CommandResponse, DBClient, QueryResponse, SQLTransaction } from '../dbClient';
 import * as mysql from 'mysql';
 import { MySqlTransaction } from './transaction';
 import { config } from '../../config/config';
@@ -30,8 +25,6 @@ export class MysqlClient extends DBClient {
   }
 
   protected execSql(sql: string): Promise<QueryResponse | CommandResponse> {
-    return promisify(this.pool.query).bind(this.pool)(sql) as Promise<
-      QueryResponse | CommandResponse
-    >;
+    return promisify(this.pool.query).bind(this.pool)(sql) as Promise<QueryResponse | CommandResponse>;
   }
 }

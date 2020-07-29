@@ -1,11 +1,4 @@
-import {
-  DBColumnTypes,
-  DBDateTypes,
-  DBFloatingTypes,
-  DBIntegerTypes,
-  DBStringTypes,
-  DBTextTypes,
-} from './columnTypes';
+import { DBColumnTypes, DBDateTypes, DBFloatingTypes, DBIntegerTypes, DBStringTypes, DBTextTypes } from './columnTypes';
 import { SqlValueType } from '../../db/dbClient';
 
 export interface ColumnData {

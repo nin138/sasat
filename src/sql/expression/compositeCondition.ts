@@ -1,13 +1,7 @@
-import {
-  ConditionExpression,
-  conditionExpressionToSql,
-} from './conditionExpression';
+import { ConditionExpression, conditionExpressionToSql } from './conditionExpression';
 
 export class CompositeCondition<T> {
-  private constructor(
-    private type: 'AND' | 'OR',
-    private conditions: ConditionExpression<T>[],
-  ) {}
+  private constructor(private type: 'AND' | 'OR', private conditions: ConditionExpression<T>[]) {}
 
   static or<T>(conditions: ConditionExpression<T>[]) {
     return new CompositeCondition('OR', conditions);
@@ -17,8 +11,6 @@ export class CompositeCondition<T> {
   }
 
   toSQL(): string {
-    return (
-      '(' + this.conditions.map(conditionExpressionToSql).join(this.type) + ')'
-    );
+    return '(' + this.conditions.map(conditionExpressionToSql).join(this.type) + ')';
   }
 }

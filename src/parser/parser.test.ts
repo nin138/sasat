@@ -7,9 +7,7 @@ import { ReferenceColumn } from '../entity/referenceColumn';
 describe('Parser', () => {
   const parser = new Parser(testStoreHandler);
   it('createEntity', () => {
-    const entity = parser['createEntity'](
-      testStoreHandler.table('user')! as TableHandler,
-    );
+    const entity = parser['createEntity'](testStoreHandler.table('user')! as TableHandler);
     expect(entity.entityName).toBe('User');
     expect(entity.fields[0].fieldName).toBe('userId');
   });
@@ -19,11 +17,7 @@ describe('Parser', () => {
   });
 
   it('createPrimaryQuery', () => {
-    expect(
-      parser['createPrimaryQuery'](
-        testStoreHandler.table('user') as TableHandler,
-      ),
-    ).toStrictEqual({
+    expect(parser['createPrimaryQuery'](testStoreHandler.table('user') as TableHandler)).toStrictEqual({
       queryName: 'findByUserId',
       returnType: 'User',
       isReturnsArray: false,
@@ -38,9 +32,7 @@ describe('Parser', () => {
   });
 
   it('createRefQuery', () => {
-    const refColumn = testStoreHandler
-      .table('post')!
-      .column('userId') as ReferenceColumn;
+    const refColumn = testStoreHandler.table('post')!.column('userId') as ReferenceColumn;
     expect(parser['createRefQuery'](refColumn)).toStrictEqual({
       queryName: Parser.paramsToQueryName(refColumn.name),
       returnType: 'Post',
@@ -51,9 +43,7 @@ describe('Parser', () => {
   });
 
   it('getQueries', () => {
-    expect(
-      parser['getQueries'](testStoreHandler.table('user') as TableHandler),
-    ).toStrictEqual([
+    expect(parser['getQueries'](testStoreHandler.table('user') as TableHandler)).toStrictEqual([
       {
         queryName: 'findByUserId',
         returnType: 'User',

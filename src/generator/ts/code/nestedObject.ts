@@ -23,14 +23,7 @@ export class TsCodeGenNestedObject {
 
   private objToTsString(obj: Obj): string {
     return `{ ${Object.entries(obj)
-      .map(
-        ([key, value]) =>
-          `${key}: ${
-            typeof value !== 'string'
-              ? this.objToTsString(obj[key] as Obj)
-              : value
-          }`,
-      )
+      .map(([key, value]) => `${key}: ${typeof value !== 'string' ? this.objToTsString(obj[key] as Obj) : value}`)
       .join(',')} }`;
   }
 

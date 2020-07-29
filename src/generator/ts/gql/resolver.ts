@@ -9,14 +9,8 @@ export class TsGeneratorGqlResolver extends TsFileGenerator {
       [resolver.parentEntity, resolver.gqlReferenceName],
       `(${resolver.parentEntity}: ${resolver.parentEntity}) => new ${resolver.currentEntity}Repository().${resolver.functionName}(${resolver.parentEntity}.${resolver.parentColumn})`,
     );
-    this.addImport(
-      `../repository/${resolver.parentEntity}`,
-      `${resolver.parentEntity}Repository`,
-    );
-    this.addImport(
-      `./entity/${resolver.parentEntity}`,
-      `${resolver.parentEntity}`,
-    );
+    this.addImport(`../repository/${resolver.parentEntity}`, `${resolver.parentEntity}Repository`);
+    this.addImport(`./entity/${resolver.parentEntity}`, `${resolver.parentEntity}`);
   }
   constructor(irResolvers: IrGqlResolver[]) {
     super();

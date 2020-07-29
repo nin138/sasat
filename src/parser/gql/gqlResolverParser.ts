@@ -8,16 +8,10 @@ export class GqlResolverParser {
   parse = (table: TableHandler): IrGqlResolver[] => {
     return table
       .getReferenceColumns()
-      .flatMap(it => [
-        this.createChildResolver(it, table.tableName),
-        this.createParentResolver(it, table.tableName),
-      ]);
+      .flatMap(it => [this.createChildResolver(it, table.tableName), this.createParentResolver(it, table.tableName)]);
   };
 
-  private createChildResolver(
-    ref: ReferenceColumn,
-    tableName: string,
-  ): IrGqlResolver {
+  private createChildResolver(ref: ReferenceColumn, tableName: string): IrGqlResolver {
     const parentColumnName = ref.getTargetColumn().getData().columnName;
     return {
       __type: 'child',
@@ -30,10 +24,7 @@ export class GqlResolverParser {
     };
   }
 
-  private createParentResolver(
-    ref: ReferenceColumn,
-    tableName: string,
-  ): IrGqlResolver {
+  private createParentResolver(ref: ReferenceColumn, tableName: string): IrGqlResolver {
     const parentColumnName = ref.getTargetColumn().getData().columnName;
     return {
       __type: 'parent',

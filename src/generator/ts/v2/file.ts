@@ -12,9 +12,7 @@ export class TsFile extends TsCode {
   }
   toTsString() {
     return TsFile.prettier(
-      [...this.resolveImport(this.importDeclarations), ...this.statements]
-        .map(it => it.toString())
-        .join('\n'),
+      [...this.resolveImport(this.importDeclarations), ...this.statements].map(it => it.toString()).join('\n'),
     );
   }
 
@@ -27,9 +25,7 @@ export class TsFile extends TsCode {
         map[it.module] = [...map[it.module], ...it.types];
       }
     });
-    return Object.entries(map).map(
-      ([module, types]) => new ImportDeclaration(types, module),
-    );
+    return Object.entries(map).map(([module, types]) => new ImportDeclaration(types, module));
   }
 
   private static prettier(code: string) {

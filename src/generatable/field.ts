@@ -1,7 +1,4 @@
-import {
-  columnTypeToTsType,
-  DBColumnTypes,
-} from '../migration/column/columnTypes';
+import { columnTypeToTsType, DBColumnTypes } from '../migration/column/columnTypes';
 import { SqlValueType } from '../db/dbClient';
 import { PropertySignature } from '../generator/ts/v2/code/node/propertySignature';
 

@@ -9,10 +9,7 @@ export const formatQuery = (
   let ret = str[0];
   for (let i = 0; i < params.length; i++) {
     if (typeof params[i] === 'function') ret += params[i]();
-    else if (Array.isArray(params[i]))
-      ret += params[i]
-        .map((it: SqlValueType) => SqlString.escape(it))
-        .join(', ');
+    else if (Array.isArray(params[i])) ret += params[i].map((it: SqlValueType) => SqlString.escape(it)).join(', ');
     else ret += SqlString.escape(params[i]);
     ret += str[i + 1];
   }

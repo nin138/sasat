@@ -47,8 +47,6 @@ export class Class extends ExportableDeclaration {
     const methods = this.methods.map(it => it.toString()).join('');
     const implement = this._implements?.toString() + ' ' || '';
     const extend = this._extends?.toString() + '' || '';
-    return this.isAbstract
-      ? 'abstract '
-      : '' + `class ${this.name}${implement}${extend}{${properties}${methods}}`;
+    return this.isAbstract ? 'abstract ' : '' + `class ${this.name}${implement}${extend}{${properties}${methods}}`;
   }
 }

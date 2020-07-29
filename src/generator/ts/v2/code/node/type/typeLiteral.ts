@@ -7,15 +7,8 @@ export class TypeLiteral extends TsCode {
     this.mergeImport(...properties);
   }
 
-  addProperty(
-    propertyName: string,
-    type: string,
-    isOptional = false,
-    isReadOnly = false,
-  ): this {
-    this.properties.push(
-      new PropertySignature(propertyName, type, isOptional, isReadOnly),
-    );
+  addProperty(propertyName: string, type: string, isOptional = false, isReadOnly = false): this {
+    this.properties.push(new PropertySignature(propertyName, type, isOptional, isReadOnly));
     return this;
   }
 

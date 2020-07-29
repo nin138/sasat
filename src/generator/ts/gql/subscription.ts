@@ -34,10 +34,7 @@ export class TsGeneratorGqlSubscription extends TsFileGenerator {
           filter: it.subscription.filter,
           entity: identifiableInterfaceName(it.entityName),
         });
-        this.addImport(
-          `./entity/${it.entityName}`,
-          identifiableInterfaceName(it.entityName),
-        );
+        this.addImport(`./entity/${it.entityName}`, identifiableInterfaceName(it.entityName));
       }
 
       return result;
@@ -46,16 +43,10 @@ export class TsGeneratorGqlSubscription extends TsFileGenerator {
     const functions = subscriptions.map(it => {
       if (it.filter.length === 0)
         return `${it.name}: { subscribe: () => pubsub.asyncIterator([SubscriptionName.${it.name}]), },`;
-      return `${
-        it.name
-      }: { subscribe: withFilter(() => pubsub.asyncIterator([SubscriptionName.${
-        it.name
-      }]),
+      return `${it.name}: { subscribe: withFilter(() => pubsub.asyncIterator([SubscriptionName.${it.name}]),
       async (payload, variables) => {
         const result = await payload.${it.name};
-        return ${it.filter
-          .map(it => `result.${it.column} === variables.${it.column}`)
-          .join('&&')};
+        return ${it.filter.map(it => `result.${it.column} === variables.${it.column}`).join('&&')};
       },
     ),},`;
     });

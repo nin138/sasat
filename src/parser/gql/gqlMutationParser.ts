@@ -28,12 +28,7 @@ export class GqlMutationParser {
 
   private getOnCreateParams(table: TableHandler): IrGqlParam[] {
     return table.columns
-      .filter(
-        it =>
-          !table.gqlOption.mutation.fromContextColumns
-            .map(it => it.column)
-            .includes(it.name),
-      )
+      .filter(it => !table.gqlOption.mutation.fromContextColumns.map(it => it.column).includes(it.name))
       .map(it => {
         return {
           name: it.name,
@@ -47,12 +42,7 @@ export class GqlMutationParser {
 
   private getOnUpdateParams(table: TableHandler): IrGqlParam[] {
     return table.columns
-      .filter(
-        it =>
-          !table.gqlOption.mutation.fromContextColumns
-            .map(it => it.column)
-            .includes(it.getData().columnName),
-      )
+      .filter(it => !table.gqlOption.mutation.fromContextColumns.map(it => it.column).includes(it.getData().columnName))
       .map(it => {
         return {
           name: it.name,
@@ -67,12 +57,7 @@ export class GqlMutationParser {
   private getOnDeleteParams(table: TableHandler): IrGqlParam[] {
     return table
       .primaryKeyColumns()
-      .filter(
-        it =>
-          !table.gqlOption.mutation.fromContextColumns
-            .map(it => it.column)
-            .includes(it.name),
-      )
+      .filter(it => !table.gqlOption.mutation.fromContextColumns.map(it => it.column).includes(it.name))
       .map(it => {
         return {
           name: it.name,

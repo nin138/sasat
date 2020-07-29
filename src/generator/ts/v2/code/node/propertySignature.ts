@@ -16,8 +16,6 @@ export class PropertySignature extends TsCode {
   }
 
   protected toTsString(): string {
-    return `${this.propertyName}${TsUtil.questionToken(this.isOptional)}: ${
-      this.type
-    }`;
+    return `${this.propertyName}${TsUtil.questionToken(this.isOptional)}: ${this.type}`;
   }
 }

@@ -30,9 +30,7 @@ export class TsFileGenerator {
 
   generate() {
     this.preGenerate();
-    const importStatement = this.imports
-      .map(it => `import { ${it.names.join(',')} } from '${it.from}';\n`)
-      .join('');
+    const importStatement = this.imports.map(it => `import { ${it.names.join(',')} } from '${it.from}';\n`).join('');
     return importStatement + this.lines.join('\n');
   }
 }
