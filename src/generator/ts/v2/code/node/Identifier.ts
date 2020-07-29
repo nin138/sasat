@@ -1,6 +1,6 @@
-import { TsCode } from '../abstruct/tsCode';
+import { TsExpression } from '../abstruct/expression';
 
-export class Identifier extends TsCode {
+export class Identifier extends TsExpression {
   constructor(private readonly name: string) {
     super();
   }

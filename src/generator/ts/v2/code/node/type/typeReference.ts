@@ -2,8 +2,6 @@ import { TsCode } from '../../abstruct/tsCode';
 import { Identifier } from '../Identifier';
 
 export class TypeReference extends TsCode {
-  private isPartial = false;
-
   constructor(
     private readonly typeName: string,
     private readonly typeArguments: Array<Identifier | TypeReference> = [],
@@ -18,8 +16,14 @@ export class TypeReference extends TsCode {
   }
 
   partial() {
-    this.isPartial = true;
-    return this;
+    return new TypeReference('Partial', [this]);
+  }
+
+  pick(...properties: string[]) {
+    return new TypeReference('Pick', [
+      this,
+      new Identifier(properties.map(it => `'${it}'`).join('|')),
+    ]);
   }
 
   protected toTsString(): string {
@@ -27,8 +31,6 @@ export class TypeReference extends TsCode {
       this.typeArguments.length === 0
         ? ''
         : `<${this.typeArguments.join(',')}>`;
-    const type = `${this.typeName}${typeArgs}`;
-    if (this.isPartial) return `Partial<${type}>`;
-    return type;
+    return `${this.typeName}${typeArgs}`;
   }
 }

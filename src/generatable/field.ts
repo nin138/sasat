@@ -13,6 +13,7 @@ export class FieldNode {
     public readonly defaultValue: SqlValueType | undefined,
     public readonly isNullable: boolean,
     public readonly isAutoIncrement: boolean,
+    public readonly onCreateCurrentTimestamp: boolean,
   ) {}
   public isRequiredToIdentify() {
     return this.isPrimary;
@@ -29,5 +30,9 @@ export class FieldNode {
 
   public toPropertySignature(): PropertySignature {
     return new PropertySignature(this.fieldName, this.tsType(), false, true);
+  }
+
+  public hasDefaultValue(): boolean {
+    return this.defaultValue !== undefined || this.onCreateCurrentTimestamp;
   }
 }
