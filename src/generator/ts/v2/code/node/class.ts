@@ -22,11 +22,13 @@ export class Class extends ExportableDeclaration {
 
   extends(value: ExtendsClause): this {
     this._extends = value;
+    this.mergeImport(value);
     return this;
   }
 
   implements(value: ImplementsClause): this {
     this._implements = value;
+    this.mergeImport(value);
     return this;
   }
 
@@ -43,10 +45,11 @@ export class Class extends ExportableDeclaration {
   }
 
   protected toTsString(): string {
-    const properties = this.properties.map(it => it.toString()).join(';');
+    const properties = this.properties.map(it => it.toString()).join('');
     const methods = this.methods.map(it => it.toString()).join('');
-    const implement = this._implements?.toString() + ' ' || '';
-    const extend = this._extends?.toString() + '' || '';
-    return this.isAbstract ? 'abstract ' : '' + `class ${this.name}${implement}${extend}{${properties}${methods}}`;
+    const implement = this._implements ? this._implements.toString() + ' ' : '';
+    const extend = this._extends ? this._extends.toString() + '' : '';
+    const modifier = this.isAbstract ? 'abstract ' : '';
+    return modifier + `class ${this.name} ${implement}${extend}{${properties}${methods}}`;
   }
 }

@@ -1,4 +1,4 @@
-import { EntityNode } from '../../../generatable/entity';
+import { EntityNode } from '../../../node/entity';
 import { TsInterface } from './code/node/interface';
 import { TsStatement } from './code/abstruct/statement';
 import { TypeAliasDeclaration } from './code/node/type/typeAliasDeclaration';

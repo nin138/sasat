@@ -25,11 +25,12 @@ export class PropertyDeclaration extends TsCode {
   }
 
   protected toTsString(): string {
-    const initializer = this.initializer ? ` = ${this.initializer.toString()}` : '';
+    const initializer = this._initializer ? ` = ${this._initializer.toString()}` : '';
     return (
-      this.modifiers.toString() +
+      this._modifiers.toString() +
       `${this.propertyName}${TsUtil.questionToken(this.optional)}: ${this.type}` +
-      initializer
+      initializer +
+      ';'
     );
   }
 }

@@ -6,7 +6,7 @@ import {
 } from '../../../constants/interfaceConstants';
 import { TsFile } from './file';
 import { Class } from './code/node/class';
-import { RepositoryNode } from '../../../generatable/repository';
+import { RepositoryNode } from '../../../node/repository';
 import { ExtendsClause } from './code/node/extendsClause';
 import { TypeReference } from './code/node/type/typeReference';
 import { GeneratedRepositoryPath, getEntityPath } from '../../../constants/directory';
@@ -43,7 +43,7 @@ export class GeneratedRepositoryGenerator {
               new TypeReference(creatableInterfaceName(node.entityName)).importFrom(entityPath),
               new TypeReference(identifiableInterfaceName(node.entityName)).importFrom(entityPath),
             ]),
-          ),
+          ).addImport([baseRepositoryName()], 'sasat'),
         )
         .addProperty(...this.properties(node))
         .addMethod(this.getDefaultValueMethod(node), ...this.findMethods(node)),
@@ -104,7 +104,7 @@ export class GeneratedRepositoryGenerator {
     return node.findMethods.map(it => {
       const body = new ReturnStatement(
         new CallExpression(
-          new Identifier('this.first'),
+          new Identifier('this.first'), // TODO
           new ObjectLiteral(
             new PropertyAssignment(
               'where',

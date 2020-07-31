@@ -3,13 +3,13 @@ import { TableHandler } from '../entity/table';
 import { capitalizeFirstLetter } from '../util/stringUtil';
 import { ReferenceColumn } from '../entity/referenceColumn';
 import { Relation } from '..';
-import { CodeGeneratable } from '../generatable/codeGeneratable';
-import { RepositoryNode } from '../generatable/repository';
-import { EntityNode } from '../generatable/entity';
-import { FieldNode } from '../generatable/field';
-import { FindMethodNode } from '../generatable/findMethod';
-import { ParameterNode } from '../generatable/parameterNode';
-import { TypeNode } from '../generatable/typeNode';
+import { CodeGeneratable } from '../node/codeGeneratable';
+import { RepositoryNode } from '../node/repository';
+import { EntityNode } from '../node/entity';
+import { FieldNode } from '../node/field';
+import { FindMethodNode } from '../node/findMethod';
+import { ParameterNode } from '../node/parameterNode';
+import { TypeNode } from '../node/typeNode';
 
 export class Parser {
   constructor(private store: DataStoreHandler) {}

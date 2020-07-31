@@ -9,6 +9,6 @@ export class PropertyAssignment extends TsCode {
   }
 
   protected toTsString(): string {
-    return `${this.key}: ${this.value.toString}`;
+    return `${this.key}: ${this.value.toString()}`;
   }
 }

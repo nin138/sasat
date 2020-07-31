@@ -4,6 +4,7 @@ const GeneratedDirName = '__generated__';
 const EntityDirName = 'entities';
 const RepositoryDirName = 'repositories';
 const GeneratedRepositoryDirName = 'repositories';
+export const GeneratedPath = `/${GeneratedDirName}`;
 export const EntityPath = `/${GeneratedDirName}/${EntityDirName}/`;
 export const RepositoryPath = `/${RepositoryDirName}/`;
 export const GeneratedRepositoryPath = `/${GeneratedDirName}/${GeneratedRepositoryDirName}/`;

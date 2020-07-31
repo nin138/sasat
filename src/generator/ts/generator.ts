@@ -10,10 +10,10 @@ import { IrGqlContext } from '../../ir/gql/context';
 import { TsGeneratorGqlContext } from './gql/context';
 import { TsGeneratorGqlResolver } from './gql/resolver';
 import { TsGeneratorGqlSubscription } from './gql/subscription';
-import { EntityNode } from '../../generatable/entity';
+import { EntityNode } from '../../node/entity';
 import { TsEntityGenerator } from './v2/entity';
 import { GeneratedRepositoryGenerator } from './v2/generatedRepository';
-import { RepositoryNode } from '../../generatable/repository';
+import { RepositoryNode } from '../../node/repository';
 
 export class TsCodeGenerator implements CodeGenerator {
   readonly fileExt = 'ts';
@@ -30,7 +30,7 @@ export class TsCodeGenerator implements CodeGenerator {
     return new GeneratedRepositoryGenerator(repository).generate().toString();
   }
 
-  generateRepository(repository: IrRepository): string {
+  generateRepository(repository: RepositoryNode): string {
     return this.formatCode(generateRepositoryString(repository));
   }
 

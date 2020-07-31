@@ -4,9 +4,10 @@ import { TypeReference } from './type/typeReference';
 export class ExtendsClause extends TsCode {
   constructor(private readonly type: TypeReference) {
     super();
+    this.mergeImport(type);
   }
 
   protected toTsString(): string {
-    return `extend ${this.type}`;
+    return `extends ${this.type}`;
   }
 }

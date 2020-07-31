@@ -11,9 +11,10 @@ export class TsFile extends TsCode {
     this.statements = statements;
   }
   protected toTsString() {
-    return TsFile.prettier(
-      [...this.resolveImport(this.importDeclarations), ...this.statements].map(it => it.toString()).join('\n'),
-    );
+    const string = [...this.resolveImport(this.importDeclarations), ...this.statements]
+      .map(it => it.toString())
+      .join('\n');
+    return TsFile.prettier(string);
   }
 
   protected resolveImport(imports: ImportDeclaration[]) {
