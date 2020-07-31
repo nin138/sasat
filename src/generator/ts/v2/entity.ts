@@ -16,7 +16,9 @@ export class TsEntityGenerator {
   }
 
   private entity(): TsStatement {
-    return new TsInterface(this.node.entityName).addProperties(this.node.fields.map(it => it.toPropertySignature()));
+    return new TsInterface(this.node.entityName)
+      .addProperties(this.node.fields.map(it => it.toPropertySignature()))
+      .export();
   }
   private creatable(): TsStatement {
     return new TypeAliasDeclaration(
@@ -25,7 +27,7 @@ export class TsEntityGenerator {
         new TypeLiteral(this.node.onCreateRequiredFields().map(it => it.toPropertySignature())),
         new TypeReference(this.node.entityName).partial(),
       ]),
-    );
+    ).export();
   }
   private identifiable(): TsStatement {
     return new TsInterface(identifiableInterfaceName(this.node.entityName))

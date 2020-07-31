@@ -6,6 +6,14 @@ export class PropertyModifiers extends Modifiers {
     return super.accessor(accessor);
   }
 
+  private(): this {
+    return super.private();
+  }
+
+  protected(): this {
+    return super.protected();
+  }
+
   abstract(): this {
     return super.abstract();
   }

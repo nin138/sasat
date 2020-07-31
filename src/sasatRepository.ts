@@ -54,6 +54,12 @@ export abstract class SasatRepository<Entity, Creatable, Identifiable>
     return result.map(it => this.resultToEntity(it));
   }
 
+  async first(condition: Omit<SQLCondition<Entity>, 'from' | 'limit'>): Promise<Entity | null> {
+    const result = await this.find({ ...condition, limit: 1 });
+    if (result.length !== 0) return result[0];
+    return null;
+  }
+
   async list(select?: Array<keyof Entity>): Promise<Entity[]> {
     const result = await this.client.rawQuery(
       `SELECT ${select ? select.map(it => SqlString.escapeId(it)).join(', ') : '*'} FROM ${this.tableName}`,

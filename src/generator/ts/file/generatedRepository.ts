@@ -77,44 +77,6 @@ export class TsGeneratorGeneratedRepository extends TsFileGenerator {
     ];
   }
 
-  private methodCreate(entityName: string): TsClassMethod {
-    return {
-      async: true,
-      name: 'create',
-      args: [
-        {
-          name: 'entity',
-          type: `${entityName}Creatable`,
-        },
-      ],
-      returnType: `Promise<${entityName}>`,
-      body: `const result = super.create(entity);
-        await pubsub.publish(SubscriptionName.${entityName}Created, { ${entityName}Created: result });
-        return result;`,
-    };
-  }
-
-  private methodUpdate(entityName: string, onUpdateCurrentTimestampColumns: string[]): TsClassMethod {
-    const onUpdateColumns = onUpdateCurrentTimestampColumns.map(it => `'${it}',`).join('');
-    const onUpdateValues = onUpdateCurrentTimestampColumns.map(it => `${it}: getCurrentDateTimeString(),`).join('');
-    const body = `const result = await super.update(entity);
-        if(result.changedRows === 1) {
-          await pubsub.publish(SubscriptionName.${entityName}Updated, { ${entityName}Updated: { _updatedColumns: [${onUpdateColumns} ...Object.keys(entity)] ,${onUpdateValues}...entity } });
-        }
-        return result;`;
-    return {
-      async: true,
-      name: 'update',
-      args: [
-        {
-          name: 'entity',
-          type: `${identifiableInterfaceName(entityName)} & Partial<${entityName}>`,
-        },
-      ],
-      body,
-    };
-  }
-
   private getMethods(repository: IrRepository) {
     const methods: TsClassMethod[] = [
       {

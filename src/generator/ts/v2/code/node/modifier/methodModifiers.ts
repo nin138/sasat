@@ -1,9 +1,12 @@
-import { TsAccessor } from '../../../../tsClassGenerator';
 import { Modifiers } from './modifiers';
 
 export class MethodModifiers extends Modifiers {
-  accessor(accessor: TsAccessor): this {
-    return super.accessor(accessor);
+  private(): this {
+    return super.private();
+  }
+
+  protected(): this {
+    return super.protected();
   }
 
   abstract(): this {

@@ -6,24 +6,38 @@ export class Modifiers extends TsCode {
   private isReadOnly = false;
   private isStatic = false;
   private isAbstract = false;
+  private isAsync = false;
 
   protected accessor(accessor: TsAccessor): this {
     this._accessor = accessor;
     return this;
   }
 
-  abstract(): this {
+  protected private(): this {
+    return this.accessor(TsAccessor.private);
+  }
+
+  protected protected(): this {
+    return this.accessor(TsAccessor.private);
+  }
+
+  protected abstract(): this {
     this.isAbstract = true;
     return this;
   }
 
-  readonly(): this {
+  protected readonly(): this {
     this.isReadOnly = true;
     return this;
   }
 
-  static(): this {
+  protected static(): this {
     this.isStatic = true;
+    return this;
+  }
+
+  protected async(): this {
+    this.isAsync = true;
     return this;
   }
 
@@ -34,6 +48,8 @@ export class Modifiers extends TsCode {
       ? 'static '
       : '' + this.isReadOnly
       ? 'readonly '
+      : '' + this.isAsync
+      ? 'async '
       : '';
   }
 }

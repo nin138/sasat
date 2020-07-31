@@ -13,7 +13,6 @@ import { GeneratedRepositoryPath, getEntityPath } from '../../../constants/direc
 import { PropertyDeclaration } from './code/node/propertyDeclaration';
 import { KeywordTypeNode } from './code/node/type/typeKeyword';
 import { PropertyModifiers } from './code/node/modifier/propertyModifiers';
-import { TsAccessor } from '../tsClassGenerator';
 import { ArrayLiteral, NumericLiteral, ObjectLiteral, StringLiteral } from './code/node/literal/literal';
 import { ArrayType } from './code/node/type/arrayType';
 import { UnionType } from './code/node/type/unionType';
@@ -25,6 +24,7 @@ import { PropertyAssignment } from './code/node/propertyAssignment';
 import { CallExpression } from './code/node/CallExpression';
 import { SqlValueType } from '../../../db/dbClient';
 import { TsExpression } from './code/abstruct/expression';
+import { Parameter } from './code/node/parameter';
 
 export class GeneratedRepositoryGenerator {
   constructor(private node: RepositoryNode) {}
@@ -45,8 +45,8 @@ export class GeneratedRepositoryGenerator {
             ]),
           ),
         )
-        .addProperty(...this.propeties(node))
-        .addMethod(this.getDefaultValueMethod(node)),
+        .addProperty(...this.properties(node))
+        .addMethod(this.getDefaultValueMethod(node), ...this.findMethods(node)),
     );
   }
   private sqlValueToTsExpression(value: SqlValueType): TsExpression {
@@ -59,20 +59,20 @@ export class GeneratedRepositoryGenerator {
     return new Identifier('null');
   }
 
-  private propeties(node: RepositoryNode) {
+  private properties(node: RepositoryNode) {
     return [
       new PropertyDeclaration('tableName', KeywordTypeNode.string, false)
         .modifiers(new PropertyModifiers().readonly())
         .initializer(new StringLiteral(node.entityName)),
       new PropertyDeclaration('primaryKeys', new ArrayType(KeywordTypeNode.string), false)
-        .modifiers(new PropertyModifiers().readonly().accessor(TsAccessor.protected))
+        .modifiers(new PropertyModifiers().readonly().protected())
         .initializer(new ArrayLiteral(node.primaryKeys.map(it => new StringLiteral(it)))),
       new PropertyDeclaration(
         'autoIncrementColumn',
         new UnionType([KeywordTypeNode.string, KeywordTypeNode.undefined]),
         true,
       )
-        .modifiers(new PropertyModifiers().readonly().accessor(TsAccessor.protected))
+        .modifiers(new PropertyModifiers().readonly().protected())
         .initializer(
           node.autoIncrementColumn ? new StringLiteral(node.autoIncrementColumn) : new Identifier('undefined'),
         ),
@@ -97,6 +97,28 @@ export class GeneratedRepositoryGenerator {
       [],
       new TypeReference(node.entityName).pick(...node.getDefaultValueColumnNames()),
       [body],
-    ).modifiers(new MethodModifiers().accessor(TsAccessor.protected));
+    ).modifiers(new MethodModifiers().protected());
+  }
+
+  private findMethods(node: RepositoryNode) {
+    return node.findMethods.map(it => {
+      const body = new ReturnStatement(
+        new CallExpression(
+          new Identifier('this.first'),
+          new ObjectLiteral(
+            new PropertyAssignment(
+              'where',
+              new ObjectLiteral(...it.params.map(it => new PropertyAssignment(it.name, new Identifier(it.name)))),
+            ),
+          ),
+        ),
+      );
+      return new MethodDeclaration(
+        it.name,
+        it.params.map(it => new Parameter(it.name, it.type.toTsType())),
+        it.returnType.toTsType(),
+        [body],
+      );
+    });
   }
 }
