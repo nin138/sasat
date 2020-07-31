@@ -18,6 +18,7 @@ export abstract class ColumnBuilder {
   protected _signed: boolean | undefined;
   protected _autoIncrement = false;
   protected _default: SqlValueType | undefined;
+  protected _defaultCurrentTimeStamp = false;
   protected _onUpdateCurrentTimeStamp = false;
   protected constructor(
     readonly name: string,
@@ -58,6 +59,7 @@ export abstract class ColumnBuilder {
         signed: this._signed,
         autoIncrement: this._autoIncrement,
         default: this._default,
+        defaultCurrentTimeStamp: this._defaultCurrentTimeStamp,
         onUpdateCurrentTimeStamp: this._onUpdateCurrentTimeStamp,
       },
       isPrimary: this._primary,
@@ -165,6 +167,7 @@ export class TimeStampColumnBuilder extends ColumnBuilder {
     return this;
   }
   defaultCurrentTimeStamp(): this {
+    this._defaultCurrentTimeStamp = true;
     return this.default('CURRENT_TIMESTAMP');
   }
   onUpdateCurrentTimeStamp(): this {

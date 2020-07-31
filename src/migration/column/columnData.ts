@@ -11,6 +11,7 @@ export interface ColumnData {
   autoIncrement: boolean;
   length: number | undefined;
   scale: number | undefined;
+  defaultCurrentTimeStamp: boolean;
   onUpdateCurrentTimeStamp: boolean;
 }
 

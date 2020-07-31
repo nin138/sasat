@@ -1,5 +1,4 @@
 import { IrRepository } from '../../ir/repository';
-import { TsGeneratorGeneratedRepository } from './file/generatedRepository';
 import { CodeGenerator } from '../generator';
 import * as prettier from 'prettier';
 import { generateRepositoryString } from './file/repository';
@@ -13,6 +12,8 @@ import { TsGeneratorGqlResolver } from './gql/resolver';
 import { TsGeneratorGqlSubscription } from './gql/subscription';
 import { EntityNode } from '../../generatable/entity';
 import { TsEntityGenerator } from './v2/entity';
+import { GeneratedRepositoryGenerator } from './v2/generatedRepository';
+import { RepositoryNode } from '../../generatable/repository';
 
 export class TsCodeGenerator implements CodeGenerator {
   readonly fileExt = 'ts';
@@ -22,11 +23,11 @@ export class TsCodeGenerator implements CodeGenerator {
   }
 
   generateEntity(entity: EntityNode): string {
-    return new TsEntityGenerator(entity).generate();
+    return new TsEntityGenerator(entity).generate().toString();
   }
 
-  generateGeneratedRepository(repository: IrRepository): string {
-    return this.formatCode(new TsGeneratorGeneratedRepository(repository).generate());
+  generateGeneratedRepository(repository: RepositoryNode): string {
+    return new GeneratedRepositoryGenerator(repository).generate().toString();
   }
 
   generateRepository(repository: IrRepository): string {

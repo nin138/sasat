@@ -1,15 +1,14 @@
-import { Ir } from '../ir/ir';
 import { CodeGenerator } from './generator';
 import { TsCodeGenerator } from './ts/generator';
 import { config } from '../config/config';
 import * as path from 'path';
-import { IrEntity } from '../ir/entity';
 import { emptyDir, writeFile } from 'fs-extra';
 import { mkDirIfNotExist, writeFileIfNotExist } from '../util/fsUtil';
 import { IrRepository } from '../ir/repository';
 import { IrGql } from '../ir/gql';
 import { CodeGeneratable } from '../generatable/codeGeneratable';
 import { EntityNode } from '../generatable/entity';
+import { RepositoryNode } from '../generatable/repository';
 
 export class CodeGenerateController {
   private codeGen: CodeGenerator = new TsCodeGenerator();
@@ -23,7 +22,7 @@ export class CodeGenerateController {
     await this.prepareDirs();
     await Promise.all([
       ...this.ir.entities.map(it => this.generateEntity(it)),
-      ...this.ir.repositories.map(it => this.generateRepository(it.data)),
+      ...this.ir.repositories.map(it => this.generateRepository(it)),
       ...this.ir.repositories.map(it => this.generateGeneratedRepository(it.data)),
       ...this.generateGql(this.gql),
       ...this.generateOnceFiles(this.ir),
@@ -46,7 +45,7 @@ export class CodeGenerateController {
     return writeFile(this.getFullPath(this.generateEntityDir, ir.entityName), this.codeGen.generateEntity(ir));
   }
 
-  private generateRepository(ir: IrRepository) {
+  private generateRepository(ir: RepositoryNode) {
     return writeFileIfNotExist(
       this.getFullPath(this.repositoryDir, ir.entityName),
       this.codeGen.generateRepository(ir),

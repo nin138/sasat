@@ -11,8 +11,8 @@ import { TsFile } from './file';
 export class TsEntityGenerator {
   constructor(private node: EntityNode) {}
 
-  generate() {
-    return new TsFile(this.entity(), this.creatable(), this.identifiable()).toTsString();
+  generate(): TsFile {
+    return new TsFile(this.entity(), this.creatable(), this.identifiable());
   }
 
   private entity(): TsStatement {

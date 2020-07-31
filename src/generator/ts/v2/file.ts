@@ -10,13 +10,13 @@ export class TsFile extends TsCode {
     this.mergeImport(...statements);
     this.statements = statements;
   }
-  toTsString() {
+  protected toTsString() {
     return TsFile.prettier(
       [...this.resolveImport(this.importDeclarations), ...this.statements].map(it => it.toString()).join('\n'),
     );
   }
 
-  resolveImport(imports: ImportDeclaration[]) {
+  protected resolveImport(imports: ImportDeclaration[]) {
     const map: Record<string, string[]> = {};
     imports.forEach(it => {
       if (!map[it.module]) {
