@@ -1,5 +1,5 @@
 import { TsCode } from '../abstruct/tsCode';
-import { TsType } from './type/type';
+import { isCode, TsType } from './type/type';
 import { MethodModifiers } from './modifier/methodModifiers';
 import { Parameter } from './parameter';
 import { TsStatement } from '../abstruct/statement';
@@ -13,11 +13,17 @@ export class MethodDeclaration extends TsCode {
     private body: TsStatement[],
   ) {
     super();
-    this.mergeImport(...params);
+    this.mergeImport(...params, ...body);
+    if (isCode(returnType)) this.mergeImport(returnType);
   }
 
   modifiers(modifiers: MethodModifiers): this {
     this._modifiers = modifiers;
+    return this;
+  }
+
+  importFrom(from: string): this {
+    this.addImport([this.methodName], from);
     return this;
   }
 

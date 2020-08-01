@@ -26,7 +26,7 @@ export class TsFile extends TsCode {
         map[it.module] = [...map[it.module], ...it.types];
       }
     });
-    return Object.entries(map).map(([module, types]) => new ImportDeclaration(types, module));
+    return Object.entries(map).map(([module, types]) => new ImportDeclaration([...new Set(types)], module));
   }
 
   private static prettier(code: string) {

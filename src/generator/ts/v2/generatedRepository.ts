@@ -25,6 +25,7 @@ import { CallExpression } from './code/node/CallExpression';
 import { SqlValueType } from '../../../db/dbClient';
 import { TsExpression } from './code/abstruct/expression';
 import { Parameter } from './code/node/parameter';
+import { TypeLiteral } from './code/node/type/typeLiteral';
 
 export class GeneratedRepositoryGenerator {
   constructor(private node: RepositoryNode) {}
@@ -51,10 +52,10 @@ export class GeneratedRepositoryGenerator {
   }
   private sqlValueToTsExpression(value: SqlValueType): TsExpression {
     if (typeof value === 'string') {
-      new StringLiteral(value);
+      return new StringLiteral(value);
     }
     if (typeof value === 'number') {
-      new NumericLiteral(value);
+      return new NumericLiteral(value);
     }
     return new Identifier('null');
   }
@@ -92,10 +93,12 @@ export class GeneratedRepositoryGenerator {
       return new PropertyAssignment(it.fieldName, fieldToExpression());
     });
     const body = new ReturnStatement(new ObjectLiteral(...properties));
+
+    const columns = node.getDefaultValueColumnNames();
     return new MethodDeclaration(
       'getDefaultValueString',
       [],
-      new TypeReference(node.entityName).pick(...node.getDefaultValueColumnNames()),
+      columns.length !== 0 ? new TypeReference(node.entityName).pick(...columns) : new TypeLiteral(),
       [body],
     ).modifiers(new MethodModifiers().protected());
   }
@@ -104,7 +107,7 @@ export class GeneratedRepositoryGenerator {
     return node.findMethods.map(it => {
       const body = new ReturnStatement(
         new CallExpression(
-          new Identifier('this.first'), // TODO
+          new Identifier(it.returnType.isArray ? 'this.find' : 'this.first'),
           new ObjectLiteral(
             new PropertyAssignment(
               'where',
@@ -116,7 +119,7 @@ export class GeneratedRepositoryGenerator {
       return new MethodDeclaration(
         it.name,
         it.params.map(it => new Parameter(it.name, it.type.toTsType())),
-        it.returnType.toTsType(),
+        new TypeReference('Promise', [it.returnType.toTsType()]),
         [body],
       );
     });

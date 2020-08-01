@@ -18,7 +18,7 @@ export class Modifiers extends TsCode {
   }
 
   protected protected(): this {
-    return this.accessor(TsAccessor.private);
+    return this.accessor(TsAccessor.protected);
   }
 
   protected abstract(): this {
@@ -42,14 +42,14 @@ export class Modifiers extends TsCode {
   }
 
   protected toTsString(): string {
-    return this._accessor + this.isAbstract
-      ? 'abstract '
-      : '' + this.isStatic
-      ? 'static '
-      : '' + this.isReadOnly
-      ? 'readonly '
-      : '' + this.isAsync
-      ? 'async '
-      : '';
+    const optional = (bool: boolean, string: string) => (bool ? string : '');
+    return (
+      this._accessor +
+      ' ' +
+      optional(this.isAbstract, 'abstract ') +
+      optional(this.isStatic, 'static ') +
+      optional(this.isReadOnly, 'readonly ') +
+      optional(this.isAsync, 'async ')
+    );
   }
 }

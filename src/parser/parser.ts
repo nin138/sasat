@@ -10,6 +10,7 @@ import { FieldNode } from '../node/field';
 import { FindMethodNode } from '../node/findMethod';
 import { ParameterNode } from '../node/parameterNode';
 import { TypeNode } from '../node/typeNode';
+import { EntityName } from '../entity/entityName';
 
 export class Parser {
   constructor(private store: DataStoreHandler) {}
@@ -41,7 +42,7 @@ export class Parser {
         const column = table.column(it)!;
         return new ParameterNode(it, new TypeNode(column.type, false, false));
       }),
-      new TypeNode(table.getEntityName(), false, true),
+      new TypeNode(new EntityName(table.getEntityName()), false, true),
     );
   }
 
@@ -65,9 +66,9 @@ export class Parser {
 
   private createRefQuery(ref: ReferenceColumn): FindMethodNode {
     return new FindMethodNode(
-      Parser.paramsToQueryName(ref.getTargetColumn().getData().columnName),
-      [new ParameterNode(ref.getTargetColumn().getData().columnName, new TypeNode(ref.type, false, false))],
-      new TypeNode(ref.table.getEntityName(), ref.data.relation === Relation.Many, false),
+      Parser.paramsToQueryName(ref.name),
+      [new ParameterNode(ref.name, new TypeNode(ref.type, false, false))],
+      new TypeNode(new EntityName(ref.table.getEntityName()), ref.data.relation === Relation.Many, false),
     );
   }
 

@@ -4,6 +4,7 @@ import { TsExpression } from '../abstruct/expression';
 export class ReturnStatement extends TsStatement {
   constructor(private readonly expression: TsExpression) {
     super();
+    this.mergeImport(expression);
   }
 
   protected toTsString(): string {

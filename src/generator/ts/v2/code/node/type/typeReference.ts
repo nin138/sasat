@@ -1,13 +1,11 @@
 import { TsCode } from '../../abstruct/tsCode';
 import { Identifier } from '../Identifier';
+import { pickCode, TsType } from './type';
 
 export class TypeReference extends TsCode {
-  constructor(
-    private readonly typeName: string,
-    private readonly typeArguments: Array<Identifier | TypeReference> = [],
-  ) {
+  constructor(private readonly typeName: string, private readonly typeArguments: Array<Identifier | TsType> = []) {
     super();
-    this.mergeImport(...typeArguments);
+    this.mergeImport(...pickCode(typeArguments));
   }
 
   importFrom(path: string): this {
