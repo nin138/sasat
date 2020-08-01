@@ -1,6 +1,4 @@
-import { IrRepository } from '../ir/repository';
 import { IrGql } from '../ir/gql';
-import { Ir } from '../ir/ir';
 import { IrGqlContext } from '../ir/gql/context';
 import { EntityNode } from '../node/entity';
 import { RepositoryNode } from '../node/repository';
