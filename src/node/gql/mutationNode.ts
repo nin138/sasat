@@ -1,18 +1,20 @@
 import { IrGqlParam } from '../../ir/gql/types';
-import { ContextColumnNode } from './contextColumnNode';
+import { ContextParamNode } from './contextParamNode';
 import { SubscriptionNode } from './subscriptionNode';
+import { SubscriptionFilterNode } from './subscriptionFilterNode';
+
+export class MutationFunctionNode {
+  constructor(readonly enabled: boolean, readonly params: IrGqlParam[], readonly subscribed: boolean) {}
+}
 
 export class MutationNode {
   constructor(
     readonly entityName: string,
     readonly primaryKeys: string[],
-    readonly create: boolean,
-    readonly update: boolean,
-    readonly del: boolean,
-    readonly onCreateParams: IrGqlParam[],
-    readonly onUpdateParams: IrGqlParam[],
-    readonly onDeleteParams: IrGqlParam[],
-    readonly contextColumns: ContextColumnNode[],
-    readonly subscription: SubscriptionNode,
+    readonly onCreate: MutationFunctionNode,
+    readonly onUpdate: MutationFunctionNode,
+    readonly onDelete: MutationFunctionNode,
+    readonly contextParams: ContextParamNode[],
+    readonly subscriptionFilters: SubscriptionFilterNode[],
   ) {}
 }
