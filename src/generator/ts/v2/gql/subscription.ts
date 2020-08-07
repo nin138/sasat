@@ -1,8 +1,3 @@
-import { IrGqlMutation } from '../../../ir/gql/mutation';
-import { TsFileGenerator } from '../tsFileGenerator';
-import { tsArrowFunction } from '../code/arrowFunction';
-import { identifiableInterfaceName } from '../../../constants/interfaceConstants';
-
 export class TsGeneratorGqlSubscription extends TsFileGenerator {
   constructor(ir: IrGqlMutation) {
     super();

@@ -1,10 +1,11 @@
 import { TsCode } from '../abstruct/tsCode';
 import { TsUtil } from '../tsUtil';
+import { TsType } from './type/type';
 
 export class PropertySignature extends TsCode {
   constructor(
     public readonly propertyName: string,
-    public readonly type: string,
+    public readonly type: TsType,
     public readonly isOptional = false,
     public readonly isReadOnly = false,
   ) {
