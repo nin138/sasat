@@ -1,5 +1,5 @@
 import { Identifier } from '../generator/ts/v2/code/node/Identifier';
-import { creatableInterfaceName, identifiableInterfaceName } from '../constants/interfaceConstants';
+import { creatableInterfaceName, dataSourceName, identifiableInterfaceName } from '../constants/interfaceConstants';
 
 export class EntityName {
   constructor(public readonly name: string) {}
@@ -14,5 +14,8 @@ export class EntityName {
   }
   identifiableInterfaceName(): string {
     return identifiableInterfaceName(this.name);
+  }
+  dataSourceName(): string {
+    return dataSourceName(this.name);
   }
 }

@@ -1,9 +1,8 @@
-import { Identifier } from './Identifier';
 import { TsExpression } from '../abstruct/expression';
 
 export class CallExpression extends TsExpression {
   private readonly args: TsExpression[];
-  constructor(private readonly identifier: Identifier, ...args: TsExpression[]) {
+  constructor(private readonly identifier: TsExpression, ...args: TsExpression[]) {
     super();
     this.mergeImport(identifier, ...args);
     this.args = args;

@@ -1,6 +1,7 @@
 import { TsCode } from '../../abstruct/tsCode';
 import { PropertyAssignment } from '../propertyAssignment';
 import { TsExpression } from '../../abstruct/expression';
+import { SpreadAssignment } from '../spreadAssignment';
 
 export abstract class Literal extends TsExpression {}
 
@@ -35,15 +36,16 @@ export class ArrayLiteral extends Literal {
   }
 }
 
+type ObjectLiteralAssignable = PropertyAssignment | SpreadAssignment;
 export class ObjectLiteral extends Literal {
-  private properties: PropertyAssignment[] = [];
+  private properties: ObjectLiteralAssignable[] = [];
 
-  constructor(...properties: PropertyAssignment[]) {
+  constructor(...properties: ObjectLiteralAssignable[]) {
     super();
     this.addProperties(...properties);
   }
 
-  addProperties(...properties: PropertyAssignment[]) {
+  addProperties(...properties: ObjectLiteralAssignable[]) {
     this.properties.push(...properties);
     this.mergeImport(...properties);
     return this;

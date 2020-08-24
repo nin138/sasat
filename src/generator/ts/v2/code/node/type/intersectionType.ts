@@ -3,8 +3,10 @@ import { TypeLiteral } from './typeLiteral';
 import { TypeReference } from './typeReference';
 
 export class IntersectionType extends TsCode {
-  constructor(private readonly types: Array<TypeLiteral | TypeReference>) {
+  private readonly types: Array<TypeLiteral | TypeReference>;
+  constructor(...types: Array<TypeLiteral | TypeReference>) {
     super();
+    this.types = types;
     this.mergeImport(...types);
   }
 

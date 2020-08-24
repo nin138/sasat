@@ -8,4 +8,9 @@ export class Identifier extends TsExpression {
   protected toTsString(): string {
     return this.name;
   }
+
+  importFrom(path: string): this {
+    this.addImport([this.name], path);
+    return this;
+  }
 }

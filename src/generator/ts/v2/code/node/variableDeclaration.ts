@@ -8,11 +8,11 @@ type VariableType = 'const' | 'let';
 export class VariableDeclaration extends ExportableDeclaration {
   constructor(
     private readonly type: VariableType,
-    private readonly variableName: string,
+    private readonly variableName: Identifier,
     private readonly expression: TsExpression | Identifier,
   ) {
     super();
-    this.mergeImport(expression);
+    this.mergeImport(expression, variableName);
   }
 
   protected toTsString(): string {

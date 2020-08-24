@@ -1,6 +1,6 @@
 import { TsExpression } from '../abstruct/expression';
 
-export class AsyncExpression extends TsExpression {
+export class AwaitExpression extends TsExpression {
   constructor(private readonly expression: TsExpression) {
     super();
     this.mergeImport(expression);
