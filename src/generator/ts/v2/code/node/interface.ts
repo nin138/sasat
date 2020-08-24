@@ -1,12 +1,13 @@
 import { PropertySignature } from './propertySignature';
 import { ExportableDeclaration } from '../abstruct/exportableDeclaration';
+import { TsType } from './type/type';
 
 export class TsInterface extends ExportableDeclaration {
   private properties: PropertySignature[] = [];
   constructor(private readonly name: string) {
     super();
   }
-  addProperty(propertyName: string, type: string, isOptional = false, isReadOnly = false): this {
+  addProperty(propertyName: string, type: TsType, isOptional = false, isReadOnly = false): this {
     this.properties.push(new PropertySignature(propertyName, type, isOptional, isReadOnly));
     return this;
   }

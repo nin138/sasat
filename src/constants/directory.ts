@@ -1,4 +1,5 @@
 import * as path from 'path';
+import { EntityName } from '../entity/entityName';
 
 const GeneratedDirName = '__generated__';
 const EntityDirName = 'entities';
@@ -12,5 +13,5 @@ export const GeneratedRepositoryPath = `/${GeneratedDirName}/${GeneratedReposito
 export const getGeneratedRepositoryPath = (fromPath: string, entityName: string) =>
   path.relative(fromPath, `${GeneratedRepositoryPath}${entityName}`);
 
-export const getEntityPath = (fromPath: string, entityName: string) =>
-  path.relative(fromPath, `${EntityPath}${entityName}`);
+export const getEntityPath = (fromPath: string, entityName: string | EntityName) =>
+  path.relative(fromPath, `${EntityPath}${entityName.toString()}`);

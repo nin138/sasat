@@ -5,7 +5,7 @@ export class CallExpression extends TsExpression {
   private readonly args: TsExpression[];
   constructor(private readonly identifier: Identifier, ...args: TsExpression[]) {
     super();
-    this.mergeImport(identifier);
+    this.mergeImport(identifier, ...args);
     this.args = args;
   }
 
