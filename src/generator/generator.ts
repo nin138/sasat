@@ -4,6 +4,7 @@ import { EntityNode } from '../node/entity';
 import { RepositoryNode } from '../node/repository';
 import { CodeGeneratable } from '../node/codeGeneratable';
 import { ContextNode } from '../node/gql/contextNode';
+import { MutationNode } from '../node/gql/mutationNode';
 
 export interface CodeGenerator {
   readonly fileExt: string;
@@ -13,8 +14,8 @@ export interface CodeGenerator {
   generateGqlTypeDefs(gql: IrGql): string;
   generateGqlResolver(gql: IrGql): string;
   generateGqlQuery(gql: IrGql): string;
-  generateGqlMutation(gql: IrGql): string;
-  generateGqlSubscription(gql: IrGql): string;
+  generateGqlMutation(nodes: MutationNode[]): string;
+  generateGqlSubscription(nodes: MutationNode[]): string;
   generateGqlContext(contexts: ContextNode[]): string;
   generateOnceFiles(ir: CodeGeneratable): Array<{ name: string; body: string }>;
 }

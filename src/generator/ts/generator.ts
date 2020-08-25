@@ -12,6 +12,8 @@ import { TsGeneratorGqlResolver } from './v2/gql/resolver';
 import { TsGeneratorGqlContext } from './v2/gql/context';
 import { MutationGenerator } from './v2/gql/mutation';
 import { ContextNode } from '../../node/gql/contextNode';
+import { SubscriptionGenerator } from './v2/gql/subscription';
+import { MutationNode } from '../../node/gql/mutationNode';
 
 export class TsCodeGenerator implements CodeGenerator {
   readonly fileExt = 'ts';
@@ -44,13 +46,12 @@ export class TsCodeGenerator implements CodeGenerator {
     return this.formatCode(new TsGeneratorGqlResolver(gql.resolvers).generate());
   }
 
-  generateGqlMutation(gql: IrGql): string {
-    return new MutationGenerator().generate(gql.mutations).toString();
+  generateGqlMutation(nodes: MutationNode[]): string {
+    return new MutationGenerator().generate(nodes).toString();
   }
 
-  generateGqlSubscription(): string {
-    return '';
-    // return this.formatCode(new TsGeneratorGqlSubscription(gql.mutations).generate());
+  generateGqlSubscription(nodes: MutationNode[]): string {
+    return new SubscriptionGenerator().generate(nodes).toString();
   }
 
   generateGqlContext(contexts: ContextNode[]): string {

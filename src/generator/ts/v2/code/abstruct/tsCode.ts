@@ -1,5 +1,4 @@
 import { ImportDeclaration } from '../importDeclaration';
-import { TsType } from '../node/type/type';
 
 export abstract class TsCode {
   protected readonly importDeclarations: ImportDeclaration[] = [];
@@ -16,8 +15,10 @@ export abstract class TsCode {
     return '';
   }
 
-  protected mergeImport(...code: TsCode[]) {
-    code.forEach(it => this.importDeclarations.push(...it.importDeclarations));
+  protected mergeImport(...code: Array<TsCode | undefined>) {
+    code.forEach(it => {
+      if (it) this.importDeclarations.push(...it.importDeclarations);
+    });
   }
   protected abstract toTsString(): string;
 }

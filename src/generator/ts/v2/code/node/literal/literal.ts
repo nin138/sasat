@@ -26,7 +26,7 @@ export class NumericLiteral extends Literal {
 }
 
 export class ArrayLiteral extends Literal {
-  constructor(private readonly literals: Literal[]) {
+  constructor(private readonly literals: TsExpression[]) {
     super();
     this.mergeImport(...literals);
   }

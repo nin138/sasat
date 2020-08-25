@@ -64,8 +64,8 @@ export class CodeGenerateController {
       writeFile(this.getFullPath(this.generateDir, 'typeDefs'), this.codeGen.generateGqlTypeDefs(ir)),
       writeFile(this.getFullPath(this.generateDir, 'resolver'), this.codeGen.generateGqlResolver(ir)),
       writeFile(this.getFullPath(this.generateDir, 'query'), this.codeGen.generateGqlQuery(ir)),
-      writeFile(this.getFullPath(this.generateDir, 'mutation'), this.codeGen.generateGqlMutation(ir)),
-      writeFile(this.getFullPath(this.generateDir, 'subscription'), this.codeGen.generateGqlSubscription(ir)),
+      writeFile(this.getFullPath(this.generateDir, 'mutation'), this.codeGen.generateGqlMutation(ir.mutations)),
+      writeFile(this.getFullPath(this.generateDir, 'subscription'), this.codeGen.generateGqlSubscription(ir.mutations)),
       writeFile(this.getFullPath(this.generateDir, 'context'), this.codeGen.generateGqlContext(ir.contexts)),
     ];
   }

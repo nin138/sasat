@@ -4,7 +4,7 @@ import { TsCode } from '../abstruct/tsCode';
 export class Parameter extends TsCode {
   constructor(private paramName: string, private type: TsType) {
     super();
-    if (type instanceof TsCode) this.mergeImport(type);
+    this.mergeImport(type);
   }
 
   protected toTsString(): string {
