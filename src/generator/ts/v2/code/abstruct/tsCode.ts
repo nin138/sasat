@@ -1,4 +1,5 @@
 import { ImportDeclaration } from '../importDeclaration';
+import { TsType } from '../node/type/type';
 
 export abstract class TsCode {
   protected readonly importDeclarations: ImportDeclaration[] = [];

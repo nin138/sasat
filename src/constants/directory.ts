@@ -10,8 +10,17 @@ export const EntityPath = `/${GeneratedDirName}/${EntityDirName}/`;
 export const RepositoryPath = `/${RepositoryDirName}/`;
 export const GeneratedRepositoryPath = `/${GeneratedDirName}/${GeneratedRepositoryDirName}/`;
 
+const relative = (from: string, to: string) => {
+  const result = path.relative(from, to);
+  if (result.startsWith('../')) return result;
+  return './' + result;
+};
+
 export const getGeneratedRepositoryPath = (fromPath: string, entityName: string) =>
-  path.relative(fromPath, `${GeneratedRepositoryPath}${entityName}`);
+  relative(fromPath, `${GeneratedRepositoryPath}${entityName}`);
 
 export const getEntityPath = (fromPath: string, entityName: string | EntityName) =>
-  path.relative(fromPath, `${EntityPath}${entityName.toString()}`);
+  relative(fromPath, `${EntityPath}${entityName.toString()}`);
+
+export const getRepositoryPath = (fromPath: string, entityName: string | EntityName) =>
+  relative(fromPath, `${RepositoryPath}${entityName.toString()}`);

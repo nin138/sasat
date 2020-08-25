@@ -1,6 +1,8 @@
 import { columnTypeToTsType, DBColumnTypes } from '../migration/column/columnTypes';
 import { SqlValueType } from '../db/dbClient';
 import { PropertySignature } from '../generator/ts/v2/code/node/propertySignature';
+import { Identifier } from '../generator/ts/v2/code/node/Identifier';
+import { TypeReference } from '../generator/ts/v2/code/node/type/typeReference';
 
 export class FieldNode {
   constructor(
@@ -26,7 +28,7 @@ export class FieldNode {
   }
 
   public toPropertySignature(): PropertySignature {
-    return new PropertySignature(this.fieldName, this.tsType(), false, true);
+    return new PropertySignature(this.fieldName, new TypeReference(this.tsType()), false, true);
   }
 
   public hasDefaultValue(): boolean {

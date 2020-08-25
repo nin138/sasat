@@ -1,142 +1,235 @@
-import { IrGql } from '../../../ir/gql';
-import { tsArrowFunction } from '../code/arrowFunction';
-import { TsFileGenerator } from '../tsFileGenerator';
-import { TsCodeGenObject } from '../code/object';
-import { Parser } from '../../../parser/parser';
-import { creatableInterfaceName, identifiableInterfaceName } from '../../../constants/interfaceConstants';
+import { TsFile } from '../file';
+import { VariableDeclaration } from '../code/node/variableDeclaration';
+import { NumericLiteral, ObjectLiteral } from '../code/node/literal/literal';
+import { MutationNode } from '../../../../node/gql/mutationNode';
+import { PropertyAssignment } from '../code/node/propertyAssignment';
+import { EntityName } from '../../../../entity/entityName';
+import { ArrowFunction } from '../code/node/ArrowFunction';
+import { TypeReference } from '../code/node/type/typeReference';
+import { Identifier } from '../code/node/Identifier';
+import { Parameter } from '../code/node/parameter';
+import { TypeLiteral } from '../code/node/type/typeLiteral';
+import { GeneratedPath, getEntityPath, getRepositoryPath } from '../../../../constants/directory';
+import { Block } from '../code/node/Block';
+import { ReturnStatement } from '../code/node/returnStatement';
+import { CallExpression } from '../code/node/callExpression';
+import { PropertyAccessExpression } from '../code/node/propertyAccessExpression';
+import { NewExpression } from '../code/node/newExpression';
+import { SpreadAssignment } from '../code/node/spreadAssignment';
+import { AwaitExpression } from '../code/node/awaitExpression';
+import { ExpressionStatement } from '../code/node/ExpressionStatement';
+import { AsyncExpression } from '../code/node/asyncExpression';
+import { IntersectionType } from '../code/node/type/intersectionType';
+import { TsType } from '../code/node/type/type';
+import { ContextParamNode } from '../../../../node/gql/contextParamNode';
+import { BinaryExpression } from '../code/node/binaryExpression';
+import { KeywordTypeNode } from '../code/node/type/typeKeyword';
+import { IfStatement } from '../code/node/ifStatement';
 
-const contextDestructuringAssignmentString = (
-  fromContextColumns: Array<{ columnName: string; contextName: string }>,
-): string => {
-  return fromContextColumns.map(it => `${it.columnName}: context.${it.contextName},`).join('');
-};
-
-export class TsCodeGeneratorGqlMutation extends TsFileGenerator {
-  constructor(gql: IrGql) {
-    super();
-    if (gql.mutations.entities.find(it => it.fromContextColumns.length !== 0))
-      this.addImport('../context', 'GqlContext');
-
-    const mutationObject = new TsCodeGenObject();
-    gql.mutations.entities.forEach(it => {
-      this.addImport(
-        `./entity/${it.entityName}`,
-        it.entityName,
-        creatableInterfaceName(it.entityName),
-        identifiableInterfaceName(it.entityName),
-      );
-      this.addImport(`../repository/${it.entityName}`, `${it.entityName}Repository`);
-      if (it.create) {
-        mutationObject.set(
-          `create${it.entityName}`,
-          this.createMutation(it.entityName, it.fromContextColumns, it.subscription.onCreate),
-        );
-      }
-      if (it.update) {
-        mutationObject.set(
-          `update${it.entityName}`,
-          this.updateMutation(
-            it.entityName,
-            it.fromContextColumns,
-            it.subscription.onUpdate,
-            it.primaryKeys.map(it => it.name),
-          ),
-        );
-      }
-      if (it.delete) {
-        mutationObject.set(
-          `delete${it.entityName}`,
-          this.deleteMutation(
-            it.entityName,
-            it.fromContextColumns,
-            it.subscription.onDelete,
-            it.primaryKeys.map(it => it.name),
-          ),
-        );
-      }
-    });
-    this.addLine(`export const mutation = ${mutationObject.toTsString()}`);
-  }
-
-  private createParam(fromContextColumns: Array<{ columnName: string; contextName: string }>): string {
-    if (fromContextColumns.length === 0) return 'entity';
-    return `{...entity,${contextDestructuringAssignmentString(fromContextColumns)}}`;
-  }
-
-  private createMutationParam(
-    entityType: string,
-    fromContextColumns: Array<{ columnName: string; contextName: string }>,
-  ) {
-    const type =
-      fromContextColumns.length === 0
-        ? entityType
-        : `Omit<${entityType}, ${fromContextColumns.map(it => `'${it.columnName}'`).join('|')}>`;
-    const base = [
-      { name: '_', type: '{}' },
-      { name: 'entity', type },
-    ];
-    if (fromContextColumns.length === 0) return base;
-    return [...base, { name: 'context', type: 'GqlContext' }];
-  }
-
-  private createMutation(
-    entityName: string,
-    fromContextColumns: Array<{ columnName: string; contextName: string }>,
-    subscription: boolean,
-  ): string {
-    const params = this.createMutationParam(`${entityName}Creatable`, fromContextColumns);
-    let fn = `new ${entityName}Repository().create(${this.createParam(fromContextColumns)})`;
-    if (subscription) {
-      fn = `{const result = await ${fn};
-    await publish${entityName}Created(result);
-    return result;}`;
-      this.addImport('./subscription', `publish${entityName}Created`);
-    }
-    return tsArrowFunction(params, `Promise<${entityName}>`, fn, subscription);
-  }
-
-  private updateMutation(
-    entityName: string,
-    fromContextColumns: Array<{ columnName: string; contextName: string }>,
-    subscription: boolean,
-    primaryKeys: string[],
-  ): string {
-    const params = this.createMutationParam(
-      `${identifiableInterfaceName(entityName)} & Partial<${entityName}>`,
-      fromContextColumns,
+export class MutationGenerator {
+  generate(mutations: MutationNode[]): TsFile {
+    return new TsFile(
+      new VariableDeclaration(
+        'const',
+        new Identifier('mutation'),
+        new ObjectLiteral(...mutations.flatMap(MutationGenerator.mutationToProperty)),
+      ).export(),
     );
-    let fn = `new ${entityName}Repository().update(${this.createParam(
-      fromContextColumns,
-    )}).then(it => it.changedRows === 1)`;
-    if (subscription) {
-      fn = `{const result = await ${fn};
-       if(result) await publish${entityName}Updated(
-        (await (new ${entityName}Repository().${Parser.paramsToQueryName(...primaryKeys)}(
-          ${primaryKeys.map(it => `entity.${it}`).join(',')}
-        )))!);
-       return result;
-      }`;
-      this.addImport('./subscription', `publish${entityName}Updated`);
-    }
-    return tsArrowFunction(params, 'Promise<boolean>', fn, subscription);
   }
 
-  deleteMutation(
-    entityName: string,
-    fromContextColumns: Array<{ columnName: string; contextName: string }>,
-    subscription: boolean,
-    primaryKeys: string[],
-  ) {
-    const fromContext = fromContextColumns.filter(it => primaryKeys.includes(it.columnName));
-    const params = this.createMutationParam(identifiableInterfaceName(entityName), fromContext);
-    let fn = `new ${entityName}Repository().delete(${this.createParam(fromContext)}).then(it => it.affectedRows === 1)`;
-    if (subscription) {
-      fn = `{const result = await ${fn};
-       if(result) await publish${entityName}Deleted(${this.createParam(fromContext)});
-       return result;
-      }`;
-      this.addImport('./subscription', `publish${entityName}Deleted`);
+  private static createFunctionName(entityName: EntityName) {
+    return `create${entityName}`;
+  }
+
+  private static updateFunctionName(entityName: EntityName) {
+    return `update${entityName}`;
+  }
+
+  private static deleteFunctionName(entityName: EntityName) {
+    return `delete${entityName}`;
+  }
+
+  private static functionParams(paramType: TsType, useContext: boolean) {
+    const params = [new Parameter('_', new TypeLiteral()), new Parameter('params', paramType)];
+    if (!useContext) return params;
+    return [...params, new Parameter('context', new TypeReference('GqlContext').importFrom('../context'))];
+  }
+
+  private static mutationToProperty(node: MutationNode): PropertyAssignment[] {
+    const result = [];
+    if (node.onCreate.enabled) {
+      const property = new PropertyAssignment(
+        MutationGenerator.createFunctionName(node.entityName),
+        new AsyncExpression(
+          new ArrowFunction(
+            MutationGenerator.functionParams(
+              new TypeReference(node.entityName.creatableInterface()).importFrom(
+                getEntityPath(GeneratedPath, node.entityName),
+              ),
+              node.useContextParams(),
+            ),
+            new TypeReference('Promise', [
+              node.entityName.toIdentifier().importFrom(getEntityPath(GeneratedPath, node.entityName)),
+            ]),
+            MutationGenerator.createFunctionBody(node),
+          ),
+        ),
+      );
+      result.push(property);
     }
-    return tsArrowFunction(params, 'Promise<boolean>', fn, subscription);
+
+    if (node.onUpdate.enabled) {
+      const property = new PropertyAssignment(
+        MutationGenerator.updateFunctionName(node.entityName),
+        new AsyncExpression(
+          new ArrowFunction(
+            MutationGenerator.functionParams(
+              new IntersectionType(
+                new TypeReference(node.entityName.identifiableInterfaceName()).importFrom(
+                  getEntityPath(GeneratedPath, node.entityName),
+                ),
+                new TypeReference(node.entityName.name).partial(),
+              ),
+              node.useContextParams(),
+            ),
+            new TypeReference('Promise', [KeywordTypeNode.boolean]),
+            MutationGenerator.updateFunctionBody(node),
+          ),
+        ),
+      );
+      result.push(property);
+    }
+    if (node.onDelete.enabled) {
+      const property = new PropertyAssignment(
+        MutationGenerator.deleteFunctionName(node.entityName),
+        new AsyncExpression(
+          new ArrowFunction(
+            MutationGenerator.functionParams(
+              new TypeReference(node.entityName.identifiableInterfaceName()).importFrom(
+                getEntityPath(GeneratedPath, node.entityName),
+              ),
+              node.useContextParams(),
+            ),
+            new TypeReference('Promise', [KeywordTypeNode.boolean]),
+            MutationGenerator.deleteFunctionBody(node),
+          ),
+        ),
+      );
+      result.push(property);
+    }
+
+    return result;
+  }
+
+  private static toDatasourceParam(contextParams: ContextParamNode[]) {
+    const paramsIdentifier = new Identifier('params');
+    if (contextParams.length === 0) return paramsIdentifier;
+    return new ObjectLiteral(
+      new SpreadAssignment(paramsIdentifier),
+      ...contextParams.map(it => new PropertyAssignment(it.paramName, new Identifier(`context.${it.contextName}`))),
+    );
+  }
+
+  private static getDatasourceIdentifier(entityName: EntityName) {
+    return new Identifier(entityName.dataSourceName()).importFrom(getRepositoryPath(GeneratedPath, entityName));
+  }
+
+  private static createFunctionBody(node: MutationNode) {
+    const createCallExpression = new CallExpression(
+      new PropertyAccessExpression(new NewExpression(this.getDatasourceIdentifier(node.entityName)), 'create'),
+      this.toDatasourceParam(node.contextParams),
+    );
+    if (!node.onCreate.subscribed) return createCallExpression;
+    const resultIdentifier = new Identifier('result');
+    return new Block(
+      new VariableDeclaration('const', resultIdentifier, new AwaitExpression(createCallExpression)),
+      new ExpressionStatement(
+        new AwaitExpression(
+          new CallExpression(
+            new Identifier(node.publishCreateFunctionName()).importFrom('./subscription'),
+            resultIdentifier,
+          ),
+        ),
+      ),
+      new ReturnStatement(resultIdentifier),
+    );
+  }
+
+  private static updateFunctionBody(node: MutationNode) {
+    const updateCall = new CallExpression(
+      new PropertyAccessExpression(
+        new CallExpression(
+          new PropertyAccessExpression(new NewExpression(this.getDatasourceIdentifier(node.entityName)), 'update'),
+          this.toDatasourceParam(node.contextParams),
+        ),
+        'then',
+      ),
+      new ArrowFunction(
+        [new Parameter('it', new TypeReference('CommandResponse').importFrom('sasat'))],
+        KeywordTypeNode.boolean,
+        new BinaryExpression(new Identifier('it.changedRows'), '===', new NumericLiteral(1)),
+      ),
+    );
+    if (!node.onUpdate.subscribed) return updateCall;
+    const resultIdentifier = new Identifier('result');
+    return new Block(
+      new VariableDeclaration('const', resultIdentifier, updateCall),
+      new IfStatement(
+        resultIdentifier,
+        new Block(
+          new AwaitExpression(
+            new CallExpression(
+              new Identifier(node.publishUpdateFunctionName()).importFrom('./subscription'),
+              new AwaitExpression(
+                new CallExpression(
+                  new PropertyAccessExpression(
+                    new NewExpression(new Identifier(node.entityName.dataSourceName())),
+                    node.primaryFindQueryName,
+                  ),
+                  ...node.primaryKeys.map(it => new Identifier(`params.${it}`)),
+                ),
+              ),
+            ),
+          ).toStatement(),
+        ),
+      ),
+      new ReturnStatement(resultIdentifier),
+    );
+  }
+
+  private static deleteFunctionBody(node: MutationNode) {
+    const deleteCall = new CallExpression(
+      new PropertyAccessExpression(
+        new CallExpression(
+          new PropertyAccessExpression(
+            new NewExpression(MutationGenerator.getDatasourceIdentifier(node.entityName)),
+            'delete',
+          ),
+          new Identifier('params'),
+        ),
+        'then',
+      ),
+      new ArrowFunction(
+        [new Parameter('it', new TypeReference('CommandResponse').importFrom('sasat'))],
+        KeywordTypeNode.boolean,
+        new BinaryExpression(new Identifier('it.affectedRows'), '===', new NumericLiteral(1)),
+      ),
+    );
+
+    if (!node.onDelete.subscribed) return deleteCall;
+    const result = new Identifier('result');
+
+    return new Block(
+      new VariableDeclaration('const', result, deleteCall),
+      new IfStatement(
+        result,
+        new Block(
+          new AwaitExpression(
+            new CallExpression(new Identifier(node.publishDeleteFunctionName()), new Identifier('params')),
+          ).toStatement(),
+        ),
+      ),
+      new ReturnStatement(result),
+    );
   }
 }

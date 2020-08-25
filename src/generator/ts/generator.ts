@@ -1,7 +1,6 @@
 import { CodeGenerator } from '../generator';
 import * as prettier from 'prettier';
 import { IrGql } from '../../ir/gql';
-import { IrGqlContext } from '../../ir/gql/context';
 import { EntityNode } from '../../node/entity';
 import { TsEntityGenerator } from './v2/entity';
 import { GeneratedRepositoryGenerator } from './v2/generatedRepository';
@@ -10,9 +9,9 @@ import { generateRepositoryString } from './v2/repository';
 import { generateTsTypeDef } from './v2/gql/typeDef';
 import { generateTsGqlQueryString } from './v2/gql/query';
 import { TsGeneratorGqlResolver } from './v2/gql/resolver';
-import { TsCodeGeneratorGqlMutation } from './v2/gql/mutation';
-import { TsGeneratorGqlSubscription } from './v2/gql/subscription';
 import { TsGeneratorGqlContext } from './v2/gql/context';
+import { MutationGenerator } from './v2/gql/mutation';
+import { ContextNode } from '../../node/gql/contextNode';
 
 export class TsCodeGenerator implements CodeGenerator {
   readonly fileExt = 'ts';
@@ -46,15 +45,16 @@ export class TsCodeGenerator implements CodeGenerator {
   }
 
   generateGqlMutation(gql: IrGql): string {
-    return this.formatCode(new TsCodeGeneratorGqlMutation(gql).generate());
+    return new MutationGenerator().generate(gql.mutations).toString();
   }
 
-  generateGqlSubscription(gql: IrGql): string {
-    return this.formatCode(new TsGeneratorGqlSubscription(gql.mutations).generate());
+  generateGqlSubscription(): string {
+    return '';
+    // return this.formatCode(new TsGeneratorGqlSubscription(gql.mutations).generate());
   }
 
-  generateGqlContext(contexts: IrGqlContext[]): string {
-    return this.formatCode(new TsGeneratorGqlContext(contexts).generate());
+  generateGqlContext(contexts: ContextNode[]): string {
+    return this.formatCode(new TsGeneratorGqlContext().generate(contexts));
   }
 
   generateOnceFiles(): Array<{ name: string; body: string }> {

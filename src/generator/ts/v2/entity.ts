@@ -23,10 +23,10 @@ export class TsEntityGenerator {
   private creatable(): TsStatement {
     return new TypeAliasDeclaration(
       creatableInterfaceName(this.node.entityName),
-      new IntersectionType([
+      new IntersectionType(
         new TypeLiteral(this.node.onCreateRequiredFields().map(it => it.toPropertySignature())),
         new TypeReference(this.node.entityName).partial(),
-      ]),
+      ),
     ).export();
   }
   private identifiable(): TsStatement {

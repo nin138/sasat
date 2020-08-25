@@ -1,14 +1,16 @@
-export enum KeywordTypeNode {
-  any = 'any',
-  unknown = 'unknown',
-  number = 'number',
-  bigInt = 'BigInt',
-  boolean = 'boolean',
-  string = 'string',
-  symbol = 'Symbol',
-  this = 'this',
-  void = 'void',
-  undefined = 'undefined',
-  null = 'null',
-  never = 'never',
-}
+import { TypeReference } from './typeReference';
+
+export const KeywordTypeNode = {
+  any: new TypeReference('any'),
+  unknown: new TypeReference('unknown'),
+  number: new TypeReference('number'),
+  bigInt: new TypeReference('BigInt'),
+  boolean: new TypeReference('boolean'),
+  string: new TypeReference('string'),
+  symbol: new TypeReference('Symbol'),
+  this: new TypeReference('this'),
+  void: new TypeReference('void'),
+  undefined: new TypeReference('undefined'),
+  null: new TypeReference('null'),
+  never: new TypeReference('never'),
+};

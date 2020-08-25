@@ -7,6 +7,9 @@ import { GqlMutationParser } from './gql/gqlMutationParser';
 import { GqlQueryParser } from './gql/gqlQueryParser';
 import { GqlTypeParser } from './gql/gqlTypeParser';
 import { GqlResolverParser } from './gql/gqlResolverParser';
+import { MutationNode } from '../node/gql/mutationNode';
+import { ContextNode } from '../node/gql/contextNode';
+import { TypeNode } from '../node/typeNode';
 
 export class GqlParser {
   constructor(private store: DataStoreHandler) {}
@@ -15,7 +18,7 @@ export class GqlParser {
       types: new GqlTypeParser().parse(this.store),
       queries: new GqlQueryParser().parse(this.store.tables),
       mutations: this.getMutations(),
-      contexts: this.getContext(),
+      contexts: this.getContext().map(it => new ContextNode(it.name, new TypeNode(it.type, false, false))),
       resolvers: this.getResolvers(),
     };
     // console.log(a);
@@ -31,10 +34,8 @@ export class GqlParser {
     );
   }
 
-  private getMutations(): IrGqlMutation {
-    return {
-      entities: this.store.tables.map(new GqlMutationParser().parse),
-    };
+  private getMutations(): MutationNode[] {
+    return this.store.tables.map(new GqlMutationParser().parse);
   }
 
   private getResolvers(): IrGqlResolver[] {

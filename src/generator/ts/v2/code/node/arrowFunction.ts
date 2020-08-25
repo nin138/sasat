@@ -7,7 +7,7 @@ import { Block } from './Block';
 export class ArrowFunction extends Literal {
   constructor(private params: Parameter[], private returnType: TsType, private body: TsExpression | Block) {
     super();
-    this.mergeImport(...params, body);
+    this.mergeImport(...params, body, returnType);
   }
 
   protected toTsString(): string {

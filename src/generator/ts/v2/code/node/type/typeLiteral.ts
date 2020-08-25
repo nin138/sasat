@@ -1,5 +1,6 @@
 import { TsCode } from '../../abstruct/tsCode';
 import { PropertySignature } from '../propertySignature';
+import { TsType } from './type';
 
 export class TypeLiteral extends TsCode {
   constructor(private properties: PropertySignature[] = []) {
@@ -7,7 +8,7 @@ export class TypeLiteral extends TsCode {
     this.mergeImport(...properties);
   }
 
-  addProperty(propertyName: string, type: string, isOptional = false, isReadOnly = false): this {
+  addProperty(propertyName: string, type: TsType, isOptional = false, isReadOnly = false): this {
     this.properties.push(new PropertySignature(propertyName, type, isOptional, isReadOnly));
     return this;
   }

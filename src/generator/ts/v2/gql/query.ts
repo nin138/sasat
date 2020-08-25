@@ -1,5 +1,5 @@
-import { IrGql } from '../../../ir/gql';
-import { IrGqlQueryType } from '../../../ir/gql/query';
+import { IrGql } from '../../../../ir/gql';
+import { IrGqlQueryType } from '../../../../ir/gql/query';
 
 const getImportStatement = (usedEntities: string[]): string[] => {
   return [...new Set(usedEntities)].flatMap(

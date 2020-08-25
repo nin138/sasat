@@ -1,6 +1,6 @@
-import { IrGqlResolver } from '../../../ir/gql/resolver';
-import { TsCodeGenNestedObject } from '../code/nestedObject';
-import { TsFileGenerator } from '../tsFileGenerator';
+import { TsFileGenerator } from '../../tsFileGenerator';
+import { TsCodeGenNestedObject } from '../../code/nestedObject';
+import { IrGqlResolver } from '../../../../ir/gql/resolver';
 
 export class TsGeneratorGqlResolver extends TsFileGenerator {
   private obj = new TsCodeGenNestedObject();
