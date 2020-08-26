@@ -23,7 +23,7 @@
     "resetdb": "docker-compose exec db sh -c \"mysql -u root < /docker-entrypoint-initdb.d/temp.sql\"",
     "prepare": "yarn build",
     "sasat": "yarn env-cmd ts-node ./src/cli/cli.ts",
-    "server": "yarn env-cmd ts-node --project testServer.tsconfig.json ./test/testServer.ts"
+    "server": "yarn env-cmd ts-node --project testServer.tsconfig.json -r tsconfig-paths/register ./test/testServer.ts"
   },
   "dependencies": {
     "cac": "6.6.1",
@@ -58,7 +58,8 @@
     "jest": "26.1.0",
     "lint-staged": "10.2.11",
     "ts-jest": "25.2.1",
-    "ts-node": "8.10.2"
+    "ts-node": "8.10.2",
+    "tsconfig-paths": "^3.9.0"
   },
   "peerDependencies": {
     "apollo-server": "^2.0.0",

@@ -8,12 +8,13 @@ import { RepositoryNode } from '../../node/repository';
 import { generateRepositoryString } from './v2/repository';
 import { generateTsTypeDef } from './v2/gql/typeDef';
 import { generateTsGqlQueryString } from './v2/gql/query';
-import { TsGeneratorGqlResolver } from './v2/gql/resolver';
+import { ResolverGenerator } from './v2/gql/resolver';
 import { TsGeneratorGqlContext } from './v2/gql/context';
 import { MutationGenerator } from './v2/gql/mutation';
 import { ContextNode } from '../../node/gql/contextNode';
 import { SubscriptionGenerator } from './v2/gql/subscription';
 import { MutationNode } from '../../node/gql/mutationNode';
+import { ResolverNode } from '../../node/gql/resolverNode';
 
 export class TsCodeGenerator implements CodeGenerator {
   readonly fileExt = 'ts';
@@ -42,8 +43,9 @@ export class TsCodeGenerator implements CodeGenerator {
     return this.formatCode(generateTsGqlQueryString(gql));
   }
 
-  generateGqlResolver(gql: IrGql): string {
-    return this.formatCode(new TsGeneratorGqlResolver(gql.resolvers).generate());
+  generateGqlResolver(nodes: ResolverNode[]): string {
+    return new ResolverGenerator().generate(nodes).toString();
+    1;
   }
 
   generateGqlMutation(nodes: MutationNode[]): string {

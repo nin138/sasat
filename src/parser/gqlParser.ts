@@ -1,7 +1,5 @@
 import { IrGql } from '../ir/gql';
 import { DataStoreHandler } from '../entity/dataStore';
-import { IrGqlMutation } from '../ir/gql/mutation';
-import { IrGqlResolver } from '../ir/gql/resolver';
 import { IrGqlContext } from '../ir/gql/context';
 import { GqlMutationParser } from './gql/gqlMutationParser';
 import { GqlQueryParser } from './gql/gqlQueryParser';
@@ -10,6 +8,7 @@ import { GqlResolverParser } from './gql/gqlResolverParser';
 import { MutationNode } from '../node/gql/mutationNode';
 import { ContextNode } from '../node/gql/contextNode';
 import { TypeNode } from '../node/typeNode';
+import { ResolverNode } from '../node/gql/resolverNode';
 
 export class GqlParser {
   constructor(private store: DataStoreHandler) {}
@@ -38,7 +37,7 @@ export class GqlParser {
     return this.store.tables.map(new GqlMutationParser().parse);
   }
 
-  private getResolvers(): IrGqlResolver[] {
-    return this.store.tables.flatMap(new GqlResolverParser().parse);
+  private getResolvers(): ResolverNode[] {
+    return new GqlResolverParser().parse(this.store.tables);
   }
 }

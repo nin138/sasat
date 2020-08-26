@@ -33,6 +33,7 @@ export class GeneratedRepositoryGenerator {
   generate() {
     const node = this.node;
     const entityPath = getEntityPath(GeneratedRepositoryPath, node.entityName);
+    console.log(node.findMethods.map(it => it.name));
     return new TsFile(
       new Class(generatedDataSourceName(node.entityName))
         .export()
