@@ -2,9 +2,9 @@ import { IrGql } from '../../../../ir/gql';
 import { TsCodeGenObject } from '../../code/object';
 import { tsArrayString } from '../../code/array';
 import { createParamString, getGqlTypeString } from '../../../gql/typeDef';
-import { IrGqlSubscription } from '../../../../ir/gql/mutation';
 import { MutationNode } from '../../../../node/gql/mutationNode';
 import { GqlParamNode } from '../../../../node/gql/GqlParamNode';
+import { SubscriptionFilterNode } from '../../../../node/gql/subscriptionFilterNode';
 
 export const generateTsTypeDef = (gql: IrGql) => {
   const obj = new TsCodeGenObject();
@@ -48,22 +48,23 @@ export const generateTsTypeDef = (gql: IrGql) => {
     ),
   );
 
-  const createParam = (subscription: IrGqlSubscription): string => {
-    if (subscription.filter.length === 0) return '';
-    return `(${subscription.filter.map(it => `${it.column}: ${it.type}!`).join(', ')})`;
+  const createParam = (filters: SubscriptionFilterNode[]): string => {
+    if (filters.length === 0) return '';
+    return `(${filters.map(it => `${it.columnName}: ${it.type}!`).join(', ')})`;
   };
-  // const onCreate = gql.mutations.entities
-  //   .filter(it => it.subscription.onCreate)
-  //   .map(it => `${it.entityName}Created${createParam(it.subscription)}: ${it.entityName}!`);
-  // const onUpdate = gql.mutations.entities
-  //   .filter(it => it.subscription.onUpdate)
-  //   .map(it => `${it.entityName}Updated${createParam(it.subscription)}: ${it.entityName}!`);
-  // const onDelete = gql.mutations.entities
-  //   .filter(it => it.subscription.onDelete)
-  //   .map(it => `${it.entityName}Deleted${createParam(it.subscription)}: Deleted${it.entityName}!`);
-  // const list = [...onCreate, ...onUpdate, ...onDelete];
-  // if (list.length === 0) return '';
-  // obj.set('Subscription', tsArrayString(list.sort()));
+  const list = gql.mutations
+    .filter(it => it.subscribed)
+    .map(it => {
+      if (MutationNode.isCreateMutation(it)) {
+        return `${it.entityName}Created${createParam(it.subscriptionFilters)}: ${it.entityName}!`;
+      }
+      if (MutationNode.isUpdateMutation(it)) {
+        return `${it.entityName}Updated${createParam(it.subscriptionFilters)}: ${it.entityName}!`;
+      }
+      return `${it.entityName}Deleted${createParam(it.subscriptionFilters)}: Deleted${it.entityName}!`;
+    });
+  if (list.length === 0) return '';
+  obj.set('Subscription', tsArrayString(list.sort()));
 
   return `export const typeDef = ${obj.toTsString()}`;
 };

@@ -27,7 +27,7 @@ export class GqlResolverParser {
 
   private createChildRelation(ref: ReferenceColumn, tableName: string): RelationNode {
     return new RelationNode(
-      ref.data.relationName || ref.data.targetTable,
+      ref.data.relationName || TableHandler.tableNameToEntityName(ref.data.targetTable),
       new EntityName(TableHandler.tableNameToEntityName(tableName)),
       new EntityName(TableHandler.tableNameToEntityName(ref.data.targetTable)),
       Parser.paramsToQueryName(ref.data.targetColumn),

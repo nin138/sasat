@@ -17,6 +17,7 @@ export class Parser {
     const repositories = this.store.tables.map(
       it =>
         new RepositoryNode(
+          it.tableName,
           it.getEntityName(),
           it.primaryKey,
           Parser.tableToEntityNode(it),

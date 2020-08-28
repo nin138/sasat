@@ -4,6 +4,7 @@ import { EntityName } from '../entity/entityName';
 
 export class RepositoryNode {
   constructor(
+    readonly tableName: string,
     readonly entityName: EntityName,
     readonly primaryKeys: string[],
     readonly entity: EntityNode,

@@ -31,6 +31,8 @@ import { BinaryExpression } from '../code/node/binaryExpression';
 import { KeywordTypeNode } from '../code/node/type/typeKeyword';
 import { IfStatement } from '../code/node/ifStatement';
 import { SasatError } from '../../../../error';
+import { ParenthesizedExpression } from '../code/node/parenthesizedExpression';
+import { NonNullExpression } from '../code/node/nonNullExpression';
 
 export class MutationGenerator {
   generate = (mutations: MutationNode[]): TsFile => {
@@ -107,12 +109,15 @@ export class MutationGenerator {
       MutationGenerator.deleteFunctionName(node.entityName),
       new AsyncExpression(
         new ArrowFunction(
-          MutationGenerator.functionParams(
-            new TypeReference(node.entityName.identifiableInterfaceName()).importFrom(
-              getEntityPath(GeneratedPath, node.entityName),
+          [
+            new Parameter('_', new TypeLiteral()),
+            new Parameter(
+              'params',
+              new TypeReference(node.entityName.identifiableInterfaceName()).importFrom(
+                getEntityPath(GeneratedPath, node.entityName),
+              ),
             ),
-            node.useContextParams(),
-          ),
+          ],
           new TypeReference('Promise', [KeywordTypeNode.boolean]),
           MutationGenerator.deleteFunctionBody(node),
         ),
@@ -183,13 +188,17 @@ export class MutationGenerator {
           new AwaitExpression(
             new CallExpression(
               new Identifier(node.publishFunctionName()).importFrom('./subscription'),
-              new AwaitExpression(
-                new CallExpression(
-                  new PropertyAccessExpression(
-                    new NewExpression(new Identifier(node.entityName.dataSourceName())),
-                    node.primaryFindQueryName,
+              new NonNullExpression(
+                new ParenthesizedExpression(
+                  new AwaitExpression(
+                    new CallExpression(
+                      new PropertyAccessExpression(
+                        new NewExpression(new Identifier(node.entityName.dataSourceName())),
+                        node.primaryFindQueryName,
+                      ),
+                      ...node.primaryKeys.map(it => new Identifier(`params.${it}`)),
+                    ),
                   ),
-                  ...node.primaryKeys.map(it => new Identifier(`params.${it}`)),
                 ),
               ),
             ),
@@ -228,7 +237,10 @@ export class MutationGenerator {
         result,
         new Block(
           new AwaitExpression(
-            new CallExpression(new Identifier(node.publishFunctionName()), new Identifier('params')),
+            new CallExpression(
+              new Identifier(node.publishFunctionName()).importFrom('./subscription'),
+              new Identifier('params'),
+            ),
           ).toStatement(),
         ),
       ),

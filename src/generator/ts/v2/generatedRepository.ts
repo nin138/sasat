@@ -28,7 +28,6 @@ export class GeneratedRepositoryGenerator {
   generate() {
     const node = this.node;
     const entityPath = getEntityPath(GeneratedRepositoryPath, node.entityName);
-    console.log(node.findMethods.map(it => it.name));
     return new TsFile(
       new Class(node.entityName.generatedDataSourceName())
         .export()
@@ -60,7 +59,7 @@ export class GeneratedRepositoryGenerator {
     return [
       new PropertyDeclaration('tableName', KeywordTypeNode.string, false)
         .modifiers(new PropertyModifiers().readonly())
-        .initializer(new StringLiteral(node.entityName.name)),
+        .initializer(new StringLiteral(node.tableName)),
       new PropertyDeclaration('primaryKeys', new ArrayType(KeywordTypeNode.string), false)
         .modifiers(new PropertyModifiers().readonly().protected())
         .initializer(new ArrayLiteral(node.primaryKeys.map(it => new StringLiteral(it)))),
