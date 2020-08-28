@@ -8,15 +8,15 @@ import { IrGql } from '../ir/gql';
 import { CodeGeneratable } from '../node/codeGeneratable';
 import { EntityNode } from '../node/entity';
 import { RepositoryNode } from '../node/repository';
-import { EntityPath, GeneratedPath, GeneratedRepositoryPath, RepositoryPath } from '../constants/directory';
+import { Directory } from '../constants/directory';
 
 export class CodeGenerateController {
   private codeGen: CodeGenerator = new TsCodeGenerator();
   private outDir = config().migration.out;
-  private repositoryDir = path.join(this.outDir, RepositoryPath);
-  private generateDir = path.join(this.outDir, GeneratedPath);
-  private generateEntityDir = path.join(this.outDir, EntityPath);
-  private generateRepositoryDir = path.join(this.outDir, GeneratedRepositoryPath);
+  private repositoryDir = path.join(this.outDir, Directory.paths.dataSource);
+  private generateDir = path.join(this.outDir, Directory.paths.generated);
+  private generateEntityDir = path.join(this.outDir, Directory.paths.entity);
+  private generateRepositoryDir = path.join(this.outDir, Directory.paths.generatedDataSource);
   constructor(readonly ir: CodeGeneratable, readonly gql: IrGql) {}
   async generate() {
     await this.prepareDirs();

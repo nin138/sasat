@@ -18,7 +18,7 @@ import { Block } from '../code/node/block';
 import { AwaitExpression } from '../code/node/awaitExpression';
 import { ReturnStatement } from '../code/node/returnStatement';
 import { BinaryExpression } from '../code/node/binaryExpression';
-import { GeneratedPath, getEntityPath } from '../../../../constants/directory';
+import { Directory } from '../../../../constants/directory';
 
 interface Subscription {
   entity: EntityName;
@@ -65,7 +65,7 @@ export class SubscriptionGenerator {
                 'entity',
                 new TypeReference(
                   it.event === 'Deleted' ? it.entity.identifiableInterfaceName() : it.entity.name,
-                ).importFrom(getEntityPath(GeneratedPath, it.entity.name)),
+                ).importFrom(Directory.entityPath(Directory.paths.generated, it.entity.name)),
               ),
             ],
             new TypeReference('Promise', [KeywordTypeNode.void]),

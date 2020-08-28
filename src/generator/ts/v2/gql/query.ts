@@ -10,7 +10,7 @@ import { Parameter } from '../code/node/parameter';
 import { TypeLiteral } from '../code/node/type/typeLiteral';
 import { PropertyAccessExpression } from '../code/node/propertyAccessExpression';
 import { RepositoryNode } from '../../../../node/repository';
-import { GeneratedPath, getRepositoryPath } from '../../../../constants/directory';
+import { Directory } from '../../../../constants/directory';
 import { plural } from '../../../../util/stringUtil';
 import { NewExpression } from '../code/node/newExpression';
 
@@ -63,14 +63,14 @@ export class QueryGenerator {
             new Parameter('_', new TypeLiteral()),
             new Parameter(
               `{ ${node.primaryKeys.join(',')} }`,
-              node.entityName.getTypeReference(GeneratedPath).pick(...node.primaryKeys),
+              node.entityName.getTypeReference(Directory.paths.generated).pick(...node.primaryKeys),
             ),
           ],
           undefined,
           new PropertyAccessExpression(
             new NewExpression(
               new Identifier(node.entityName.dataSourceName()).importFrom(
-                getRepositoryPath(GeneratedPath, node.entityName),
+                Directory.dataSourcePath(Directory.paths.generated, node.entityName),
               ),
             ),
             node.primaryFindMethod().name,
@@ -85,7 +85,7 @@ export class QueryGenerator {
           new PropertyAccessExpression(
             new NewExpression(
               new Identifier(node.entityName.dataSourceName()).importFrom(
-                getRepositoryPath(GeneratedPath, node.entityName),
+                Directory.dataSourcePath(Directory.paths.generated, node.entityName),
               ),
             ),
             'list',

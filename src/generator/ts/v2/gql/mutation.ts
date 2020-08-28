@@ -14,7 +14,7 @@ import { TypeReference } from '../code/node/type/typeReference';
 import { Identifier } from '../code/node/Identifier';
 import { Parameter } from '../code/node/parameter';
 import { TypeLiteral } from '../code/node/type/typeLiteral';
-import { GeneratedPath, getEntityPath, getRepositoryPath } from '../../../../constants/directory';
+import { Directory } from '../../../../constants/directory';
 import { Block } from '../code/node/Block';
 import { ReturnStatement } from '../code/node/returnStatement';
 import { CallExpression } from '../code/node/callExpression';
@@ -69,14 +69,10 @@ export class MutationGenerator {
       new AsyncExpression(
         new ArrowFunction(
           MutationGenerator.functionParams(
-            new TypeReference(node.entityName.creatableInterface()).importFrom(
-              getEntityPath(GeneratedPath, node.entityName),
-            ),
+            node.entityName.getTypeReference(Directory.paths.generated),
             node.useContextParams(),
           ),
-          new TypeReference('Promise', [
-            node.entityName.toIdentifier().importFrom(getEntityPath(GeneratedPath, node.entityName)),
-          ]),
+          new TypeReference('Promise', [node.entityName.toIdentifier(Directory.paths.generated)]),
           MutationGenerator.createFunctionBody(node),
         ),
       ),
@@ -90,9 +86,7 @@ export class MutationGenerator {
         new ArrowFunction(
           MutationGenerator.functionParams(
             new IntersectionType(
-              new TypeReference(node.entityName.identifiableInterfaceName()).importFrom(
-                getEntityPath(GeneratedPath, node.entityName),
-              ),
+              node.entityName.identifiableTypeReference(Directory.paths.generated),
               new TypeReference(node.entityName.name).partial(),
             ),
             node.useContextParams(),
@@ -111,12 +105,7 @@ export class MutationGenerator {
         new ArrowFunction(
           [
             new Parameter('_', new TypeLiteral()),
-            new Parameter(
-              'params',
-              new TypeReference(node.entityName.identifiableInterfaceName()).importFrom(
-                getEntityPath(GeneratedPath, node.entityName),
-              ),
-            ),
+            new Parameter('params', node.entityName.identifiableTypeReference(Directory.paths.generated)),
           ],
           new TypeReference('Promise', [KeywordTypeNode.boolean]),
           MutationGenerator.deleteFunctionBody(node),
@@ -142,7 +131,9 @@ export class MutationGenerator {
   }
 
   private static getDatasourceIdentifier(entityName: EntityName) {
-    return new Identifier(entityName.dataSourceName()).importFrom(getRepositoryPath(GeneratedPath, entityName));
+    return new Identifier(entityName.dataSourceName()).importFrom(
+      Directory.dataSourcePath(Directory.paths.generated, entityName),
+    );
   }
 
   private static createFunctionBody(node: MutationNode) {

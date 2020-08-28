@@ -7,21 +7,27 @@ import {
 } from '../constants/interfaceConstants';
 import { lowercaseFirstLetter } from '../util/stringUtil';
 import { TypeReference } from '../generator/ts/v2/code/node/type/typeReference';
-import { getEntityPath } from '../constants/directory';
+import { Directory } from '../constants/directory';
 
 export class EntityName {
   constructor(public readonly name: string) {}
   toString() {
     return this.name;
   }
-  toIdentifier(): Identifier {
-    return new Identifier(this.name);
+  toIdentifier(fromPath: string): Identifier {
+    return new Identifier(this.name).importFrom(fromPath);
   }
   creatableInterface(): string {
     return creatableInterfaceName(this.name);
   }
+  creatableTypeReference(fromPath: string): TypeReference {
+    return new TypeReference(this.creatableInterface()).importFrom(Directory.entityPath(fromPath, this.name));
+  }
   identifiableInterfaceName(): string {
     return identifiableInterfaceName(this.name);
+  }
+  identifiableTypeReference(fromPath: string): TypeReference {
+    return new TypeReference(this.identifiableInterfaceName()).importFrom(Directory.entityPath(fromPath, this.name));
   }
   dataSourceName(): string {
     return dataSourceName(this.name);
@@ -33,6 +39,6 @@ export class EntityName {
     return lowercaseFirstLetter(this.name);
   }
   getTypeReference(fromPath: string): TypeReference {
-    return new TypeReference(this.name).importFrom(getEntityPath(fromPath, this.name));
+    return new TypeReference(this.name).importFrom(Directory.entityPath(fromPath, this.name));
   }
 }

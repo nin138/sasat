@@ -10,8 +10,7 @@ import { SpreadAssignment } from '../code/node/spreadAssignment';
 import { ResolverNode } from '../../../../node/gql/resolverNode';
 import { ArrowFunction } from '../code/node/arrowFunction';
 import { Parameter } from '../code/node/parameter';
-import { TypeReference } from '../code/node/type/typeReference';
-import { GeneratedPath, getEntityPath, getRepositoryPath } from '../../../../constants/directory';
+import { Directory } from '../../../../constants/directory';
 import { NewExpression } from '../code/node/newExpression';
 import { PropertyAccessExpression } from '../code/node/propertyAccessExpression';
 
@@ -40,9 +39,7 @@ export class ResolverGenerator {
                               [
                                 new Parameter(
                                   relation.parentEntity.name,
-                                  new TypeReference(relation.parentEntity.name).importFrom(
-                                    getEntityPath(GeneratedPath, relation.parentEntity),
-                                  ),
+                                  relation.parentEntity.getTypeReference(Directory.paths.generated),
                                 ),
                               ],
                               undefined,
@@ -50,7 +47,7 @@ export class ResolverGenerator {
                               new PropertyAccessExpression(
                                 new NewExpression(
                                   new Identifier(relation.relativeEntity.dataSourceName()).importFrom(
-                                    getRepositoryPath(GeneratedPath, relation.relativeEntity),
+                                    Directory.dataSourcePath(Directory.paths.generated, relation.relativeEntity),
                                   ),
                                 ),
                                 relation.functionName,
