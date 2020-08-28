@@ -2,7 +2,6 @@ import { EntityNode } from '../../../node/entity';
 import { TsInterface } from './code/node/interface';
 import { TsStatement } from './code/abstruct/statement';
 import { TypeAliasDeclaration } from './code/node/type/typeAliasDeclaration';
-import { creatableInterfaceName, identifiableInterfaceName } from '../../../constants/interfaceConstants';
 import { IntersectionType } from './code/node/type/intersectionType';
 import { TypeLiteral } from './code/node/type/typeLiteral';
 import { TypeReference } from './code/node/type/typeReference';
@@ -16,21 +15,21 @@ export class TsEntityGenerator {
   }
 
   private entity(): TsStatement {
-    return new TsInterface(this.node.entityName)
+    return new TsInterface(this.node.entityName.name)
       .addProperties(this.node.fields.map(it => it.toPropertySignature()))
       .export();
   }
   private creatable(): TsStatement {
     return new TypeAliasDeclaration(
-      creatableInterfaceName(this.node.entityName),
+      this.node.entityName.creatableInterface(),
       new IntersectionType(
         new TypeLiteral(this.node.onCreateRequiredFields().map(it => it.toPropertySignature())),
-        new TypeReference(this.node.entityName).partial(),
+        new TypeReference(this.node.entityName.name).partial(),
       ),
     ).export();
   }
   private identifiable(): TsStatement {
-    return new TsInterface(identifiableInterfaceName(this.node.entityName))
+    return new TsInterface(this.node.entityName.identifiableInterfaceName())
       .addProperties(this.node.identifiableFields().map(it => it.toPropertySignature()))
       .export();
   }

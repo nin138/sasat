@@ -11,7 +11,7 @@ export class GqlQueryParser {
     return tables.map(it => ({
       queryName: plural(it.tableName),
       queryType: IrGqlQueryType.List,
-      entity: it.getEntityName(),
+      entity: it.getEntityName().name,
       params: [],
       repositoryFunctionName: 'list',
       isArray: true,
@@ -23,7 +23,7 @@ export class GqlQueryParser {
     return tables.map(table => ({
       queryName: table.tableName,
       queryType: IrGqlQueryType.Primary,
-      entity: table.getEntityName(),
+      entity: table.getEntityName().name,
       params: table.primaryKey.map(it => ({
         name: it,
         type: table.column(it)!.gqlType(),

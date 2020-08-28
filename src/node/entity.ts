@@ -1,7 +1,8 @@
 import { FieldNode } from './field';
+import { EntityName } from '../entity/entityName';
 
 export class EntityNode {
-  constructor(public readonly entityName: string, public readonly fields: FieldNode[]) {}
+  constructor(public readonly entityName: EntityName, public readonly fields: FieldNode[]) {}
   public identifiableFields(): FieldNode[] {
     return this.fields.filter(it => it.isRequiredToIdentify());
   }
@@ -12,5 +13,9 @@ export class EntityNode {
 
   public hasDefaultValueFields(): FieldNode[] {
     return this.fields.filter(it => it.hasDefaultValue());
+  }
+
+  public primaryFields(): FieldNode[] {
+    return this.fields.filter(it => it.isPrimary);
   }
 }

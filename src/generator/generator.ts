@@ -14,7 +14,7 @@ export interface CodeGenerator {
   generateRepository(repository: RepositoryNode): string;
   generateGqlTypeDefs(gql: IrGql): string;
   generateGqlResolver(nodes: ResolverNode[]): string;
-  generateGqlQuery(gql: IrGql): string;
+  generateGqlQuery(repositories: RepositoryNode[]): string;
   generateGqlMutation(nodes: MutationNode[]): string;
   generateGqlSubscription(nodes: MutationNode[]): string;
   generateGqlContext(contexts: ContextNode[]): string;

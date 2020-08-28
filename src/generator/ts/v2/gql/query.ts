@@ -1,5 +1,22 @@
 import { IrGql } from '../../../../ir/gql';
 import { IrGqlQueryType } from '../../../../ir/gql/query';
+import { TsFile } from '../file';
+import { VariableDeclaration } from '../code/node/variableDeclaration';
+import { ObjectLiteral } from '../code/node/literal/literal';
+import { Identifier } from '../code/node/Identifier';
+import { EntityNode } from '../../../../node/entity';
+import { PropertyAssignment } from '../code/node/propertyAssignment';
+import { ArrowFunction } from '../code/node/arrowFunction';
+import { User } from '../../../../../test/out/__generated__/entities/User';
+import { Parameter } from '../code/node/parameter';
+import { TypeLiteral } from '../code/node/type/typeLiteral';
+import { PropertyAccessExpression } from '../code/node/propertyAccessExpression';
+import { RepositoryNode } from '../../../../node/repository';
+import { TypeReference } from '../code/node/type/typeReference';
+import { GeneratedPath, getEntityPath, getRepositoryPath } from '../../../../constants/directory';
+import pluralize = require('pluralize');
+import { plural } from '../../../../util/stringUtil';
+import { NewExpression } from '../code/node/newExpression';
 
 const getImportStatement = (usedEntities: string[]): string[] => {
   return [...new Set(usedEntities)].flatMap(
@@ -29,3 +46,56 @@ export const generateTsGqlQueryString = (ir: IrGql) => {
   ];
   return [...getImportStatement(usedEntities), ...lines].join('\n');
 };
+
+export class QueryGenerator {
+  generate(nodes: RepositoryNode[]): TsFile {
+    return new TsFile(
+      new VariableDeclaration(
+        'const',
+        new Identifier('query'),
+        new ObjectLiteral(...nodes.flatMap(node => this.createProperty(node))),
+      ).export(),
+    );
+  }
+
+  private createProperty(node: RepositoryNode): PropertyAssignment[] {
+    return [
+      new PropertyAssignment(
+        node.entityName.lowerCase(),
+        new ArrowFunction(
+          [
+            new Parameter('_', new TypeLiteral()),
+            new Parameter(
+              `{ ${node.primaryKeys.join(',')} }`,
+              node.entityName.getTypeReference(GeneratedPath).pick(...node.primaryKeys),
+            ),
+          ],
+          undefined,
+          new PropertyAccessExpression(
+            new NewExpression(
+              new Identifier(node.entityName.dataSourceName()).importFrom(
+                getRepositoryPath(GeneratedPath, node.entityName),
+              ),
+            ),
+            node.primaryFindMethod().name,
+          ).call(...node.primaryKeys.map(it => new Identifier(it))),
+        ),
+      ),
+      new PropertyAssignment(
+        plural(node.entityName.lowerCase()),
+        new ArrowFunction(
+          [],
+          undefined,
+          new PropertyAccessExpression(
+            new NewExpression(
+              new Identifier(node.entityName.dataSourceName()).importFrom(
+                getRepositoryPath(GeneratedPath, node.entityName),
+              ),
+            ),
+            'list',
+          ).call(),
+        ),
+      ),
+    ];
+  }
+}

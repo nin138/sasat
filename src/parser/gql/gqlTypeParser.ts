@@ -33,7 +33,7 @@ export class GqlTypeParser {
   private getReferencedType = (store: DataStoreHandler, tableName: string): IrGqlParam[] =>
     store.referencedBy(tableName).map(it => ({
       name: it.table.tableName,
-      type: it.table.getEntityName(),
+      type: it.table.getEntityName().name,
       isNullable: it.data.relation === Relation.OneOrZero,
       isArray: it.data.relation === Relation.Many,
       isReference: true,
@@ -41,7 +41,7 @@ export class GqlTypeParser {
 
   private getType(store: DataStoreHandler, table: TableHandler) {
     return {
-      typeName: table.getEntityName(),
+      typeName: table.getEntityName().name,
       params: [
         ...table.columns.map(this.columnToParam),
         ...table.columns

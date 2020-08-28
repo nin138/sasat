@@ -1,12 +1,11 @@
 import { RepositoryNode } from '../../../node/repository';
-import { dataSourceName, generatedDataSourceName } from '../../../constants/interfaceConstants';
 import { getGeneratedRepositoryPath, RepositoryPath } from '../../../constants/directory';
 
 export const generateRepositoryString = (ir: RepositoryNode) => `
-import { ${generatedDataSourceName(ir.entityName)} } from '${getGeneratedRepositoryPath(
+import { ${ir.entityName.generatedDataSourceName()} } from '${getGeneratedRepositoryPath(
   RepositoryPath,
-  ir.entityName,
+  ir.entityName.name,
 )}';
 
-export class ${dataSourceName(ir.entityName)} extends ${generatedDataSourceName(ir.entityName)} {}
+export class ${ir.entityName.dataSourceName()} extends ${ir.entityName.generatedDataSourceName()} {}
 `;

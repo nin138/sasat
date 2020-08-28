@@ -7,7 +7,7 @@ import { GeneratedRepositoryGenerator } from './v2/generatedRepository';
 import { RepositoryNode } from '../../node/repository';
 import { generateRepositoryString } from './v2/repository';
 import { generateTsTypeDef } from './v2/gql/typeDef';
-import { generateTsGqlQueryString } from './v2/gql/query';
+import { QueryGenerator } from './v2/gql/query';
 import { ResolverGenerator } from './v2/gql/resolver';
 import { TsGeneratorGqlContext } from './v2/gql/context';
 import { MutationGenerator } from './v2/gql/mutation';
@@ -39,8 +39,8 @@ export class TsCodeGenerator implements CodeGenerator {
     return this.formatCode(generateTsTypeDef(gql));
   }
 
-  generateGqlQuery(gql: IrGql): string {
-    return this.formatCode(generateTsGqlQueryString(gql));
+  generateGqlQuery(repositories: RepositoryNode[]): string {
+    return new QueryGenerator().generate(repositories).toString();
   }
 
   generateGqlResolver(nodes: ResolverNode[]): string {

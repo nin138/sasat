@@ -1,9 +1,4 @@
-import {
-  baseRepositoryName,
-  creatableInterfaceName,
-  generatedDataSourceName,
-  identifiableInterfaceName,
-} from '../../../constants/interfaceConstants';
+import { baseRepositoryName } from '../../../constants/interfaceConstants';
 import { TsFile } from './file';
 import { Class } from './code/node/class';
 import { RepositoryNode } from '../../../node/repository';
@@ -35,15 +30,15 @@ export class GeneratedRepositoryGenerator {
     const entityPath = getEntityPath(GeneratedRepositoryPath, node.entityName);
     console.log(node.findMethods.map(it => it.name));
     return new TsFile(
-      new Class(generatedDataSourceName(node.entityName))
+      new Class(node.entityName.generatedDataSourceName())
         .export()
         .abstract()
         .extends(
           new ExtendsClause(
             new TypeReference(baseRepositoryName(), [
-              new TypeReference(node.entityName).importFrom(entityPath),
-              new TypeReference(creatableInterfaceName(node.entityName)).importFrom(entityPath),
-              new TypeReference(identifiableInterfaceName(node.entityName)).importFrom(entityPath),
+              new TypeReference(node.entityName.name).importFrom(entityPath),
+              new TypeReference(node.entityName.creatableInterface()).importFrom(entityPath),
+              new TypeReference(node.entityName.identifiableInterfaceName()).importFrom(entityPath),
             ]),
           ).addImport([baseRepositoryName()], 'sasat'),
         )
@@ -65,7 +60,7 @@ export class GeneratedRepositoryGenerator {
     return [
       new PropertyDeclaration('tableName', KeywordTypeNode.string, false)
         .modifiers(new PropertyModifiers().readonly())
-        .initializer(new StringLiteral(node.entityName)),
+        .initializer(new StringLiteral(node.entityName.name)),
       new PropertyDeclaration('primaryKeys', new ArrayType(KeywordTypeNode.string), false)
         .modifiers(new PropertyModifiers().readonly().protected())
         .initializer(new ArrayLiteral(node.primaryKeys.map(it => new StringLiteral(it)))),
@@ -99,7 +94,7 @@ export class GeneratedRepositoryGenerator {
     return new MethodDeclaration(
       'getDefaultValueString',
       [],
-      columns.length !== 0 ? new TypeReference(node.entityName).pick(...columns) : new TypeLiteral(),
+      columns.length !== 0 ? new TypeReference(node.entityName.name).pick(...columns) : new TypeLiteral(),
       [body],
     ).modifiers(new MethodModifiers().protected());
   }

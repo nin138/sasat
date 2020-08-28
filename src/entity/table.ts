@@ -9,6 +9,7 @@ import { capitalizeFirstLetter } from '../util/stringUtil';
 import { getDefaultGqlOption, GqlOption, mergeGqlOption } from '../migration/gqlOption';
 import { NestedPartial } from '../util/type';
 import { escapeName } from '../sql/escape';
+import { EntityName } from './entityName';
 
 export interface Table {
   column(columnName: string): Column | undefined;
@@ -130,8 +131,8 @@ REFERENCES ${escapeName(ref.data.targetTable)} \
     return this.primaryKey.includes(columnName);
   }
 
-  getEntityName(): string {
-    return TableHandler.tableNameToEntityName(this.tableName);
+  getEntityName(): EntityName {
+    return new EntityName(TableHandler.tableNameToEntityName(this.tableName));
   }
 
   setGqlOption(option: NestedPartial<GqlOption>) {
