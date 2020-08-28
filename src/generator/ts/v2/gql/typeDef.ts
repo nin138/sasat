@@ -5,9 +5,21 @@ import { createParamString, getGqlTypeString } from '../../../gql/typeDef';
 import { MutationNode } from '../../../../node/gql/mutationNode';
 import { GqlParamNode } from '../../../../node/gql/GqlParamNode';
 import { SubscriptionFilterNode } from '../../../../node/gql/subscriptionFilterNode';
+import { ArrayLiteral, ObjectLiteral, StringLiteral } from '../code/node/expressions';
+import { PropertyAssignment } from '../code/node/propertyAssignment';
 
 export const generateTsTypeDef = (gql: IrGql) => {
   const obj = new TsCodeGenObject();
+  const types = new ObjectLiteral(
+    ...gql.types.map(
+      type =>
+        new PropertyAssignment(
+          type.typeName,
+          new ArrayLiteral(type.params.map(it => new StringLiteral(`${it.name}: ${getGqlTypeString(it)}`))),
+        ),
+    ),
+  );
+
   gql.types.forEach(type => {
     obj.set(type.typeName, tsArrayString(type.params.map(it => `${it.name}: ${getGqlTypeString(it)}`)));
   });

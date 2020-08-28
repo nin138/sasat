@@ -17,7 +17,9 @@ import {
   AwaitExpression,
   BinaryExpression,
   Identifier,
+  ObjectLiteral,
   PropertyAccessExpression,
+  StringLiteral,
 } from '../code/node/expressions';
 import { tsg } from '../code/factory';
 
@@ -45,20 +47,22 @@ export class SubscriptionGenerator {
 
   private createFile(data: Subscription[]) {
     const subscriptionEnum = new EnumDeclaration(new Identifier('SubscriptionName'), []).export();
-    const subscriptions = tsg.object();
+    const subscriptions = new ObjectLiteral();
     const publishFunctions: VariableDeclaration[] = [];
     data.forEach(it => {
       const event = it.entity.name + it.event;
-      subscriptionEnum.addMembers(new EnumMember(new Identifier(event), tsg.string(event)));
+      subscriptionEnum.addMembers(new EnumMember(new Identifier(event), new StringLiteral(event)));
       const fn =
         it.filters.length === 0 ? this.createAsyncIteratorCall(event) : this.createWithFilter(event, it.filters);
-      subscriptions.addProperties(new PropertyAssignment(event, tsg.object(new PropertyAssignment('subscribe', fn))));
+      subscriptions.addProperties(
+        new PropertyAssignment(event, new ObjectLiteral(new PropertyAssignment('subscribe', fn))),
+      );
       publishFunctions.push(
         tsg
           .variable(
             'const',
-            tsg.identifier(`publish${event}`),
-            tsg.arrowFunc(
+            new Identifier(`publish${event}`),
+            new ArrowFunction(
               [
                 tsg.parameter(
                   'entity',
@@ -68,12 +72,10 @@ export class SubscriptionGenerator {
                 ),
               ],
               tsg.typeRef('Promise', [KeywordTypeNode.void]),
-              tsg
-                .identifier('pubsub.publish')
-                .call(
-                  tsg.identifier(`SubscriptionName.${event}`),
-                  tsg.object(tsg.propertyAssign(event, tsg.identifier('entity'))),
-                ),
+              new Identifier('pubsub.publish').call(
+                new Identifier(`SubscriptionName.${event}`),
+                new ObjectLiteral(tsg.propertyAssign(event, new Identifier('entity'))),
+              ),
             ),
           )
           .export(),
@@ -88,7 +90,7 @@ export class SubscriptionGenerator {
 
   private createWithFilter(event: string, filters: string[]) {
     const binaryExpressions = filters
-      .map(it => new BinaryExpression(new Identifier(`result.${it}`), '===', new Identifier(`variables.${it}`)))
+      .map(it => new BinaryExpression(tsg.identifier(`result.${it}`), '===', new Identifier(`variables.${it}`)))
       .reduce((previousValue, currentValue) => new BinaryExpression(previousValue, '&&', currentValue));
 
     return new Identifier('withFilter')

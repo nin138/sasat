@@ -7,7 +7,6 @@ import { Parameter } from './parameter';
 import { TsType } from './type/type';
 import { Block } from './block';
 
-export const a = () => 0;
 export abstract class TsExpression extends TsCode {
   private readonly _codeType = 'expression';
 
@@ -21,7 +20,8 @@ export abstract class TsExpression extends TsCode {
   }
 
   nonNull() {
-    return tsg.nonNull(this);
+    // eslint-disable-next-line @typescript-eslint/no-use-before-define
+    return new NonNullExpression(this);
   }
 }
 
@@ -103,7 +103,8 @@ export class ArrowFunction extends Literal {
   }
 
   toAsync() {
-    return tsg.async(this);
+    // eslint-disable-next-line @typescript-eslint/no-use-before-define
+    return new AsyncExpression(this);
   }
 }
 

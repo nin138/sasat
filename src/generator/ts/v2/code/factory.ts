@@ -1,19 +1,4 @@
-import {
-  ArrayLiteral,
-  ArrowFunction,
-  AsyncExpression,
-  AwaitExpression,
-  BinaryExpression,
-  CallExpression,
-  Identifier,
-  NewExpression,
-  NonNullExpression,
-  NumericLiteral,
-  ObjectLiteral,
-  ParenthesizedExpression,
-  PropertyAccessExpression,
-  StringLiteral,
-} from './node/expressions';
+import * as Expressions from './node/expressions';
 import { Parameter } from './node/parameter';
 import { Block } from './node/block';
 import { Class } from './node/class';
@@ -47,20 +32,20 @@ const createFactory = <T, C extends new (...args: any[]) => T = any>(Create: C) 
 };
 
 const expressions = {
-  arrowFunc: createFactory<ArrowFunction>(ArrowFunction),
-  async: createFactory<AsyncExpression>(AsyncExpression),
-  await: createFactory<AwaitExpression>(AwaitExpression),
-  binary: createFactory<BinaryExpression>(BinaryExpression),
-  call: createFactory<CallExpression>(CallExpression),
-  identifier: createFactory<Identifier>(Identifier),
-  new: createFactory<NewExpression>(NewExpression),
-  nonNull: createFactory<NonNullExpression>(NonNullExpression),
-  parenthesis: createFactory<ParenthesizedExpression>(ParenthesizedExpression),
-  property: createFactory<PropertyAccessExpression>(PropertyAccessExpression),
-  string: createFactory<StringLiteral>(StringLiteral),
-  number: createFactory<NumericLiteral>(NumericLiteral),
-  array: createFactory<ArrayLiteral>(ArrayLiteral),
-  object: createFactory<ObjectLiteral>(ObjectLiteral),
+  arrowFunc: createFactory<Expressions.ArrowFunction>(Expressions.ArrowFunction),
+  async: createFactory<Expressions.AsyncExpression>(Expressions.AsyncExpression),
+  await: createFactory<Expressions.AwaitExpression>(Expressions.AwaitExpression),
+  binary: createFactory<Expressions.BinaryExpression>(Expressions.BinaryExpression),
+  call: createFactory<Expressions.CallExpression>(Expressions.CallExpression),
+  identifier: createFactory<Expressions.Identifier>(Expressions.Identifier),
+  new: createFactory<Expressions.NewExpression>(Expressions.NewExpression),
+  nonNull: createFactory<Expressions.NonNullExpression>(Expressions.NonNullExpression),
+  parenthesis: createFactory<Expressions.ParenthesizedExpression>(Expressions.ParenthesizedExpression),
+  property: createFactory<Expressions.PropertyAccessExpression>(Expressions.PropertyAccessExpression),
+  string: createFactory<Expressions.StringLiteral>(Expressions.StringLiteral),
+  number: createFactory<Expressions.NumericLiteral>(Expressions.NumericLiteral),
+  array: createFactory<Expressions.ArrayLiteral>(Expressions.ArrayLiteral),
+  object: createFactory<Expressions.ObjectLiteral>(Expressions.ObjectLiteral),
 };
 
 const types = {
