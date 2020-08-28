@@ -1,6 +1,6 @@
 import { ExportableDeclaration } from '../abstruct/exportableDeclaration';
-import { Identifier } from './Identifier';
 import { EnumMember } from './enumMember';
+import { Identifier } from './expressions';
 
 export class EnumDeclaration extends ExportableDeclaration {
   constructor(private readonly identifier: Identifier, private readonly members: EnumMember[]) {

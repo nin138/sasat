@@ -2,17 +2,19 @@ import { IrGql } from '../../../../ir/gql';
 import { IrGqlQueryType } from '../../../../ir/gql/query';
 import { TsFile } from '../file';
 import { VariableDeclaration } from '../code/node/variableDeclaration';
-import { ObjectLiteral } from '../code/node/literal/literal';
-import { Identifier } from '../code/node/Identifier';
 import { PropertyAssignment } from '../code/node/propertyAssignment';
-import { ArrowFunction } from '../code/node/arrowFunction';
 import { Parameter } from '../code/node/parameter';
 import { TypeLiteral } from '../code/node/type/typeLiteral';
-import { PropertyAccessExpression } from '../code/node/propertyAccessExpression';
 import { RepositoryNode } from '../../../../node/repository';
 import { Directory } from '../../../../constants/directory';
 import { plural } from '../../../../util/stringUtil';
-import { NewExpression } from '../code/node/newExpression';
+import {
+  ArrowFunction,
+  Identifier,
+  NewExpression,
+  ObjectLiteral,
+  PropertyAccessExpression,
+} from '../code/node/expressions';
 
 const getImportStatement = (usedEntities: string[]): string[] => {
   return [...new Set(usedEntities)].flatMap(

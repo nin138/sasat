@@ -1,5 +1,5 @@
 import { TsStatement } from '../abstruct/statement';
-import { TsExpression } from '../abstruct/expression';
+import { TsExpression } from './expressions';
 
 export class ReturnStatement extends TsStatement {
   constructor(private readonly expression: TsExpression) {

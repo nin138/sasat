@@ -1,6 +1,5 @@
 import { TsCode } from '../abstruct/tsCode';
-import { Literal } from './literal/literal';
-import { Identifier } from './Identifier';
+import { Identifier, Literal } from './expressions';
 
 export class PropertyAssignment extends TsCode {
   constructor(private readonly key: string, private readonly value: Literal | Identifier) {

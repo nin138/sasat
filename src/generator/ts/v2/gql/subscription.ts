@@ -1,24 +1,25 @@
 import { MutationNode } from '../../../../node/gql/mutationNode';
 import { TsFile } from '../file';
 import { VariableDeclaration } from '../code/node/variableDeclaration';
-import { Identifier } from '../code/node/Identifier';
 import { EnumDeclaration } from '../code/node/enumDeclaration';
 import { EnumMember } from '../code/node/enumMember';
 import { EntityName } from '../../../../entity/entityName';
-import { ArrayLiteral, ObjectLiteral, StringLiteral } from '../code/node/literal/literal';
 import { PropertyAssignment } from '../code/node/propertyAssignment';
-import { ArrowFunction } from '../code/node/arrowFunction';
-import { CallExpression } from '../code/node/callExpression';
-import { PropertyAccessExpression } from '../code/node/propertyAccessExpression';
-import { AsyncExpression } from '../code/node/asyncExpression';
 import { Parameter } from '../code/node/parameter';
 import { TypeReference } from '../code/node/type/typeReference';
 import { KeywordTypeNode } from '../code/node/type/typeKeyword';
 import { Block } from '../code/node/block';
-import { AwaitExpression } from '../code/node/awaitExpression';
 import { ReturnStatement } from '../code/node/returnStatement';
-import { BinaryExpression } from '../code/node/binaryExpression';
 import { Directory } from '../../../../constants/directory';
+import {
+  ArrayLiteral,
+  ArrowFunction,
+  AwaitExpression,
+  BinaryExpression,
+  Identifier,
+  PropertyAccessExpression,
+} from '../code/node/expressions';
+import { tsg } from '../code/factory';
 
 interface Subscription {
   entity: EntityName;
@@ -36,8 +37,7 @@ export class SubscriptionGenerator {
     return new ArrowFunction(
       [],
       undefined,
-      new CallExpression(
-        new PropertyAccessExpression(new Identifier('pubsub').importFrom('../pubsub'), 'asyncIterator'),
+      new PropertyAccessExpression(new Identifier('pubsub').importFrom('../pubsub'), 'asyncIterator').call(
         new ArrayLiteral([new Identifier(`SubscriptionName.${event}`)]),
       ),
     );
@@ -45,37 +45,38 @@ export class SubscriptionGenerator {
 
   private createFile(data: Subscription[]) {
     const subscriptionEnum = new EnumDeclaration(new Identifier('SubscriptionName'), []).export();
-    const subscriptions = new ObjectLiteral();
+    const subscriptions = tsg.object();
     const publishFunctions: VariableDeclaration[] = [];
     data.forEach(it => {
       const event = it.entity.name + it.event;
-      subscriptionEnum.addMembers(new EnumMember(new Identifier(event), new StringLiteral(event)));
+      subscriptionEnum.addMembers(new EnumMember(new Identifier(event), tsg.string(event)));
       const fn =
         it.filters.length === 0 ? this.createAsyncIteratorCall(event) : this.createWithFilter(event, it.filters);
-      subscriptions.addProperties(
-        new PropertyAssignment(event, new ObjectLiteral(new PropertyAssignment('subscribe', fn))),
-      );
+      subscriptions.addProperties(new PropertyAssignment(event, tsg.object(new PropertyAssignment('subscribe', fn))));
       publishFunctions.push(
-        new VariableDeclaration(
-          'const',
-          new Identifier(`publish${event}`),
-          new ArrowFunction(
-            [
-              new Parameter(
-                'entity',
-                new TypeReference(
-                  it.event === 'Deleted' ? it.entity.identifiableInterfaceName() : it.entity.name,
-                ).importFrom(Directory.entityPath(Directory.paths.generated, it.entity.name)),
-              ),
-            ],
-            new TypeReference('Promise', [KeywordTypeNode.void]),
-            new CallExpression(
-              new Identifier('pubsub.publish'),
-              new Identifier(`SubscriptionName.${event}`),
-              new ObjectLiteral(new PropertyAssignment(event, new Identifier('entity'))),
+        tsg
+          .variable(
+            'const',
+            tsg.identifier(`publish${event}`),
+            tsg.arrowFunc(
+              [
+                tsg.parameter(
+                  'entity',
+                  tsg
+                    .typeRef(it.event === 'Deleted' ? it.entity.identifiableInterfaceName() : it.entity.name)
+                    .importFrom(Directory.entityPath(Directory.paths.generated, it.entity.name)),
+                ),
+              ],
+              tsg.typeRef('Promise', [KeywordTypeNode.void]),
+              tsg
+                .identifier('pubsub.publish')
+                .call(
+                  tsg.identifier(`SubscriptionName.${event}`),
+                  tsg.object(tsg.propertyAssign(event, tsg.identifier('entity'))),
+                ),
             ),
-          ),
-        ).export(),
+          )
+          .export(),
       );
     });
     return new TsFile(
@@ -90,10 +91,10 @@ export class SubscriptionGenerator {
       .map(it => new BinaryExpression(new Identifier(`result.${it}`), '===', new Identifier(`variables.${it}`)))
       .reduce((previousValue, currentValue) => new BinaryExpression(previousValue, '&&', currentValue));
 
-    return new CallExpression(
-      new Identifier('withFilter').importFrom('graphql-subscriptions'),
-      this.createAsyncIteratorCall(event),
-      new AsyncExpression(
+    return new Identifier('withFilter')
+      .importFrom('graphql-subscriptions')
+      .call(
+        this.createAsyncIteratorCall(event),
         new ArrowFunction(
           [new Parameter('payload', KeywordTypeNode.any), new Parameter('variables', KeywordTypeNode.any)],
           new TypeReference('Promise', [KeywordTypeNode.boolean]),
@@ -105,9 +106,8 @@ export class SubscriptionGenerator {
             ),
             new ReturnStatement(binaryExpressions),
           ),
-        ),
-      ),
-    );
+        ).toAsync(),
+      );
   }
 
   private createData(nodes: MutationNode[]): Subscription[] {

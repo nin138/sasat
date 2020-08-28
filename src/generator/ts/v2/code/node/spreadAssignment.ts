@@ -1,6 +1,5 @@
 import { TsCode } from '../abstruct/tsCode';
-import { Identifier } from './Identifier';
-import { ArrayLiteral, ObjectLiteral } from './literal/literal';
+import { ArrayLiteral, Identifier, ObjectLiteral } from './expressions';
 
 export class SpreadAssignment extends TsCode {
   constructor(private readonly identifier: Identifier | ObjectLiteral | ArrayLiteral) {

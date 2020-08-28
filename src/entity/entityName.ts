@@ -1,4 +1,3 @@
-import { Identifier } from '../generator/ts/v2/code/node/Identifier';
 import {
   creatableInterfaceName,
   dataSourceName,
@@ -8,6 +7,7 @@ import {
 import { lowercaseFirstLetter } from '../util/stringUtil';
 import { TypeReference } from '../generator/ts/v2/code/node/type/typeReference';
 import { Directory } from '../constants/directory';
+import { Identifier } from '../generator/ts/v2/code/node/expressions';
 
 export class EntityName {
   constructor(public readonly name: string) {}

@@ -1,33 +1,38 @@
-import { baseRepositoryName } from '../../../constants/interfaceConstants';
-import { TsFile } from './file';
-import { Class } from './code/node/class';
-import { RepositoryNode } from '../../../node/repository';
-import { ExtendsClause } from './code/node/extendsClause';
-import { TypeReference } from './code/node/type/typeReference';
-import { GeneratedRepositoryPath, getEntityPath } from '../../../constants/directory';
-import { PropertyDeclaration } from './code/node/propertyDeclaration';
-import { KeywordTypeNode } from './code/node/type/typeKeyword';
-import { PropertyModifiers } from './code/node/modifier/propertyModifiers';
-import { ArrayLiteral, NumericLiteral, ObjectLiteral, StringLiteral } from './code/node/literal/literal';
-import { ArrayType } from './code/node/type/arrayType';
-import { UnionType } from './code/node/type/unionType';
-import { Identifier } from './code/node/Identifier';
-import { MethodDeclaration } from './code/node/methodDeclaration';
-import { MethodModifiers } from './code/node/modifier/methodModifiers';
-import { ReturnStatement } from './code/node/returnStatement';
-import { PropertyAssignment } from './code/node/propertyAssignment';
-import { CallExpression } from './code/node/CallExpression';
-import { SqlValueType } from '../../../db/dbClient';
-import { TsExpression } from './code/abstruct/expression';
-import { Parameter } from './code/node/parameter';
-import { TypeLiteral } from './code/node/type/typeLiteral';
+import { RepositoryNode } from '../../../../node/repository';
+import { TsFile } from '../file';
+import { Directory } from '../../../../constants/directory';
+import { Class } from '../code/node/class';
+import { ExtendsClause } from '../code/node/extendsClause';
+import { TypeReference } from '../code/node/type/typeReference';
+import { baseRepositoryName } from '../../../../constants/interfaceConstants';
+import { SqlValueType } from '../../../../db/dbClient';
+import { PropertyDeclaration } from '../code/node/propertyDeclaration';
+import { PropertyModifiers } from '../code/node/modifier/propertyModifiers';
+import { KeywordTypeNode } from '../code/node/type/typeKeyword';
+import { ArrayType } from '../code/node/type/arrayType';
+import { UnionType } from '../code/node/type/unionType';
+import { PropertyAssignment } from '../code/node/propertyAssignment';
+import { ReturnStatement } from '../code/node/returnStatement';
+import { MethodDeclaration } from '../code/node/methodDeclaration';
+import { MethodModifiers } from '../code/node/modifier/methodModifiers';
+import { Parameter } from '../code/node/parameter';
+import { TypeLiteral } from '../code/node/type/typeLiteral';
+import {
+  ArrayLiteral,
+  CallExpression,
+  Identifier,
+  NumericLiteral,
+  ObjectLiteral,
+  StringLiteral,
+  TsExpression,
+} from '../code/node/expressions';
 
 export class GeneratedRepositoryGenerator {
   constructor(private node: RepositoryNode) {}
 
   generate() {
     const node = this.node;
-    const entityPath = getEntityPath(GeneratedRepositoryPath, node.entityName);
+    const entityPath = Directory.entityPath(Directory.paths.generatedDataSource, node.entityName);
     return new TsFile(
       new Class(node.entityName.generatedDataSourceName())
         .export()

@@ -3,16 +3,18 @@ import { TsCodeGenNestedObject } from '../../code/nestedObject';
 import { IrGqlResolver } from '../../../../ir/gql/resolver';
 import { TsFile } from '../file';
 import { VariableDeclaration } from '../code/node/variableDeclaration';
-import { ObjectLiteral } from '../code/node/literal/literal';
-import { Identifier } from '../code/node/Identifier';
 import { PropertyAssignment } from '../code/node/propertyAssignment';
 import { SpreadAssignment } from '../code/node/spreadAssignment';
 import { ResolverNode } from '../../../../node/gql/resolverNode';
-import { ArrowFunction } from '../code/node/arrowFunction';
 import { Parameter } from '../code/node/parameter';
 import { Directory } from '../../../../constants/directory';
-import { NewExpression } from '../code/node/newExpression';
-import { PropertyAccessExpression } from '../code/node/propertyAccessExpression';
+import {
+  ArrowFunction,
+  Identifier,
+  NewExpression,
+  ObjectLiteral,
+  PropertyAccessExpression,
+} from '../code/node/expressions';
 
 export class ResolverGenerator {
   generate(nodes: ResolverNode[]): TsFile {

@@ -1,7 +1,5 @@
-import { TsStatement } from '../abstruct/statement';
-import { TsExpression } from '../abstruct/expression';
-import { Identifier } from './Identifier';
 import { ExportableDeclaration } from '../abstruct/exportableDeclaration';
+import { Identifier, TsExpression } from './expressions';
 
 type VariableType = 'const' | 'let';
 

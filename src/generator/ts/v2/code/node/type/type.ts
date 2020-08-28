@@ -1,11 +1,10 @@
 import { TypeReference } from './typeReference';
 import { TypeLiteral } from './typeLiteral';
 import { IntersectionType } from './intersectionType';
-import { KeywordTypeNode } from './typeKeyword';
 import { ArrayType } from './arrayType';
 import { TsCode } from '../../abstruct/tsCode';
 import { UnionType } from './unionType';
-import { Identifier } from '../Identifier';
+import { Identifier } from '../expressions';
 
 export type TsType = TypeReference | TypeLiteral | IntersectionType | ArrayType | UnionType;
 

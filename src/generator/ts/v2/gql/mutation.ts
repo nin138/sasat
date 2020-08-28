@@ -1,6 +1,5 @@
 import { TsFile } from '../file';
 import { VariableDeclaration } from '../code/node/variableDeclaration';
-import { NumericLiteral, ObjectLiteral } from '../code/node/literal/literal';
 import {
   CreateMutationNode,
   DeleteMutationNode,
@@ -9,30 +8,34 @@ import {
 } from '../../../../node/gql/mutationNode';
 import { PropertyAssignment } from '../code/node/propertyAssignment';
 import { EntityName } from '../../../../entity/entityName';
-import { ArrowFunction } from '../code/node/ArrowFunction';
 import { TypeReference } from '../code/node/type/typeReference';
-import { Identifier } from '../code/node/Identifier';
 import { Parameter } from '../code/node/parameter';
 import { TypeLiteral } from '../code/node/type/typeLiteral';
 import { Directory } from '../../../../constants/directory';
 import { Block } from '../code/node/Block';
 import { ReturnStatement } from '../code/node/returnStatement';
-import { CallExpression } from '../code/node/callExpression';
-import { PropertyAccessExpression } from '../code/node/propertyAccessExpression';
-import { NewExpression } from '../code/node/newExpression';
 import { SpreadAssignment } from '../code/node/spreadAssignment';
-import { AwaitExpression } from '../code/node/awaitExpression';
 import { ExpressionStatement } from '../code/node/ExpressionStatement';
-import { AsyncExpression } from '../code/node/asyncExpression';
 import { IntersectionType } from '../code/node/type/intersectionType';
 import { TsType } from '../code/node/type/type';
 import { ContextParamNode } from '../../../../node/gql/contextParamNode';
-import { BinaryExpression } from '../code/node/binaryExpression';
 import { KeywordTypeNode } from '../code/node/type/typeKeyword';
 import { IfStatement } from '../code/node/ifStatement';
 import { SasatError } from '../../../../error';
-import { ParenthesizedExpression } from '../code/node/parenthesizedExpression';
-import { NonNullExpression } from '../code/node/nonNullExpression';
+import {
+  ArrowFunction,
+  AsyncExpression,
+  AwaitExpression,
+  BinaryExpression,
+  CallExpression,
+  Identifier,
+  NewExpression,
+  NonNullExpression,
+  NumericLiteral,
+  ObjectLiteral,
+  ParenthesizedExpression,
+  PropertyAccessExpression,
+} from '../code/node/expressions';
 
 export class MutationGenerator {
   generate = (mutations: MutationNode[]): TsFile => {

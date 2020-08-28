@@ -1,6 +1,6 @@
 import { TsCode } from '../../abstruct/tsCode';
-import { Identifier } from '../Identifier';
 import { pickCode, TsType } from './type';
+import { Identifier } from '../expressions';
 
 export class TypeReference extends TsCode {
   constructor(private readonly typeName: string, private readonly typeArguments: Array<Identifier | TsType> = []) {

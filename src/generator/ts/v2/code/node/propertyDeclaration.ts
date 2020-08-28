@@ -1,9 +1,8 @@
 import { TsCode } from '../abstruct/tsCode';
 import { PropertyModifiers } from './modifier/propertyModifiers';
-import { Literal } from './literal/literal';
-import { Identifier } from './Identifier';
 import { isCode, TsType } from './type/type';
 import { TsUtil } from '../tsUtil';
+import { Identifier, Literal } from './expressions';
 
 export class PropertyDeclaration extends TsCode {
   private _modifiers = new PropertyModifiers();
