@@ -22,7 +22,7 @@ export class GqlTypeParser {
 
   private static referenceToParam(ref: ReferenceColumn): IrGqlParam {
     return {
-      name: ref.data.relationName || ref.data.targetTable,
+      name: ref.data.relationName || capitalizeFirstLetter(ref.data.targetTable),
       type: capitalizeFirstLetter(ref.data.targetTable),
       isNullable: false,
       isArray: false,
@@ -32,7 +32,7 @@ export class GqlTypeParser {
 
   private getReferencedType = (store: DataStoreHandler, tableName: string): IrGqlParam[] =>
     store.referencedBy(tableName).map(it => ({
-      name: it.table.tableName,
+      name: it.table.getEntityName().name,
       type: it.table.getEntityName().name,
       isNullable: it.data.relation === Relation.OneOrZero,
       isArray: it.data.relation === Relation.Many,

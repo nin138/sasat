@@ -3,6 +3,8 @@ import { SqlValueType } from '../db/dbClient';
 import { PropertySignature } from '../generator/ts/v2/code/node/propertySignature';
 import { Identifier } from '../generator/ts/v2/code/node/Identifier';
 import { TypeReference } from '../generator/ts/v2/code/node/type/typeReference';
+import { GqlParamNode } from './gql/GqlParamNode';
+import { columnTypeToGqlPrimitive } from '../generator/gql/columnToGqlType';
 
 export class FieldNode {
   constructor(
@@ -33,5 +35,13 @@ export class FieldNode {
 
   public hasDefaultValue(): boolean {
     return this.defaultValue !== undefined || this.onCreateCurrentTimestamp;
+  }
+
+  toGqlParam(): GqlParamNode {
+    return new GqlParamNode(this.fieldName, columnTypeToGqlPrimitive(this.dbType), this.isNullable, false, false);
+  }
+
+  toOptionalGqlParam(): GqlParamNode {
+    return new GqlParamNode(this.fieldName, columnTypeToGqlPrimitive(this.dbType), true, false, false);
   }
 }

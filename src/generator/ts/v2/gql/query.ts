@@ -4,17 +4,13 @@ import { TsFile } from '../file';
 import { VariableDeclaration } from '../code/node/variableDeclaration';
 import { ObjectLiteral } from '../code/node/literal/literal';
 import { Identifier } from '../code/node/Identifier';
-import { EntityNode } from '../../../../node/entity';
 import { PropertyAssignment } from '../code/node/propertyAssignment';
 import { ArrowFunction } from '../code/node/arrowFunction';
-import { User } from '../../../../../test/out/__generated__/entities/User';
 import { Parameter } from '../code/node/parameter';
 import { TypeLiteral } from '../code/node/type/typeLiteral';
 import { PropertyAccessExpression } from '../code/node/propertyAccessExpression';
 import { RepositoryNode } from '../../../../node/repository';
-import { TypeReference } from '../code/node/type/typeReference';
-import { GeneratedPath, getEntityPath, getRepositoryPath } from '../../../../constants/directory';
-import pluralize = require('pluralize');
+import { GeneratedPath, getRepositoryPath } from '../../../../constants/directory';
 import { plural } from '../../../../util/stringUtil';
 import { NewExpression } from '../code/node/newExpression';
 

@@ -19,7 +19,7 @@ export class Parser {
         new RepositoryNode(
           it.getEntityName(),
           it.primaryKey,
-          this.tableToEntityNode(it),
+          Parser.tableToEntityNode(it),
           this.getQueries(it),
           it.columns.find(it => it.getData().autoIncrement)?.name,
         ),
@@ -46,7 +46,7 @@ export class Parser {
     );
   }
 
-  private tableToEntityNode(table: TableHandler) {
+  public static tableToEntityNode(table: TableHandler) {
     return new EntityNode(
       table.getEntityName(),
       table.columns.map(

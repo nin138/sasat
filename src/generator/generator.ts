@@ -1,5 +1,4 @@
 import { IrGql } from '../ir/gql';
-import { IrGqlContext } from '../ir/gql/context';
 import { EntityNode } from '../node/entity';
 import { RepositoryNode } from '../node/repository';
 import { CodeGeneratable } from '../node/codeGeneratable';

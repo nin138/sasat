@@ -1,7 +1,12 @@
 import { TsFile } from '../file';
 import { VariableDeclaration } from '../code/node/variableDeclaration';
 import { NumericLiteral, ObjectLiteral } from '../code/node/literal/literal';
-import { MutationNode } from '../../../../node/gql/mutationNode';
+import {
+  CreateMutationNode,
+  DeleteMutationNode,
+  MutationNode,
+  UpdateMutationNode,
+} from '../../../../node/gql/mutationNode';
 import { PropertyAssignment } from '../code/node/propertyAssignment';
 import { EntityName } from '../../../../entity/entityName';
 import { ArrowFunction } from '../code/node/ArrowFunction';
@@ -25,17 +30,18 @@ import { ContextParamNode } from '../../../../node/gql/contextParamNode';
 import { BinaryExpression } from '../code/node/binaryExpression';
 import { KeywordTypeNode } from '../code/node/type/typeKeyword';
 import { IfStatement } from '../code/node/ifStatement';
+import { SasatError } from '../../../../error';
 
 export class MutationGenerator {
-  generate(mutations: MutationNode[]): TsFile {
+  generate = (mutations: MutationNode[]): TsFile => {
     return new TsFile(
       new VariableDeclaration(
         'const',
         new Identifier('mutation'),
-        new ObjectLiteral(...mutations.flatMap(MutationGenerator.mutationToProperty)),
+        new ObjectLiteral(...mutations.flatMap(this.mutationToProperty)),
       ).export(),
     );
-  }
+  };
 
   private static createFunctionName(entityName: EntityName) {
     return `create${entityName}`;
@@ -55,71 +61,71 @@ export class MutationGenerator {
     return [...params, new Parameter('context', new TypeReference('GqlContext').importFrom('../context'))];
   }
 
-  private static mutationToProperty(node: MutationNode): PropertyAssignment[] {
-    const result = [];
-    if (node.onCreate.enabled) {
-      const property = new PropertyAssignment(
-        MutationGenerator.createFunctionName(node.entityName),
-        new AsyncExpression(
-          new ArrowFunction(
-            MutationGenerator.functionParams(
-              new TypeReference(node.entityName.creatableInterface()).importFrom(
-                getEntityPath(GeneratedPath, node.entityName),
-              ),
-              node.useContextParams(),
+  private createMutation(node: CreateMutationNode): PropertyAssignment {
+    return new PropertyAssignment(
+      MutationGenerator.createFunctionName(node.entityName),
+      new AsyncExpression(
+        new ArrowFunction(
+          MutationGenerator.functionParams(
+            new TypeReference(node.entityName.creatableInterface()).importFrom(
+              getEntityPath(GeneratedPath, node.entityName),
             ),
-            new TypeReference('Promise', [
-              node.entityName.toIdentifier().importFrom(getEntityPath(GeneratedPath, node.entityName)),
-            ]),
-            MutationGenerator.createFunctionBody(node),
+            node.useContextParams(),
           ),
+          new TypeReference('Promise', [
+            node.entityName.toIdentifier().importFrom(getEntityPath(GeneratedPath, node.entityName)),
+          ]),
+          MutationGenerator.createFunctionBody(node),
         ),
-      );
-      result.push(property);
-    }
+      ),
+    );
+  }
 
-    if (node.onUpdate.enabled) {
-      const property = new PropertyAssignment(
-        MutationGenerator.updateFunctionName(node.entityName),
-        new AsyncExpression(
-          new ArrowFunction(
-            MutationGenerator.functionParams(
-              new IntersectionType(
-                new TypeReference(node.entityName.identifiableInterfaceName()).importFrom(
-                  getEntityPath(GeneratedPath, node.entityName),
-                ),
-                new TypeReference(node.entityName.name).partial(),
-              ),
-              node.useContextParams(),
-            ),
-            new TypeReference('Promise', [KeywordTypeNode.boolean]),
-            MutationGenerator.updateFunctionBody(node),
-          ),
-        ),
-      );
-      result.push(property);
-    }
-    if (node.onDelete.enabled) {
-      const property = new PropertyAssignment(
-        MutationGenerator.deleteFunctionName(node.entityName),
-        new AsyncExpression(
-          new ArrowFunction(
-            MutationGenerator.functionParams(
+  private updateMutation(node: UpdateMutationNode): PropertyAssignment {
+    return new PropertyAssignment(
+      MutationGenerator.updateFunctionName(node.entityName),
+      new AsyncExpression(
+        new ArrowFunction(
+          MutationGenerator.functionParams(
+            new IntersectionType(
               new TypeReference(node.entityName.identifiableInterfaceName()).importFrom(
                 getEntityPath(GeneratedPath, node.entityName),
               ),
-              node.useContextParams(),
+              new TypeReference(node.entityName.name).partial(),
             ),
-            new TypeReference('Promise', [KeywordTypeNode.boolean]),
-            MutationGenerator.deleteFunctionBody(node),
+            node.useContextParams(),
           ),
+          new TypeReference('Promise', [KeywordTypeNode.boolean]),
+          MutationGenerator.updateFunctionBody(node),
         ),
-      );
-      result.push(property);
-    }
-
-    return result;
+      ),
+    );
   }
+
+  private deleteMutation(node: DeleteMutationNode): PropertyAssignment {
+    return new PropertyAssignment(
+      MutationGenerator.deleteFunctionName(node.entityName),
+      new AsyncExpression(
+        new ArrowFunction(
+          MutationGenerator.functionParams(
+            new TypeReference(node.entityName.identifiableInterfaceName()).importFrom(
+              getEntityPath(GeneratedPath, node.entityName),
+            ),
+            node.useContextParams(),
+          ),
+          new TypeReference('Promise', [KeywordTypeNode.boolean]),
+          MutationGenerator.deleteFunctionBody(node),
+        ),
+      ),
+    );
+  }
+
+  private mutationToProperty = (node: MutationNode): PropertyAssignment => {
+    if (MutationNode.isCreateMutation(node)) return this.createMutation(node);
+    if (MutationNode.isUpdateMutation(node)) return this.updateMutation(node);
+    if (MutationNode.isDeleteMutation(node)) return this.deleteMutation(node);
+    throw new SasatError(`Unexpected Mutation Type :: ${node.type}`);
+  };
 
   private static toDatasourceParam(contextParams: ContextParamNode[]) {
     const paramsIdentifier = new Identifier('params');
@@ -139,16 +145,13 @@ export class MutationGenerator {
       new PropertyAccessExpression(new NewExpression(this.getDatasourceIdentifier(node.entityName)), 'create'),
       this.toDatasourceParam(node.contextParams),
     );
-    if (!node.onCreate.subscribed) return createCallExpression;
+    if (!node.subscribed) return createCallExpression;
     const resultIdentifier = new Identifier('result');
     return new Block(
       new VariableDeclaration('const', resultIdentifier, new AwaitExpression(createCallExpression)),
       new ExpressionStatement(
         new AwaitExpression(
-          new CallExpression(
-            new Identifier(node.publishCreateFunctionName()).importFrom('./subscription'),
-            resultIdentifier,
-          ),
+          new CallExpression(new Identifier(node.publishFunctionName()).importFrom('./subscription'), resultIdentifier),
         ),
       ),
       new ReturnStatement(resultIdentifier),
@@ -170,7 +173,7 @@ export class MutationGenerator {
         new BinaryExpression(new Identifier('it.changedRows'), '===', new NumericLiteral(1)),
       ),
     );
-    if (!node.onUpdate.subscribed) return updateCall;
+    if (!node.subscribed) return updateCall;
     const resultIdentifier = new Identifier('result');
     return new Block(
       new VariableDeclaration('const', resultIdentifier, updateCall),
@@ -179,7 +182,7 @@ export class MutationGenerator {
         new Block(
           new AwaitExpression(
             new CallExpression(
-              new Identifier(node.publishUpdateFunctionName()).importFrom('./subscription'),
+              new Identifier(node.publishFunctionName()).importFrom('./subscription'),
               new AwaitExpression(
                 new CallExpression(
                   new PropertyAccessExpression(
@@ -216,7 +219,7 @@ export class MutationGenerator {
       ),
     );
 
-    if (!node.onDelete.subscribed) return deleteCall;
+    if (!node.subscribed) return deleteCall;
     const result = new Identifier('result');
 
     return new Block(
@@ -225,7 +228,7 @@ export class MutationGenerator {
         result,
         new Block(
           new AwaitExpression(
-            new CallExpression(new Identifier(node.publishDeleteFunctionName()), new Identifier('params')),
+            new CallExpression(new Identifier(node.publishFunctionName()), new Identifier('params')),
           ).toStatement(),
         ),
       ),

@@ -111,30 +111,12 @@ export class SubscriptionGenerator {
   }
 
   private createData(nodes: MutationNode[]): Subscription[] {
-    const data: Subscription[] = [];
-    nodes.forEach(it => {
-      if (it.onCreate.subscribed) {
-        data.push({
-          entity: it.entityName,
-          event: 'Created',
-          filters: it.subscriptionFilters.map(it => it.columnName),
-        });
-      }
-      if (it.onUpdate.subscribed) {
-        data.push({
-          entity: it.entityName,
-          event: 'Updated',
-          filters: it.subscriptionFilters.map(it => it.columnName),
-        });
-      }
-      if (it.onDelete.subscribed) {
-        data.push({
-          entity: it.entityName,
-          event: 'Deleted',
-          filters: it.subscriptionFilters.map(it => it.columnName),
-        });
-      }
-    });
-    return data;
+    return nodes
+      .filter(it => it.subscribed)
+      .map(it => ({
+        entity: it.entityName,
+        event: it.type,
+        filters: it.subscriptionFilters.map(it => it.columnName),
+      }));
   }
 }

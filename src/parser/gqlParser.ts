@@ -25,16 +25,21 @@ export class GqlParser {
   }
 
   private getContext(): IrGqlContext[] {
-    return this.store.tables.flatMap(table =>
-      table.gqlOption.mutation.fromContextColumns.map(it => ({
-        name: it.contextName || it.column,
-        type: table.column(it.column)!.type,
-      })),
+    const obj: Record<string, IrGqlContext> = {};
+    this.store.tables.forEach(table =>
+      table.gqlOption.mutation.fromContextColumns.forEach(it => {
+        const name = it.contextName || it.column;
+        obj[name] = {
+          name,
+          type: table.column(it.column)!.type,
+        };
+      }),
     );
+    return Object.values(obj);
   }
 
   private getMutations(): MutationNode[] {
-    return this.store.tables.map(new GqlMutationParser().parse);
+    return this.store.tables.flatMap(new GqlMutationParser().parse);
   }
 
   private getResolvers(): ResolverNode[] {

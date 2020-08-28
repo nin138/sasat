@@ -5,9 +5,7 @@
     "strict": false,
     "noImplicitReturns": false,
     "paths": {
-      "sasat": [
-        "/lib"
-      ]
+      "sasat": ["lib"]
     }
   }
 }

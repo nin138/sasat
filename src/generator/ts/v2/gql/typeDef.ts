@@ -3,6 +3,8 @@ import { TsCodeGenObject } from '../../code/object';
 import { tsArrayString } from '../../code/array';
 import { createParamString, getGqlTypeString } from '../../../gql/typeDef';
 import { IrGqlSubscription } from '../../../../ir/gql/mutation';
+import { MutationNode } from '../../../../node/gql/mutationNode';
+import { GqlParamNode } from '../../../../node/gql/GqlParamNode';
 
 export const generateTsTypeDef = (gql: IrGql) => {
   const obj = new TsCodeGenObject();
@@ -27,15 +29,22 @@ export const generateTsTypeDef = (gql: IrGql) => {
   obj.set(
     'Mutation',
     tsArrayString(
-      // gql.mutations.flatMap(it => {
-      //   const mutations = [];
-      // if (it.onCreate.enabled)
-      //   mutations.push(`create${it.entityName}${createParamString(it.onCreateParams)}: ${it.entityName}!`);
-      // if (it.update) mutations.push(`update${it.entityName}${createParamString(it.onUpdateParams)}: Boolean!`);
-      // if (it.delete) mutations.push(`delete${it.entityName}${createParamString(it.onDeleteParams)}: Boolean!`);
-      // return mutations;
-      // }),
-      [],
+      gql.mutations.map(it => {
+        if (MutationNode.isCreateMutation(it)) {
+          const params = GqlParamNode.paramsToString(it.entity.onCreateRequiredFields().map(it => it.toGqlParam()));
+          return `create${it.entityName}${params}: ${it.entityName}!`;
+        }
+        if (MutationNode.isUpdateMutation(it)) {
+          const params = GqlParamNode.paramsToString([
+            ...it.entity
+              .identifiableFields()
+              .map(it => it.toGqlParam(), ...it.entity.dataFields().map(it => it.toOptionalGqlParam())),
+          ]);
+          return `update${it.entityName}${params}: Boolean!`;
+        }
+        const params = GqlParamNode.paramsToString(it.entity.identifiableFields().map(it => it.toGqlParam()));
+        return `delete${it.entityName}${params}: Boolean!`;
+      }),
     ),
   );
 

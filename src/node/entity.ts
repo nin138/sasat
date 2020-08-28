@@ -7,6 +7,10 @@ export class EntityNode {
     return this.fields.filter(it => it.isRequiredToIdentify());
   }
 
+  public dataFields(): FieldNode[] {
+    return this.fields.filter(it => !it.isRequiredToIdentify());
+  }
+
   public onCreateRequiredFields(): FieldNode[] {
     return this.fields.filter(it => it.isRequiredOnCreate());
   }
