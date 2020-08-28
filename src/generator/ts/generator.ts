@@ -3,9 +3,7 @@ import * as prettier from 'prettier';
 import { IrGql } from '../../ir/gql';
 import { EntityNode } from '../../node/entity';
 import { TsEntityGenerator } from './v2/entity';
-import { GeneratedRepositoryGenerator } from './v2/generatedRepository';
 import { RepositoryNode } from '../../node/repository';
-import { generateRepositoryString } from './v2/repository';
 import { generateTsTypeDef } from './v2/gql/typeDef';
 import { QueryGenerator } from './v2/gql/query';
 import { ResolverGenerator } from './v2/gql/resolver';
@@ -15,6 +13,8 @@ import { ContextNode } from '../../node/gql/contextNode';
 import { SubscriptionGenerator } from './v2/gql/subscription';
 import { MutationNode } from '../../node/gql/mutationNode';
 import { ResolverNode } from '../../node/gql/resolverNode';
+import { GeneratedRepositoryGenerator } from './v2/db/generatedRepository';
+import { generateRepositoryString } from './v2/db/repository';
 
 export class TsCodeGenerator implements CodeGenerator {
   readonly fileExt = 'ts';

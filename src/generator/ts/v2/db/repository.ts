@@ -1,5 +1,5 @@
-import { RepositoryNode } from '../../../node/repository';
-import { getGeneratedRepositoryPath, RepositoryPath } from '../../../constants/directory';
+import { getGeneratedRepositoryPath, RepositoryPath } from '../../../../constants/directory';
+import { RepositoryNode } from '../../../../node/repository';
 
 export const generateRepositoryString = (ir: RepositoryNode) => `
 import { ${ir.entityName.generatedDataSourceName()} } from '${getGeneratedRepositoryPath(
