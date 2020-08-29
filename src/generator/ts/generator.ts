@@ -1,5 +1,4 @@
 import { CodeGenerator } from '../generator';
-import * as prettier from 'prettier';
 import { EntityNode } from '../../node/entityNode';
 import { RepositoryNode } from '../../node/repositoryNode';
 import { RootNode } from '../../node/rootNode';
@@ -11,14 +10,11 @@ import { MutationGenerator } from './gql/mutationGenerator';
 import { SubscriptionGenerator } from './gql/subscriptionGenerator';
 import { ContextGenerator } from './gql/contextGenerator';
 import { GeneratedRepositoryGenerator } from './db/generatedRepositoryGenerator';
-import { generateRepositoryString } from './db/repositoryGenerator';
+import { RepositoryGenerator } from './db/repositoryGenerator';
+import { staticFiles } from './staticFiles';
 
 export class TsCodeGenerator implements CodeGenerator {
   readonly fileExt = 'ts';
-
-  private formatCode(code: string) {
-    return prettier.format(code, { parser: 'typescript' });
-  }
 
   generateEntity(entity: EntityNode): string {
     return new EntityGenerator(entity).generate().toString();
@@ -29,7 +25,7 @@ export class TsCodeGenerator implements CodeGenerator {
   }
 
   generateRepository(repository: RepositoryNode): string {
-    return this.formatCode(generateRepositoryString(repository));
+    return new RepositoryGenerator().generate(repository).toString();
   }
 
   generateGqlTypeDefs(root: RootNode): string {
@@ -56,41 +52,7 @@ export class TsCodeGenerator implements CodeGenerator {
     return new ContextGenerator().generate(root.contexts).toString();
   }
 
-  generateOnceFiles(): Array<{ name: string; body: string }> {
-    const contextFile = `\
-import { BaseGqlContext } from './__generated__/context';
-export interface GqlContext extends BaseGqlContext {}
-`;
-    const pubsubFile = `\
-import { PubSub } from "apollo-server";
-import { PubSubEngine } from "graphql-subscriptions";
-
-export const pubsub: PubSubEngine = new PubSub();
-`;
-    const schemaFile = `\
-import { assignDeep, createTypeDef } from "sasat";
-import { typeDef } from "./__generated__/typeDefs";
-import { resolvers } from "./__generated__/resolver";
-
-export const schema = {
-  typeDefs: createTypeDef(assignDeep(typeDef, {})),
-  resolvers: assignDeep(resolvers, {}),
-};
-
-`;
-    return [
-      {
-        name: 'context',
-        body: contextFile,
-      },
-      {
-        name: 'pubsub',
-        body: pubsubFile,
-      },
-      {
-        name: 'schema',
-        body: schemaFile,
-      },
-    ];
+  generateOnceFiles() {
+    return staticFiles;
   }
 }
