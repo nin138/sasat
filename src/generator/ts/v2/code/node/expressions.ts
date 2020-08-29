@@ -23,6 +23,11 @@ export abstract class TsExpression extends TsCode {
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     return new NonNullExpression(this);
   }
+
+  property(propertyName: string) {
+    // eslint-disable-next-line @typescript-eslint/no-use-before-define
+    return new PropertyAccessExpression(this, propertyName);
+  }
 }
 
 export class CallExpression extends TsExpression {
