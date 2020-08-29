@@ -6,8 +6,21 @@ import { GqlParamNode } from './gql/GqlParamNode';
 import { columnTypeToGqlPrimitive } from '../generator/gql/columnToGqlType';
 import { ParameterNode } from './parameterNode';
 import { TypeNode } from './typeNode';
+import { Column } from '../entity/column';
+import { TableHandler } from '../entity/table';
 
 export class FieldNode {
+  static fromColumn(column: Column, table: TableHandler) {
+    return new FieldNode(
+      column.name,
+      column.type,
+      table.isColumnPrimary(column.name),
+      column.getData().default,
+      column.isNullable(),
+      column.getData().autoIncrement,
+      column.getData().defaultCurrentTimeStamp,
+    );
+  }
   constructor(
     public readonly fieldName: string,
     public readonly dbType: DBColumnTypes,

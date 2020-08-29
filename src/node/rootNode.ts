@@ -1,15 +1,13 @@
 import { RepositoryNode } from './repository';
-import { TypeDefNode } from './gql/typeDefNode';
 import { QueryNode } from './gql/queryNode';
 import { MutationNode } from './gql/mutationNode';
 import { ContextNode } from './gql/contextNode';
 import { ResolverNode } from './gql/resolverNode';
 import { EntityName } from '../entity/entityName';
-import { EntityNode } from './entity';
+import { RelationNode } from './relationNode';
 
 // TODO remove
 export interface GqlNode {
-  types: TypeDefNode[];
   queries: QueryNode[];
   mutations: MutationNode[];
   contexts: ContextNode[];
@@ -24,8 +22,10 @@ export class RootNode {
     this.repositories.push(...repositoryNode);
   }
 
-  findReferencedEntity(entity: EntityName): EntityNode[] {
-    return this.entities().filter(it => it.relations.some(it => it.toEntityName.name === entity.name));
+  findReferencedRelations(entity: EntityName): RelationNode[] {
+    return this.entities()
+      .map(it => it.relations.find(it => it.toEntityName.name === entity.name))
+      .filter(it => it !== undefined) as RelationNode[];
   }
 
   entities() {

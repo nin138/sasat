@@ -13,7 +13,6 @@ export class GqlParser {
   constructor(private store: DataStoreHandler) {}
   parse(): IrGql {
     return {
-      types: new GqlTypeParser().parse(this.store),
       queries: new QueryParser().parse(this.store.tables),
       mutations: this.getMutations(),
       contexts: this.getContext(),

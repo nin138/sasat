@@ -6,7 +6,11 @@ import { ParameterNode } from '../../node/parameterNode';
 
 export class QueryParser {
   parse(tables: TableHandler[]): QueryNode[] {
-    return tables.flatMap(it => [this.listQuery(it), this.primaryQuery(it)]);
+    return tables.flatMap(it => this.queries(it));
+  }
+
+  queries(table: TableHandler) {
+    return [this.listQuery(table), this.primaryQuery(table)];
   }
 
   private listQuery(table: TableHandler) {

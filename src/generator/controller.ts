@@ -4,8 +4,6 @@ import { config } from '../config/config';
 import * as path from 'path';
 import { emptyDir, writeFile } from 'fs-extra';
 import { mkDirIfNotExist, writeFileIfNotExist } from '../util/fsUtil';
-import { IrGql } from '../ir/gql';
-import { CodeGeneratable } from '../node/codeGeneratable';
 import { EntityNode } from '../node/entity';
 import { RepositoryNode } from '../node/repository';
 import { Directory } from '../constants/directory';
@@ -62,21 +60,12 @@ export class CodeGenerateController {
 
   private generateGql(rootNode: RootNode) {
     return [
-      writeFile(this.getFullPath(this.generateDir, 'typeDefs'), this.codeGen.generateGqlTypeDefs(rootNode.gql)),
-      writeFile(
-        this.getFullPath(this.generateDir, 'resolver'),
-        this.codeGen.generateGqlResolver(rootNode.gql.resolvers),
-      ),
-      writeFile(this.getFullPath(this.generateDir, 'query'), this.codeGen.generateGqlQuery(rootNode.repositories)),
-      writeFile(
-        this.getFullPath(this.generateDir, 'mutation'),
-        this.codeGen.generateGqlMutation(rootNode.gql.mutations),
-      ),
-      writeFile(
-        this.getFullPath(this.generateDir, 'subscription'),
-        this.codeGen.generateGqlSubscription(rootNode.gql.mutations),
-      ),
-      writeFile(this.getFullPath(this.generateDir, 'context'), this.codeGen.generateGqlContext(rootNode.gql.contexts)),
+      writeFile(this.getFullPath(this.generateDir, 'typeDefs'), this.codeGen.generateGqlTypeDefs(rootNode)),
+      writeFile(this.getFullPath(this.generateDir, 'resolver'), this.codeGen.generateGqlResolver(rootNode)),
+      writeFile(this.getFullPath(this.generateDir, 'query'), this.codeGen.generateGqlQuery(rootNode)),
+      writeFile(this.getFullPath(this.generateDir, 'mutation'), this.codeGen.generateGqlMutation(rootNode)),
+      writeFile(this.getFullPath(this.generateDir, 'subscription'), this.codeGen.generateGqlSubscription(rootNode)),
+      writeFile(this.getFullPath(this.generateDir, 'context'), this.codeGen.generateGqlContext(rootNode)),
     ];
   }
 

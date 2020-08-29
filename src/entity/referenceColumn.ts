@@ -8,7 +8,6 @@ import { Relation } from './relation';
 export interface ReferenceColumnData {
   type: 'REFERENCE';
   targetTable: string;
-  // TODO optional
   targetColumn: string;
   columnName: string;
   relation: Relation;

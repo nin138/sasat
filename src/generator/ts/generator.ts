@@ -1,6 +1,5 @@
 import { CodeGenerator } from '../generator';
 import * as prettier from 'prettier';
-import { IrGql } from '../../ir/gql';
 import { EntityNode } from '../../node/entity';
 import { TsEntityGenerator } from './v2/entity';
 import { RepositoryNode } from '../../node/repository';
@@ -8,13 +7,11 @@ import { QueryGenerator } from './v2/gql/query';
 import { ResolverGenerator } from './v2/gql/resolver';
 import { TsGeneratorGqlContext } from './v2/gql/context';
 import { MutationGenerator } from './v2/gql/mutation';
-import { ContextNode } from '../../node/gql/contextNode';
 import { SubscriptionGenerator } from './v2/gql/subscription';
-import { MutationNode } from '../../node/gql/mutationNode';
-import { ResolverNode } from '../../node/gql/resolverNode';
 import { GeneratedRepositoryGenerator } from './v2/db/generatedRepository';
 import { generateRepositoryString } from './v2/db/repository';
 import { TypeDefGenerator } from './v2/gql/typeDef';
+import { RootNode } from '../../node/rootNode';
 
 export class TsCodeGenerator implements CodeGenerator {
   readonly fileExt = 'ts';
@@ -35,28 +32,28 @@ export class TsCodeGenerator implements CodeGenerator {
     return this.formatCode(generateRepositoryString(repository));
   }
 
-  generateGqlTypeDefs(gql: IrGql): string {
-    return new TypeDefGenerator().generate(gql).toString();
+  generateGqlTypeDefs(root: RootNode): string {
+    return new TypeDefGenerator().generate(root).toString();
   }
 
-  generateGqlQuery(repositories: RepositoryNode[]): string {
-    return new QueryGenerator().generate(repositories).toString();
+  generateGqlQuery(root: RootNode): string {
+    return new QueryGenerator().generate(root.repositories).toString();
   }
 
-  generateGqlResolver(nodes: ResolverNode[]): string {
-    return new ResolverGenerator().generate(nodes).toString();
+  generateGqlResolver(root: RootNode): string {
+    return new ResolverGenerator().generate(root.gql.resolvers).toString();
   }
 
-  generateGqlMutation(nodes: MutationNode[]): string {
-    return new MutationGenerator().generate(nodes).toString();
+  generateGqlMutation(root: RootNode): string {
+    return new MutationGenerator().generate(root.gql.mutations).toString();
   }
 
-  generateGqlSubscription(nodes: MutationNode[]): string {
-    return new SubscriptionGenerator().generate(nodes).toString();
+  generateGqlSubscription(root: RootNode): string {
+    return new SubscriptionGenerator().generate(root.gql.mutations).toString();
   }
 
-  generateGqlContext(contexts: ContextNode[]): string {
-    return this.formatCode(new TsGeneratorGqlContext().generate(contexts));
+  generateGqlContext(root: RootNode): string {
+    return this.formatCode(new TsGeneratorGqlContext().generate(root.gql.contexts));
   }
 
   generateOnceFiles(): Array<{ name: string; body: string }> {

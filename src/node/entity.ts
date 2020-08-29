@@ -3,37 +3,24 @@ import { EntityName } from '../entity/entityName';
 import { RepositoryNode } from './repository';
 import { RelationNode } from './relationNode';
 import { TableHandler } from '../entity/table';
+import { TypeDefNode } from './gql/typeDefNode';
+import { GqlTypeParser } from '../parser/gql/gqlTypeParser';
 
 export class EntityNode {
   readonly entityName: EntityName;
   readonly fields: FieldNode[];
   readonly relations: RelationNode[];
-  constructor(readonly repository: RepositoryNode, table: TableHandler) {
+  constructor(readonly repository: RepositoryNode, private table: TableHandler) {
     this.entityName = table.getEntityName();
-    this.fields = table.columns.map(
-      column =>
-        new FieldNode(
-          column.name,
-          column.type,
-          table.isColumnPrimary(column.name),
-          column.getData().default,
-          column.isNullable(),
-          column.getData().autoIncrement,
-          column.getData().defaultCurrentTimeStamp,
-        ),
-    );
-    this.relations = table
-      .getReferenceColumns()
-      .map(
-        it =>
-          new RelationNode(
-            this,
-            it.data.columnName,
-            it.data.targetColumn,
-            new EntityName(TableHandler.tableNameToEntityName(it.data.targetTable)),
-          ),
-      );
+    this.fields = table.columns.map(column => FieldNode.fromColumn(column, table));
+    this.relations = table.getReferenceColumns().map(it => RelationNode.fromReference(this, it));
   }
+
+  typeDefs(): TypeDefNode[] {
+    // TODO
+    return [GqlTypeParser.getType2(this.table, this), GqlTypeParser.getDeletedType(this.table)];
+  }
+
   public identifiableFields(): FieldNode[] {
     return this.fields.filter(it => it.isRequiredToIdentify());
   }
@@ -53,11 +40,7 @@ export class EntityNode {
     return this.fields.filter(it => it.hasDefaultValue());
   }
 
-  public primaryFields(): FieldNode[] {
-    return this.fields.filter(it => it.isPrimary);
-  }
-
-  public findReferencedEntities(): EntityNode[] {
-    return this.repository.root.findReferencedEntity(this.entityName);
+  public findReferencedRelations(): RelationNode[] {
+    return this.repository.root.findReferencedRelations(this.entityName);
   }
 }

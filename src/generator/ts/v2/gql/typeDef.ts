@@ -1,4 +1,3 @@
-import { IrGql } from '../../../../ir/gql';
 import { MutationNode } from '../../../../node/gql/mutationNode';
 import { SubscriptionFilterNode } from '../../../../node/gql/subscriptionFilterNode';
 import { PropertyAssignment } from '../code/node/propertyAssignment';
@@ -6,14 +5,16 @@ import { TsFile } from '../file';
 import { QueryNode } from '../../../../node/gql/queryNode';
 import { tsg } from '../code/factory';
 import { TypeDefNode } from '../../../../node/gql/typeDefNode';
+import { RootNode } from '../../../../node/rootNode';
 
 export class TypeDefGenerator {
-  generate(gql: IrGql): TsFile {
+  generate(root: RootNode): TsFile {
+    const typeDefs = root.entities().flatMap(it => it.typeDefs());
     const types = [
-      ...this.createTypes(gql.types),
-      this.createQuery(gql.queries),
-      this.createMutation(gql.mutations),
-      this.createSubscription(gql.mutations),
+      ...this.createTypes(typeDefs),
+      this.createQuery(root.gql.queries),
+      this.createMutation(root.gql.mutations),
+      this.createSubscription(root.gql.mutations),
     ].filter(it => it !== undefined) as PropertyAssignment[];
     return new TsFile(tsg.variable('const', tsg.identifier('typeDef'), tsg.object(...types)).export());
   }

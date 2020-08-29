@@ -8,12 +8,11 @@ import { DataStoreHandler } from '../../entity/dataStore';
 import { Relation } from '../..';
 import { TypeDefNode } from '../../node/gql/typeDefNode';
 import { Parser } from '../parser';
+import { EntityNode } from '../../node/entity';
+import { ParameterNode } from '../../node/parameterNode';
+import { TypeNode } from '../../node/typeNode';
 
 export class GqlTypeParser {
-  parse(store: DataStoreHandler): TypeDefNode[] {
-    return store.tables.flatMap(it => [this.getType(it), this.getDeletedType(it)]);
-  }
-
   private columnToParam = (column: Column): IrGqlParam => ({
     name: column.name,
     type: columnTypeToGqlPrimitive(column.type),
@@ -41,16 +40,29 @@ export class GqlTypeParser {
       isReference: true,
     }));
 
-  private getType(table: TableHandler) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const entity = Parser.tableToEntityNode(null as any, table);
-    return new TypeDefNode(
-      table.getEntityName().name,
-      entity.fields.map(it => it.toParam()),
-    );
+  // static getType(table: TableHandler) {
+  //   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  //   const entity = Parser.tableToEntityNode(null as any, table);
+  //   return new TypeDefNode(
+  //     table.getEntityName().name,
+  //     entity.fields.map(it => it.toParam()),
+  //   );
+  // }
+
+  static getType2(table: TableHandler, entity: EntityNode) {
+    const reference = entity.relations.map(rel => new ParameterNode(rel.toEntityName.name, rel.refType()));
+    const referencedBy = entity
+      .findReferencedRelations()
+      .map(rel => new ParameterNode(rel.parent.entityName.name, rel.referenceByType()));
+
+    return new TypeDefNode(table.getEntityName().name, [
+      ...entity.fields.map(it => it.toParam()),
+      ...reference,
+      ...referencedBy,
+    ]);
   }
 
-  private getDeletedType(table: TableHandler) {
+  static getDeletedType(table: TableHandler) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const entity = Parser.tableToEntityNode(null as any, table);
     return new TypeDefNode(
