@@ -3,10 +3,8 @@ import { TableHandler } from '../entity/table';
 import { capitalizeFirstLetter } from '../util/stringUtil';
 import { ReferenceColumn } from '../entity/referenceColumn';
 import { Relation } from '..';
-import { CodeGeneratable } from '../node/codeGeneratable';
 import { RepositoryNode } from '../node/repository';
 import { EntityNode } from '../node/entity';
-import { FieldNode } from '../node/field';
 import { FindMethodNode } from '../node/findMethod';
 import { ParameterNode } from '../node/parameterNode';
 import { TypeNode } from '../node/typeNode';
@@ -16,7 +14,7 @@ import { GqlParser } from './gqlParser';
 export class Parser {
   constructor(private store: DataStoreHandler) {}
   parse(): RootNode {
-    const root = new RootNode(new GqlParser(this.store).parse());
+    const root = new RootNode(new GqlParser().parse(this.store), new GqlParser().getContext(this.store.tables));
     const repositories = this.store.tables.map(it => new RepositoryNode(root, it, this.getQueries(it)));
     root.addRepository(...repositories);
     return root;

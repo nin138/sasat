@@ -53,7 +53,7 @@ export class TsCodeGenerator implements CodeGenerator {
   }
 
   generateGqlContext(root: RootNode): string {
-    return this.formatCode(new TsGeneratorGqlContext().generate(root.gql.contexts));
+    return new TsGeneratorGqlContext().generate(root.contexts).toString();
   }
 
   generateOnceFiles(): Array<{ name: string; body: string }> {

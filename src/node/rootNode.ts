@@ -10,13 +10,12 @@ import { RelationNode } from './relationNode';
 export interface GqlNode {
   queries: QueryNode[];
   mutations: MutationNode[];
-  contexts: ContextNode[];
   resolvers: ResolverNode[];
 }
 
 export class RootNode {
   readonly repositories: RepositoryNode[] = [];
-  constructor(readonly gql: GqlNode) {}
+  constructor(readonly gql: GqlNode, readonly contexts: ContextNode[]) {}
 
   addRepository(...repositoryNode: RepositoryNode[]) {
     this.repositories.push(...repositoryNode);

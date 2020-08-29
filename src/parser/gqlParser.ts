@@ -1,28 +1,26 @@
-import { IrGql } from '../ir/gql';
 import { DataStoreHandler } from '../entity/dataStore';
 import { GqlMutationParser } from './gql/gqlMutationParser';
 import { QueryParser } from './gql/gqlQueryParser';
-import { GqlTypeParser } from './gql/gqlTypeParser';
 import { GqlResolverParser } from './gql/gqlResolverParser';
 import { MutationNode } from '../node/gql/mutationNode';
 import { ContextNode } from '../node/gql/contextNode';
 import { TypeNode } from '../node/typeNode';
 import { ResolverNode } from '../node/gql/resolverNode';
+import { TableHandler } from '../entity/table';
+import { GqlNode } from '../node/rootNode';
 
 export class GqlParser {
-  constructor(private store: DataStoreHandler) {}
-  parse(): IrGql {
+  parse(store: DataStoreHandler): GqlNode {
     return {
-      queries: new QueryParser().parse(this.store.tables),
-      mutations: this.getMutations(),
-      contexts: this.getContext(),
-      resolvers: this.getResolvers(),
+      queries: new QueryParser().parse(store.tables),
+      mutations: this.getMutations(store),
+      resolvers: this.getResolvers(store),
     };
   }
 
-  private getContext(): ContextNode[] {
+  getContext(tables: TableHandler[]): ContextNode[] {
     const obj: Record<string, ContextNode> = {};
-    this.store.tables.forEach(table =>
+    tables.forEach(table =>
       table.gqlOption.mutation.fromContextColumns.forEach(it => {
         const name = it.contextName || it.column;
         obj[name] = new ContextNode(name, new TypeNode(table.column(it.column)!.type, false, false));
@@ -31,11 +29,11 @@ export class GqlParser {
     return Object.values(obj);
   }
 
-  private getMutations(): MutationNode[] {
-    return this.store.tables.flatMap(new GqlMutationParser().parse);
+  private getMutations(store: DataStoreHandler): MutationNode[] {
+    return store.tables.flatMap(new GqlMutationParser().parse);
   }
 
-  private getResolvers(): ResolverNode[] {
-    return new GqlResolverParser().parse(this.store.tables);
+  private getResolvers(store: DataStoreHandler): ResolverNode[] {
+    return new GqlResolverParser().parse(store.tables);
   }
 }
