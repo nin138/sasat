@@ -1,7 +1,7 @@
 import { IrGql } from '../ir/gql';
 import { DataStoreHandler } from '../entity/dataStore';
 import { GqlMutationParser } from './gql/gqlMutationParser';
-import { GqlQueryParser } from './gql/gqlQueryParser';
+import { QueryParser } from './gql/gqlQueryParser';
 import { GqlTypeParser } from './gql/gqlTypeParser';
 import { GqlResolverParser } from './gql/gqlResolverParser';
 import { MutationNode } from '../node/gql/mutationNode';
@@ -14,7 +14,7 @@ export class GqlParser {
   parse(): IrGql {
     return {
       types: new GqlTypeParser().parse(this.store),
-      queries: new GqlQueryParser().parse(this.store.tables),
+      queries: new QueryParser().parse(this.store.tables),
       mutations: this.getMutations(),
       contexts: this.getContext(),
       resolvers: this.getResolvers(),

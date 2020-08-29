@@ -1,4 +1,4 @@
-import * as Expressions from './node/expressions';
+import * as Exp from './node/expressions';
 import { Parameter } from './node/parameter';
 import { Block } from './node/block';
 import { Class } from './node/class';
@@ -26,57 +26,61 @@ import { MethodModifiers } from './node/modifier/methodModifiers';
 import { PropertyModifiers } from './node/modifier/propertyModifiers';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const createFactory = <T, C extends new (...args: any[]) => T = any>(Create: C) => {
+const createFactory = <T, C extends new (...args: any[]) => T>(Create: C) => {
   // @ts-ignore
   return (...args: ConstructorParameters<C>) => new Create(...args);
 };
 
 const expressions = {
-  arrowFunc: createFactory<Expressions.ArrowFunction>(Expressions.ArrowFunction),
-  async: createFactory<Expressions.AsyncExpression>(Expressions.AsyncExpression),
-  await: createFactory<Expressions.AwaitExpression>(Expressions.AwaitExpression),
-  binary: createFactory<Expressions.BinaryExpression>(Expressions.BinaryExpression),
-  call: createFactory<Expressions.CallExpression>(Expressions.CallExpression),
-  identifier: createFactory<Expressions.Identifier>(Expressions.Identifier),
-  new: createFactory<Expressions.NewExpression>(Expressions.NewExpression),
-  nonNull: createFactory<Expressions.NonNullExpression>(Expressions.NonNullExpression),
-  parenthesis: createFactory<Expressions.ParenthesizedExpression>(Expressions.ParenthesizedExpression),
-  property: createFactory<Expressions.PropertyAccessExpression>(Expressions.PropertyAccessExpression),
-  string: createFactory<Expressions.StringLiteral>(Expressions.StringLiteral),
-  number: createFactory<Expressions.NumericLiteral>(Expressions.NumericLiteral),
-  array: createFactory<Expressions.ArrayLiteral>(Expressions.ArrayLiteral),
-  object: createFactory<Expressions.ObjectLiteral>(Expressions.ObjectLiteral),
+  arrowFunc: createFactory<Exp.ArrowFunction, typeof Exp.ArrowFunction>(Exp.ArrowFunction),
+  async: createFactory<Exp.AsyncExpression, typeof Exp.AsyncExpression>(Exp.AsyncExpression),
+  await: createFactory<Exp.AwaitExpression, typeof Exp.AwaitExpression>(Exp.AwaitExpression),
+  binary: createFactory<Exp.BinaryExpression, typeof Exp.BinaryExpression>(Exp.BinaryExpression),
+  call: createFactory<Exp.CallExpression, typeof Exp.CallExpression>(Exp.CallExpression),
+  identifier: createFactory<Exp.Identifier, typeof Exp.Identifier>(Exp.Identifier),
+  new: createFactory<Exp.NewExpression, typeof Exp.NewExpression>(Exp.NewExpression),
+  nonNull: createFactory<Exp.NonNullExpression, typeof Exp.NonNullExpression>(Exp.NonNullExpression),
+  parenthesis: createFactory<Exp.ParenthesizedExpression, typeof Exp.ParenthesizedExpression>(
+    Exp.ParenthesizedExpression,
+  ),
+  propertyAccess: createFactory<Exp.PropertyAccessExpression, typeof Exp.PropertyAccessExpression>(
+    Exp.PropertyAccessExpression,
+  ),
+  string: createFactory<Exp.StringLiteral, typeof Exp.StringLiteral>(Exp.StringLiteral),
+  number: createFactory<Exp.NumericLiteral, typeof Exp.NumericLiteral>(Exp.NumericLiteral),
+  array: createFactory<Exp.ArrayLiteral, typeof Exp.ArrayLiteral>(Exp.ArrayLiteral),
+  object: createFactory<Exp.ObjectLiteral, typeof Exp.ObjectLiteral>(Exp.ObjectLiteral),
 };
 
 const types = {
-  arrayType: createFactory<ArrayType>(ArrayType),
-  intersectionType: createFactory<IntersectionType>(IntersectionType),
-  unionType: createFactory<UnionType>(UnionType),
-  typeAlias: createFactory<TypeAliasDeclaration>(TypeAliasDeclaration),
-  typeLiteral: createFactory<TypeLiteral>(TypeLiteral),
-  typeRef: createFactory<TypeReference>(TypeReference),
+  arrayType: createFactory<ArrayType, typeof ArrayType>(ArrayType),
+  intersectionType: createFactory<IntersectionType, typeof IntersectionType>(IntersectionType),
+  unionType: createFactory<UnionType, typeof UnionType>(UnionType),
+  typeAlias: createFactory<TypeAliasDeclaration, typeof TypeAliasDeclaration>(TypeAliasDeclaration),
+  typeLiteral: createFactory<TypeLiteral, typeof TypeLiteral>(TypeLiteral),
+  typeRef: createFactory<TypeReference, typeof TypeReference>(TypeReference),
 };
 
 const others = {
-  block: createFactory<Block>(Block),
-  class: createFactory<Class>(Class),
-  enum: createFactory<EnumDeclaration>(EnumDeclaration),
-  enumMember: createFactory<EnumMember>(EnumMember),
-  ExpStatement: createFactory<ExpressionStatement>(ExpressionStatement),
-  extends: createFactory<ExtendsClause>(ExtendsClause),
-  if: createFactory<IfStatement>(IfStatement),
-  implements: createFactory<ImplementsClause>(ImplementsClause),
-  interface: createFactory<TsInterface>(TsInterface),
-  method: createFactory<MethodDeclaration>(MethodDeclaration),
-  parameter: createFactory<Parameter>(Parameter),
-  propertyAssign: createFactory<PropertyAssignment>(PropertyAssignment),
-  propertyDeclaration: createFactory<PropertyDeclaration>(PropertyDeclaration),
-  propertySignature: createFactory<PropertySignature>(PropertySignature),
-  return: createFactory<ReturnStatement>(ReturnStatement),
-  spreadAssign: createFactory<SpreadAssignment>(SpreadAssignment),
-  variable: createFactory<VariableDeclaration>(VariableDeclaration),
-  methodModifiers: createFactory<MethodModifiers>(MethodModifiers),
-  propertyModifiers: createFactory<PropertyModifiers>(PropertyModifiers),
+  block: createFactory<Block, typeof Block>(Block),
+  class: createFactory<Class, typeof Class>(Class),
+  enum: createFactory<EnumDeclaration, typeof EnumDeclaration>(EnumDeclaration),
+  enumMember: createFactory<EnumMember, typeof EnumMember>(EnumMember),
+  ExpStatement: createFactory<ExpressionStatement, typeof ExpressionStatement>(ExpressionStatement),
+  extends: createFactory<ExtendsClause, typeof ExtendsClause>(ExtendsClause),
+  if: createFactory<IfStatement, typeof IfStatement>(IfStatement),
+  implements: createFactory<ImplementsClause, typeof ImplementsClause>(ImplementsClause),
+  interface: createFactory<TsInterface, typeof TsInterface>(TsInterface),
+  method: createFactory<MethodDeclaration, typeof MethodDeclaration>(MethodDeclaration),
+  parameter: createFactory<Parameter, typeof Parameter>(Parameter),
+  propertyAssign: createFactory<PropertyAssignment, typeof PropertyAssignment>(PropertyAssignment),
+  propertyDeclaration: createFactory<PropertyDeclaration, typeof PropertyDeclaration>(PropertyDeclaration),
+  propertySignature: createFactory<PropertySignature, typeof PropertySignature>(PropertySignature),
+  return: createFactory<ReturnStatement, typeof ReturnStatement>(ReturnStatement),
+  spreadAssign: createFactory<SpreadAssignment, typeof SpreadAssignment>(SpreadAssignment),
+  variable: createFactory<VariableDeclaration, typeof VariableDeclaration>(VariableDeclaration),
+  methodModifiers: createFactory<MethodModifiers, typeof MethodModifiers>(MethodModifiers),
+  propertyModifiers: createFactory<PropertyModifiers, typeof PropertyModifiers>(PropertyModifiers),
 };
 
 export const tsg = {

@@ -48,18 +48,6 @@ export class MutationGenerator {
     );
   };
 
-  private static createFunctionName(entityName: EntityName) {
-    return `create${entityName}`;
-  }
-
-  private static updateFunctionName(entityName: EntityName) {
-    return `update${entityName}`;
-  }
-
-  private static deleteFunctionName(entityName: EntityName) {
-    return `delete${entityName}`;
-  }
-
   private static functionParams(paramType: TsType, useContext: boolean) {
     const params = [new Parameter('_', new TypeLiteral()), new Parameter('params', paramType)];
     if (!useContext) return params;
@@ -68,23 +56,21 @@ export class MutationGenerator {
 
   private createMutation(node: CreateMutationNode): PropertyAssignment {
     return new PropertyAssignment(
-      MutationGenerator.createFunctionName(node.entityName),
-      new AsyncExpression(
-        new ArrowFunction(
-          MutationGenerator.functionParams(
-            node.entityName.getTypeReference(Directory.paths.generated),
-            node.useContextParams(),
-          ),
-          new TypeReference('Promise', [node.entityName.toIdentifier(Directory.paths.generated)]),
-          MutationGenerator.createFunctionBody(node),
+      node.functionName(),
+      new ArrowFunction(
+        MutationGenerator.functionParams(
+          node.entityName.getTypeReference(Directory.paths.generated),
+          node.useContextParams(),
         ),
-      ),
+        new TypeReference('Promise', [node.entityName.toIdentifier(Directory.paths.generated)]),
+        MutationGenerator.createFunctionBody(node),
+      ).toAsync(),
     );
   }
 
   private updateMutation(node: UpdateMutationNode): PropertyAssignment {
     return new PropertyAssignment(
-      MutationGenerator.updateFunctionName(node.entityName),
+      node.functionName(),
       new AsyncExpression(
         new ArrowFunction(
           MutationGenerator.functionParams(
@@ -103,7 +89,7 @@ export class MutationGenerator {
 
   private deleteMutation(node: DeleteMutationNode): PropertyAssignment {
     return new PropertyAssignment(
-      MutationGenerator.deleteFunctionName(node.entityName),
+      node.functionName(),
       new AsyncExpression(
         new ArrowFunction(
           [

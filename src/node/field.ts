@@ -4,6 +4,8 @@ import { PropertySignature } from '../generator/ts/v2/code/node/propertySignatur
 import { TypeReference } from '../generator/ts/v2/code/node/type/typeReference';
 import { GqlParamNode } from './gql/GqlParamNode';
 import { columnTypeToGqlPrimitive } from '../generator/gql/columnToGqlType';
+import { ParameterNode } from './parameterNode';
+import { TypeNode } from './typeNode';
 
 export class FieldNode {
   constructor(
@@ -42,5 +44,13 @@ export class FieldNode {
 
   toOptionalGqlParam(): GqlParamNode {
     return new GqlParamNode(this.fieldName, columnTypeToGqlPrimitive(this.dbType), true, false, false);
+  }
+
+  toParam(): ParameterNode {
+    return new ParameterNode(this.fieldName, new TypeNode(this.dbType, false, this.isNullable));
+  }
+
+  toOptionalParam(): ParameterNode {
+    return new ParameterNode(this.fieldName, new TypeNode(this.dbType, false, true));
   }
 }

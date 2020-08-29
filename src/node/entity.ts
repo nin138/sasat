@@ -14,6 +14,9 @@ export class EntityNode {
   public onCreateRequiredFields(): FieldNode[] {
     return this.fields.filter(it => it.isRequiredOnCreate());
   }
+  public onCreateOptionalFields(): FieldNode[] {
+    return this.fields.filter(it => !it.isRequiredOnCreate());
+  }
 
   public hasDefaultValueFields(): FieldNode[] {
     return this.fields.filter(it => it.hasDefaultValue());

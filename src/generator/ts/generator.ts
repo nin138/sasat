@@ -4,7 +4,6 @@ import { IrGql } from '../../ir/gql';
 import { EntityNode } from '../../node/entity';
 import { TsEntityGenerator } from './v2/entity';
 import { RepositoryNode } from '../../node/repository';
-import { generateTsTypeDef } from './v2/gql/typeDef';
 import { QueryGenerator } from './v2/gql/query';
 import { ResolverGenerator } from './v2/gql/resolver';
 import { TsGeneratorGqlContext } from './v2/gql/context';
@@ -15,6 +14,7 @@ import { MutationNode } from '../../node/gql/mutationNode';
 import { ResolverNode } from '../../node/gql/resolverNode';
 import { GeneratedRepositoryGenerator } from './v2/db/generatedRepository';
 import { generateRepositoryString } from './v2/db/repository';
+import { TypeDefGenerator } from './v2/gql/typeDef';
 
 export class TsCodeGenerator implements CodeGenerator {
   readonly fileExt = 'ts';
@@ -36,7 +36,7 @@ export class TsCodeGenerator implements CodeGenerator {
   }
 
   generateGqlTypeDefs(gql: IrGql): string {
-    return this.formatCode(generateTsTypeDef(gql));
+    return new TypeDefGenerator().generate(gql).toString();
   }
 
   generateGqlQuery(repositories: RepositoryNode[]): string {
@@ -45,7 +45,6 @@ export class TsCodeGenerator implements CodeGenerator {
 
   generateGqlResolver(nodes: ResolverNode[]): string {
     return new ResolverGenerator().generate(nodes).toString();
-    1;
   }
 
   generateGqlMutation(nodes: MutationNode[]): string {

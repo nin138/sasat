@@ -15,7 +15,7 @@ export class EntityName {
     return this.name;
   }
   toIdentifier(fromPath: string): Identifier {
-    return new Identifier(this.name).importFrom(fromPath);
+    return new Identifier(this.name).importFrom(Directory.entityPath(fromPath, this.name));
   }
   creatableInterface(): string {
     return creatableInterfaceName(this.name);
