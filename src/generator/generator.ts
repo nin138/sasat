@@ -1,5 +1,5 @@
-import { EntityNode } from '../node/entity';
-import { RepositoryNode } from '../node/repository';
+import { EntityNode } from '../node/entityNode';
+import { RepositoryNode } from '../node/repositoryNode';
 import { RootNode } from '../node/rootNode';
 
 export interface CodeGenerator {

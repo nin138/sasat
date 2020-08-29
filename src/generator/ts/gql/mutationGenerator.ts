@@ -1,27 +1,17 @@
 import { TsFile } from '../file';
 import { VariableDeclaration } from '../code/node/variableDeclaration';
-import {
-  CreateMutationNode,
-  DeleteMutationNode,
-  MutationNode,
-  UpdateMutationNode,
-} from '../../../../node/gql/mutationNode';
 import { PropertyAssignment } from '../code/node/propertyAssignment';
-import { EntityName } from '../../../../entity/entityName';
 import { TypeReference } from '../code/node/type/typeReference';
 import { Parameter } from '../code/node/parameter';
 import { TypeLiteral } from '../code/node/type/typeLiteral';
-import { Directory } from '../../../../constants/directory';
 import { Block } from '../code/node/Block';
 import { ReturnStatement } from '../code/node/returnStatement';
 import { SpreadAssignment } from '../code/node/spreadAssignment';
 import { ExpressionStatement } from '../code/node/ExpressionStatement';
 import { IntersectionType } from '../code/node/type/intersectionType';
 import { TsType } from '../code/node/type/type';
-import { ContextParamNode } from '../../../../node/gql/contextParamNode';
 import { KeywordTypeNode } from '../code/node/type/typeKeyword';
 import { IfStatement } from '../code/node/ifStatement';
-import { SasatError } from '../../../../error';
 import {
   ArrowFunction,
   AsyncExpression,
@@ -36,6 +26,16 @@ import {
   ParenthesizedExpression,
   PropertyAccessExpression,
 } from '../code/node/expressions';
+import {
+  CreateMutationNode,
+  DeleteMutationNode,
+  MutationNode,
+  UpdateMutationNode,
+} from '../../../node/gql/mutationNode';
+import { Directory } from '../../../constants/directory';
+import { SasatError } from '../../../error';
+import { ContextParamNode } from '../../../node/gql/contextParamNode';
+import { EntityName } from '../../../entity/entityName';
 
 export class MutationGenerator {
   generate = (mutations: MutationNode[]): TsFile => {

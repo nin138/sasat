@@ -1,10 +1,8 @@
-import { TypeReference } from '../generator/ts/v2/code/node/type/typeReference';
-import { UnionType } from '../generator/ts/v2/code/node/type/unionType';
-import { TsType } from '../generator/ts/v2/code/node/type/type';
-import { ArrayType } from '../generator/ts/v2/code/node/type/arrayType';
 import { columnTypeToTsType, DBColumnTypes } from '../migration/column/columnTypes';
 import { EntityName } from '../entity/entityName';
 import { columnTypeToGqlPrimitive } from '../generator/gql/columnToGqlType';
+import { TsType } from '../generator/ts/code/node/type/type';
+import { tsg } from '../generator/ts/code/factory';
 
 export class TypeNode {
   constructor(
@@ -14,11 +12,11 @@ export class TypeNode {
     readonly isArrayNullable = false,
   ) {}
   toTsType(): TsType {
-    let type: TsType = new TypeReference(
+    let type: TsType = tsg.typeRef(
       this.typeName instanceof EntityName ? this.typeName.toString() : columnTypeToTsType(this.typeName),
     );
-    if (this.isNullable) type = new UnionType([type, new TypeReference('null')]);
-    if (this.isArray) return new ArrayType(type);
+    if (this.isNullable) type = tsg.unionType([type, tsg.typeRef('null')]);
+    if (this.isArray) return tsg.arrayType(type);
     return type;
   }
   toGqlString() {

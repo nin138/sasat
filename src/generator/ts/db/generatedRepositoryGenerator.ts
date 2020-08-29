@@ -1,12 +1,11 @@
-import { RepositoryNode } from '../../../../node/repository';
+import { RepositoryNode } from '../../../node/repositoryNode';
 import { TsFile } from '../file';
-import { Directory } from '../../../../constants/directory';
+import { Directory } from '../../../constants/directory';
 import { Class } from '../code/node/class';
 import { ExtendsClause } from '../code/node/extendsClause';
 import { TypeReference } from '../code/node/type/typeReference';
-import { baseRepositoryName } from '../../../../constants/interfaceConstants';
-import { SqlValueType } from '../../../../db/dbClient';
-import { PropertyDeclaration } from '../code/node/propertyDeclaration';
+import { baseRepositoryName } from '../../../constants/interfaceConstants';
+import { SqlValueType } from '../../../db/dbClient';
 import { PropertyModifiers } from '../code/node/modifier/propertyModifiers';
 import { KeywordTypeNode } from '../code/node/type/typeKeyword';
 import { ArrayType } from '../code/node/type/arrayType';
@@ -17,15 +16,8 @@ import { MethodDeclaration } from '../code/node/methodDeclaration';
 import { MethodModifiers } from '../code/node/modifier/methodModifiers';
 import { Parameter } from '../code/node/parameter';
 import { TypeLiteral } from '../code/node/type/typeLiteral';
-import {
-  ArrayLiteral,
-  CallExpression,
-  Identifier,
-  NumericLiteral,
-  ObjectLiteral,
-  StringLiteral,
-  TsExpression,
-} from '../code/node/expressions';
+import { TsExpression } from '../code/node/expressions';
+import { tsg } from '../code/factory';
 
 export class GeneratedRepositoryGenerator {
   constructor(private node: RepositoryNode) {}
@@ -39,10 +31,10 @@ export class GeneratedRepositoryGenerator {
         .abstract()
         .extends(
           new ExtendsClause(
-            new TypeReference(baseRepositoryName(), [
-              new TypeReference(node.entityName.name).importFrom(entityPath),
-              new TypeReference(node.entityName.creatableInterface()).importFrom(entityPath),
-              new TypeReference(node.entityName.identifiableInterfaceName()).importFrom(entityPath),
+            tsg.typeRef(baseRepositoryName(), [
+              tsg.typeRef(node.entityName.name).importFrom(entityPath),
+              tsg.typeRef(node.entityName.creatableInterface()).importFrom(entityPath),
+              tsg.typeRef(node.entityName.identifiableInterfaceName()).importFrom(entityPath),
             ]),
           ).addImport([baseRepositoryName()], 'sasat'),
         )
@@ -52,31 +44,32 @@ export class GeneratedRepositoryGenerator {
   }
   private sqlValueToTsExpression(value: SqlValueType): TsExpression {
     if (typeof value === 'string') {
-      return new StringLiteral(value);
+      return tsg.string(value);
     }
     if (typeof value === 'number') {
-      return new NumericLiteral(value);
+      return tsg.number(value);
     }
-    return new Identifier('null');
+    return tsg.identifier('null');
   }
 
   private properties(node: RepositoryNode) {
     return [
-      new PropertyDeclaration('tableName', KeywordTypeNode.string, false)
-        .modifiers(new PropertyModifiers().readonly())
-        .initializer(new StringLiteral(node.tableName)),
-      new PropertyDeclaration('primaryKeys', new ArrayType(KeywordTypeNode.string), false)
+      tsg
+        .propertyDeclaration('tableName', KeywordTypeNode.string, false)
+        .modifiers(tsg.propertyModifiers().readonly())
+        .initializer(tsg.string(node.tableName)),
+      tsg
+        .propertyDeclaration('primaryKeys', new ArrayType(KeywordTypeNode.string), false)
         .modifiers(new PropertyModifiers().readonly().protected())
-        .initializer(new ArrayLiteral(node.primaryKeys.map(it => new StringLiteral(it)))),
-      new PropertyDeclaration(
-        'autoIncrementColumn',
-        new UnionType([KeywordTypeNode.string, KeywordTypeNode.undefined]),
-        true,
-      )
+        .initializer(tsg.array(node.primaryKeys.map(it => tsg.string(it)))),
+      tsg
+        .propertyDeclaration(
+          'autoIncrementColumn',
+          new UnionType([KeywordTypeNode.string, KeywordTypeNode.undefined]),
+          true,
+        )
         .modifiers(new PropertyModifiers().readonly().protected())
-        .initializer(
-          node.autoIncrementColumn ? new StringLiteral(node.autoIncrementColumn) : new Identifier('undefined'),
-        ),
+        .initializer(node.autoIncrementColumn ? tsg.string(node.autoIncrementColumn) : tsg.identifier('undefined')),
     ];
   }
 
@@ -84,15 +77,13 @@ export class GeneratedRepositoryGenerator {
     const properties = node.entity.hasDefaultValueFields().map(it => {
       const fieldToExpression = () => {
         if (it.onCreateCurrentTimestamp) {
-          return new CallExpression(
-            new Identifier('getCurrentDateTimeString').addImport(['getCurrentDateTimeString'], 'sasat'),
-          );
+          return tsg.identifier('getCurrentDateTimeString').addImport(['getCurrentDateTimeString'], 'sasat').call();
         }
         return this.sqlValueToTsExpression(it.defaultValue!);
       };
       return new PropertyAssignment(it.fieldName, fieldToExpression());
     });
-    const body = new ReturnStatement(new ObjectLiteral(...properties));
+    const body = new ReturnStatement(tsg.object(...properties));
 
     const columns = node.getDefaultValueColumnNames();
     return new MethodDeclaration(
@@ -106,15 +97,16 @@ export class GeneratedRepositoryGenerator {
   private findMethods(node: RepositoryNode) {
     return node.findMethods.map(it => {
       const body = new ReturnStatement(
-        new CallExpression(
-          new Identifier(it.returnType.isArray ? 'this.find' : 'this.first'),
-          new ObjectLiteral(
-            new PropertyAssignment(
-              'where',
-              new ObjectLiteral(...it.params.map(it => new PropertyAssignment(it.name, new Identifier(it.name)))),
+        tsg
+          .identifier(it.returnType.isArray ? 'this.find' : 'this.first')
+          .call(
+            tsg.object(
+              new PropertyAssignment(
+                'where',
+                tsg.object(...it.params.map(it => new PropertyAssignment(it.name, tsg.identifier(it.name)))),
+              ),
             ),
           ),
-        ),
       );
       return new MethodDeclaration(
         it.name,

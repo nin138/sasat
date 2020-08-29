@@ -1,4 +1,4 @@
-import { RepositoryNode } from './repository';
+import { RepositoryNode } from './repositoryNode';
 import { QueryNode } from './gql/queryNode';
 import { MutationNode } from './gql/mutationNode';
 import { ContextNode } from './gql/contextNode';

@@ -1,4 +1,4 @@
-import { EntityNode } from './entity';
+import { EntityNode } from './entityNode';
 import { FindMethodNode } from './findMethod';
 import { EntityName } from '../entity/entityName';
 import { RootNode } from './rootNode';

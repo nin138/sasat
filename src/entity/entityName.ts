@@ -5,9 +5,9 @@ import {
   identifiableInterfaceName,
 } from '../constants/interfaceConstants';
 import { lowercaseFirstLetter } from '../util/stringUtil';
-import { TypeReference } from '../generator/ts/v2/code/node/type/typeReference';
 import { Directory } from '../constants/directory';
-import { Identifier } from '../generator/ts/v2/code/node/expressions';
+import { Identifier } from '../generator/ts/code/node/expressions';
+import { TypeReference } from '../generator/ts/code/node/type/typeReference';
 
 export class EntityName {
   constructor(public readonly name: string) {}

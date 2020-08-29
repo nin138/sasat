@@ -3,9 +3,7 @@ import { VariableDeclaration } from '../code/node/variableDeclaration';
 import { PropertyAssignment } from '../code/node/propertyAssignment';
 import { Parameter } from '../code/node/parameter';
 import { TypeLiteral } from '../code/node/type/typeLiteral';
-import { RepositoryNode } from '../../../../node/repository';
-import { Directory } from '../../../../constants/directory';
-import { plural } from '../../../../util/stringUtil';
+
 import {
   ArrowFunction,
   Identifier,
@@ -13,6 +11,9 @@ import {
   ObjectLiteral,
   PropertyAccessExpression,
 } from '../code/node/expressions';
+import { RepositoryNode } from '../../../node/repositoryNode';
+import { Directory } from '../../../constants/directory';
+import { plural } from '../../../util/stringUtil';
 
 export class QueryGenerator {
   generate(nodes: RepositoryNode[]): TsFile {

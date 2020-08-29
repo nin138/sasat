@@ -1,17 +1,17 @@
 import { CodeGenerator } from '../generator';
 import * as prettier from 'prettier';
-import { EntityNode } from '../../node/entity';
-import { TsEntityGenerator } from './v2/entity';
-import { RepositoryNode } from '../../node/repository';
-import { QueryGenerator } from './v2/gql/query';
-import { ResolverGenerator } from './v2/gql/resolver';
-import { TsGeneratorGqlContext } from './v2/gql/context';
-import { MutationGenerator } from './v2/gql/mutation';
-import { SubscriptionGenerator } from './v2/gql/subscription';
-import { GeneratedRepositoryGenerator } from './v2/db/generatedRepository';
-import { generateRepositoryString } from './v2/db/repository';
-import { TypeDefGenerator } from './v2/gql/typeDef';
+import { EntityNode } from '../../node/entityNode';
+import { RepositoryNode } from '../../node/repositoryNode';
 import { RootNode } from '../../node/rootNode';
+import { EntityGenerator } from './entityGenerator';
+import { TypeDefGenerator } from './gql/typeDefGenerator';
+import { QueryGenerator } from './gql/queryGenerator';
+import { ResolverGenerator } from './gql/resolverGenerator';
+import { MutationGenerator } from './gql/mutationGenerator';
+import { SubscriptionGenerator } from './gql/subscriptionGenerator';
+import { ContextGenerator } from './gql/contextGenerator';
+import { GeneratedRepositoryGenerator } from './db/generatedRepositoryGenerator';
+import { generateRepositoryString } from './db/repositoryGenerator';
 
 export class TsCodeGenerator implements CodeGenerator {
   readonly fileExt = 'ts';
@@ -21,7 +21,7 @@ export class TsCodeGenerator implements CodeGenerator {
   }
 
   generateEntity(entity: EntityNode): string {
-    return new TsEntityGenerator(entity).generate().toString();
+    return new EntityGenerator(entity).generate().toString();
   }
 
   generateGeneratedRepository(repository: RepositoryNode): string {
@@ -53,7 +53,7 @@ export class TsCodeGenerator implements CodeGenerator {
   }
 
   generateGqlContext(root: RootNode): string {
-    return new TsGeneratorGqlContext().generate(root.contexts).toString();
+    return new ContextGenerator().generate(root.contexts).toString();
   }
 
   generateOnceFiles(): Array<{ name: string; body: string }> {

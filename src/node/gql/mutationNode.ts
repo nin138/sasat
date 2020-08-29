@@ -1,7 +1,7 @@
 import { ContextParamNode } from './contextParamNode';
 import { SubscriptionFilterNode } from './subscriptionFilterNode';
 import { EntityName } from '../../entity/entityName';
-import { EntityNode } from '../entity';
+import { EntityNode } from '../entityNode';
 import { ParameterNode } from '../parameterNode';
 import { TypeNode } from '../typeNode';
 import { DBColumnTypes } from '../../migration/column/columnTypes';

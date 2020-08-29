@@ -2,10 +2,10 @@ import { TsFile } from '../file';
 import { VariableDeclaration } from '../code/node/variableDeclaration';
 import { PropertyAssignment } from '../code/node/propertyAssignment';
 import { SpreadAssignment } from '../code/node/spreadAssignment';
-import { ResolverNode } from '../../../../node/gql/resolverNode';
-import { Directory } from '../../../../constants/directory';
 import { Identifier, ObjectLiteral } from '../code/node/expressions';
 import { tsg } from '../code/factory';
+import { ResolverNode } from '../../../node/gql/resolverNode';
+import { Directory } from '../../../constants/directory';
 
 export class ResolverGenerator {
   private createResolver(node: ResolverNode): PropertyAssignment {

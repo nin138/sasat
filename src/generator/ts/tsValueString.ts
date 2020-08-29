@@ -1,4 +1,4 @@
-import { SasatError } from '../../../error';
+import { SasatError } from '../../error';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const tsValueString = (value: any): string => {

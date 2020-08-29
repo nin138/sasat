@@ -1,7 +1,7 @@
 import { TableHandler } from '../../entity/table';
 import { TypeDefNode } from '../../node/gql/typeDefNode';
 import { Parser } from '../parser';
-import { EntityNode } from '../../node/entity';
+import { EntityNode } from '../../node/entityNode';
 import { ParameterNode } from '../../node/parameterNode';
 
 export class GqlTypeParser {

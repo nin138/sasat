@@ -3,7 +3,7 @@ import { CreateMutationNode, DeleteMutationNode, MutationNode, UpdateMutationNod
 import { Parser } from '../parser';
 import { ContextParamNode } from '../../node/gql/contextParamNode';
 import { SubscriptionFilterNode } from '../../node/gql/subscriptionFilterNode';
-import { EntityNode } from '../../node/entity';
+import { EntityNode } from '../../node/entityNode';
 
 export class GqlMutationParser {
   parse = (table: TableHandler): MutationNode[] => {

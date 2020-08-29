@@ -1,5 +1,5 @@
 import { TsCode } from '../../abstruct/tsCode';
-import { TsAccessor } from '../../../../tsClassGenerator';
+import { TsAccessor } from '../../accessors';
 
 export class Modifiers extends TsCode {
   private _accessor: TsAccessor = TsAccessor.public;

@@ -1,5 +1,5 @@
-import { TsAccessor } from '../../../../tsClassGenerator';
 import { Modifiers } from './modifiers';
+import { TsAccessor } from '../../accessors';
 
 export class PropertyModifiers extends Modifiers {
   accessor(accessor: TsAccessor): this {

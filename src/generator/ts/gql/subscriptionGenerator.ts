@@ -1,16 +1,13 @@
-import { MutationNode } from '../../../../node/gql/mutationNode';
 import { TsFile } from '../file';
 import { VariableDeclaration } from '../code/node/variableDeclaration';
 import { EnumDeclaration } from '../code/node/enumDeclaration';
 import { EnumMember } from '../code/node/enumMember';
-import { EntityName } from '../../../../entity/entityName';
 import { PropertyAssignment } from '../code/node/propertyAssignment';
 import { Parameter } from '../code/node/parameter';
 import { TypeReference } from '../code/node/type/typeReference';
 import { KeywordTypeNode } from '../code/node/type/typeKeyword';
 import { Block } from '../code/node/block';
 import { ReturnStatement } from '../code/node/returnStatement';
-import { Directory } from '../../../../constants/directory';
 import {
   ArrayLiteral,
   ArrowFunction,
@@ -22,6 +19,9 @@ import {
   StringLiteral,
 } from '../code/node/expressions';
 import { tsg } from '../code/factory';
+import { MutationNode } from '../../../node/gql/mutationNode';
+import { EntityName } from '../../../entity/entityName';
+import { Directory } from '../../../constants/directory';
 
 interface Subscription {
   entity: EntityName;

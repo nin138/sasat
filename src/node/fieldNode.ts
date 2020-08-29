@@ -1,13 +1,13 @@
 import { columnTypeToTsType, DBColumnTypes } from '../migration/column/columnTypes';
 import { SqlValueType } from '../db/dbClient';
-import { PropertySignature } from '../generator/ts/v2/code/node/propertySignature';
-import { TypeReference } from '../generator/ts/v2/code/node/type/typeReference';
 import { GqlParamNode } from './gql/GqlParamNode';
 import { columnTypeToGqlPrimitive } from '../generator/gql/columnToGqlType';
 import { ParameterNode } from './parameterNode';
 import { TypeNode } from './typeNode';
 import { Column } from '../entity/column';
 import { TableHandler } from '../entity/table';
+import { PropertySignature } from '../generator/ts/code/node/propertySignature';
+import { TypeReference } from '../generator/ts/code/node/type/typeReference';
 
 export class FieldNode {
   static fromColumn(column: Column, table: TableHandler) {
