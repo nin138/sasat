@@ -45,11 +45,11 @@ export class TsCodeGenerator implements CodeGenerator {
   }
 
   generateGqlMutation(root: RootNode): string {
-    return new MutationGenerator().generate(root.gql.mutations).toString();
+    return new MutationGenerator().generate(root.mutations()).toString();
   }
 
   generateGqlSubscription(root: RootNode): string {
-    return new SubscriptionGenerator().generate(root.gql.mutations).toString();
+    return new SubscriptionGenerator().generate(root.mutations()).toString();
   }
 
   generateGqlContext(root: RootNode): string {

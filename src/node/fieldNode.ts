@@ -1,7 +1,5 @@
 import { columnTypeToTsType, DBColumnTypes } from '../migration/column/columnTypes';
 import { SqlValueType } from '../db/dbClient';
-import { GqlParamNode } from './gql/GqlParamNode';
-import { columnTypeToGqlPrimitive } from '../generator/gql/columnToGqlType';
 import { ParameterNode } from './parameterNode';
 import { TypeNode } from './typeNode';
 import { Column } from '../entity/column';
@@ -49,14 +47,6 @@ export class FieldNode {
 
   public hasDefaultValue(): boolean {
     return this.defaultValue !== undefined || this.onCreateCurrentTimestamp;
-  }
-
-  toGqlParam(): GqlParamNode {
-    return new GqlParamNode(this.fieldName, columnTypeToGqlPrimitive(this.dbType), this.isNullable, false, false);
-  }
-
-  toOptionalGqlParam(): GqlParamNode {
-    return new GqlParamNode(this.fieldName, columnTypeToGqlPrimitive(this.dbType), true, false, false);
   }
 
   toParam(): ParameterNode {

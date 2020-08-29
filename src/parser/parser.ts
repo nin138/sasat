@@ -4,7 +4,6 @@ import { capitalizeFirstLetter } from '../util/stringUtil';
 import { ReferenceColumn } from '../entity/referenceColumn';
 import { Relation } from '..';
 import { RepositoryNode } from '../node/repositoryNode';
-import { EntityNode } from '../node/entityNode';
 import { FindMethodNode } from '../node/findMethod';
 import { ParameterNode } from '../node/parameterNode';
 import { TypeNode } from '../node/typeNode';
@@ -34,11 +33,6 @@ export class Parser {
       new TypeNode(table.getEntityName(), false, true),
       true,
     );
-  }
-
-  // TODO Remove
-  public static tableToEntityNode(parent: RepositoryNode, table: TableHandler) {
-    return new EntityNode(parent, table);
   }
 
   private createRefQuery(ref: ReferenceColumn): FindMethodNode {

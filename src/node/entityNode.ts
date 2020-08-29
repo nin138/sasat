@@ -4,7 +4,6 @@ import { RepositoryNode } from './repositoryNode';
 import { RelationNode } from './relationNode';
 import { TableHandler } from '../entity/table';
 import { TypeDefNode } from './gql/typeDefNode';
-import { GqlTypeParser } from '../parser/gql/gqlTypeParser';
 
 export class EntityNode {
   readonly entityName: EntityName;
@@ -17,8 +16,7 @@ export class EntityNode {
   }
 
   typeDefs(): TypeDefNode[] {
-    // TODO
-    return [GqlTypeParser.getType2(this.table, this), GqlTypeParser.getDeletedType(this.table)];
+    return [TypeDefNode.new(this), TypeDefNode.deletedNode(this)];
   }
 
   public identifiableFields(): FieldNode[] {

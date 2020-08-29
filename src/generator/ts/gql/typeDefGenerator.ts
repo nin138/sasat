@@ -12,9 +12,9 @@ export class TypeDefGenerator {
     const typeDefs = root.entities().flatMap(it => it.typeDefs());
     const types = [
       ...this.createTypes(typeDefs),
-      this.createQuery(root.gql.queries),
-      this.createMutation(root.gql.mutations),
-      this.createSubscription(root.gql.mutations),
+      this.createQuery(root.queries()),
+      this.createMutation(root.mutations()),
+      this.createSubscription(root.mutations()),
     ].filter(it => it !== undefined) as PropertyAssignment[];
     return new TsFile(tsg.variable('const', tsg.identifier('typeDef'), tsg.object(...types)).export());
   }

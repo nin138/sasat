@@ -6,30 +6,29 @@ import { SubscriptionFilterNode } from '../../node/gql/subscriptionFilterNode';
 import { EntityNode } from '../../node/entityNode';
 
 export class GqlMutationParser {
-  parse = (table: TableHandler): MutationNode[] => {
+  parse = (table: TableHandler, entity: EntityNode): MutationNode[] => {
     const result: MutationNode[] = [];
     const option = table.gqlOption;
 
     if (option.mutation.create) {
-      result.push(new CreateMutationNode(...this.createParams(table, option.subscription.onCreate)));
+      result.push(new CreateMutationNode(...this.createParams(table, entity, option.subscription.onCreate)));
     }
     if (option.mutation.update) {
-      result.push(new UpdateMutationNode(...this.createParams(table, option.subscription.onUpdate)));
+      result.push(new UpdateMutationNode(...this.createParams(table, entity, option.subscription.onUpdate)));
     }
     if (option.mutation.create) {
-      result.push(new DeleteMutationNode(...this.createParams(table, option.subscription.onDelete)));
+      result.push(new DeleteMutationNode(...this.createParams(table, entity, option.subscription.onDelete)));
     }
     return result;
   };
 
   private createParams(
     table: TableHandler,
+    entity: EntityNode,
     subscribed: boolean,
   ): [EntityNode, string[], string, ContextParamNode[], boolean, SubscriptionFilterNode[]] {
     return [
-      // TODO
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      Parser.tableToEntityNode(null as any, table),
+      entity,
       table.primaryKey,
       Parser.paramsToQueryName(...table.primaryKey),
       table.gqlOption.mutation.fromContextColumns.map(

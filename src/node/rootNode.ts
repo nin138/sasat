@@ -1,6 +1,4 @@
 import { RepositoryNode } from './repositoryNode';
-import { QueryNode } from './gql/queryNode';
-import { MutationNode } from './gql/mutationNode';
 import { ContextNode } from './gql/contextNode';
 import { ResolverNode } from './gql/resolverNode';
 import { EntityName } from '../entity/entityName';
@@ -8,8 +6,6 @@ import { RelationNode } from './relationNode';
 
 // TODO remove
 export interface GqlNode {
-  queries: QueryNode[];
-  mutations: MutationNode[];
   resolvers: ResolverNode[];
 }
 
@@ -29,5 +25,13 @@ export class RootNode {
 
   entities() {
     return this.repositories.map(it => it.entity);
+  }
+
+  queries() {
+    return this.repositories.flatMap(it => it.queries);
+  }
+
+  mutations() {
+    return this.repositories.flatMap(it => it.mutations);
   }
 }

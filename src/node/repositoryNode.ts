@@ -23,7 +23,7 @@ export class RepositoryNode {
     this.entity = this.createEntity(table);
     this.autoIncrementColumn = table.columns.find(it => it.getData().autoIncrement)?.name;
     this.queries = new QueryParser().queries(table);
-    this.mutations = new GqlMutationParser().parse(table);
+    this.mutations = new GqlMutationParser().parse(table, this.entity);
   }
   private createEntity(table: TableHandler) {
     return new EntityNode(this, table);
