@@ -27,7 +27,9 @@ export class GqlMutationParser {
     subscribed: boolean,
   ): [EntityNode, string[], string, ContextParamNode[], boolean, SubscriptionFilterNode[]] {
     return [
-      Parser.tableToEntityNode(table),
+      // TODO
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      Parser.tableToEntityNode(null as any, table),
       table.primaryKey,
       Parser.paramsToQueryName(...table.primaryKey),
       table.gqlOption.mutation.fromContextColumns.map(

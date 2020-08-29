@@ -16,8 +16,7 @@ export const migrate = async (options: { [key: string]: boolean }) => {
     if (options.generateFiles) {
       const storeHandler = new DataStoreHandler(result.store);
       const ir = new Parser(storeHandler).parse();
-      const gql = new GqlParser(storeHandler).parse();
-      await new CodeGenerateController(ir, gql).generate();
+      await new CodeGenerateController(ir).generate();
     }
   } catch (e) {
     console.log(e);

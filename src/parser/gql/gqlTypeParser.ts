@@ -6,10 +6,12 @@ import { columnTypeToGqlPrimitive } from '../../generator/gql/columnToGqlType';
 import { capitalizeFirstLetter } from '../../util/stringUtil';
 import { DataStoreHandler } from '../../entity/dataStore';
 import { Relation } from '../..';
+import { TypeDefNode } from '../../node/gql/typeDefNode';
+import { Parser } from '../parser';
 
 export class GqlTypeParser {
-  parse(store: DataStoreHandler): IrGqlType[] {
-    return store.tables.flatMap(it => [this.getType(store, it), this.getDeletedType(it)]);
+  parse(store: DataStoreHandler): TypeDefNode[] {
+    return store.tables.flatMap(it => [this.getType(it), this.getDeletedType(it)]);
   }
 
   private columnToParam = (column: Column): IrGqlParam => ({
@@ -39,28 +41,30 @@ export class GqlTypeParser {
       isReference: true,
     }));
 
-  private getType(store: DataStoreHandler, table: TableHandler) {
-    return {
-      typeName: table.getEntityName().name,
-      params: [
-        ...table.columns.map(this.columnToParam),
-        ...table.columns
-          .filter(it => it.isReference())
-          .map(it => GqlTypeParser.referenceToParam(it as ReferenceColumn)),
-        ...this.getReferencedType(store, table.tableName),
-      ],
-    };
+  private getType(table: TableHandler) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const entity = Parser.tableToEntityNode(null as any, table);
+    return new TypeDefNode(
+      table.getEntityName().name,
+      entity.fields.map(it => it.toParam()),
+    );
   }
 
   private getDeletedType(table: TableHandler) {
-    return {
-      typeName: `Deleted${table.getEntityName()}`,
-      params: [
-        ...table.columns.filter(column => table.isColumnPrimary(column.name)).map(this.columnToParam),
-        ...table.columns
-          .filter(it => it.isReference())
-          .map(it => GqlTypeParser.referenceToParam(it as ReferenceColumn)),
-      ],
-    };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const entity = Parser.tableToEntityNode(null as any, table);
+    return new TypeDefNode(
+      `Deleted${table.getEntityName()}`,
+      entity.identifiableFields().map(it => it.toParam()),
+    );
+    // return {
+    //   typeName: `Deleted${table.getEntityName()}`,
+    //   params: [
+    //     ...table.columns.filter(column => table.isColumnPrimary(column.name)).map(this.columnToParam),
+    //     ...table.columns
+    //       .filter(it => it.isReference())
+    //       .map(it => GqlTypeParser.referenceToParam(it as ReferenceColumn)),
+    //   ],
+    // };
   }
 }

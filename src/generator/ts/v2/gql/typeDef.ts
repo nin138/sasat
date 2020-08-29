@@ -1,12 +1,11 @@
 import { IrGql } from '../../../../ir/gql';
-import { getGqlTypeString } from '../../../gql/typeDef';
 import { MutationNode } from '../../../../node/gql/mutationNode';
 import { SubscriptionFilterNode } from '../../../../node/gql/subscriptionFilterNode';
 import { PropertyAssignment } from '../code/node/propertyAssignment';
 import { TsFile } from '../file';
 import { QueryNode } from '../../../../node/gql/queryNode';
 import { tsg } from '../code/factory';
-import { IrGqlType } from '../../../../ir/gql/types';
+import { TypeDefNode } from '../../../../node/gql/typeDefNode';
 
 export class TypeDefGenerator {
   generate(gql: IrGql): TsFile {
@@ -18,12 +17,9 @@ export class TypeDefGenerator {
     ].filter(it => it !== undefined) as PropertyAssignment[];
     return new TsFile(tsg.variable('const', tsg.identifier('typeDef'), tsg.object(...types)).export());
   }
-  private createTypes(types: IrGqlType[]): PropertyAssignment[] {
+  private createTypes(types: TypeDefNode[]): PropertyAssignment[] {
     return types.map(type =>
-      tsg.propertyAssign(
-        type.typeName,
-        tsg.array(type.params.map(it => tsg.string(`${it.name}: ${getGqlTypeString(it)}`))),
-      ),
+      tsg.propertyAssign(type.typeName, tsg.array(type.params.map(it => tsg.string(it.toGqlString())))),
     );
   }
 

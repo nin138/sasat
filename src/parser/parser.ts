@@ -10,25 +10,16 @@ import { FieldNode } from '../node/field';
 import { FindMethodNode } from '../node/findMethod';
 import { ParameterNode } from '../node/parameterNode';
 import { TypeNode } from '../node/typeNode';
+import { RootNode } from '../node/rootNode';
+import { GqlParser } from './gqlParser';
 
 export class Parser {
   constructor(private store: DataStoreHandler) {}
-  parse(): CodeGeneratable {
-    const repositories = this.store.tables.map(
-      it =>
-        new RepositoryNode(
-          it.tableName,
-          it.getEntityName(),
-          it.primaryKey,
-          Parser.tableToEntityNode(it),
-          this.getQueries(it),
-          it.columns.find(it => it.getData().autoIncrement)?.name,
-        ),
-    );
-    return {
-      repositories,
-      entities: repositories.map(it => it.entity),
-    };
+  parse(): RootNode {
+    const root = new RootNode(new GqlParser(this.store).parse());
+    const repositories = this.store.tables.map(it => new RepositoryNode(root, it, this.getQueries(it)));
+    root.addRepository(...repositories);
+    return root;
   }
 
   static paramsToQueryName(...params: string[]) {
@@ -47,22 +38,9 @@ export class Parser {
     );
   }
 
-  public static tableToEntityNode(table: TableHandler) {
-    return new EntityNode(
-      table.getEntityName(),
-      table.columns.map(
-        column =>
-          new FieldNode(
-            column.name,
-            column.type,
-            table.isColumnPrimary(column.name),
-            column.getData().default,
-            column.isNullable(),
-            column.getData().autoIncrement,
-            column.getData().defaultCurrentTimeStamp,
-          ),
-      ),
-    );
+  // TODO Remove
+  public static tableToEntityNode(parent: RepositoryNode, table: TableHandler) {
+    return new EntityNode(parent, table);
   }
 
   private createRefQuery(ref: ReferenceColumn): FindMethodNode {

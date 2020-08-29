@@ -10,8 +10,7 @@ export const generate = async () => {
     const store = new MigrationReader().read();
     const storeHandler = new DataStoreHandler(store.serialize());
     const ir = new Parser(storeHandler).parse();
-    const gql = new GqlParser(storeHandler).parse();
-    await new CodeGenerateController(ir, gql).generate();
+    await new CodeGenerateController(ir).generate();
   } catch (e) {
     Console.error(e.message);
     throw e;
