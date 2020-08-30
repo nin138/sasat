@@ -11,7 +11,7 @@ import { TypeReference } from '../generator/ts/code/node/type/typeReference';
 
 export class EntityName {
   constructor(public readonly name: string) {}
-  toString() {
+  toString(): string {
     return this.name;
   }
   toIdentifier(fromPath: string): Identifier {

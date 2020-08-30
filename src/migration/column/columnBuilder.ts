@@ -116,7 +116,7 @@ export class IntegerColumnBuilder extends NumberColumnBuilder {
   constructor(readonly name: string, protected type: DBIntegerTypes, protected length?: number) {
     super(name, type, length);
   }
-  autoIncrement() {
+  autoIncrement(): this {
     this._autoIncrement = true;
     return this;
   }
@@ -131,7 +131,7 @@ export class FloatColumnBuilder extends NumberColumnBuilder {
   ) {
     super(name, type, length, scale);
   }
-  autoIncrement() {
+  autoIncrement(): this {
     this._autoIncrement = true;
     return this;
   }
@@ -180,7 +180,7 @@ export class BooleanColumnBuilder extends ColumnBuilder {
   constructor(name: string) {
     super(name, DBColumnTypes.boolean);
   }
-  default(value: boolean | null) {
+  default(value: boolean | null): this {
     this._default = value;
     return this;
   }

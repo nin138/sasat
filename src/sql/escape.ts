@@ -1,3 +1,3 @@
 import { escapeId } from 'sqlstring';
 
-export const escapeName = (name: string) => escapeId(name);
+export const escapeName = (name: string): string => escapeId(name);

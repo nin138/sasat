@@ -4,6 +4,8 @@ import { TableHandler } from './table';
 import { columnToSql } from '../sql/columnToSql';
 import { GqlPrimitive } from '../generator/gql/types';
 import { Relation } from './relation';
+import { DBColumnTypes } from '../migration/column/columnTypes';
+import { ColumnData } from '../migration/column/columnData';
 
 export interface ReferenceColumnData {
   type: 'REFERENCE';
@@ -18,15 +20,15 @@ export interface ReferenceColumnData {
 
 export class ReferenceColumn implements Column {
   constructor(public data: ReferenceColumnData, public table: TableHandler) {}
-  get name() {
+  get name(): string {
     return this.data.columnName;
   }
 
-  get type() {
+  get type(): DBColumnTypes {
     return this.getRootColumn().type;
   }
 
-  getData() {
+  getData(): ColumnData {
     return this.getRootColumn().data;
   }
 
@@ -37,7 +39,7 @@ export class ReferenceColumn implements Column {
     });
   }
 
-  getTargetColumn() {
+  getTargetColumn(): Column {
     return this.table.store.table(this.data.targetTable)!.column(this.data.targetColumn)!;
   }
 
@@ -53,7 +55,7 @@ export class ReferenceColumn implements Column {
     return true;
   }
 
-  serialize() {
+  serialize(): ReferenceColumnData {
     return this.data;
   }
 

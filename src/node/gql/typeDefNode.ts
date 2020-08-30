@@ -2,7 +2,7 @@ import { ParameterNode } from '../parameterNode';
 import { EntityNode } from '../entityNode';
 
 export class TypeDefNode {
-  static new(entity: EntityNode) {
+  static new(entity: EntityNode): TypeDefNode {
     const reference = entity.relations.map(rel => new ParameterNode(rel.refPropertyName(), rel.refType()));
     const referencedBy = entity
       .findReferencedRelations()
@@ -15,7 +15,7 @@ export class TypeDefNode {
     ]);
   }
 
-  static deletedNode(entity: EntityNode) {
+  static deletedNode(entity: EntityNode): TypeDefNode {
     return new TypeDefNode(
       `Deleted${entity.entityName}`,
       entity.identifiableFields().map(it => it.toParam()),

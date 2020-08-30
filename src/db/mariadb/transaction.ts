@@ -12,7 +12,7 @@ export class MariaDBTransaction extends SQLTransaction {
     return result;
   }
 
-  async rollback() {
+  async rollback(): Promise<void> {
     const result = await this.connection.rollback();
     this.connection.end();
     return result;

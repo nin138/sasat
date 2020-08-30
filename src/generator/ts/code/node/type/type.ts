@@ -8,7 +8,7 @@ import { Identifier } from '../expressions';
 
 export type TsType = TypeReference | TypeLiteral | IntersectionType | ArrayType | UnionType;
 
-// @ts-ignore
-export const isCode = (t: TsType): t is TsCode => t instanceof TsCode;
-export const pickCode = (types: (TsType | Identifier)[]): TsCode[] =>
+export const isCode = (t: unknown): t is TsCode => t instanceof TsCode;
+
+export const pickCode = (types: (TsType | Identifier | string)[]): TsCode[] =>
   types.filter(it => it instanceof TsCode) as TsCode[];

@@ -3,7 +3,7 @@ import { defaultConf } from '../../config/config';
 import { Console } from '../console';
 import * as fs from 'fs';
 
-export const init = () => {
+export const init = (): void => {
   if (fs.existsSync('./sasat.yml')) {
     Console.error('sasat.yml already exist');
     return;

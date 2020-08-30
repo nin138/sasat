@@ -19,7 +19,7 @@ export interface MigrationTable extends Table {
 export class TableMigrator implements MigrationTable {
   constructor(private table: TableHandler, private store: StoreMigrator) {}
 
-  get tableName() {
+  get tableName(): string {
     return this.table.tableName;
   }
 
@@ -27,11 +27,11 @@ export class TableMigrator implements MigrationTable {
     return this.table.column(columnName);
   }
 
-  showCreateTable() {
+  showCreateTable(): string {
     return this.table.showCreateTable();
   }
 
-  getIndexes() {
+  getIndexes(): DBIndex[] {
     return this.table.index;
   }
 

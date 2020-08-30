@@ -6,9 +6,10 @@ import { Column } from '../entity/column';
 import { TableHandler } from '../entity/table';
 import { PropertySignature } from '../generator/ts/code/node/propertySignature';
 import { TypeReference } from '../generator/ts/code/node/type/typeReference';
+import { TsType } from '../generator/ts/code/node/type/type';
 
 export class FieldNode {
-  static fromColumn(column: Column, table: TableHandler) {
+  static fromColumn(column: Column, table: TableHandler): FieldNode {
     return new FieldNode(
       column.name,
       column.type,
@@ -28,15 +29,15 @@ export class FieldNode {
     public readonly isAutoIncrement: boolean,
     public readonly onCreateCurrentTimestamp: boolean,
   ) {}
-  public isRequiredToIdentify() {
+  public isRequiredToIdentify(): boolean {
     return this.isPrimary;
   }
 
-  public tsType() {
+  public tsType(): string {
     return columnTypeToTsType(this.dbType) + (this.isNullable ? '| null' : '');
   }
 
-  public isRequiredOnCreate() {
+  public isRequiredOnCreate(): boolean {
     if (this.isAutoIncrement) return false;
     return this.defaultValue == null && !this.isNullable;
   }

@@ -1,4 +1,4 @@
-import { CodeGenerator } from '../generator';
+import { CodeGenerator, NoUpdateFiles } from '../generator';
 import { EntityNode } from '../../node/entityNode';
 import { RepositoryNode } from '../../node/repositoryNode';
 import { RootNode } from '../../node/rootNode';
@@ -52,7 +52,7 @@ export class TsCodeGenerator implements CodeGenerator {
     return new ContextGenerator().generate(root.contexts).toString();
   }
 
-  generateOnceFiles() {
+  generateOnceFiles(): NoUpdateFiles {
     return staticFiles;
   }
 }

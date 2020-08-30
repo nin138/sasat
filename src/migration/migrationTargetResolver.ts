@@ -9,10 +9,10 @@ export enum Direction {
 }
 
 export class MigrationTargetResolver {
-  static getMigrationTable() {
+  static getMigrationTable(): string {
     return config().migration.table || '__migration__';
   }
-  static getMigrationDir() {
+  static getMigrationDir(): string {
     return path.join(process.cwd(), config().migration.dir);
   }
 

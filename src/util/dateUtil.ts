@@ -1,4 +1,4 @@
-export const getCurrentDateTimeString = () => {
+export const getCurrentDateTimeString = (): string => {
   const pad = (number: number) => {
     if (number < 10) {
       return '0' + number;

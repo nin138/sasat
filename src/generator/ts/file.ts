@@ -10,14 +10,14 @@ export class TsFile extends TsCode {
     this.mergeImport(...statements);
     this.statements = statements;
   }
-  protected toTsString() {
+  protected toTsString(): string {
     const string = [...this.resolveImport(this.importDeclarations), ...this.statements]
       .map(it => it.toString())
       .join('\n');
     return TsFile.prettier(string);
   }
 
-  protected resolveImport(imports: ImportDeclaration[]) {
+  protected resolveImport(imports: ImportDeclaration[]): ImportDeclaration[] {
     const map: Record<string, string[]> = {};
     imports.forEach(it => {
       if (!map[it.module]) {

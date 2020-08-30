@@ -13,11 +13,11 @@ export class TypeReference extends TsCode {
     return this;
   }
 
-  partial() {
+  partial(): TypeReference {
     return new TypeReference('Partial', [this]);
   }
 
-  pick(...properties: string[]) {
+  pick(...properties: string[]): TypeReference {
     return new TypeReference('Pick', [this, new Identifier(properties.map(it => `'${it}'`).join('|'))]);
   }
 

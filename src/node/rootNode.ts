@@ -4,6 +4,9 @@ import { EntityName } from '../entity/entityName';
 import { RelationNode } from './relationNode';
 import { DataStoreHandler } from '../entity/dataStore';
 import { ContextNodeFactory } from '../parser/nodeFactory/contextNodeFactory';
+import { EntityNode } from './entityNode';
+import { QueryNode } from './gql/queryNode';
+import { MutationNode } from './gql/mutationNode';
 
 export class RootNode {
   readonly repositories: RepositoryNode[] = [];
@@ -12,7 +15,7 @@ export class RootNode {
     this.contexts = new ContextNodeFactory().create(store.tables);
   }
 
-  addRepository(...repositoryNode: RepositoryNode[]) {
+  addRepository(...repositoryNode: RepositoryNode[]): void {
     this.repositories.push(...repositoryNode);
   }
 
@@ -22,15 +25,15 @@ export class RootNode {
       .filter(it => it !== undefined) as RelationNode[];
   }
 
-  entities() {
+  entities(): EntityNode[] {
     return this.repositories.map(it => it.entity);
   }
 
-  queries() {
+  queries(): QueryNode[] {
     return this.repositories.flatMap(it => it.queries);
   }
 
-  mutations() {
+  mutations(): MutationNode[] {
     return this.repositories.flatMap(it => it.mutations);
   }
 }

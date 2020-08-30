@@ -30,7 +30,7 @@ export type ComparisonExpression<T> = Partial<
   __type?: AndOr;
 };
 
-export const comparisonExpressionToSql = (exp: ComparisonExpression<unknown>) => {
+export const comparisonExpressionToSql = (exp: ComparisonExpression<unknown>): string => {
   const type = Object.prototype.hasOwnProperty.call(exp, '__type') ? exp.__type || 'AND' : 'AND';
   return Object.entries(exp)
     .map(([key, value]) => {

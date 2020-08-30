@@ -46,11 +46,11 @@ export class NormalColumn implements Column {
     return columnToSql(this.data);
   }
 
-  isReference() {
+  isReference(): this is ReferenceColumn {
     return false;
   }
 
-  serialize() {
+  serialize(): ColumnData {
     return this.data;
   }
 

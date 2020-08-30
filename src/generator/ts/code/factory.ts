@@ -27,6 +27,7 @@ import { PropertyModifiers } from './node/modifier/propertyModifiers';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const createFactory = <T, C extends new (...args: any[]) => T>(Create: C) => {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   return (...args: ConstructorParameters<C>) => new Create(...args);
 };

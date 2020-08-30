@@ -1,6 +1,6 @@
 export class ImportDeclaration {
   constructor(public readonly types: string[], public readonly module: string) {}
-  toString() {
+  toString(): string {
     return `import {${this.types.join(',')}} from "${this.module}";`;
   }
 }

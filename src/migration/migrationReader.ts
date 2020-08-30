@@ -15,7 +15,7 @@ export class MigrationReader {
     return store;
   }
 
-  static readMigration(store: StoreMigrator, fileName: string, direction: Direction) {
+  static readMigration(store: StoreMigrator, fileName: string, direction: Direction): StoreMigrator {
     const file = fs.readFileSync(path.join(MigrationTargetResolver.getMigrationDir(), fileName)).toString();
     // tslint:disable-next-line
     const Class = eval(ts.transpile(file));

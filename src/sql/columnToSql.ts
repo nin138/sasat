@@ -3,7 +3,7 @@ import * as SqlString from 'sqlstring';
 import { ColumnData } from '../migration/column/columnData';
 import { escapeName } from './escape';
 
-export const columnToSql = (column: ColumnData) => {
+export const columnToSql = (column: ColumnData): string => {
   const words = [escapeName(column.columnName), column.type];
   if (column.length) words.push(`(${[column.length, column.scale].filter(it => it !== undefined).join(',')})`);
   if (column.signed === true) words.push('SIGNED');

@@ -17,22 +17,22 @@ export interface Table {
 }
 
 export class TableHandler implements Table {
-  static tableNameToEntityName(tableName: string) {
+  static tableNameToEntityName(tableName: string): string {
     return capitalizeFirstLetter(tableName);
   }
   private indexes: DBIndex[];
-  get index() {
+  get index(): DBIndex[] {
     return this.indexes;
   }
   private _columns: Column[];
-  get columns() {
+  get columns(): Column[] {
     return this._columns;
   }
   primaryKey: string[];
   readonly uniqueKeys: string[][];
   readonly tableName: string;
   private _gqlOption: GqlOption = getDefaultGqlOption();
-  get gqlOption() {
+  get gqlOption(): GqlOption {
     return this._gqlOption;
   }
 
@@ -49,13 +49,13 @@ export class TableHandler implements Table {
     return this.columns.find(it => it.name === columnName);
   }
 
-  addColumn(column: Column, isPrimary = false, isUnique = false) {
+  addColumn(column: Column, isPrimary = false, isUnique = false): void {
     this.columns.push(column);
     if (isPrimary) this.setPrimaryKey(column.name);
     if (isUnique) this.addUniqueKey(column.name);
   }
 
-  dropColumn(columnName: string) {
+  dropColumn(columnName: string): void {
     this._columns = this._columns.filter(it => it.name !== columnName);
   }
 
@@ -135,7 +135,7 @@ REFERENCES ${escapeName(ref.data.targetTable)} \
     return new EntityName(TableHandler.tableNameToEntityName(this.tableName));
   }
 
-  setGqlOption(option: NestedPartial<GqlOption>) {
+  setGqlOption(option: NestedPartial<GqlOption>): void {
     this._gqlOption = mergeGqlOption(this.gqlOption, option);
   }
 

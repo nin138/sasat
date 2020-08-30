@@ -22,7 +22,7 @@ import { tsg } from '../code/factory';
 export class GeneratedRepositoryGenerator {
   constructor(private node: RepositoryNode) {}
 
-  generate() {
+  generate(): TsFile {
     const node = this.node;
     const entityPath = Directory.entityPath(Directory.paths.generatedDataSource, node.entityName);
     return new TsFile(

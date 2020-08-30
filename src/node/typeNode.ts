@@ -19,7 +19,7 @@ export class TypeNode {
     if (this.isArray) return tsg.arrayType(type);
     return type;
   }
-  toGqlString() {
+  toGqlString(): string {
     let type = this.typeName instanceof EntityName ? this.typeName.name : columnTypeToGqlPrimitive(this.typeName);
     if (!this.isNullable) type = type + '!';
     if (this.isArray) type = `[${type}]${this.isArrayNullable ? '' : '!'}`;

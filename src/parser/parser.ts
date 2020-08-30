@@ -17,7 +17,7 @@ export class Parser {
     return root;
   }
 
-  static paramsToQueryName(...params: string[]) {
+  static paramsToQueryName(...params: string[]): string {
     return 'findBy' + params.map(capitalizeFirstLetter).join('And');
   }
 

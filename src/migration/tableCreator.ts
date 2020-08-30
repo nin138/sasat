@@ -31,7 +31,7 @@ export class TableCreator implements TableBuilder {
     return new ColumnCreator(this, name);
   }
 
-  addColumn(column: ColumnBuilder) {
+  addColumn(column: ColumnBuilder): void {
     this.columns.push(column);
   }
 

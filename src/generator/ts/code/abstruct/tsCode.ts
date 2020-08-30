@@ -7,7 +7,7 @@ export abstract class TsCode {
     return this;
   }
 
-  toString() {
+  toString(): string {
     return this.codePrefix() + this.toTsString();
   }
 
@@ -15,7 +15,7 @@ export abstract class TsCode {
     return '';
   }
 
-  protected mergeImport(...code: Array<TsCode | undefined>) {
+  protected mergeImport(...code: Array<TsCode | undefined>): void {
     code.forEach(it => {
       if (it) this.importDeclarations.push(...it.importDeclarations);
     });

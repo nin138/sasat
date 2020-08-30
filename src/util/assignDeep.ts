@@ -13,7 +13,7 @@ const assign = (target: Obj, key: string, value: any) => {
   }
 };
 
-export const assignDeep = (base: Obj, ...objects: Obj[]) => {
+export const assignDeep = (base: Obj, ...objects: Obj[]): Obj => {
   objects.forEach(obj => {
     if (typeof obj === 'object') {
       Object.entries(obj).forEach(([key, value]) => {

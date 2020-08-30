@@ -1,7 +1,7 @@
 import { GqlPrimitive } from './types';
 import { DBColumnTypes } from '../../migration/column/columnTypes';
 
-export const columnTypeToGqlPrimitive = (type: DBColumnTypes) => {
+export const columnTypeToGqlPrimitive = (type: DBColumnTypes): GqlPrimitive => {
   switch (type) {
     case DBColumnTypes.tinyInt:
     case DBColumnTypes.smallInt:

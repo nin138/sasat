@@ -13,10 +13,10 @@ export class MySqlTransaction extends SQLTransaction {
     return result;
   }
 
-  async rollback() {
-    const result = await promisify(this.connection.rollback).bind(this.connection)();
+  async rollback(): Promise<void> {
+    await promisify(this.connection.rollback).bind(this.connection)();
     this.connection.end();
-    return result;
+    return;
   }
 
   protected execSql(sql: string): Promise<QueryResponse | CommandResponse> {

@@ -13,11 +13,11 @@ export class DBIndex implements Index {
     return `index_${this.tableName}__${columns.join('_')}`;
   }
 
-  addSql() {
+  addSql(): string {
     return `ALTER TABLE ${this.tableName} ADD INDEX ${this.constraintName}(${this.columns.join(',')})`;
   }
 
-  dropSql() {
+  dropSql(): string {
     return `DROP INDEX ${this.constraintName} ON ${this.tableName}`;
   }
 }

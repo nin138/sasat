@@ -1,5 +1,4 @@
 import { TsCode } from '../abstruct/tsCode';
-import { tsg } from '../factory';
 import { ExpressionStatement } from './ExpressionStatement';
 import { SpreadAssignment } from './spreadAssignment';
 import { PropertyAssignment } from './propertyAssignment';
@@ -10,21 +9,21 @@ import { Block } from './block';
 export abstract class TsExpression extends TsCode {
   private readonly _codeType = 'expression';
 
-  toStatement() {
+  toStatement(): ExpressionStatement {
     return new ExpressionStatement(this);
   }
 
-  call(...args: TsExpression[]) {
+  call(...args: TsExpression[]): CallExpression {
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     return new CallExpression(this, ...args);
   }
 
-  nonNull() {
+  nonNull(): NonNullExpression {
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     return new NonNullExpression(this);
   }
 
-  property(propertyName: string) {
+  property(propertyName: string): PropertyAccessExpression {
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     return new PropertyAccessExpression(this, propertyName);
   }
@@ -85,7 +84,7 @@ export class ObjectLiteral extends Literal {
     this.addProperties(...properties);
   }
 
-  addProperties(...properties: ObjectLiteralAssignable[]) {
+  addProperties(...properties: ObjectLiteralAssignable[]): this {
     this.properties.push(...properties);
     this.mergeImport(...properties);
     return this;
@@ -107,7 +106,7 @@ export class ArrowFunction extends Literal {
     return `(${Parameter.arrayToString(this.params)})${returnType} => ${this.body.toString()}`;
   }
 
-  toAsync() {
+  toAsync(): AsyncExpression {
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     return new AsyncExpression(this);
   }

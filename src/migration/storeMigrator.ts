@@ -19,7 +19,7 @@ export class StoreMigrator implements MigrationStore {
     return this.tables.find(it => it.tableName === tableName);
   }
 
-  addQuery(...query: string[]) {
+  addQuery(...query: string[]): void {
     this.migrationQueue.push(...query);
   }
 
@@ -34,7 +34,7 @@ export class StoreMigrator implements MigrationStore {
     return this;
   }
 
-  dropTable(tableName: string) {
+  dropTable(tableName: string): this {
     this.addQuery(`DROP TABLE ${tableName}`);
     return this;
   }
@@ -44,11 +44,11 @@ export class StoreMigrator implements MigrationStore {
     return this;
   }
 
-  getSql() {
+  getSql(): string[] {
     return this.migrationQueue;
   }
 
-  resetQueue() {
+  resetQueue(): void {
     this.migrationQueue = [];
   }
 

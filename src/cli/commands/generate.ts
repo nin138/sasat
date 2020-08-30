@@ -4,7 +4,7 @@ import { CodeGenerateController } from '../../generator/controller';
 import { Console } from '../console';
 import { MigrationReader } from '../../migration/migrationReader';
 
-export const generate = async () => {
+export const generate = async (): Promise<void> => {
   try {
     const store = new MigrationReader().read();
     const storeHandler = new DataStoreHandler(store.serialize());

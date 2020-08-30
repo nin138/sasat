@@ -1,9 +1,9 @@
 import { SerializedColumn } from './serializedStore';
 import { ReferenceColumn } from './referenceColumn';
 import { TableHandler } from './table';
-import { NormalColumn } from './column';
+import { Column, NormalColumn } from './column';
 
-export const assembleColumn = (data: SerializedColumn, table: TableHandler) => {
+export const assembleColumn = (data: SerializedColumn, table: TableHandler): Column => {
   if (data.type === 'REFERENCE') {
     return new ReferenceColumn(data, table);
   }

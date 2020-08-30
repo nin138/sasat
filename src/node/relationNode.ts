@@ -6,7 +6,7 @@ import { TypeNode } from './typeNode';
 import { EntityNode } from './entityNode';
 
 export class RelationNode {
-  static fromReference(entity: EntityNode, ref: ReferenceColumn) {
+  static fromReference(entity: EntityNode, ref: ReferenceColumn): RelationNode {
     return new RelationNode(
       entity,
       ref.data.relationName || ref.table.getEntityName().name,
@@ -25,19 +25,19 @@ export class RelationNode {
     readonly relation: Relation,
   ) {}
 
-  refPropertyName() {
+  refPropertyName(): string {
     return this.relationName || this.toEntityName.name;
   }
 
-  referencedByPropertyName() {
+  referencedByPropertyName(): string {
     return (this.relationName || '') + this.parent.entityName.name;
   }
 
-  refType() {
+  refType(): TypeNode {
     return new TypeNode(this.toEntityName, false, false);
   }
 
-  referenceByType() {
+  referenceByType(): TypeNode {
     if (this.relation === Relation.Many) return new TypeNode(this.parent.entityName, true, false);
     return new TypeNode(this.parent.entityName, false, this.relation !== Relation.One);
   }

@@ -45,7 +45,7 @@ export abstract class SasatRepository<Entity, Creatable, Identifiable>
     } as unknown) as Entity;
   }
 
-  async delete(entity: Identifiable) {
+  async delete(entity: Identifiable): Promise<CommandResponse> {
     return this.client.rawCommand(`DELETE FROM ${this.tableName} WHERE ${this.getIdentifiableWhereClause(entity)}`);
   }
 

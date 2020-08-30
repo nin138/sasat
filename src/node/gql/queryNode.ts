@@ -8,7 +8,7 @@ export class QueryNode {
     readonly queryParams: ParameterNode[],
     readonly returnType: TypeNode,
   ) {}
-  toGqlString() {
+  toGqlString(): string {
     return `${this.queryName}${ParameterNode.parametersToGqlString(
       ...this.queryParams,
     )}: ${this.returnType.toGqlString()}`;

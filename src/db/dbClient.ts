@@ -52,7 +52,7 @@ export abstract class DBClient extends SQLClient {
     super();
     this._released = false;
   }
-  public isReleased() {
+  public isReleased(): boolean {
     return this._released;
   }
   abstract transaction(): Promise<SQLTransaction>;

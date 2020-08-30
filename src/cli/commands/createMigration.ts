@@ -22,7 +22,7 @@ export class ${capitalizeFirstLetter(className)} implements SasatMigration {
 
 `;
 
-export const createMigrationFile = (migrationName: string) => {
+export const createMigrationFile = (migrationName: string): string => {
   const date = new Date();
   const pad = (val: number) => val.toString().padStart(2, '0');
   const now =
@@ -40,7 +40,7 @@ export const createMigrationFile = (migrationName: string) => {
   return fileName;
 };
 
-export const createMigration = (args: string) => {
+export const createMigration = (args: string): void => {
   if (!args) {
     Console.error('missing argument migration name');
     return;
