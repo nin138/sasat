@@ -5,10 +5,6 @@ import { TypeNode } from '../../node/typeNode';
 import { ParameterNode } from '../../node/parameterNode';
 
 export class QueryParser {
-  parse(tables: TableHandler[]): QueryNode[] {
-    return tables.flatMap(it => this.queries(it));
-  }
-
   queries(table: TableHandler) {
     return [this.listQuery(table), this.primaryQuery(table)];
   }

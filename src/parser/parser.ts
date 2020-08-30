@@ -13,7 +13,7 @@ import { GqlParser } from './gqlParser';
 export class Parser {
   constructor(private store: DataStoreHandler) {}
   parse(): RootNode {
-    const root = new RootNode(new GqlParser().parse(this.store), new GqlParser().getContext(this.store.tables));
+    const root = new RootNode(new GqlParser().getContext(this.store.tables));
     const repositories = this.store.tables.map(it => new RepositoryNode(root, it, this.getQueries(it)));
     root.addRepository(...repositories);
     return root;

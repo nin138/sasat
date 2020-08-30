@@ -7,7 +7,7 @@ export class RepositoryGenerator {
   generate(node: RepositoryNode): TsFile {
     return new TsFile(
       tsg
-        .class(node.entityName.name)
+        .class(node.entityName.dataSourceName())
         .extends(
           tsg.extends(
             tsg

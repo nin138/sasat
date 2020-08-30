@@ -1,18 +1,8 @@
-import { DataStoreHandler } from '../entity/dataStore';
-import { GqlResolverParser } from './gql/gqlResolverParser';
 import { ContextNode } from '../node/gql/contextNode';
 import { TypeNode } from '../node/typeNode';
-import { ResolverNode } from '../node/gql/resolverNode';
 import { TableHandler } from '../entity/table';
-import { GqlNode } from '../node/rootNode';
 
 export class GqlParser {
-  parse(store: DataStoreHandler): GqlNode {
-    return {
-      resolvers: this.getResolvers(store),
-    };
-  }
-
   getContext(tables: TableHandler[]): ContextNode[] {
     const obj: Record<string, ContextNode> = {};
     tables.forEach(table =>
@@ -22,9 +12,5 @@ export class GqlParser {
       }),
     );
     return Object.values(obj);
-  }
-
-  private getResolvers(store: DataStoreHandler): ResolverNode[] {
-    return new GqlResolverParser().parse(store.tables);
   }
 }

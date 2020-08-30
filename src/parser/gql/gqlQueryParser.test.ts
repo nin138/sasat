@@ -1,10 +1,9 @@
-import { GqlMutationParser } from './gqlMutationParser';
 import { testStoreHandler } from '../../../test/testDataStore';
 import { TableHandler } from '../../entity/table';
-import { GqlQueryParser } from './gqlQueryParser';
+import { QueryParser } from './gqlQueryParser';
 
 describe('GqlQueryParser', () => {
-  const parser = new GqlQueryParser();
+  const parser = new QueryParser();
   const post = testStoreHandler.table('post') as TableHandler;
   it('listQuery', () => {
     expect(parser['listQuery']([post])).toStrictEqual([

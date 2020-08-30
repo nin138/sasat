@@ -25,6 +25,14 @@ export class RelationNode {
     readonly relation: Relation,
   ) {}
 
+  refPropertyName() {
+    return this.toEntityName.name;
+  }
+
+  referencedByPropertyName() {
+    return this.parent.entityName.name;
+  }
+
   refType() {
     return new TypeNode(this.toEntityName, false, false);
   }

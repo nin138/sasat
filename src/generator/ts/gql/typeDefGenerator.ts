@@ -9,7 +9,7 @@ import { SubscriptionFilterNode } from '../../../node/gql/subscriptionFilterNode
 
 export class TypeDefGenerator {
   generate(root: RootNode): TsFile {
-    const typeDefs = root.entities().flatMap(it => it.typeDefs());
+    const typeDefs = root.entities().flatMap(it => it.allTypeDefs());
     const types = [
       ...this.createTypes(typeDefs),
       this.createQuery(root.queries()),

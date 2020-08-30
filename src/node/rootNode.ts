@@ -1,17 +1,11 @@
 import { RepositoryNode } from './repositoryNode';
 import { ContextNode } from './gql/contextNode';
-import { ResolverNode } from './gql/resolverNode';
 import { EntityName } from '../entity/entityName';
 import { RelationNode } from './relationNode';
 
-// TODO remove
-export interface GqlNode {
-  resolvers: ResolverNode[];
-}
-
 export class RootNode {
   readonly repositories: RepositoryNode[] = [];
-  constructor(readonly gql: GqlNode, readonly contexts: ContextNode[]) {}
+  constructor(readonly contexts: ContextNode[]) {}
 
   addRepository(...repositoryNode: RepositoryNode[]) {
     this.repositories.push(...repositoryNode);

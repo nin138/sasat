@@ -15,8 +15,16 @@ export class EntityNode {
     this.relations = table.getReferenceColumns().map(it => RelationNode.fromReference(this, it));
   }
 
-  typeDefs(): TypeDefNode[] {
-    return [TypeDefNode.new(this), TypeDefNode.deletedNode(this)];
+  allTypeDefs(): TypeDefNode[] {
+    return [this.typeDef(), this.deleteTypeDef()];
+  }
+
+  typeDef(): TypeDefNode {
+    return TypeDefNode.new(this);
+  }
+
+  deleteTypeDef(): TypeDefNode {
+    return TypeDefNode.deletedNode(this);
   }
 
   public identifiableFields(): FieldNode[] {
