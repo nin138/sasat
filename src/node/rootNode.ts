@@ -2,10 +2,15 @@ import { RepositoryNode } from './repositoryNode';
 import { ContextNode } from './gql/contextNode';
 import { EntityName } from '../entity/entityName';
 import { RelationNode } from './relationNode';
+import { DataStoreHandler } from '../entity/dataStore';
+import { ContextNodeFactory } from '../parser/nodeFactory/contextNodeFactory';
 
 export class RootNode {
   readonly repositories: RepositoryNode[] = [];
-  constructor(readonly contexts: ContextNode[]) {}
+  readonly contexts: ContextNode[];
+  constructor(private readonly store: DataStoreHandler) {
+    this.contexts = new ContextNodeFactory().create(store.tables);
+  }
 
   addRepository(...repositoryNode: RepositoryNode[]) {
     this.repositories.push(...repositoryNode);

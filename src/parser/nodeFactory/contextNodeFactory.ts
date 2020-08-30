@@ -1,9 +1,9 @@
-import { ContextNode } from '../node/gql/contextNode';
-import { TypeNode } from '../node/typeNode';
-import { TableHandler } from '../entity/table';
+import { TableHandler } from '../../entity/table';
+import { ContextNode } from '../../node/gql/contextNode';
+import { TypeNode } from '../../node/typeNode';
 
-export class GqlParser {
-  getContext(tables: TableHandler[]): ContextNode[] {
+export class ContextNodeFactory {
+  create(tables: TableHandler[]): ContextNode[] {
     const obj: Record<string, ContextNode> = {};
     tables.forEach(table =>
       table.gqlOption.mutation.fromContextColumns.forEach(it => {

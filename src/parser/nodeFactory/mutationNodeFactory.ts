@@ -5,8 +5,8 @@ import { ContextParamNode } from '../../node/gql/contextParamNode';
 import { SubscriptionFilterNode } from '../../node/gql/subscriptionFilterNode';
 import { EntityNode } from '../../node/entityNode';
 
-export class GqlMutationParser {
-  parse = (table: TableHandler, entity: EntityNode): MutationNode[] => {
+export class MutationNodeFactory {
+  create = (table: TableHandler, entity: EntityNode): MutationNode[] => {
     const result: MutationNode[] = [];
     const option = table.gqlOption;
 

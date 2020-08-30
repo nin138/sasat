@@ -8,13 +8,11 @@ import { FindMethodNode } from '../node/findMethod';
 import { ParameterNode } from '../node/parameterNode';
 import { TypeNode } from '../node/typeNode';
 import { RootNode } from '../node/rootNode';
-import { GqlParser } from './gqlParser';
 
 export class Parser {
-  constructor(private store: DataStoreHandler) {}
-  parse(): RootNode {
-    const root = new RootNode(new GqlParser().getContext(this.store.tables));
-    const repositories = this.store.tables.map(it => new RepositoryNode(root, it, this.getQueries(it)));
+  parse(store: DataStoreHandler): RootNode {
+    const root = new RootNode(store);
+    const repositories = store.tables.map(it => new RepositoryNode(root, it, this.getQueries(it)));
     root.addRepository(...repositories);
     return root;
   }
@@ -46,7 +44,7 @@ export class Parser {
 
   private getQueries(table: TableHandler): FindMethodNode[] {
     const methods: FindMethodNode[] = [];
-    if (table.primaryKey.length > 1 || !table.column(table.primaryKey[0])!.isReference()) {
+    if (table.primaryKey.length > 0 || !table.column(table.primaryKey[0])!.isReference()) {
       methods.push(this.createPrimaryQuery(table));
     }
     methods.push(

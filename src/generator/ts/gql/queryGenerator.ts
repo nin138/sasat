@@ -1,69 +1,45 @@
 import { TsFile } from '../file';
-import { VariableDeclaration } from '../code/node/variableDeclaration';
 import { PropertyAssignment } from '../code/node/propertyAssignment';
-import { Parameter } from '../code/node/parameter';
 import { TypeLiteral } from '../code/node/type/typeLiteral';
-
-import {
-  ArrowFunction,
-  Identifier,
-  NewExpression,
-  ObjectLiteral,
-  PropertyAccessExpression,
-} from '../code/node/expressions';
 import { RepositoryNode } from '../../../node/repositoryNode';
 import { Directory } from '../../../constants/directory';
-import { plural } from '../../../util/stringUtil';
+import { tsg } from '../code/factory';
+import { QueryNode } from '../../../node/gql/queryNode';
 
 export class QueryGenerator {
   generate(nodes: RepositoryNode[]): TsFile {
     return new TsFile(
-      new VariableDeclaration(
-        'const',
-        new Identifier('query'),
-        new ObjectLiteral(...nodes.flatMap(node => this.createProperty(node))),
-      ).export(),
+      tsg.variable('const', tsg.identifier('query'), tsg.object(...nodes.flatMap(node => this.entity(node)))).export(),
     );
   }
-
-  private createProperty(node: RepositoryNode): PropertyAssignment[] {
-    return [
-      new PropertyAssignment(
-        node.entityName.lowerCase(),
-        new ArrowFunction(
-          [
-            new Parameter('_', new TypeLiteral()),
-            new Parameter(
-              `{ ${node.primaryKeys.join(',')} }`,
-              node.entityName.getTypeReference(Directory.paths.generated).pick(...node.primaryKeys),
-            ),
-          ],
+  private entity(node: RepositoryNode): PropertyAssignment[] {
+    const createParams = (query: QueryNode) => {
+      if (query.queryParams.length === 0) return [];
+      const paramNames = query.queryParams.map(it => it.name);
+      return [
+        tsg.parameter('_', new TypeLiteral()),
+        tsg.parameter(
+          `{ ${paramNames.join(',')} }`,
+          node.entityName.getTypeReference(Directory.paths.generated).pick(...paramNames),
+        ),
+      ];
+    };
+    return node.queries.map(it =>
+      tsg.propertyAssign(
+        it.queryName,
+        tsg.arrowFunc(
+          createParams(it),
           undefined,
-          new PropertyAccessExpression(
-            new NewExpression(
-              new Identifier(node.entityName.dataSourceName()).importFrom(
-                Directory.dataSourcePath(Directory.paths.generated, node.entityName),
-              ),
-            ),
-            node.primaryFindMethod().name,
-          ).call(...node.primaryKeys.map(it => new Identifier(it))),
+          tsg
+            .new(
+              tsg
+                .identifier(node.entityName.dataSourceName())
+                .importFrom(Directory.dataSourcePath(Directory.paths.generated, node.entityName)),
+            )
+            .property(it.repoMethodName)
+            .call(...it.queryParams.map(it => tsg.identifier(it.name))),
         ),
       ),
-      new PropertyAssignment(
-        plural(node.entityName.lowerCase()),
-        new ArrowFunction(
-          [],
-          undefined,
-          new PropertyAccessExpression(
-            new NewExpression(
-              new Identifier(node.entityName.dataSourceName()).importFrom(
-                Directory.dataSourcePath(Directory.paths.generated, node.entityName),
-              ),
-            ),
-            'list',
-          ).call(),
-        ),
-      ),
-    ];
+    );
   }
 }

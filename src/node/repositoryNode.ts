@@ -5,8 +5,8 @@ import { RootNode } from './rootNode';
 import { TableHandler } from '../entity/table';
 import { QueryNode } from './gql/queryNode';
 import { MutationNode } from './gql/mutationNode';
-import { QueryParser } from '../parser/gql/gqlQueryParser';
-import { GqlMutationParser } from '../parser/gql/gqlMutationParser';
+import { QueryNodeFactory } from '../parser/nodeFactory/queryNodeFactory';
+import { MutationNodeFactory } from '../parser/nodeFactory/mutationNodeFactory';
 
 export class RepositoryNode {
   readonly tableName: string;
@@ -22,8 +22,8 @@ export class RepositoryNode {
     this.primaryKeys = table.primaryKey;
     this.entity = this.createEntity(table);
     this.autoIncrementColumn = table.columns.find(it => it.getData().autoIncrement)?.name;
-    this.queries = new QueryParser().queries(table);
-    this.mutations = new GqlMutationParser().parse(table, this.entity);
+    this.queries = new QueryNodeFactory().create(table);
+    this.mutations = new MutationNodeFactory().create(table, this.entity);
   }
   private createEntity(table: TableHandler) {
     return new EntityNode(this, table);
