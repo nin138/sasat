@@ -18,7 +18,7 @@ export class RelationNode {
   }
   constructor(
     readonly parent: EntityNode,
-    readonly relationName: string,
+    readonly relationName: string | undefined,
     readonly fromColumn: string,
     readonly toColumn: string,
     readonly toEntityName: EntityName,
@@ -26,11 +26,11 @@ export class RelationNode {
   ) {}
 
   refPropertyName() {
-    return this.toEntityName.name;
+    return this.relationName || this.toEntityName.name;
   }
 
   referencedByPropertyName() {
-    return this.parent.entityName.name;
+    return (this.relationName || '') + this.parent.entityName.name;
   }
 
   refType() {
