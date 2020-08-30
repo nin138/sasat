@@ -35,7 +35,7 @@
     "pluralize": "^8.0.0",
     "prettier": "^2.0.0",
     "sqlstring": "^2.3.1",
-    "typescript": "3.9.7"
+    "typescript": "4.0.2"
   },
   "devDependencies": {
     "@types/fs-extra": "9.0.1",
@@ -63,7 +63,7 @@
   },
   "peerDependencies": {
     "apollo-server": "^2.0.0",
-    "typescript": "^3.7.4"
+    "typescript": "^3.7.4 || ^4.0.0"
   },
   "lint-staged": {
     "*.ts": [
