@@ -8,10 +8,12 @@ export class Stock implements SasatMigration {
       table.references({
         targetTable: 'user',
         targetColumn: 'userId',
+        relationName: 'stock_user',
         columnName: 'user',
         relation: Relation.Many,
       });
       table.references({
+        relationName: 'stockPost',
         targetTable: 'post',
         targetColumn: 'postId',
         columnName: 'post',

@@ -1,19 +1,19 @@
-import { IrEntity } from '../ir/entity';
-import { IrRepository } from '../ir/repository';
-import { IrGql } from '../ir/gql';
-import { Ir } from '../ir/ir';
-import { IrGqlContext } from '../ir/gql/context';
+import { EntityNode } from '../node/entityNode';
+import { RepositoryNode } from '../node/repositoryNode';
+import { RootNode } from '../node/rootNode';
+
+export type NoUpdateFiles = Array<{ name: string; body: string }>;
 
 export interface CodeGenerator {
   readonly fileExt: string;
-  generateEntity(entity: IrEntity): string;
-  generateGeneratedRepository(repository: IrRepository): string;
-  generateRepository(repository: IrRepository): string;
-  generateGqlTypeDefs(gql: IrGql): string;
-  generateGqlResolver(gql: IrGql): string;
-  generateGqlQuery(gql: IrGql): string;
-  generateGqlMutation(gql: IrGql): string;
-  generateGqlSubscription(gql: IrGql): string;
-  generateGqlContext(contexts: IrGqlContext[]): string;
-  generateOnceFiles(ir: Ir): Array<{ name: string; body: string }>;
+  generateEntity(entity: EntityNode): string;
+  generateGeneratedRepository(repository: RepositoryNode): string;
+  generateRepository(repository: RepositoryNode): string;
+  generateGqlTypeDefs(root: RootNode): string;
+  generateGqlResolver(root: RootNode): string;
+  generateGqlQuery(root: RootNode): string;
+  generateGqlMutation(root: RootNode): string;
+  generateGqlSubscription(root: RootNode): string;
+  generateGqlContext(root: RootNode): string;
+  generateOnceFiles(RootNode: RootNode): NoUpdateFiles;
 }

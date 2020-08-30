@@ -7,3 +7,4 @@ export { getDbClient } from './db/getDbClient';
 export { assignDeep } from './util/assignDeep';
 export { createTypeDef } from './createTypeDef';
 export { CompositeCondition } from './sql/expression/compositeCondition';
+export { CommandResponse, QueryResponse } from './db/dbClient';

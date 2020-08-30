@@ -27,9 +27,7 @@ export abstract class SQLClient implements SQLExecutor {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ...params: any[]
   ): Promise<QueryResponse> {
-    return this.execSql(formatQuery(templateString, ...params)) as Promise<
-      QueryResponse
-    >;
+    return this.execSql(formatQuery(templateString, ...params)) as Promise<QueryResponse>;
   }
 
   command(
@@ -37,14 +35,10 @@ export abstract class SQLClient implements SQLExecutor {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ...params: any[]
   ): Promise<CommandResponse> {
-    return this.execSql(formatQuery(templateString, ...params)) as Promise<
-      CommandResponse
-    >;
+    return this.execSql(formatQuery(templateString, ...params)) as Promise<CommandResponse>;
   }
 
-  protected abstract execSql(
-    sql: string,
-  ): Promise<QueryResponse | CommandResponse>;
+  protected abstract execSql(sql: string): Promise<QueryResponse | CommandResponse>;
 }
 
 export abstract class SQLTransaction extends SQLClient {

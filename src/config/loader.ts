@@ -7,8 +7,7 @@ export class SasatConfigLoader {
   private static loadFile(): PartialSasatConfig {
     const fileName = 'sasat.yml';
     const filepath = path.join(process.cwd(), fileName);
-    if (!fs.existsSync(filepath))
-      throw new Error(`${fileName} not Found in Project root folder`);
+    if (!fs.existsSync(filepath)) throw new Error(`${fileName} not Found in Project root folder`);
     return readYmlFile(filepath);
   }
 
@@ -32,12 +31,10 @@ export class SasatConfigLoader {
   private readValue(value: any): any {
     if (!value) return value;
     if (Array.isArray(value)) return value.map(it => this.readValue(it));
-    if (typeof value === 'string' && value.startsWith('$'))
-      return process.env[value.slice(1)];
+    if (typeof value === 'string' && value.startsWith('$')) return process.env[value.slice(1)];
     if (typeof value === 'object') {
       for (const key in value) {
-        if (Object.prototype.hasOwnProperty.call(value, key))
-          value[key] = this.readValue(value[key]);
+        if (Object.prototype.hasOwnProperty.call(value, key)) value[key] = this.readValue(value[key]);
       }
       return value;
     }

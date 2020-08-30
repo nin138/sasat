@@ -27,8 +27,7 @@ export class TableCreator implements TableBuilder {
   }
 
   column(name: string): ColumnCreator {
-    if (this.table.hasColumn(name))
-      throw new Error(`${this.tableName}.${name} already exists`);
+    if (this.table.hasColumn(name)) throw new Error(`${this.tableName}.${name} already exists`);
     return new ColumnCreator(this, name);
   }
 
@@ -54,11 +53,7 @@ export class TableCreator implements TableBuilder {
   create(): TableHandler {
     this.columns.forEach(column => {
       const { data, isPrimary, isUnique } = column.build();
-      this.table.addColumn(
-        new NormalColumn(data, this.table),
-        isPrimary,
-        isUnique,
-      );
+      this.table.addColumn(new NormalColumn(data, this.table), isPrimary, isUnique);
     });
     return this.table;
   }
@@ -69,19 +64,12 @@ export class TableCreator implements TableBuilder {
   }
 
   updatedAt(): TableBuilder {
-    this.column('updatedAt')
-      .timestamp()
-      .defaultCurrentTimeStamp()
-      .onUpdateCurrentTimeStamp()
-      .notNull();
+    this.column('updatedAt').timestamp().defaultCurrentTimeStamp().onUpdateCurrentTimeStamp().notNull();
     return this;
   }
 
   addIndex(...columns: string[]): TableBuilder {
-    this.table.addIndex(
-      `index_${this.tableName}__${columns.join('_')}`,
-      ...columns,
-    );
+    this.table.addIndex(`index_${this.tableName}__${columns.join('_')}`, ...columns);
     return this;
   }
 

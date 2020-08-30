@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "strict": false,
+    "noImplicitReturns": false,
+    "paths": {
+      "sasat": ["lib"]
+    }
+  }
+}

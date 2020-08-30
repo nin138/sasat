@@ -8,7 +8,6 @@ import { Relation } from './relation';
 export interface ReferenceColumnData {
   type: 'REFERENCE';
   targetTable: string;
-  // TODO optional
   targetColumn: string;
   columnName: string;
   relation: Relation;
@@ -39,9 +38,7 @@ export class ReferenceColumn implements Column {
   }
 
   getTargetColumn() {
-    return this.table.store
-      .table(this.data.targetTable)!
-      .column(this.data.targetColumn)!;
+    return this.table.store.table(this.data.targetTable)!.column(this.data.targetColumn)!;
   }
 
   getRootColumn(): NormalColumn {
@@ -77,9 +74,7 @@ export class ReferenceColumn implements Column {
   }
 }
 
-export const referenceToForeignKey = (
-  reference: ReferenceColumnData,
-): ForeignKey => ({
+export const referenceToForeignKey = (reference: ReferenceColumnData): ForeignKey => ({
   constraintName: `ref_${reference.targetTable}_${reference.targetColumn}`,
   columnName: reference.targetColumn,
   referenceTable: reference.targetTable,

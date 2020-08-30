@@ -18,9 +18,7 @@ export class MariaDBTransaction extends SQLTransaction {
     return result;
   }
 
-  protected async execSql(
-    sql: string,
-  ): Promise<QueryResponse | CommandResponse> {
+  protected async execSql(sql: string): Promise<QueryResponse | CommandResponse> {
     return this.connection.query(sql);
   }
 }

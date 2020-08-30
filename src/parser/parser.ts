@@ -1,146 +1,55 @@
-import { Ir } from '../ir/ir';
 import { DataStoreHandler } from '../entity/dataStore';
-import { IrEntity } from '../ir/entity';
 import { TableHandler } from '../entity/table';
 import { capitalizeFirstLetter } from '../util/stringUtil';
-import { IrQuery, IrRepository } from '../ir/repository';
 import { ReferenceColumn } from '../entity/referenceColumn';
-import { NormalColumn } from '../entity/column';
-import { DBColumnTypes } from '../migration/column/columnTypes';
 import { Relation } from '..';
-import {
-  creatableInterfaceName,
-  identifiableInterfaceName,
-} from '../constants/interfaceConstants';
+import { RepositoryNode } from '../node/repositoryNode';
+import { FindMethodNode } from '../node/findMethod';
+import { ParameterNode } from '../node/parameterNode';
+import { TypeNode } from '../node/typeNode';
+import { RootNode } from '../node/rootNode';
 
 export class Parser {
-  constructor(private store: DataStoreHandler) {}
-  parse(): Ir {
-    return {
-      repositories: this.store.tables.map(it => this.createRepository(it)),
-      entities: this.store.tables.map(it => this.createEntity(it)),
-    };
-  }
-
-  private createEntity(table: TableHandler): IrEntity {
-    const fields = table.columns.map(column => {
-      const data = column.getData();
-      return {
-        fieldName: column.name,
-        isPrimary: table.isColumnPrimary(column.name),
-        type: data.type,
-        nullable: !data.notNull,
-        default: data.default,
-        isNullableOnCreate:
-          data.default !== undefined || !data.notNull || data.autoIncrement,
-      };
-    });
-    return {
-      entityName: table.getEntityName(),
-      fields,
-    };
+  parse(store: DataStoreHandler): RootNode {
+    const root = new RootNode(store);
+    const repositories = store.tables.map(it => new RepositoryNode(root, it, this.getQueries(it)));
+    root.addRepository(...repositories);
+    return root;
   }
 
   static paramsToQueryName(...params: string[]) {
     return 'findBy' + params.map(capitalizeFirstLetter).join('And');
   }
 
-  private createPrimaryQuery(table: TableHandler): IrQuery {
-    return {
-      queryName: Parser.paramsToQueryName(...table.primaryKey),
-      returnType: table.getEntityName(),
-      isReturnsArray: false,
-      isReturnDefinitelyExist: false,
-      params: table.primaryKey.map(it => ({
-        name: it,
-        type: table.column(it)!.type,
-      })),
-    };
-  }
-
-  private createRefQuery(ref: ReferenceColumn): IrQuery {
-    return {
-      queryName: Parser.paramsToQueryName(ref.name),
-      returnType: ref.table.getEntityName(),
-      isReturnsArray: ref.data.relation === Relation.Many,
-      isReturnDefinitelyExist: false, // TODO RELATION
-      params: [{ name: ref.name, type: ref.type }],
-    };
-  }
-
-  private getQueries(table: TableHandler): IrQuery[] {
-    const queries: IrQuery[] = [];
-    if (
-      table.primaryKey.length > 1 ||
-      !table.column(table.primaryKey[0])!.isReference()
-    ) {
-      queries.push(this.createPrimaryQuery(table));
-    }
-    queries.push(
-      ...table.columns
-        .filter(column => column.isReference())
-        .map(it => this.createRefQuery(it as ReferenceColumn)),
+  private createPrimaryQuery(table: TableHandler): FindMethodNode {
+    return new FindMethodNode(
+      Parser.paramsToQueryName(...table.primaryKey),
+      table.primaryKey.map(it => {
+        const column = table.column(it)!;
+        return new ParameterNode(it, new TypeNode(column.type, false, false));
+      }),
+      new TypeNode(table.getEntityName(), false, true),
+      true,
     );
-    return queries;
   }
 
-  private createRepository(table: TableHandler): IrRepository {
-    const entityName = table.getEntityName();
-    const queries = this.getQueries(table);
-    const defaultValues: Array<{
-      columnName: string;
-      value: string | number | null;
-    }> = [];
-    const defaultCurrentTimestampColumns: string[] = [];
-    table.columns
-      .filter(it => !it.isReference())
-      .filter(
-        it =>
-          (it as NormalColumn).data.default ||
-          !(it as NormalColumn).data.notNull,
-      )
-      .forEach(it => {
-        const column: NormalColumn = it as NormalColumn;
-        if (
-          (column.type === DBColumnTypes.timestamp ||
-            column.type === DBColumnTypes.dateTime) &&
-          column.data.default === 'CURRENT_TIMESTAMP'
-        ) {
-          defaultCurrentTimestampColumns.push(column.name);
-          return;
-        }
-        defaultValues.push({
-          columnName: column.name,
-          value:
-            column.data.default === undefined
-              ? null
-              : (column.data.default as string),
-        });
-      });
-    return {
-      tableName: table.tableName,
-      entityName,
-      primaryKeys: table.primaryKey,
-      autoIncrementColumn: table.columns.find(
-        it => !it.isReference() && it.getData().autoIncrement,
-      )?.name,
-      defaultValues,
-      defaultCurrentTimestampColumns,
-      onUpdateCurrentTimestampColumns: table.columns
-        .filter(it => it.getData().onUpdateCurrentTimeStamp)
-        .map(it => it.name),
-      queries,
-      useClasses: [
-        {
-          path: `entity/${table.tableName}`,
-          classNames: [
-            entityName,
-            creatableInterfaceName(entityName),
-            identifiableInterfaceName(entityName),
-          ],
-        },
-      ],
-      subscription: table.gqlOption.subscription,
-    };
+  private createRefQuery(ref: ReferenceColumn): FindMethodNode {
+    return new FindMethodNode(
+      Parser.paramsToQueryName(ref.name),
+      [new ParameterNode(ref.name, new TypeNode(ref.type, false, false))],
+      new TypeNode(ref.table.getEntityName(), ref.data.relation === Relation.Many, false),
+      false,
+    );
+  }
+
+  private getQueries(table: TableHandler): FindMethodNode[] {
+    const methods: FindMethodNode[] = [];
+    if (table.primaryKey.length > 0 || !table.column(table.primaryKey[0])!.isReference()) {
+      methods.push(this.createPrimaryQuery(table));
+    }
+    methods.push(
+      ...table.columns.filter(column => column.isReference()).map(it => this.createRefQuery(it as ReferenceColumn)),
+    );
+    return methods;
   }
 }

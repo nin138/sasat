@@ -14,9 +14,7 @@ export class DBIndex implements Index {
   }
 
   addSql() {
-    return `ALTER TABLE ${this.tableName} ADD INDEX ${
-      this.constraintName
-    }(${this.columns.join(',')})`;
+    return `ALTER TABLE ${this.tableName} ADD INDEX ${this.constraintName}(${this.columns.join(',')})`;
   }
 
   dropSql() {

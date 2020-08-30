@@ -1,11 +1,4 @@
-import {
-  DBColumnTypes,
-  DBDateTypes,
-  DBFloatingTypes,
-  DBIntegerTypes,
-  DBStringTypes,
-  DBTextTypes,
-} from './columnTypes';
+import { DBColumnTypes, DBDateTypes, DBFloatingTypes, DBIntegerTypes, DBStringTypes, DBTextTypes } from './columnTypes';
 import { SqlValueType } from '../../db/dbClient';
 
 export interface ColumnData {
@@ -18,6 +11,7 @@ export interface ColumnData {
   autoIncrement: boolean;
   length: number | undefined;
   scale: number | undefined;
+  defaultCurrentTimeStamp: boolean;
   onUpdateCurrentTimeStamp: boolean;
 }
 
