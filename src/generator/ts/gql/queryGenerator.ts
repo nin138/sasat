@@ -9,7 +9,14 @@ import { QueryNode } from '../../../node/gql/queryNode';
 export class QueryGenerator {
   generate(nodes: RepositoryNode[]): TsFile {
     return new TsFile(
-      tsg.variable('const', tsg.identifier('query'), tsg.object(...nodes.flatMap(node => this.entity(node)))).export(),
+      tsg
+        .variable(
+          'const',
+          tsg.identifier('query'),
+          tsg.object(...nodes.flatMap(node => this.entity(node))),
+          tsg.typeRef('IResolverObject').importFrom('graphql-tools'),
+        )
+        .export(),
     );
   }
   private entity(node: RepositoryNode): PropertyAssignment[] {
