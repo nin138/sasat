@@ -12,7 +12,7 @@ export enum Comparison {
   notLike = 'NOT LIKE',
 }
 
-type ComparisonOperators = '=' | '>' | '<' | '>=' | '<=' | '<>' | 'LIKE' | 'NOT LIKE';
+export type ComparisonOperators = '=' | '>' | '<' | '>=' | '<=' | '<>';
 
 type AndOr = 'AND' | 'OR';
 
@@ -20,7 +20,7 @@ export type ComparisonExpression<T> = Partial<
   {
     [P in keyof T]:
       | T[P]
-      | [ComparisonOperators, T[P]]
+      | [ComparisonOperators | 'LIKE' | 'NOT LIKE', T[P]]
       | ['BETWEEN', T[P], T[P]]
       | ['IN', ...T[P][]]
       | ['IS NULL']

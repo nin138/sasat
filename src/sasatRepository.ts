@@ -1,6 +1,6 @@
 import { getDbClient } from './db/getDbClient';
 import { CommandResponse, SQLExecutor } from './db/dbClient';
-import { SQLCondition, conditionToSql } from './sql/condition';
+import { SQL, createSQLString } from './sql/condition';
 import * as SqlString from 'sqlstring';
 import { SasatError } from './error';
 
@@ -9,7 +9,7 @@ interface Repository<Entity, Creatable, Identifiable> {
   list(): Promise<Entity[]>;
   update(entity: Partial<Entity> & Identifiable): Promise<CommandResponse>;
   delete(entity: Identifiable): Promise<CommandResponse>;
-  find(condition: SQLCondition<Entity>): Promise<Entity[]>;
+  find(condition: SQL<Entity>): Promise<Entity[]>;
 }
 
 export abstract class SasatRepository<Entity, Creatable, Identifiable>
@@ -49,12 +49,12 @@ export abstract class SasatRepository<Entity, Creatable, Identifiable>
     return this.client.rawCommand(`DELETE FROM ${this.tableName} WHERE ${this.getIdentifiableWhereClause(entity)}`);
   }
 
-  async find(condition: Omit<SQLCondition<Entity>, 'from'>): Promise<Entity[]> {
-    const result = await this.client.rawQuery(conditionToSql({ ...condition, from: this.tableName }));
+  async find(condition: Omit<SQL<Entity>, 'from'>): Promise<Entity[]> {
+    const result = await this.client.rawQuery(createSQLString({ ...condition, from: this.tableName }));
     return result.map(it => this.resultToEntity(it));
   }
 
-  async first(condition: Omit<SQLCondition<Entity>, 'from' | 'limit'>): Promise<Entity | null> {
+  async first(condition: Omit<SQL<Entity>, 'from' | 'limit'>): Promise<Entity | null> {
     const result = await this.find({ ...condition, limit: 1 });
     if (result.length !== 0) return result[0];
     return null;
