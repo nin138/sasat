@@ -1,5 +1,5 @@
 export enum Relation {
-  One,
-  OneOrZero,
-  Many,
+  One = 'One',
+  OneOrZero = 'OneOrZero',
+  Many = 'Many',
 }

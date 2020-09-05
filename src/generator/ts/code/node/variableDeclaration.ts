@@ -5,14 +5,16 @@ import { TsType } from './type/type';
 type VariableType = 'const' | 'let';
 
 export class VariableDeclaration extends ExportableDeclaration {
+  private readonly variableName: Identifier;
   constructor(
     private readonly flag: VariableType,
-    private readonly variableName: Identifier,
+    variableName: Identifier | string,
     private readonly expression: TsExpression | Identifier,
     private readonly type?: TsType,
   ) {
     super();
-    this.mergeImport(expression, variableName);
+    this.variableName = typeof variableName === 'string' ? new Identifier(variableName) : variableName;
+    this.mergeImport(expression, this.variableName);
   }
 
   protected toTsString(): string {

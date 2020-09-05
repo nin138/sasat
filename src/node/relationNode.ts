@@ -12,15 +12,17 @@ export class RelationNode {
       ref.data.relationName || ref.table.getEntityName().name,
       ref.data.columnName,
       ref.data.targetColumn,
+      ref.data.targetTable,
       new EntityName(TableHandler.tableNameToEntityName(ref.data.targetTable)),
       ref.data.relation,
     );
   }
-  constructor(
+  private constructor(
     readonly parent: EntityNode,
     readonly relationName: string | undefined,
     readonly fromColumn: string,
     readonly toColumn: string,
+    readonly toTableName: string,
     readonly toEntityName: EntityName,
     readonly relation: Relation,
   ) {}

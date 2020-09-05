@@ -1,4 +1,4 @@
-import { NoUpdateFiles } from '../generator';
+import { FileData } from '../generator';
 
 const contextFile = `\
 import { BaseGqlContext } from './__generated__/context';
@@ -21,7 +21,7 @@ export const schema = {
 };
 `;
 
-export const staticFiles: NoUpdateFiles = [
+export const staticFiles: FileData = [
   {
     name: 'context',
     body: contextFile,

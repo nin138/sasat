@@ -24,6 +24,7 @@ export class CodeGenerateController {
       ...this.root.repositories.map(it => this.generateRepository(it)),
       ...this.root.repositories.map(it => this.generateGeneratedRepository(it)),
       ...this.generateGql(this.root),
+      ...this.generateFiles(this.root),
       ...this.generateOnceFiles(this.root),
     ]);
   }
@@ -67,6 +68,12 @@ export class CodeGenerateController {
       writeFile(this.getFullPath(this.generateDir, 'subscription'), this.codeGen.generateGqlSubscription(rootNode)),
       writeFile(this.getFullPath(this.generateDir, 'context'), this.codeGen.generateGqlContext(rootNode)),
     ];
+  }
+
+  private generateFiles(rootNode: RootNode) {
+    return this.codeGen
+      .generateFiles(rootNode)
+      .map(it => writeFileIfNotExist(this.getFullPath(this.generateDir, it.name), it.body));
   }
 
   private generateOnceFiles(rootNode: RootNode) {

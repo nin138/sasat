@@ -2,7 +2,7 @@ import { EntityNode } from '../node/entityNode';
 import { RepositoryNode } from '../node/repositoryNode';
 import { RootNode } from '../node/rootNode';
 
-export type NoUpdateFiles = Array<{ name: string; body: string }>;
+export type FileData = Array<{ name: string; body: string }>;
 
 export interface CodeGenerator {
   readonly fileExt: string;
@@ -15,5 +15,6 @@ export interface CodeGenerator {
   generateGqlMutation(root: RootNode): string;
   generateGqlSubscription(root: RootNode): string;
   generateGqlContext(root: RootNode): string;
-  generateOnceFiles(RootNode: RootNode): NoUpdateFiles;
+  generateFiles(RootNode: RootNode): FileData;
+  generateOnceFiles(RootNode: RootNode): FileData;
 }

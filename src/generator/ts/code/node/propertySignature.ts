@@ -10,6 +10,7 @@ export class PropertySignature extends TsCode {
     public readonly isReadOnly = false,
   ) {
     super();
+    this.mergeImport(type);
   }
 
   protected codePrefix(): string {

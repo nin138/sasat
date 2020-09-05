@@ -58,3 +58,10 @@ export abstract class DBClient extends SQLClient {
   abstract transaction(): Promise<SQLTransaction>;
   abstract release(): Promise<void>;
 }
+
+type a = {
+  fields: [];
+  relations: {
+    hoge: a;
+  };
+};

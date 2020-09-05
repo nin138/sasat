@@ -3,8 +3,8 @@ import { conditionExpressionToSql, WhereClause } from './expression/conditionExp
 import { ComparisonOperators } from './expression/comparison';
 
 export interface SQL<T, Join = unknown> {
-  select: Array<keyof T>;
-  from: string;
+  select: Array<keyof T | [keyof T, string]>;
+  from: string | [string, string];
   join?: SQLJoin<T, Join, this['from']>[];
   where?: WhereClause<T>;
   order?: SQLOrder<T>[];
@@ -12,14 +12,19 @@ export interface SQL<T, Join = unknown> {
   offset?: number;
 }
 
-type OnClause<Column> = Array<[Column, ComparisonOperators, Column]>;
+export type OnExpression<Column> = [Column, ComparisonOperators, Column];
+export type OnClause<Column> = OnExpression<Column>[];
 
 export interface SQLJoin<From, To, FromTable> {
-  select: Array<keyof To>;
+  select: Array<keyof To | [keyof To, string]>;
   table: string | [string, string];
   on: OnClause<[this['table'] extends [] ? this['table'][1] : this['table'], keyof To] | [FromTable, keyof From]>;
   where?: WhereClause<To>;
 }
+
+const formatTable = (table: string | [string, string]) => {
+  return typeof table === 'string' ? SqlString.escapeId(table) : table.map(it => SqlString.escapeId(it)).join('as');
+};
 
 const joinClause = <T, U>(sql: SQL<T, U>): string => {
   if (!sql.join) return '';
@@ -33,10 +38,7 @@ const joinClause = <T, U>(sql: SQL<T, U>): string => {
           return left + operator + right;
         })
         .join('&');
-      const table =
-        typeof it.table === 'string'
-          ? SqlString.escapeId(it.table)
-          : it.table.map(it => SqlString.escapeId(it)).join('as');
+      const table = formatTable(it.table);
       return ` join ${table} on ${on}`;
     })
     .join(' ');
@@ -49,7 +51,7 @@ export const orderToSQL = <T>(order: SQLOrder<T>[]): string =>
 
 export const createSQLString = <T>(sql: SQL<T>): string => {
   const select = [...sql.select, ...(sql.join ? sql.join.flatMap(it => it.select) : [])]
-    .map(it => SqlString.escapeId(it))
+    .map(it => (Array.isArray(it) ? it.map(it => SqlString.escapeId(it)).join(' as ') : SqlString.escapeId(it)))
     .join(', ');
   const join = joinClause(sql);
   const where =
@@ -59,5 +61,6 @@ export const createSQLString = <T>(sql: SQL<T>): string => {
   const order = sql.order ? ' ORDER BY ' + orderToSQL(sql.order) : '';
   const limit = sql.limit ? ' LIMIT ' + sql.limit : '';
   const offset = sql.offset ? ' OFFSET ' : '';
-  return `SELECT ${select}${join} FROM ${sql.from}${where}${order}${limit}${offset}`;
+  const from = formatTable(sql.from);
+  return `SELECT ${select} FROM ${from} ${join}${where}${order}${limit}${offset}`;
 };

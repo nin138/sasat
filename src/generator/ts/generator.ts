@@ -1,4 +1,4 @@
-import { CodeGenerator, NoUpdateFiles } from '../generator';
+import { CodeGenerator, FileData } from '../generator';
 import { EntityNode } from '../../node/entityNode';
 import { RepositoryNode } from '../../node/repositoryNode';
 import { RootNode } from '../../node/rootNode';
@@ -12,6 +12,7 @@ import { ContextGenerator } from './gql/contextGenerator';
 import { GeneratedRepositoryGenerator } from './db/generatedRepositoryGenerator';
 import { RepositoryGenerator } from './db/repositoryGenerator';
 import { staticFiles } from './staticFiles';
+import { RelationMapGenerator } from './relationMapGenerator';
 
 export class TsCodeGenerator implements CodeGenerator {
   readonly fileExt = 'ts';
@@ -52,7 +53,11 @@ export class TsCodeGenerator implements CodeGenerator {
     return new ContextGenerator().generate(root.contexts).toString();
   }
 
-  generateOnceFiles(): NoUpdateFiles {
+  generateFiles(root: RootNode): FileData {
+    return [{ name: 'relationMap', body: new RelationMapGenerator().generate(root).toString() }];
+  }
+
+  generateOnceFiles(): FileData {
     return staticFiles;
   }
 }

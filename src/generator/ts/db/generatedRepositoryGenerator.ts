@@ -18,6 +18,7 @@ import { Parameter } from '../code/node/parameter';
 import { TypeLiteral } from '../code/node/type/typeLiteral';
 import { TsExpression } from '../code/node/expressions';
 import { tsg } from '../code/factory';
+import { TsStatement } from '../code/abstruct/statement';
 
 export class GeneratedRepositoryGenerator {
   constructor(private node: RepositoryNode) {}
@@ -26,6 +27,7 @@ export class GeneratedRepositoryGenerator {
     const node = this.node;
     const entityPath = Directory.entityPath(Directory.paths.generatedDataSource, node.entityName);
     return new TsFile(
+      this.selectTypeAlias(node),
       new Class(node.entityName.generatedDataSourceName())
         .export()
         .abstract()
@@ -42,6 +44,43 @@ export class GeneratedRepositoryGenerator {
         .addMethod(this.getDefaultValueMethod(node), ...this.findMethods(node)),
     );
   }
+
+  private selectTypeAlias(node: RepositoryNode): TsStatement {
+    return tsg
+      .typeAlias(
+        `${node.entityName}Fields`,
+        tsg.typeLiteral([
+          tsg.propertySignature('fields', tsg.typeRef(`keyof ${node.entityName}`), false, false),
+          tsg.propertySignature(
+            'relations',
+            tsg.typeLiteral([
+              ...node.entity.relations.map(it =>
+                tsg.propertySignature(
+                  it.refPropertyName(),
+                  tsg
+                    .typeRef(`${it.toEntityName}Fields`)
+                    .importFrom(Directory.entityPath(Directory.paths.generatedDataSource, it.toEntityName.toString())),
+                ),
+              ),
+              ...node.entity
+                .findReferencedRelations()
+                .map(it =>
+                  tsg.propertySignature(
+                    it.referencedByPropertyName(),
+                    tsg
+                      .typeRef(`${it.toEntityName}Fields`)
+                      .importFrom(
+                        Directory.entityPath(Directory.paths.generatedDataSource, it.toEntityName.toString()),
+                      ),
+                  ),
+                ),
+            ]),
+          ),
+        ]),
+      )
+      .export();
+  }
+
   private sqlValueToTsExpression(value: SqlValueType): TsExpression {
     if (typeof value === 'string') {
       return tsg.string(value);
