@@ -14,7 +14,7 @@ export class VariableDeclaration extends ExportableDeclaration {
   ) {
     super();
     this.variableName = typeof variableName === 'string' ? new Identifier(variableName) : variableName;
-    this.mergeImport(expression, this.variableName);
+    this.mergeImport(expression, this.variableName, type);
   }
 
   protected toTsString(): string {
