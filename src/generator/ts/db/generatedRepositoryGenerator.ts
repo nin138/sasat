@@ -98,6 +98,10 @@ export class GeneratedRepositoryGenerator {
         .modifiers(tsg.propertyModifiers().readonly())
         .initializer(tsg.string(node.tableName)),
       tsg
+        .propertyDeclaration('columns', tsg.arrayType(KeywordTypeNode.string), false)
+        .modifiers(tsg.propertyModifiers().readonly().protected())
+        .initializer(tsg.array(node.entity.fields.map(it => tsg.string(it.fieldName)))),
+      tsg
         .propertyDeclaration('primaryKeys', new ArrayType(KeywordTypeNode.string), false)
         .modifiers(new PropertyModifiers().readonly().protected())
         .initializer(tsg.array(node.primaryKeys.map(it => tsg.string(it)))),

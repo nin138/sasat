@@ -3,12 +3,15 @@ import { CommandResponse, SQLExecutor } from './db/dbClient';
 import { SQL, createSQLString } from './sql/condition';
 import * as SqlString from 'sqlstring';
 import { SasatError } from './error';
+import { ResolveResult } from './runtime/resolveField';
+import { hydrate } from './runtime/hydrate';
 
+export type EntityResult<Entity, Identifiable> = Identifiable & Partial<Entity>;
 interface Repository<Entity, Creatable, Identifiable> {
   create(entity: Creatable): Promise<Entity>;
-  list(): Promise<Entity[]>;
   update(entity: Partial<Entity> & Identifiable): Promise<CommandResponse>;
   delete(entity: Identifiable): Promise<CommandResponse>;
+  list(): Promise<Entity[]>;
   find(condition: SQL<Entity>): Promise<Entity[]>;
 }
 
@@ -56,6 +59,30 @@ export abstract class SasatRepository<Entity, Creatable, Identifiable>
 
   async first(condition: Omit<SQL<Entity>, 'from' | 'limit'>): Promise<Entity | null> {
     const result = await this.find({ ...condition, limit: 1 });
+    if (result.length !== 0) return result[0];
+    return null;
+  }
+
+  protected async find2(
+    condition: Omit<SQL<Entity>, 'select' | 'join' | 'from'>,
+    info: ResolveResult,
+  ): Promise<EntityResult<Entity, Identifiable>[]> {
+    const sql = {
+      ...(condition as SQL<Entity>),
+      ...(info.sql as Pick<SQL<Entity>, 'select' | 'join' | 'from'>),
+    } as SQL<Entity>;
+    const result = await this.client.rawQuery(createSQLString({ ...condition, ...sql }));
+    return hydrate(result, [
+      { parent: -1, target: 0, property: '', isArray: false, keys: this.primaryKeys, routes: [] },
+      ...info.info,
+    ]) as EntityResult<Entity, Identifiable>[];
+  }
+
+  protected async first2(
+    condition: Pick<SQL<Entity>, 'where' | 'order' | 'offset'>,
+    info: ResolveResult,
+  ): Promise<EntityResult<Entity, Identifiable> | null> {
+    const result = await this.find2({ ...condition, limit: 1 }, info);
     if (result.length !== 0) return result[0];
     return null;
   }

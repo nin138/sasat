@@ -1,15 +1,15 @@
-import { SQLJoin } from '../sql/condition';
+import { SQL, SQLJoin } from '../sql/condition';
 import { QueryInfo, ResolveRoute } from './hydrate';
 import { ComparisonOperators, Relation } from '..';
 
 export type Field = {
   fields: string[];
-  relations: Record<string, Field>;
+  relations?: Record<string, Field | undefined>;
 };
 
-const formatField = (column: string, depth: number) => [`t${depth}.${column}`, `${depth}__${column}`];
-type ResolveResult = {
-  sql: { select: string[][]; join: SQLJoin<unknown, unknown, unknown>[]; from: [string, string] };
+const formatField = (column: string, depth: number): [string, string] => [`t${depth}.${column}`, `${depth}__${column}`];
+export type ResolveResult = {
+  sql: Pick<SQL<any>, 'select' | 'join' | 'from'>; //{ select: string[][]; join: SQLJoin<any, any, any>[]; from: [string, string] };
   info: QueryInfo[];
 };
 
@@ -32,11 +32,12 @@ export const createFieldResolver = (relationMap: RelationMap, keyMap: Record<str
     currentRoute: ResolveRoute = [],
   ): ResolveResult => {
     const infoList: QueryInfo[] = [];
-    const select: string[][] = field.fields.map(it => formatField(it, depth));
+    const select: Array<[string, string]> = field.fields.map(it => formatField(it, depth));
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const join: SQLJoin<unknown, any, any>[] = [];
     let currentDepth = depth;
-    Object.entries(field.relations).forEach(([rel, field]: [string, Field]) => {
+    Object.entries(field.relations || []).forEach(([rel, field]: [string, Field | undefined]) => {
+      if (field === undefined) return;
       const data = relationMap[from][rel];
       currentDepth += 1;
       const isArray = data.relation === Relation.Many;
@@ -56,11 +57,10 @@ export const createFieldResolver = (relationMap: RelationMap, keyMap: Record<str
       });
 
       const r = resolveField(field, data.table, currentDepth, routes);
-      select.push(...r.sql.select);
-      join.push(...r.sql.join);
+      select.push(...(r.sql.select as [[string, string]]));
+      join.push(...r.sql.join!);
       infoList.push(...r.info);
     });
-
     return {
       sql: {
         select,
