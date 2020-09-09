@@ -49,15 +49,25 @@ export type SQLOrder<T> = [keyof T] | [keyof T, 'ASC'] | [keyof T, 'DESC'];
 export const orderToSQL = <T>(order: SQLOrder<T>[]): string =>
   order.map(it => `${SqlString.escapeId(it[0])} ${it[1] === 'DESC' ? 'DESC' : 'ASK'}`).join(', ');
 
+const mergeWhereClause = (whereClauses: WhereClause<unknown>[]): WhereClause<unknown> => {
+  const result: WhereClause<unknown>[] = [];
+  whereClauses.forEach(it => {
+    if (Array.isArray(it)) result.push(...it);
+    else result.push(it);
+  });
+  return result;
+};
+
 export const createSQLString = <T>(sql: SQL<T>): string => {
   const select = [...sql.select, ...(sql.join ? sql.join.flatMap(it => it.select) : [])]
     .map(it => (Array.isArray(it) ? it.map(it => SqlString.escapeId(it)).join(' as ') : SqlString.escapeId(it)))
     .join(', ');
   const join = joinClause(sql);
-  const where =
-    sql.where && (!Array.isArray(sql.where) || sql.where.length !== 0)
-      ? ' WHERE ' + conditionExpressionToSql([sql.where, ...(sql.join ? sql.join.map(it => it.where) : [])])
-      : '';
+  const whereClauses: Array<WhereClause<unknown>> = [
+    sql.where,
+    ...(sql.join ? sql.join.map(it => it.where) : []),
+  ].filter(it => it !== undefined && Object.keys(it).length) as WhereClause<unknown>[];
+  const where = whereClauses.length === 0 ? '' : ' WHERE ' + conditionExpressionToSql(mergeWhereClause(whereClauses));
   const order = sql.order ? ' ORDER BY ' + orderToSQL(sql.order) : '';
   const limit = sql.limit ? ' LIMIT ' + sql.limit : '';
   const offset = sql.offset ? ' OFFSET ' : '';

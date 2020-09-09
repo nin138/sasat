@@ -14,7 +14,7 @@ export class RelationMapGenerator {
       .variable(
         'const',
         tsg.identifier('relationMap'),
-        tsg.object(...root.entities().map(it => this.entityRelation(it))),
+        tsg.object(...root.entities().map(it => this.entityRelationMap(it))),
         tsg.typeRef(
           `{[from: string]: {[to: string]: {table: string, on: [[string, '=' | '>' | '<' | '>=' | '<=' | '<>', string]], relation: 'One' | 'OneOrZero' |'Many'}}}`,
         ),
@@ -48,7 +48,7 @@ export class RelationMapGenerator {
       .export();
   }
 
-  private entityRelation(node: EntityNode) {
+  private entityRelationMap(node: EntityNode) {
     return tsg.propertyAssign(
       node.repository.tableName,
       tsg.object(
@@ -61,7 +61,7 @@ export class RelationMapGenerator {
                 'on',
                 tsg.array([tsg.array([tsg.string(rel.fromColumn), tsg.string('='), tsg.string(rel.toColumn)])]),
               ),
-              tsg.propertyAssign('relation', tsg.string(rel.relation)),
+              tsg.propertyAssign('relation', tsg.string(Relation.One)),
             ),
           ),
         ),
@@ -69,14 +69,14 @@ export class RelationMapGenerator {
           .findReferencedRelations()
           .map(rel =>
             tsg.propertyAssign(
-              rel.refPropertyName(),
+              rel.referencedByPropertyName(),
               tsg.object(
                 tsg.propertyAssign('table', tsg.string(rel.parent.repository.tableName)),
                 tsg.propertyAssign(
                   'on',
                   tsg.array([tsg.array([tsg.string(rel.toColumn), tsg.string('='), tsg.string(rel.fromColumn)])]),
                 ),
-                tsg.propertyAssign('relation', tsg.string(Relation.One)),
+                tsg.propertyAssign('relation', tsg.string(rel.relation)),
               ),
             ),
           ),

@@ -1,3 +1,4 @@
+export { resolveInfoToField } from './runtime/resolveInfoToField';
 export { createFieldResolver } from './runtime/resolveField';
 export { ComparisonOperators } from './sql/expression/comparison';
 export { MigrationStore } from './migration/storeMigrator';
