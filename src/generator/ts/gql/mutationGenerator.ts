@@ -3,7 +3,6 @@ import { VariableDeclaration } from '../code/node/variableDeclaration';
 import { PropertyAssignment } from '../code/node/propertyAssignment';
 import { TypeReference } from '../code/node/type/typeReference';
 import { Parameter } from '../code/node/parameter';
-import { TypeLiteral } from '../code/node/type/typeLiteral';
 import { Block } from '../code/node/Block';
 import { ReturnStatement } from '../code/node/returnStatement';
 import { SpreadAssignment } from '../code/node/spreadAssignment';
@@ -36,6 +35,7 @@ import { Directory } from '../../../constants/directory';
 import { SasatError } from '../../../error';
 import { ContextParamNode } from '../../../node/gql/contextParamNode';
 import { EntityName } from '../../../entity/entityName';
+import { tsg } from '../code/factory';
 
 export class MutationGenerator {
   generate = (mutations: MutationNode[]): TsFile => {
@@ -49,7 +49,7 @@ export class MutationGenerator {
   };
 
   private static functionParams(paramType: TsType, useContext: boolean) {
-    const params = [new Parameter('_', new TypeLiteral()), new Parameter('params', paramType)];
+    const params = [new Parameter('_', tsg.typeRef('unknown')), new Parameter('params', paramType)];
     if (!useContext) return params;
     return [...params, new Parameter('context', new TypeReference('GqlContext').importFrom('../context'))];
   }
@@ -93,7 +93,7 @@ export class MutationGenerator {
       new AsyncExpression(
         new ArrowFunction(
           [
-            new Parameter('_', new TypeLiteral()),
+            new Parameter('_', tsg.typeRef('unknown')),
             new Parameter('params', node.entityName.identifiableTypeReference(Directory.paths.generated)),
           ],
           new TypeReference('Promise', [KeywordTypeNode.boolean]),
@@ -167,20 +167,18 @@ export class MutationGenerator {
         new Block(
           new AwaitExpression(
             new CallExpression(
-              new Identifier(node.publishFunctionName()).importFrom('./subscription'),
-              new NonNullExpression(
-                new ParenthesizedExpression(
-                  new AwaitExpression(
-                    new CallExpression(
-                      new PropertyAccessExpression(
-                        new NewExpression(new Identifier(node.entityName.dataSourceName())),
-                        node.primaryFindQueryName,
-                      ),
-                      ...node.primaryKeys.map(it => new Identifier(`params.${it}`)),
-                    ),
+              tsg.identifier(node.publishFunctionName()).importFrom('./subscription'),
+              tsg
+                .parenthesis(
+                  tsg.await(
+                    tsg
+                      .new(tsg.identifier(node.entityName.dataSourceName()))
+                      .property(node.primaryFindQueryName)
+                      .call(...node.primaryKeys.map(it => tsg.identifier(`params.${it}`))),
                   ),
-                ),
-              ),
+                )
+                .nonNull()
+                .as(tsg.typeRef(node.entityName.name)),
             ),
           ).toStatement(),
         ),

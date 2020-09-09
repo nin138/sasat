@@ -27,6 +27,11 @@ export abstract class TsExpression extends TsCode {
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     return new PropertyAccessExpression(this, propertyName);
   }
+
+  as(type: TsType): AsExpression {
+    // eslint-disable-next-line @typescript-eslint/no-use-before-define
+    return new AsExpression(this, type);
+  }
 }
 
 export class CallExpression extends TsExpression {
@@ -201,5 +206,16 @@ export class PropertyAccessExpression extends TsExpression {
 
   protected toTsString(): string {
     return `${this.expression.toString()}.${this.propertyName}`;
+  }
+}
+
+export class AsExpression extends TsExpression {
+  constructor(private readonly expression: TsExpression, private readonly asType: TsType) {
+    super();
+    this.mergeImport(expression, asType);
+  }
+
+  protected toTsString(): string {
+    return this.expression.toString() + ' as ' + this.asType.toString();
   }
 }

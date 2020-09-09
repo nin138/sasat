@@ -18,10 +18,6 @@ import { Parameter } from '../code/node/parameter';
 import { TypeLiteral } from '../code/node/type/typeLiteral';
 import { TsExpression } from '../code/node/expressions';
 import { tsg } from '../code/factory';
-import { UserFields } from '../../../../test/out/__generated__/field';
-import { EntityResult } from 'sasat';
-import { User, UserIdentifiable } from '../../../../test/out/__generated__/entities/User';
-import { resolveField } from '../../../../test/out/__generated__/relationMap';
 
 export class GeneratedRepositoryGenerator {
   constructor(private node: RepositoryNode) {}
@@ -103,10 +99,6 @@ export class GeneratedRepositoryGenerator {
     ).modifiers(new MethodModifiers().protected());
   }
 
-  // findByUserId(userId: number, fields: UserFields): Promise<EntityResult<User, UserIdentifiable> | null> {
-  //   const info = resolveField(fields, this.tableName);
-  //   return this.first2({ where: { userId: userId } }, info);
-  // }
   private findMethods(node: RepositoryNode) {
     return node.findMethods.map(it => {
       const body = [
@@ -116,7 +108,7 @@ export class GeneratedRepositoryGenerator {
           tsg
             .identifier('resolveField')
             .importFrom(Directory.generatedPath(Directory.paths.generatedDataSource, 'relationMap'))
-            .call(tsg.identifier('fields'), tsg.identifier('this.tableName')),
+            .call(tsg.identifier('fields || {fields: this.columns}'), tsg.identifier('this.tableName')),
         ),
         new ReturnStatement(
           tsg
@@ -143,7 +135,7 @@ export class GeneratedRepositoryGenerator {
         [
           ...it.params.map(it => new Parameter(it.name, it.type.toTsType())),
           new Parameter(
-            `fields`,
+            `fields?`,
             tsg
               .typeRef(`${node.entityName}Fields`)
               .importFrom(Directory.generatedPath(Directory.paths.generatedDataSource, 'fields')),

@@ -16,7 +16,7 @@ export class RelationMapGenerator {
         tsg.identifier('relationMap'),
         tsg.object(...root.entities().map(it => this.entityRelation(it))),
         tsg.typeRef(
-          `{[from: string]: {[to: string]: {table: string, on: [string, '=' | '>' | '<' | '>=' | '<=' | '<>', string], relation: 'One' | 'OneOrZero' |'Many'}}}`,
+          `{[from: string]: {[to: string]: {table: string, on: [[string, '=' | '>' | '<' | '>=' | '<=' | '<>', string]], relation: 'One' | 'OneOrZero' |'Many'}}}`,
         ),
       )
       .export();

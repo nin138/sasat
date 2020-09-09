@@ -45,6 +45,7 @@ const expressions = {
   number: createFactory(Exp.NumericLiteral),
   array: createFactory(Exp.ArrayLiteral),
   object: createFactory(Exp.ObjectLiteral),
+  as: createFactory(Exp.AsExpression),
 };
 
 const types = {
