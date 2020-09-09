@@ -13,7 +13,7 @@ const relative = (from: string, to: string) => {
 };
 
 const paths = {
-  generated: `/${GeneratedDirName}`,
+  generated: `/${GeneratedDirName}/`,
   entity: `/${GeneratedDirName}/${EntityDirName}/`,
   dataSource: `/${DataSourceDirName}/`,
   generatedDataSource: `/${GeneratedDirName}/${GeneratedDataSourceDirName}/`,
@@ -27,6 +27,7 @@ class DirectoryResolver {
     relative(fromPath, `${this.paths.dataSource}${entityName.toString()}`);
   entityPath = (fromPath: string, entityName: string | EntityName) =>
     relative(fromPath, `${this.paths.entity}${entityName.toString()}`);
+  generatedPath = (fromPath: string, fileName: string) => relative(fromPath, `${this.paths.generated}${fileName}`);
 }
 
 export const Directory = new DirectoryResolver();

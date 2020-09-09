@@ -18,7 +18,10 @@ import { Parameter } from '../code/node/parameter';
 import { TypeLiteral } from '../code/node/type/typeLiteral';
 import { TsExpression } from '../code/node/expressions';
 import { tsg } from '../code/factory';
-import { TsStatement } from '../code/abstruct/statement';
+import { UserFields } from '../../../../test/out/__generated__/field';
+import { EntityResult } from 'sasat';
+import { User, UserIdentifiable } from '../../../../test/out/__generated__/entities/User';
+import { resolveField } from '../../../../test/out/__generated__/relationMap';
 
 export class GeneratedRepositoryGenerator {
   constructor(private node: RepositoryNode) {}
@@ -27,7 +30,6 @@ export class GeneratedRepositoryGenerator {
     const node = this.node;
     const entityPath = Directory.entityPath(Directory.paths.generatedDataSource, node.entityName);
     return new TsFile(
-      this.selectTypeAlias(node),
       new Class(node.entityName.generatedDataSourceName())
         .export()
         .abstract()
@@ -43,42 +45,6 @@ export class GeneratedRepositoryGenerator {
         .addProperty(...this.properties(node))
         .addMethod(this.getDefaultValueMethod(node), ...this.findMethods(node)),
     );
-  }
-
-  private selectTypeAlias(node: RepositoryNode): TsStatement {
-    return tsg
-      .typeAlias(
-        `${node.entityName}Fields`,
-        tsg.typeLiteral([
-          tsg.propertySignature('fields', tsg.typeRef(`keyof ${node.entityName}`), false, false),
-          tsg.propertySignature(
-            'relations',
-            tsg.typeLiteral([
-              ...node.entity.relations.map(it =>
-                tsg.propertySignature(
-                  it.refPropertyName(),
-                  tsg
-                    .typeRef(`${it.toEntityName}Fields`)
-                    .importFrom(Directory.entityPath(Directory.paths.generatedDataSource, it.toEntityName.toString())),
-                ),
-              ),
-              ...node.entity
-                .findReferencedRelations()
-                .map(it =>
-                  tsg.propertySignature(
-                    it.referencedByPropertyName(),
-                    tsg
-                      .typeRef(`${it.toEntityName}Fields`)
-                      .importFrom(
-                        Directory.entityPath(Directory.paths.generatedDataSource, it.toEntityName.toString()),
-                      ),
-                  ),
-                ),
-            ]),
-          ),
-        ]),
-      )
-      .export();
   }
 
   private sqlValueToTsExpression(value: SqlValueType): TsExpression {
@@ -137,25 +103,56 @@ export class GeneratedRepositoryGenerator {
     ).modifiers(new MethodModifiers().protected());
   }
 
+  // findByUserId(userId: number, fields: UserFields): Promise<EntityResult<User, UserIdentifiable> | null> {
+  //   const info = resolveField(fields, this.tableName);
+  //   return this.first2({ where: { userId: userId } }, info);
+  // }
   private findMethods(node: RepositoryNode) {
     return node.findMethods.map(it => {
-      const body = new ReturnStatement(
-        tsg
-          .identifier(it.returnType.isArray ? 'this.find' : 'this.first')
-          .call(
-            tsg.object(
-              new PropertyAssignment(
-                'where',
-                tsg.object(...it.params.map(it => new PropertyAssignment(it.name, tsg.identifier(it.name)))),
+      const body = [
+        tsg.variable(
+          'const',
+          'info',
+          tsg
+            .identifier('resolveField')
+            .importFrom(Directory.generatedPath(Directory.paths.generatedDataSource, 'relationMap'))
+            .call(tsg.identifier('fields'), tsg.identifier('this.tableName')),
+        ),
+        new ReturnStatement(
+          tsg
+            .identifier(it.returnType.isArray ? 'this.find2' : 'this.first2')
+            .call(
+              tsg.object(
+                new PropertyAssignment(
+                  'where',
+                  tsg.object(...it.params.map(it => new PropertyAssignment(it.name, tsg.identifier(it.name)))),
+                ),
               ),
+              tsg.identifier('info'),
             ),
-          ),
-      );
+        ),
+      ];
+      const returnType = tsg
+        .typeRef('EntityResult', [
+          tsg.typeRef(node.entityName.name),
+          tsg.typeRef(node.entityName.identifiableInterfaceName()),
+        ])
+        .importFrom('sasat');
       return new MethodDeclaration(
         it.name,
-        it.params.map(it => new Parameter(it.name, it.type.toTsType())),
-        new TypeReference('Promise', [it.returnType.toTsType()]),
-        [body],
+        [
+          ...it.params.map(it => new Parameter(it.name, it.type.toTsType())),
+          new Parameter(
+            `fields`,
+            tsg
+              .typeRef(`${node.entityName}Fields`)
+              .importFrom(Directory.generatedPath(Directory.paths.generatedDataSource, 'fields')),
+          ),
+        ],
+        new TypeReference('Promise', [
+          it.returnType.isArray ? tsg.arrayType(returnType) : tsg.unionType([returnType, tsg.typeRef('null')]),
+        ]),
+        body,
       );
     });
   }

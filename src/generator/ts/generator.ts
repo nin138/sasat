@@ -13,6 +13,7 @@ import { GeneratedRepositoryGenerator } from './db/generatedRepositoryGenerator'
 import { RepositoryGenerator } from './db/repositoryGenerator';
 import { staticFiles } from './staticFiles';
 import { RelationMapGenerator } from './relationMapGenerator';
+import { FieldGenerator } from './fieldGenerator';
 
 export class TsCodeGenerator implements CodeGenerator {
   readonly fileExt = 'ts';
@@ -54,7 +55,10 @@ export class TsCodeGenerator implements CodeGenerator {
   }
 
   generateFiles(root: RootNode): FileData {
-    return [{ name: 'relationMap', body: new RelationMapGenerator().generate(root).toString() }];
+    return [
+      { name: 'relationMap', body: new RelationMapGenerator().generate(root).toString() },
+      { name: 'fields', body: new FieldGenerator().generate(root).toString() },
+    ];
   }
 
   generateOnceFiles(): FileData {

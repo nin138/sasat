@@ -5,7 +5,7 @@ export class FindMethodNode {
   constructor(
     readonly name: string,
     readonly params: ParameterNode[],
-    readonly returnType: TypeNode,
+    readonly returnType: TypeNode, // TODO fix
     readonly isPrimary: boolean,
   ) {}
 }
