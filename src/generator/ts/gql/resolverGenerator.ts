@@ -12,38 +12,56 @@ import { Parser } from '../../../parser/parser';
 export class ResolverGenerator {
   private relationProperty(relation: RelationNode) {
     const paramName = relation.parent.entityName.lowerCase();
+    const propertyName = relation.refPropertyName();
     return tsg.propertyAssign(
-      relation.refPropertyName(),
+      propertyName,
       tsg.arrowFunc(
-        [tsg.parameter(paramName, relation.parent.entityName.getTypeReference(Directory.paths.generated))],
+        [tsg.parameter(paramName, tsg.typeRef(relation.parent.entityName.resultType()).importFrom('./relationMap'))],
         undefined,
-        tsg
-          .new(
+        tsg.block(
+          tsg.if(
+            tsg.identifier(paramName).property(propertyName),
+            tsg.return(tsg.identifier(paramName).property(propertyName)),
+          ),
+          tsg.return(
             tsg
-              .identifier(relation.toEntityName.dataSourceName())
-              .importFrom(Directory.dataSourcePath(Directory.paths.generated, relation.toEntityName)),
-          )
-          .property(Parser.paramsToQueryName(relation.toColumn))
-          .call(tsg.identifier(paramName).property(relation.fromColumn)),
+              .new(
+                tsg
+                  .identifier(relation.toEntityName.dataSourceName())
+                  .importFrom(Directory.dataSourcePath(Directory.paths.generated, relation.toEntityName)),
+              )
+              .property(Parser.paramsToQueryName(relation.toColumn))
+              .call(tsg.identifier(paramName).property(relation.fromColumn).nonNull()),
+          ),
+        ),
       ),
     );
   }
 
   private referencedByProperty(relation: RelationNode) {
     const paramName = relation.toEntityName.lowerCase();
+    const propertyName = relation.referencedByPropertyName();
     return tsg.propertyAssign(
-      relation.referencedByPropertyName(),
+      propertyName,
       tsg.arrowFunc(
-        [tsg.parameter(paramName, relation.toEntityName.getTypeReference(Directory.paths.generated))],
+        [tsg.parameter(paramName, tsg.typeRef(relation.toEntityName.resultType()).importFrom('./relationMap'))],
         undefined,
-        tsg
-          .new(
+        tsg.block(
+          tsg.if(
+            tsg.identifier(paramName).property(propertyName),
+            tsg.return(tsg.identifier(paramName).property(propertyName)),
+          ),
+          tsg.return(
             tsg
-              .identifier(relation.parent.entityName.dataSourceName())
-              .importFrom(Directory.dataSourcePath(Directory.paths.generated, relation.parent.entityName)),
-          )
-          .property(Parser.paramsToQueryName(relation.fromColumn))
-          .call(tsg.identifier(paramName).property(relation.toColumn)),
+              .new(
+                tsg
+                  .identifier(relation.parent.entityName.dataSourceName())
+                  .importFrom(Directory.dataSourcePath(Directory.paths.generated, relation.parent.entityName)),
+              )
+              .property(Parser.paramsToQueryName(relation.fromColumn))
+              .call(tsg.identifier(paramName).property(relation.toColumn).nonNull()),
+          ),
+        ),
       ),
     );
   }

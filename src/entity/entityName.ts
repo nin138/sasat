@@ -29,6 +29,18 @@ export class EntityName {
   identifiableTypeReference(fromPath: string): TypeReference {
     return new TypeReference(this.identifiableInterfaceName()).importFrom(Directory.entityPath(fromPath, this.name));
   }
+
+  relationTypeName(): string {
+    return this.name + 'Relations';
+  }
+  entityWithRelationTypeName(): string {
+    return this.name + 'WithRelations';
+  }
+
+  resultType(): string {
+    return this.name + 'Result';
+  }
+
   dataSourceName(): string {
     return dataSourceName(this.name);
   }
