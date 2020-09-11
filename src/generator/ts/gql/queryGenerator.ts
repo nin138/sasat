@@ -1,10 +1,10 @@
 import { TsFile } from '../file';
 import { PropertyAssignment } from '../code/node/propertyAssignment';
 import { TypeLiteral } from '../code/node/type/typeLiteral';
-import { RepositoryNode } from '../../../node/repositoryNode';
 import { Directory } from '../../../constants/directory';
 import { tsg } from '../code/factory';
-import { QueryNode } from '../../../node/gql/queryNode';
+import { RepositoryNode } from '../../../parser/node/repositoryNode';
+import { QueryNode } from '../../../parser/node/gql/queryNode';
 
 export class QueryGenerator {
   generate(nodes: RepositoryNode[]): TsFile {

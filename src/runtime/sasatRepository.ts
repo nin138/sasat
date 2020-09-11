@@ -1,10 +1,10 @@
-import { getDbClient } from './db/getDbClient';
-import { CommandResponse, SQLExecutor } from './db/dbClient';
-import { SQL, createSQLString } from './sql/condition';
+import { CommandResponse, getDbClient } from '..';
+import { Field, FieldResolver } from './resolveField';
 import * as SqlString from 'sqlstring';
-import { SasatError } from './error';
-import { FieldResolver, ResolveResult, Field } from './runtime/resolveField';
-import { hydrate } from './runtime/hydrate';
+import { SasatError } from '../error';
+import { hydrate } from './hydrate';
+import { createSQLString, SQL } from '../db/sql/condition';
+import { SQLExecutor } from '../db/connectors/dbClient';
 
 export type EntityResult<Entity, Identifiable> = Identifiable & Partial<Entity>;
 interface Repository<Entity, Creatable, Identifiable> {

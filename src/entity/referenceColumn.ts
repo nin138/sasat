@@ -1,7 +1,7 @@
 import { Column, NormalColumn } from './column';
 import { ForeignKey, ForeignKeyReferentialAction } from './foreignKey';
 import { TableHandler } from './table';
-import { columnToSql } from '../sql/columnToSql';
+import { columnToSql } from '../db/sql/columnToSql';
 import { GqlPrimitive } from '../generator/gql/types';
 import { Relation } from './relation';
 import { DBColumnTypes } from '../migration/column/columnTypes';

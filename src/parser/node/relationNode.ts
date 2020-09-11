@@ -1,9 +1,9 @@
-import { EntityName } from '../entity/entityName';
-import { ReferenceColumn } from '../entity/referenceColumn';
-import { TableHandler } from '../entity/table';
-import { Relation } from '..';
 import { TypeNode } from './typeNode';
 import { EntityNode } from './entityNode';
+import { ReferenceColumn } from '../../entity/referenceColumn';
+import { TableHandler } from '../../entity/table';
+import { EntityName } from '../../entity/entityName';
+import { Relation } from '../..';
 
 export class RelationNode {
   static fromReference(entity: EntityNode, ref: ReferenceColumn): RelationNode {

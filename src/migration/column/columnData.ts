@@ -1,5 +1,5 @@
 import { DBColumnTypes, DBDateTypes, DBFloatingTypes, DBIntegerTypes, DBStringTypes, DBTextTypes } from './columnTypes';
-import { SqlValueType } from '../../db/dbClient';
+import { SqlValueType } from '../../db/connectors/dbClient';
 
 export interface ColumnData {
   columnName: string;

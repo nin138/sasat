@@ -1,11 +1,9 @@
-import { RepositoryNode } from '../../../node/repositoryNode';
 import { TsFile } from '../file';
 import { Directory } from '../../../constants/directory';
 import { Class } from '../code/node/class';
 import { ExtendsClause } from '../code/node/extendsClause';
 import { TypeReference } from '../code/node/type/typeReference';
 import { baseRepositoryName } from '../../../constants/interfaceConstants';
-import { SqlValueType } from '../../../db/dbClient';
 import { PropertyModifiers } from '../code/node/modifier/propertyModifiers';
 import { KeywordTypeNode } from '../code/node/type/typeKeyword';
 import { ArrayType } from '../code/node/type/arrayType';
@@ -18,6 +16,8 @@ import { Parameter } from '../code/node/parameter';
 import { TypeLiteral } from '../code/node/type/typeLiteral';
 import { TsExpression } from '../code/node/expressions';
 import { tsg } from '../code/factory';
+import { RepositoryNode } from '../../../parser/node/repositoryNode';
+import { SqlValueType } from '../../../db/connectors/dbClient';
 
 export class GeneratedRepositoryGenerator {
   constructor(private node: RepositoryNode) {}

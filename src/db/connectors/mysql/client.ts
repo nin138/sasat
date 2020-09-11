@@ -1,7 +1,7 @@
 import { CommandResponse, DBClient, QueryResponse, SQLTransaction } from '../dbClient';
 import * as mysql from 'mysql';
 import { MySqlTransaction } from './transaction';
-import { config } from '../../config/config';
+import { config } from '../../../config/config';
 import { promisify } from 'util';
 
 const connectionConfig = { ...config().db, dateStrings: true };

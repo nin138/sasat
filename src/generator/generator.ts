@@ -1,6 +1,6 @@
-import { EntityNode } from '../node/entityNode';
-import { RepositoryNode } from '../node/repositoryNode';
-import { RootNode } from '../node/rootNode';
+import { EntityNode } from '../parser/node/entityNode';
+import { RootNode } from '../parser/node/rootNode';
+import { RepositoryNode } from '../parser/node/repositoryNode';
 
 export type FileData = Array<{ name: string; body: string }>;
 

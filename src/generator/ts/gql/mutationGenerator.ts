@@ -25,17 +25,17 @@ import {
   ParenthesizedExpression,
   PropertyAccessExpression,
 } from '../code/node/expressions';
+import { Directory } from '../../../constants/directory';
+import { SasatError } from '../../../error';
+import { EntityName } from '../../../entity/entityName';
+import { tsg } from '../code/factory';
 import {
   CreateMutationNode,
   DeleteMutationNode,
   MutationNode,
   UpdateMutationNode,
-} from '../../../node/gql/mutationNode';
-import { Directory } from '../../../constants/directory';
-import { SasatError } from '../../../error';
-import { ContextParamNode } from '../../../node/gql/contextParamNode';
-import { EntityName } from '../../../entity/entityName';
-import { tsg } from '../code/factory';
+} from '../../../parser/node/gql/mutationNode';
+import { ContextParamNode } from '../../../parser/node/gql/contextParamNode';
 
 export class MutationGenerator {
   generate = (mutations: MutationNode[]): TsFile => {

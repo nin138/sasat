@@ -19,9 +19,9 @@ import {
   StringLiteral,
 } from '../code/node/expressions';
 import { tsg } from '../code/factory';
-import { MutationNode } from '../../../node/gql/mutationNode';
 import { EntityName } from '../../../entity/entityName';
 import { Directory } from '../../../constants/directory';
+import { MutationNode } from '../../../parser/node/gql/mutationNode';
 
 interface Subscription {
   entity: EntityName;

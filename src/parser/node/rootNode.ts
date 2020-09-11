@@ -1,12 +1,12 @@
 import { RepositoryNode } from './repositoryNode';
 import { ContextNode } from './gql/contextNode';
-import { EntityName } from '../entity/entityName';
 import { RelationNode } from './relationNode';
-import { DataStoreHandler } from '../entity/dataStore';
-import { ContextNodeFactory } from '../parser/nodeFactory/contextNodeFactory';
 import { EntityNode } from './entityNode';
 import { QueryNode } from './gql/queryNode';
 import { MutationNode } from './gql/mutationNode';
+import { DataStoreHandler } from '../../entity/dataStore';
+import { ContextNodeFactory } from '../nodeFactory/contextNodeFactory';
+import { EntityName } from '../../entity/entityName';
 
 export class RootNode {
   readonly repositories: RepositoryNode[] = [];

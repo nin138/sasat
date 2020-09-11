@@ -1,7 +1,4 @@
 import { CodeGenerator, FileData } from '../generator';
-import { EntityNode } from '../../node/entityNode';
-import { RepositoryNode } from '../../node/repositoryNode';
-import { RootNode } from '../../node/rootNode';
 import { EntityGenerator } from './entityGenerator';
 import { TypeDefGenerator } from './gql/typeDefGenerator';
 import { QueryGenerator } from './gql/queryGenerator';
@@ -14,6 +11,9 @@ import { RepositoryGenerator } from './db/repositoryGenerator';
 import { staticFiles } from './staticFiles';
 import { RelationMapGenerator } from './relationMapGenerator';
 import { FieldGenerator } from './fieldGenerator';
+import { EntityNode } from '../../parser/node/entityNode';
+import { RepositoryNode } from '../../parser/node/repositoryNode';
+import { RootNode } from '../../parser/node/rootNode';
 
 export class TsCodeGenerator implements CodeGenerator {
   readonly fileExt = 'ts';

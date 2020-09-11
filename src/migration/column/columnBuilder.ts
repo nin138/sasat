@@ -7,7 +7,7 @@ import {
   DBStringTypes,
   DBTextTypes,
 } from './columnTypes';
-import { SqlValueType } from '../../db/dbClient';
+import { SqlValueType } from '../../db/connectors/dbClient';
 import { ColumnData } from './columnData';
 
 export abstract class ColumnBuilder {

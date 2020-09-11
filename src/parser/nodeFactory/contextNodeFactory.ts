@@ -1,6 +1,6 @@
 import { TableHandler } from '../../entity/table';
-import { ContextNode } from '../../node/gql/contextNode';
-import { TypeNode } from '../../node/typeNode';
+import { ContextNode } from '../node/gql/contextNode';
+import { TypeNode } from '../node/typeNode';
 
 export class ContextNodeFactory {
   create(tables: TableHandler[]): ContextNode[] {

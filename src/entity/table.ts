@@ -8,7 +8,7 @@ import { assembleColumn } from './assembleColumn';
 import { capitalizeFirstLetter } from '../util/stringUtil';
 import { getDefaultGqlOption, GqlOption, mergeGqlOption } from '../migration/gqlOption';
 import { NestedPartial } from '../util/type';
-import { escapeName } from '../sql/escape';
+import { escapeName } from '../db/sql/escape';
 import { EntityName } from './entityName';
 
 export interface Table {

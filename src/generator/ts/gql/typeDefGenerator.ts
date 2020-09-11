@@ -1,11 +1,11 @@
 import { PropertyAssignment } from '../code/node/propertyAssignment';
 import { TsFile } from '../file';
-import { RootNode } from '../../../node/rootNode';
-import { TypeDefNode } from '../../../node/gql/typeDefNode';
 import { tsg } from '../code/factory';
-import { QueryNode } from '../../../node/gql/queryNode';
-import { MutationNode } from '../../../node/gql/mutationNode';
-import { SubscriptionFilterNode } from '../../../node/gql/subscriptionFilterNode';
+import { RootNode } from '../../../parser/node/rootNode';
+import { TypeDefNode } from '../../../parser/node/gql/typeDefNode';
+import { MutationNode } from '../../../parser/node/gql/mutationNode';
+import { SubscriptionFilterNode } from '../../../parser/node/gql/subscriptionFilterNode';
+import { QueryNode } from '../../../parser/node/gql/queryNode';
 
 export class TypeDefGenerator {
   generate(root: RootNode): TsFile {

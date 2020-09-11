@@ -1,12 +1,11 @@
-import { columnTypeToTsType, DBColumnTypes } from '../migration/column/columnTypes';
-import { SqlValueType } from '../db/dbClient';
+import { Column } from '../../entity/column';
+import { TableHandler } from '../../entity/table';
+import { columnTypeToTsType, DBColumnTypes } from '../../migration/column/columnTypes';
+import { PropertySignature } from '../../generator/ts/code/node/propertySignature';
+import { tsg } from '../../generator/ts/code/factory';
 import { ParameterNode } from './parameterNode';
 import { TypeNode } from './typeNode';
-import { Column } from '../entity/column';
-import { TableHandler } from '../entity/table';
-import { PropertySignature } from '../generator/ts/code/node/propertySignature';
-import { TypeReference } from '../generator/ts/code/node/type/typeReference';
-import { TsType } from '../generator/ts/code/node/type/type';
+import { SqlValueType } from '../../db/connectors/dbClient';
 
 export class FieldNode {
   static fromColumn(column: Column, table: TableHandler): FieldNode {
@@ -43,7 +42,7 @@ export class FieldNode {
   }
 
   public toPropertySignature(): PropertySignature {
-    return new PropertySignature(this.fieldName, new TypeReference(this.tsType()), false, true);
+    return new PropertySignature(this.fieldName, tsg.typeRef(this.tsType()), false, true);
   }
 
   public hasDefaultValue(): boolean {

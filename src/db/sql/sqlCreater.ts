@@ -1,6 +1,6 @@
-import { ForeignKey } from '../entity/foreignKey';
 import { columnToSql } from './columnToSql';
-import { ColumnData } from '../migration/column/columnData';
+import { ColumnData } from '../../migration/column/columnData';
+import { ForeignKey } from '../../entity/foreignKey';
 
 export const foreignKeyToSql = (foreignKey: ForeignKey): string => {
   const onUpdate = foreignKey.onUpdate ? ` ON UPDATE ${foreignKey.onUpdate}` : '';

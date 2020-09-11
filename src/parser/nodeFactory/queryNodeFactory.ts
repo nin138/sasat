@@ -1,8 +1,8 @@
 import { plural } from '../../util/stringUtil';
 import { TableHandler } from '../../entity/table';
-import { QueryNode } from '../../node/gql/queryNode';
-import { TypeNode } from '../../node/typeNode';
-import { ParameterNode } from '../../node/parameterNode';
+import { QueryNode } from '../node/gql/queryNode';
+import { TypeNode } from '../node/typeNode';
+import { ParameterNode } from '../node/parameterNode';
 import { Parser } from '../parser';
 
 export class QueryNodeFactory {

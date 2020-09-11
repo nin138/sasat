@@ -3,11 +3,11 @@ import { TableHandler } from '../entity/table';
 import { capitalizeFirstLetter } from '../util/stringUtil';
 import { ReferenceColumn } from '../entity/referenceColumn';
 import { Relation } from '..';
-import { RepositoryNode } from '../node/repositoryNode';
-import { FindMethodNode } from '../node/findMethod';
-import { ParameterNode } from '../node/parameterNode';
-import { TypeNode } from '../node/typeNode';
-import { RootNode } from '../node/rootNode';
+import { RepositoryNode } from './node/repositoryNode';
+import { FindMethodNode } from './node/findMethod';
+import { ParameterNode } from './node/parameterNode';
+import { TypeNode } from './node/typeNode';
+import { RootNode } from './node/rootNode';
 
 export class Parser {
   parse(store: DataStoreHandler): RootNode {

@@ -1,5 +1,5 @@
 import * as SqlString from 'sqlstring';
-import { SasatError } from '../../error';
+import { SasatError } from '../../../error';
 
 export enum Comparison {
   eq = '=',

@@ -4,10 +4,10 @@ import { config } from '../config/config';
 import * as path from 'path';
 import { emptyDir, writeFile } from 'fs-extra';
 import { mkDirIfNotExist, writeFileIfNotExist } from '../util/fsUtil';
-import { EntityNode } from '../node/entityNode';
-import { RepositoryNode } from '../node/repositoryNode';
 import { Directory } from '../constants/directory';
-import { RootNode } from '../node/rootNode';
+import { RootNode } from '../parser/node/rootNode';
+import { RepositoryNode } from '../parser/node/repositoryNode';
+import { EntityNode } from '../parser/node/entityNode';
 
 export class CodeGenerateController {
   private codeGen: CodeGenerator = new TsCodeGenerator();

@@ -1,6 +1,6 @@
 import { CommandResponse, DBClient, QueryResponse, SQLTransaction } from '../dbClient';
 import * as maria from 'mariadb';
-import { config } from '../../config/config';
+import { config } from '../../../config/config';
 import { MariaDBTransaction } from './transaction';
 
 const connectionConfig = { ...config().db, dateStrings: true };

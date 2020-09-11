@@ -1,7 +1,7 @@
 import { Directory } from '../../../constants/directory';
-import { RepositoryNode } from '../../../node/repositoryNode';
 import { TsFile } from '../file';
 import { tsg } from '../code/factory';
+import { RepositoryNode } from '../../../parser/node/repositoryNode';
 
 export class RepositoryGenerator {
   generate(node: RepositoryNode): TsFile {

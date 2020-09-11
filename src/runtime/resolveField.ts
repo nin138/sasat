@@ -1,6 +1,6 @@
-import { SQL, SQLJoin } from '../sql/condition';
 import { QueryInfo, ResolveRoute } from './hydrate';
 import { ComparisonOperators, Relation } from '..';
+import { SQL, SQLJoin } from '../db/sql/condition';
 
 export type Field = {
   fields: string[];

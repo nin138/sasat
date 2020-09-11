@@ -1,9 +1,9 @@
 import { FieldNode } from './fieldNode';
-import { EntityName } from '../entity/entityName';
 import { RepositoryNode } from './repositoryNode';
 import { RelationNode } from './relationNode';
-import { TableHandler } from '../entity/table';
 import { TypeDefNode } from './gql/typeDefNode';
+import { EntityName } from '../../entity/entityName';
+import { TableHandler } from '../../entity/table';
 
 export class EntityNode {
   readonly entityName: EntityName;

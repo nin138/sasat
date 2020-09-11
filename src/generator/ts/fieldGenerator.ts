@@ -1,8 +1,7 @@
 import { TsFile } from './file';
-import { EntityNode } from '../../node/entityNode';
 import { tsg } from './code/factory';
-import { RootNode } from '../../node/rootNode';
 import { Directory } from '../../constants/directory';
+import { RootNode } from '../../parser/node/rootNode';
 
 export class FieldGenerator {
   generate(root: RootNode): TsFile {

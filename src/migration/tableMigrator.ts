@@ -4,7 +4,7 @@ import { SerializedTable } from '../entity/serializedStore';
 import { StoreMigrator } from './storeMigrator';
 import { DBIndex } from '../entity';
 import { ColumnData } from './column/columnData';
-import { SqlCreator } from '../sql/sqlCreater';
+import { SqlCreator } from '../db/sql/sqlCreater';
 import { NestedPartial } from '../util/type';
 import { GqlOption } from './gqlOption';
 

@@ -5,9 +5,9 @@ import { SpreadAssignment } from '../code/node/spreadAssignment';
 import { Identifier, ObjectLiteral } from '../code/node/expressions';
 import { tsg } from '../code/factory';
 import { Directory } from '../../../constants/directory';
-import { EntityNode } from '../../../node/entityNode';
-import { RelationNode } from '../../../node/relationNode';
 import { Parser } from '../../../parser/parser';
+import { RelationNode } from '../../../parser/node/relationNode';
+import { EntityNode } from '../../../parser/node/entityNode';
 
 export class ResolverGenerator {
   private relationProperty(relation: RelationNode) {

@@ -1,12 +1,12 @@
 import { EntityNode } from './entityNode';
 import { FindMethodNode } from './findMethod';
-import { EntityName } from '../entity/entityName';
 import { RootNode } from './rootNode';
-import { TableHandler } from '../entity/table';
 import { QueryNode } from './gql/queryNode';
 import { MutationNode } from './gql/mutationNode';
-import { QueryNodeFactory } from '../parser/nodeFactory/queryNodeFactory';
-import { MutationNodeFactory } from '../parser/nodeFactory/mutationNodeFactory';
+import { TableHandler } from '../../entity/table';
+import { MutationNodeFactory } from '../nodeFactory/mutationNodeFactory';
+import { QueryNodeFactory } from '../nodeFactory/queryNodeFactory';
+import { EntityName } from '../../entity/entityName';
 
 export class RepositoryNode {
   readonly tableName: string;

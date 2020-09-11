@@ -4,7 +4,7 @@ import { columnTypeToGqlPrimitive } from '../generator/gql/columnToGqlType';
 import { GqlPrimitive } from '../generator/gql/types';
 import { ColumnData } from '../migration/column/columnData';
 import { Table } from './table';
-import { columnToSql } from '../sql/columnToSql';
+import { columnToSql } from '../db/sql/columnToSql';
 import { SerializedColumn } from './serializedStore';
 
 export interface Column {

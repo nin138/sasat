@@ -1,4 +1,5 @@
-import { formatQuery } from './formatQuery';
+import { formatQuery } from '../formatQuery';
+
 export type QueryResponse = Array<{ [key: string]: string }>;
 export interface CommandResponse {
   insertId: number;
