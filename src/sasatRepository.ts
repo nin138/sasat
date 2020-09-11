@@ -3,7 +3,7 @@ import { CommandResponse, SQLExecutor } from './db/dbClient';
 import { SQL, createSQLString } from './sql/condition';
 import * as SqlString from 'sqlstring';
 import { SasatError } from './error';
-import { ResolveResult } from './runtime/resolveField';
+import { FieldResolver, ResolveResult, Field } from './runtime/resolveField';
 import { hydrate } from './runtime/hydrate';
 
 export type EntityResult<Entity, Identifiable> = Identifiable & Partial<Entity>;
@@ -15,8 +15,9 @@ interface Repository<Entity, Creatable, Identifiable> {
   find(condition: SQL<Entity>): Promise<Entity[]>;
 }
 
-export abstract class SasatRepository<Entity, Creatable, Identifiable>
+export abstract class SasatRepository<Entity, Creatable, Identifiable, EntityFields extends Field>
   implements Repository<Entity, Creatable, Identifiable> {
+  protected abstract resolver: FieldResolver;
   abstract readonly tableName: string;
   protected abstract readonly primaryKeys: string[];
   protected abstract readonly autoIncrementColumn?: string;
@@ -63,10 +64,11 @@ export abstract class SasatRepository<Entity, Creatable, Identifiable>
     return null;
   }
 
-  protected async find2(
+  async find2(
     condition: Omit<SQL<Entity>, 'select' | 'join' | 'from'>,
-    info: ResolveResult,
+    fields: EntityFields,
   ): Promise<EntityResult<Entity, Identifiable>[]> {
+    const info = this.resolver(fields, this.tableName);
     const sql = {
       ...(condition as SQL<Entity>),
       ...(info.sql as Pick<SQL<Entity>, 'select' | 'join' | 'from'>),
@@ -78,11 +80,11 @@ export abstract class SasatRepository<Entity, Creatable, Identifiable>
     ]) as EntityResult<Entity, Identifiable>[];
   }
 
-  protected async first2(
+  async first2(
     condition: Pick<SQL<Entity>, 'where' | 'order' | 'offset'>,
-    info: ResolveResult,
+    fields: EntityFields,
   ): Promise<EntityResult<Entity, Identifiable> | null> {
-    const result = await this.find2({ ...condition, limit: 1 }, info);
+    const result = await this.find2({ ...condition, limit: 1 }, fields);
     if (result.length !== 0) return result[0];
     return null;
   }

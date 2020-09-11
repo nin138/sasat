@@ -22,7 +22,7 @@ type RelationMap = {
     };
   };
 };
-type FieldResolver = (field: Field, from: string, depth?: number, currentRoute?: ResolveRoute) => ResolveResult;
+export type FieldResolver = (field: Field, from: string, depth?: number, currentRoute?: ResolveRoute) => ResolveResult;
 
 export const createFieldResolver = (relationMap: RelationMap, keyMap: Record<string, string[]>): FieldResolver => {
   const resolveField: FieldResolver = (
