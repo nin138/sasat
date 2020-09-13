@@ -1,10 +1,14 @@
 import { CommandResponse, getDbClient } from '..';
-import { Field, FieldResolver } from './resolveField';
+import { Fields, FieldResolver } from './resolveField';
 import * as SqlString from 'sqlstring';
 import { SasatError } from '../error';
-import { hydrate } from './hydrate';
+import { hydrate, ResultRow } from './h2';
 import { createSQLString, SQL } from '../db/sql/condition';
 import { SQLExecutor } from '../db/connectors/dbClient';
+import { createQueryResolveInfo, ResolveMaps } from './query/createQueryResolveInfo';
+import { queryToSql } from './query/sql/queryToSql';
+import { fieldToQuery } from './query/fieldToQuery';
+import { BooleanValueExpression, Query } from './query/query';
 
 export type EntityResult<Entity, Identifiable> = Identifiable & Partial<Entity>;
 interface Repository<Entity, Creatable, Identifiable> {
@@ -15,14 +19,21 @@ interface Repository<Entity, Creatable, Identifiable> {
   find(condition: SQL<Entity>): Promise<Entity[]>;
 }
 
-export abstract class SasatRepository<Entity, Creatable, Identifiable, EntityFields extends Field>
+export abstract class SasatRepository<Entity, Creatable, Identifiable, EntityFields extends Fields>
   implements Repository<Entity, Creatable, Identifiable> {
   protected abstract resolver: FieldResolver;
+  protected abstract maps: ResolveMaps;
   abstract readonly tableName: string;
+  abstract readonly columns: string[];
   protected abstract readonly primaryKeys: string[];
   protected abstract readonly autoIncrementColumn?: string;
   constructor(protected client: SQLExecutor = getDbClient()) {}
   protected abstract getDefaultValueString(): Partial<{ [P in keyof Entity]: Entity[P] | string | null }>;
+
+  async query(query: Query): Promise<ResultRow[]> {
+    const sql = queryToSql(query);
+    return this.client.rawQuery(sql);
+  }
 
   async create(entity: Creatable): Promise<Entity> {
     const columns: string[] = [];
@@ -65,26 +76,28 @@ export abstract class SasatRepository<Entity, Creatable, Identifiable, EntityFie
   }
 
   async find2(
-    condition: Omit<SQL<Entity>, 'select' | 'join' | 'from'>,
-    fields: EntityFields,
+    where?: BooleanValueExpression,
+    fields?: EntityFields,
+    limit?: number,
+    offset?: number,
   ): Promise<EntityResult<Entity, Identifiable>[]> {
-    const info = this.resolver(fields, this.tableName);
-    const sql = {
-      ...(condition as SQL<Entity>),
-      ...(info.sql as Pick<SQL<Entity>, 'select' | 'join' | 'from'>),
-    } as SQL<Entity>;
-    const result = await this.client.rawQuery(createSQLString({ ...condition, ...sql }));
-    return hydrate(result, [
-      { parent: -1, target: 0, property: '', isArray: false, keys: this.primaryKeys, routes: [] },
-      ...info.info,
-    ]) as EntityResult<Entity, Identifiable>[];
+    const field = fields || { fields: this.columns };
+    const query = {
+      ...fieldToQuery(this.tableName, field, this.maps.relation),
+      where,
+      limit,
+      offset,
+    };
+    const info = createQueryResolveInfo(this.tableName, field, this.maps.relation, this.maps.identifiable);
+    const result = await this.query(query);
+    return hydrate(result, info) as EntityResult<Entity, Identifiable>[];
   }
 
   async first2(
-    condition: Pick<SQL<Entity>, 'where' | 'order' | 'offset'>,
-    fields: EntityFields,
+    where?: BooleanValueExpression,
+    fields?: EntityFields,
   ): Promise<EntityResult<Entity, Identifiable> | null> {
-    const result = await this.find2({ ...condition, limit: 1 }, fields);
+    const result = await this.find2(where, fields, 1);
     if (result.length !== 0) return result[0];
     return null;
   }

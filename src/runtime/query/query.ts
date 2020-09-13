@@ -1,0 +1,122 @@
+import { ComparisonOperators } from '../..';
+export enum QueryNodeKind {
+  Field,
+  Function,
+  Table,
+  Join,
+  CompoundExpr,
+  ComparisonExpr,
+  IsNullExpr,
+  Parenthesis,
+  InExpr,
+  BetweenExpr,
+  ContainsExpr,
+  Literal,
+}
+
+export type Query = {
+  select: Select;
+  from: Table;
+  where?: BooleanValueExpression;
+  // TODO order
+  limit?: number;
+  offset?: number;
+};
+
+type Select = SelectExpr[];
+
+export type Field = {
+  kind: QueryNodeKind.Field;
+  table: string;
+  name: string;
+};
+
+export type Fn = {
+  kind: QueryNodeKind.Function;
+  fnName: string;
+  args: Value[];
+};
+
+export type SelectExpr = Field | Fn;
+
+export type Table = {
+  kind: QueryNodeKind.Table;
+  name: string;
+  alias?: string;
+  joins: Join[];
+};
+
+export type JoinType = 'INNER' | 'LEFT' | 'RIGHT' | 'OUTER';
+export type Join = {
+  kind: QueryNodeKind.Join;
+  type?: JoinType;
+  table: Table;
+  conditions: BooleanValueExpression;
+};
+
+export type ParenthesisExpression = {
+  kind: QueryNodeKind.Parenthesis;
+  expression: BooleanValueExpression;
+};
+
+export type BooleanValueExpression =
+  | CompoundExpression
+  | ComparisonExpression
+  | IsNullExpression
+  | ParenthesisExpression
+  | InExpression
+  | BetweenExpression
+  | ContainsExpression;
+
+export type IsNullExpression = {
+  kind: QueryNodeKind.IsNullExpr;
+  expr: Value;
+  isNot: boolean;
+};
+
+export type CompoundOperator = 'AND' | 'OR';
+export type CompoundExpression = {
+  kind: QueryNodeKind.CompoundExpr;
+  left: BooleanValueExpression;
+  operator: CompoundOperator;
+  right: BooleanValueExpression;
+};
+
+export type ComparisonExpression = {
+  kind: QueryNodeKind.ComparisonExpr;
+  left: Value;
+  operator: ComparisonOperators;
+  right: Value;
+};
+
+export type ContainType = 'start' | 'end' | 'contains';
+export type ContainsExpression = {
+  kind: QueryNodeKind.ContainsExpr;
+  type: ContainType;
+  left: Value;
+  isNot: boolean;
+  right: string;
+};
+
+export type InExpression = {
+  kind: QueryNodeKind.InExpr;
+  left: Value;
+  operator: 'IN' | 'NOT IN';
+  right: Value[];
+};
+
+export type BetweenExpression = {
+  kind: QueryNodeKind.BetweenExpr;
+  left: Value;
+  begin: Value;
+  end: Value;
+};
+
+export type Value = Literal | Identifier | Fn;
+
+type Identifier = Field;
+
+export type Literal = {
+  kind: QueryNodeKind.Literal;
+  value: string | boolean | number | null;
+};

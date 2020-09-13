@@ -2,9 +2,10 @@ import { QueryInfo, ResolveRoute } from './hydrate';
 import { ComparisonOperators, Relation } from '..';
 import { SQL, SQLJoin } from '../db/sql/condition';
 
-export type Field = {
+export type Fields = {
   fields: string[];
-  relations?: Record<string, Field | undefined>;
+  relations?: Record<string, Fields | undefined>;
+  tableAlias?: string;
 };
 
 const formatField = (column: string, depth: number): [string, string] => [`t${depth}.${column}`, `${depth}__${column}`];
@@ -22,11 +23,16 @@ type RelationMap = {
     };
   };
 };
-export type FieldResolver = (field: Field, from: string, depth?: number, currentRoute?: ResolveRoute) => ResolveResult;
+export type FieldResolver = (field: Fields, from: string, depth?: number, currentRoute?: ResolveRoute) => ResolveResult;
 
+/**
+ * @deprecated
+ * @param relationMap
+ * @param keyMap
+ */
 export const createFieldResolver = (relationMap: RelationMap, keyMap: Record<string, string[]>): FieldResolver => {
   const resolveField: FieldResolver = (
-    field: Field,
+    field: Fields,
     from: string,
     depth = 0,
     currentRoute: ResolveRoute = [],
@@ -36,7 +42,7 @@ export const createFieldResolver = (relationMap: RelationMap, keyMap: Record<str
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const join: SQLJoin<unknown, any, any>[] = [];
     let currentDepth = depth;
-    Object.entries(field.relations || []).forEach(([rel, field]: [string, Field | undefined]) => {
+    Object.entries(field.relations || []).forEach(([rel, field]: [string, Fields | undefined]) => {
       if (field === undefined) return;
       const data = relationMap[from][rel];
       currentDepth += 1;

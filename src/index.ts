@@ -1,3 +1,7 @@
+import { QExpr } from './db/query/factory';
+
+export { RelationMap } from './runtime/query/createQueryResolveInfo';
+export { Fields } from './runtime/resolveField';
 export { resolveInfoToField } from './runtime/resolveInfoToField';
 export { createFieldResolver } from './runtime/resolveField';
 export { ComparisonOperators } from './db/sql/expression/comparison';

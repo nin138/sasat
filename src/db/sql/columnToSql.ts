@@ -1,10 +1,9 @@
-import * as SqlString from 'sqlstring';
-import { escapeName } from './escape';
 import { ColumnData } from '../../migration/column/columnData';
 import { DBColumnTypes } from '../../migration/column/columnTypes';
+import { SqlString } from './escape';
 
 export const columnToSql = (column: ColumnData): string => {
-  const words = [escapeName(column.columnName), column.type];
+  const words = [SqlString.escapeId(column.columnName), column.type];
   if (column.length) words.push(`(${[column.length, column.scale].filter(it => it !== undefined).join(',')})`);
   if (column.signed === true) words.push('SIGNED');
   else if (column.signed === false) words.push('UNSIGNED');

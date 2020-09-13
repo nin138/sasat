@@ -1,23 +1,28 @@
 import { GraphQLResolveInfo, SelectionNode } from 'graphql';
-import { Field } from './resolveField';
+import { Fields } from './resolveField';
 
-const selectionSetToField = (selections: readonly SelectionNode[]): Field => {
-  const result: Field = {
+const selectionSetToField = (selections: readonly SelectionNode[], number: number): [Fields, number] => {
+  const result: Fields = {
     fields: [],
     relations: {},
+    tableAlias: 't' + number,
   };
+  let num = number;
   selections.forEach(it => {
     // TODO 'fragmentNode'
     if (it.kind !== 'Field') return;
     if (it.selectionSet) {
-      result.relations![it.name.value] = selectionSetToField(it.selectionSet.selections);
+      num += 1;
+      const field = selectionSetToField(it.selectionSet.selections, num);
+      result.relations![it.name.value] = field[0];
+      num = field[1];
     } else {
       result.fields.push(it.name.value);
     }
   });
-  return result;
+  return [result, num];
 };
 
-export const resolveInfoToField = (info: GraphQLResolveInfo): Field => {
-  return selectionSetToField(info.fieldNodes[0].selectionSet!.selections);
+export const resolveInfoToField = (info: GraphQLResolveInfo): Fields => {
+  return selectionSetToField(info.fieldNodes[0].selectionSet!.selections, 0)[0];
 };

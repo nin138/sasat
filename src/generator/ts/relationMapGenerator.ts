@@ -22,9 +22,7 @@ export class RelationMapGenerator {
         'const',
         tsg.identifier('relationMap'),
         tsg.object(...root.entities().map(it => this.entityRelationMap(it))),
-        tsg.typeRef(
-          `{[from: string]: {[to: string]: {table: string, on: [[string, '=' | '>' | '<' | '>=' | '<=' | '<>', string]], relation: 'One' | 'OneOrZero' |'Many'}}}`,
-        ),
+        tsg.typeRef('RelationMap').importFrom('sasat'),
       )
       .export();
   }
