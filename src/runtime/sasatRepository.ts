@@ -1,8 +1,8 @@
 import { CommandResponse, getDbClient } from '..';
-import { Fields } from './resolveField';
+import { Fields } from './field';
 import * as SqlString from 'sqlstring';
 import { SasatError } from '../error';
-import { hydrate, ResultRow } from './h2';
+import { hydrate, ResultRow } from './hydrate';
 import { createSQLString, SQL } from '../db/sql/condition';
 import { SQLExecutor } from '../db/connectors/dbClient';
 import { createQueryResolveInfo, ResolveMaps } from './query/createQueryResolveInfo';

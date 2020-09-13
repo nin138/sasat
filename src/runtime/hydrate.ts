@@ -1,30 +1,25 @@
-export type ResolveRoute = (string | number)[];
-export type QueryInfo = {
-  parent: number;
-  target: number;
-  property: string;
+import { SqlValueType } from '../db/connectors/dbClient';
+import { SELECT_ALIAS_SEPARATOR } from './query/sql/nodeToSql';
+
+export type QueryResolveInfo = {
+  tableAlias: string;
   isArray: boolean;
-  keys: string[];
-  routes: ResolveRoute;
+  keyAliases: string[];
+  joins: QueryResolveInfo[];
+  property: string;
 };
 
-const access = (target: Record<string, unknown>, route: ResolveRoute) => {
-  // @ts-ignore
-  let result: any = target;
-  for (let i = 0; i < route.length; i++) {
-    if (i === route.length - 1 && route[i] === 0) break;
-    result = result[route[i]];
-  }
-  return result;
-};
+export type ResultRow = Record<string, SqlValueType>;
 
-const getUnique = (target: Record<string, string | number | null>, table: number, keys: string[]) =>
-  keys.map(it => target[table + '__' + it]).join('_~_');
+type ParseObjs = Record<string, Record<string, unknown>>;
 
-const rowToObjs = (row: Record<string, unknown>) => {
-  const objs: Record<string, Record<string, unknown>> = {};
+const getUnique = (target: ResultRow, info: QueryResolveInfo) =>
+  info.keyAliases.map(it => target[info.tableAlias + SELECT_ALIAS_SEPARATOR + it]).join('_~_');
+
+const rowToObjs = (row: ResultRow): ParseObjs => {
+  const objs: Record<string, ResultRow> = {};
   Object.entries(row).forEach(([key, value]) => {
-    const [table, column] = key.split('__');
+    const [table, column] = key.split(SELECT_ALIAS_SEPARATOR);
     if (!objs[table]) {
       objs[table] = {};
     }
@@ -33,61 +28,52 @@ const rowToObjs = (row: Record<string, unknown>) => {
   return objs;
 };
 
-const hydrateRow = (row: Record<string, unknown>, infoList: QueryInfo[], startRoute = 0) => {
-  const objs: Record<string, Record<string, unknown>> = rowToObjs(row);
-  const startIndex = infoList.slice(1, startRoute + 1).reduce((c, p) => c + p.routes.length, 0);
-  const result: Record<string, any> = objs[startRoute];
-  const assign = (table: number, value: unknown) => {
-    const currentRoute = infoList[table].routes;
-    let ref = result;
-    for (let i = startIndex; i < currentRoute.length - 1; i++) {
-      if (currentRoute[i + 1] === 0 && ref[currentRoute[i]] === undefined) {
-        ref[currentRoute[i]] = [];
-      }
-      ref = ref[currentRoute[i]];
+const hydrateRow = (info: QueryResolveInfo, objs: ParseObjs) => {
+  const result: Record<string, unknown> = objs[info.tableAlias];
+  info.joins.forEach(it => {
+    if (it.isArray) {
+      result[it.property] = [hydrateRow(it, objs)];
+    } else {
+      result[it.property] = hydrateRow(it, objs);
     }
-    const key = currentRoute[currentRoute.length - 1];
-    ref[key] = value;
-  };
-  infoList.slice(startRoute + 1).forEach(info => {
-    assign(info.target, objs[info.target]);
   });
   return result;
 };
 
+const findAndAppend = (base: Record<string, unknown>, info: QueryResolveInfo, objs: ParseObjs): boolean => {
+  if (info.isArray) {
+    if (!base[info.property]) {
+      base[info.property] = [hydrateRow(info, objs)];
+      return true;
+    }
+    const tArr: Record<string, unknown>[] = base[info.property] as Record<string, unknown>[];
+    const target = tArr.find(item => info.keyAliases.every(key => item[key] === objs[info.tableAlias][key]));
+    if (!target) {
+      tArr.push(hydrateRow(info, objs));
+      return true;
+    } else return info.joins.some(info => findAndAppend(target, info, objs));
+  }
+  if (base[info.property] !== undefined) return false;
+  base[info.property] = hydrateRow(info, objs);
+  return true;
+};
+
 // @ts-ignore
-export const hydrate = (data: Record<string, any>[], infoList: QueryInfo[]): any[] => {
+export const hydrate = (data: ResultRow[], info: QueryResolveInfo): unknown[] => {
   const result: Record<string, unknown>[] = [];
+  // Record<uniqueValue, index of result>
   const t0mapper: Record<string, number> = {};
 
   data.forEach(row => {
-    const info = infoList[0];
-    const unique = getUnique(row, 0, info.keys);
+    const unique = getUnique(row, info);
+    const objs: Record<string, Record<string, unknown>> = rowToObjs(row);
     if (t0mapper[unique] === undefined) {
       t0mapper[unique] = result.length;
-      result.push(hydrateRow(row, infoList));
+      result.push(hydrateRow(info, objs));
       return;
     }
     const base = result[t0mapper[unique]];
-    let index = 0;
-    while (index < infoList.length - 1) {
-      index += 1;
-      const info = infoList[index];
-      const route = info.routes;
-      const target = access(base, route);
-      if (Array.isArray(target)) {
-        const r = target.findIndex(it => info.keys.every(key => it[key] === row[index + '__' + key]));
-        if (r === -1) {
-          target.push(hydrateRow(row, infoList, index));
-          return;
-        } else {
-          continue;
-        }
-      } else {
-        target[info.property] = hydrateRow(row, infoList, index);
-        return;
-      }
-    }
+    info.joins.some(info => findAndAppend(base, info, objs));
   });
 
   return result;

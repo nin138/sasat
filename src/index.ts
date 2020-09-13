@@ -1,6 +1,6 @@
 export { QExpr } from './runtime/query/factory';
 export { RelationMap } from './runtime/query/createQueryResolveInfo';
-export { Fields } from './runtime/resolveField';
+export { Fields } from './runtime/field';
 export { gqlResolveInfoToField } from './runtime/gqlResolveInfoToField';
 export { ComparisonOperators } from './db/sql/expression/comparison';
 export { MigrationStore } from './migration/storeMigrator';

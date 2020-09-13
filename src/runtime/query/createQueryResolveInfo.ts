@@ -1,5 +1,5 @@
-import { QueryResolveInfo } from '../h2';
-import { Fields } from '../resolveField';
+import { QueryResolveInfo } from '../hydrate';
+import { Fields } from '../..';
 import { BooleanValueExpression } from './query';
 
 export type RelationInfo = {

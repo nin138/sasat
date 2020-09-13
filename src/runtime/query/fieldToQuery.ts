@@ -1,4 +1,4 @@
-import { Fields } from '../resolveField';
+import { Fields } from '../..';
 import { Join, Query, SelectExpr } from './query';
 import { QExpr } from './factory';
 import { RelationInfo, RelationMap } from './createQueryResolveInfo';
