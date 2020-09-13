@@ -23,6 +23,6 @@ const selectionSetToField = (selections: readonly SelectionNode[], number: numbe
   return [result, num];
 };
 
-export const resolveInfoToField = (info: GraphQLResolveInfo): Fields => {
+export const gqlResolveInfoToField = (info: GraphQLResolveInfo): Fields => {
   return selectionSetToField(info.fieldNodes[0].selectionSet!.selections, 0)[0];
 };

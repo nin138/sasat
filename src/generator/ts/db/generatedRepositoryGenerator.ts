@@ -3,7 +3,6 @@ import { Directory } from '../../../constants/directory';
 import { Class } from '../code/node/class';
 import { ExtendsClause } from '../code/node/extendsClause';
 import { TypeReference } from '../code/node/type/typeReference';
-import { baseRepositoryName } from '../../../constants/interfaceConstants';
 import { PropertyModifiers } from '../code/node/modifier/propertyModifiers';
 import { KeywordTypeNode } from '../code/node/type/typeKeyword';
 import { ArrayType } from '../code/node/type/arrayType';
@@ -31,12 +30,16 @@ export class GeneratedRepositoryGenerator {
         .abstract()
         .extends(
           new ExtendsClause(
-            tsg.typeRef(baseRepositoryName(), [
+            tsg.typeRef('BaseDBDataSource', [
               tsg.typeRef(node.entityName.name).importFrom(entityPath),
               tsg.typeRef(node.entityName.creatableInterface()).importFrom(entityPath),
               tsg.typeRef(node.entityName.identifiableInterfaceName()).importFrom(entityPath),
+              node.entityName.fieldTypeRef(Directory.paths.generatedDataSource),
             ]),
-          ).addImport([baseRepositoryName()], 'sasat'),
+          ).addImport(
+            ['BaseDBDataSource'],
+            Directory.basePath(Directory.paths.generatedDataSource, 'baseDBDataSource'),
+          ),
         )
         .addProperty(...this.properties(node))
         .addMethod(this.getDefaultValueMethod(node), ...this.findMethods(node)),
@@ -61,7 +64,7 @@ export class GeneratedRepositoryGenerator {
         .initializer(tsg.string(node.tableName)),
       tsg
         .propertyDeclaration('columns', tsg.arrayType(KeywordTypeNode.string), false)
-        .modifiers(tsg.propertyModifiers().readonly().protected())
+        .modifiers(tsg.propertyModifiers().readonly())
         .initializer(tsg.array(node.entity.fields.map(it => tsg.string(it.fieldName)))),
       tsg
         .propertyDeclaration('primaryKeys', new ArrayType(KeywordTypeNode.string), false)
@@ -94,34 +97,35 @@ export class GeneratedRepositoryGenerator {
     return new MethodDeclaration(
       'getDefaultValueString',
       [],
-      columns.length !== 0 ? new TypeReference(node.entityName.name).pick(...columns) : new TypeLiteral(),
+      columns.length !== 0 ? tsg.typeRef(node.entityName.name).pick(...columns) : tsg.typeRef('Record<string, never>'),
       [body],
     ).modifiers(new MethodModifiers().protected());
   }
 
   private findMethods(node: RepositoryNode) {
+    const qExpr = tsg.identifier('QExpr').importFrom('sasat');
     return node.findMethods.map(it => {
+      const exps = it.params.map(it =>
+        qExpr
+          .property('conditions')
+          .property('eq')
+          .call(
+            qExpr.property('field').call(tsg.identifier('tableName'), tsg.string(it.name)),
+            qExpr.property('value').call(tsg.identifier(it.name)),
+          ),
+      );
       const body = [
-        tsg.variable(
-          'const',
-          'info',
-          tsg
-            .identifier('resolveField')
-            .importFrom(Directory.generatedPath(Directory.paths.generatedDataSource, 'relationMap'))
-            .call(tsg.identifier('fields || {fields: this.columns}'), tsg.identifier('this.tableName')),
-        ),
-        new ReturnStatement(
-          tsg
-            .identifier(it.returnType.isArray ? 'this.find2' : 'this.first2')
-            .call(
-              tsg.object(
-                new PropertyAssignment(
-                  'where',
-                  tsg.object(...it.params.map(it => new PropertyAssignment(it.name, tsg.identifier(it.name)))),
-                ),
-              ),
-              tsg.identifier('info'),
-            ),
+        tsg.variable('const', 'tableName', tsg.identifier('fields?.tableAlias || this.tableName')),
+        tsg.return(
+          tsg.identifier(it.returnType.isArray ? 'this.find2' : 'this.first2').call(
+            tsg.identifier('fields'),
+            exps.length === 1
+              ? exps[0]
+              : qExpr
+                  .property('conditions')
+                  .property('and')
+                  .call(tsg.identifier('fields'), ...exps),
+          ),
         ),
       ];
       const returnType = tsg

@@ -10,6 +10,7 @@ export class MysqlClient extends DBClient {
   constructor() {
     super();
     this.pool = mysql.createPool(connectionConfig);
+    this.release = this.release.bind(this);
   }
 
   async transaction(): Promise<SQLTransaction> {

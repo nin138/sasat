@@ -41,6 +41,14 @@ export class EntityName {
     return this.name + 'Result';
   }
 
+  fieldsTypeName(): string {
+    return this.name + 'Fields';
+  }
+
+  fieldTypeRef(fromPath: string): TypeReference {
+    return new TypeReference(this.fieldsTypeName()).importFrom(Directory.generatedPath(fromPath, 'fields'));
+  }
+
   dataSourceName(): string {
     return dataSourceName(this.name);
   }

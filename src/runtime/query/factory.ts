@@ -62,11 +62,6 @@ const paren = (expression: BooleanValueExpression): ParenthesisExpression => ({
   expression,
 });
 
-const literal = (value: string | boolean | number | null): Literal => ({
-  kind: QueryNodeKind.Literal,
-  value,
-});
-
 const In = (left: Value, values: (string | number)[]): InExpression => ({
   kind: QueryNodeKind.InExpr,
   left,
@@ -94,7 +89,7 @@ const isNull = (isNot: boolean) => (expr: Value): IsNullExpression => ({
   isNot,
 });
 
-const Conditions = {
+const conditions = {
   and,
   or,
   eq: comparison('='),
@@ -130,11 +125,17 @@ const join = (table: Table, conditions: BooleanValueExpression, type?: JoinType)
   conditions,
 });
 
+const literal = (value: string | boolean | number | null): Literal => ({
+  kind: QueryNodeKind.Literal,
+  value,
+});
+
 export const QExpr = {
-  Conditions,
+  conditions,
   field,
   fn,
   paren,
   table,
   join,
+  value: literal,
 };

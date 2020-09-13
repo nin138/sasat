@@ -4,7 +4,7 @@ import { BooleanValueExpression } from './query';
 
 export type RelationInfo = {
   table: string;
-  on: BooleanValueExpression; // [string, "=" | ">" | "<" | ">=" | "<=" | "<>", string][];
+  on: (parentTableAlias: string, childTableAlias: string) => BooleanValueExpression;
   relation: 'One' | 'OneOrZero' | 'Many';
 };
 

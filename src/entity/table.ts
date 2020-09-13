@@ -8,8 +8,8 @@ import { assembleColumn } from './assembleColumn';
 import { capitalizeFirstLetter } from '../util/stringUtil';
 import { getDefaultGqlOption, GqlOption, mergeGqlOption } from '../migration/gqlOption';
 import { NestedPartial } from '../util/type';
-import { SqlString } from '../db/sql/escape';
 import { EntityName } from './entityName';
+import { SqlString } from '../runtime/query/sql/sqlString';
 
 export interface Table {
   column(columnName: string): Column | undefined;

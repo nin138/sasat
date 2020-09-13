@@ -1,6 +1,5 @@
 import { TsFile } from '../file';
 import { PropertyAssignment } from '../code/node/propertyAssignment';
-import { TypeLiteral } from '../code/node/type/typeLiteral';
 import { Directory } from '../../../constants/directory';
 import { tsg } from '../code/factory';
 import { RepositoryNode } from '../../../parser/node/repositoryNode';
@@ -21,14 +20,22 @@ export class QueryGenerator {
   }
   private entity(node: RepositoryNode): PropertyAssignment[] {
     const createParams = (query: QueryNode) => {
-      if (query.queryParams.length === 0) return [];
+      if (query.queryParams.length === 0)
+        return [
+          tsg.parameter('_1', tsg.typeRef('unknown')),
+          tsg.parameter('_2', tsg.typeRef('unknown')),
+          tsg.parameter('_3', tsg.typeRef('unknown')),
+          tsg.parameter('info'),
+        ];
       const paramNames = query.queryParams.map(it => it.name);
       return [
-        tsg.parameter('_', new TypeLiteral()),
+        tsg.parameter('_1', tsg.typeRef('unknown')),
         tsg.parameter(
           `{ ${paramNames.join(',')} }`,
           node.entityName.getTypeReference(Directory.paths.generated).pick(...paramNames),
         ),
+        tsg.parameter('_2', tsg.typeRef('unknown')),
+        tsg.parameter('info'),
       ];
     };
     return node.queries.map(it =>
@@ -44,7 +51,14 @@ export class QueryGenerator {
                 .importFrom(Directory.dataSourcePath(Directory.paths.generated, node.entityName)),
             )
             .property(it.repoMethodName)
-            .call(...it.queryParams.map(it => tsg.identifier(it.name))),
+            .call(
+              ...it.queryParams.map(it => tsg.identifier(it.name)),
+              tsg
+                .identifier('gqlResolveInfoToField')
+                .importFrom('sasat')
+                .call(tsg.identifier('info'))
+                .as(node.entityName.fieldTypeRef(Directory.paths.generated)),
+            ),
         ),
       ),
     );

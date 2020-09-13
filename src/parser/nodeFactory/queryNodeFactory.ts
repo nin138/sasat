@@ -11,7 +11,7 @@ export class QueryNodeFactory {
   }
 
   private listQuery(table: TableHandler) {
-    return new QueryNode(plural(table.tableName), 'list', [], new TypeNode(table.getEntityName(), true, false));
+    return new QueryNode(plural(table.tableName), 'find2', [], new TypeNode(table.getEntityName(), true, false));
   }
 
   private primaryQuery(table: TableHandler) {

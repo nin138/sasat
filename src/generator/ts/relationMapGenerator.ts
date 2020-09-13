@@ -5,13 +5,13 @@ import { Directory } from '../../constants/directory';
 import { EntityName } from '../../entity/entityName';
 import { RootNode } from '../../parser/node/rootNode';
 import { EntityNode } from '../../parser/node/entityNode';
+import { KeywordTypeNode } from './code/node/type/typeKeyword';
 
 export class RelationMapGenerator {
   generate(root: RootNode): TsFile {
     return new TsFile(
       this.relationMap(root),
       this.identifiableKeyMap(root),
-      this.resolveFunc(),
       ...root.entities().flatMap(this.entityRelationType),
     );
   }
@@ -21,7 +21,7 @@ export class RelationMapGenerator {
       .variable(
         'const',
         tsg.identifier('relationMap'),
-        tsg.object(...root.entities().map(it => this.entityRelationMap(it))),
+        tsg.object(...root.entities().map(it => this.entityRelationMap(it, root))),
         tsg.typeRef('RelationMap').importFrom('sasat'),
       )
       .export();
@@ -36,19 +36,6 @@ export class RelationMapGenerator {
           ...root.repositories.map(it => tsg.propertyAssign(it.tableName, tsg.array(it.primaryKeys.map(tsg.string)))),
         ),
         tsg.typeRef('Record<string, string[]>'),
-      )
-      .export();
-  }
-
-  private resolveFunc() {
-    return tsg
-      .variable(
-        'const',
-        tsg.identifier('resolveField'),
-        tsg
-          .identifier('createFieldResolver')
-          .importFrom('sasat')
-          .call(tsg.identifier('relationMap'), tsg.identifier('identifiableKeyMap')),
       )
       .export();
   }
@@ -103,7 +90,9 @@ export class RelationMapGenerator {
     ];
   }
 
-  private entityRelationMap(node: EntityNode) {
+  private entityRelationMap(node: EntityNode, root: RootNode) {
+    const qExpr = tsg.identifier('QExpr').importFrom('sasat');
+    root.repositories;
     return tsg.propertyAssign(
       node.repository.tableName,
       tsg.object(
@@ -114,27 +103,51 @@ export class RelationMapGenerator {
               tsg.propertyAssign('table', tsg.string(rel.toTableName)),
               tsg.propertyAssign(
                 'on',
-                tsg.array([tsg.array([tsg.string(rel.fromColumn), tsg.string('='), tsg.string(rel.toColumn)])]),
+                tsg.arrowFunc(
+                  [
+                    tsg.parameter('parentTableAlias', KeywordTypeNode.string),
+                    tsg.parameter('childTableAlias', KeywordTypeNode.string),
+                  ],
+                  undefined,
+                  qExpr
+                    .property('conditions')
+                    .property('eq')
+                    .call(
+                      qExpr.property('field').call(tsg.identifier('parentTableAlias'), tsg.string(rel.fromColumn)),
+                      qExpr.property('field').call(tsg.identifier('childTableAlias'), tsg.string(rel.toColumn)),
+                    ),
+                ),
               ),
               tsg.propertyAssign('relation', tsg.string(Relation.One)),
             ),
           ),
         ),
-        ...node
-          .findReferencedRelations()
-          .map(rel =>
-            tsg.propertyAssign(
-              rel.referencedByPropertyName(),
-              tsg.object(
-                tsg.propertyAssign('table', tsg.string(rel.parent.repository.tableName)),
-                tsg.propertyAssign(
-                  'on',
-                  tsg.array([tsg.array([tsg.string(rel.toColumn), tsg.string('='), tsg.string(rel.fromColumn)])]),
+        ...node.findReferencedRelations().map(rel =>
+          tsg.propertyAssign(
+            rel.referencedByPropertyName(),
+            tsg.object(
+              tsg.propertyAssign('table', tsg.string(rel.parent.repository.tableName)),
+              tsg.propertyAssign(
+                'on',
+                tsg.arrowFunc(
+                  [
+                    tsg.parameter('parentTableAlias', KeywordTypeNode.string),
+                    tsg.parameter('childTableAlias', KeywordTypeNode.string),
+                  ],
+                  undefined,
+                  qExpr
+                    .property('conditions')
+                    .property('eq')
+                    .call(
+                      qExpr.property('field').call(tsg.identifier('parentTableAlias'), tsg.string(rel.toColumn)),
+                      qExpr.property('field').call(tsg.identifier('childTableAlias'), tsg.string(rel.fromColumn)),
+                    ),
                 ),
-                tsg.propertyAssign('relation', tsg.string(rel.relation)),
               ),
+              tsg.propertyAssign('relation', tsg.string(rel.relation)),
             ),
           ),
+        ),
       ),
     );
   }

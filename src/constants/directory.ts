@@ -28,6 +28,7 @@ class DirectoryResolver {
   entityPath = (fromPath: string, entityName: string | EntityName) =>
     relative(fromPath, `${this.paths.entity}${entityName.toString()}`);
   generatedPath = (fromPath: string, fileName: string) => relative(fromPath, `${this.paths.generated}${fileName}`);
+  basePath = (fromPath: string, fileName: string) => relative(fromPath, `/${fileName}`);
 }
 
 export const Directory = new DirectoryResolver();

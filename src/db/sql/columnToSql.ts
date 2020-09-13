@@ -1,6 +1,6 @@
 import { ColumnData } from '../../migration/column/columnData';
 import { DBColumnTypes } from '../../migration/column/columnTypes';
-import { SqlString } from './escape';
+import { SqlString } from '../../runtime/query/sql/sqlString';
 
 export const columnToSql = (column: ColumnData): string => {
   const words = [SqlString.escapeId(column.columnName), column.type];

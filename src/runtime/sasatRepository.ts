@@ -1,5 +1,5 @@
 import { CommandResponse, getDbClient } from '..';
-import { Fields, FieldResolver } from './resolveField';
+import { Fields } from './resolveField';
 import * as SqlString from 'sqlstring';
 import { SasatError } from '../error';
 import { hydrate, ResultRow } from './h2';
@@ -21,7 +21,6 @@ interface Repository<Entity, Creatable, Identifiable> {
 
 export abstract class SasatRepository<Entity, Creatable, Identifiable, EntityFields extends Fields>
   implements Repository<Entity, Creatable, Identifiable> {
-  protected abstract resolver: FieldResolver;
   protected abstract maps: ResolveMaps;
   abstract readonly tableName: string;
   abstract readonly columns: string[];
@@ -30,7 +29,7 @@ export abstract class SasatRepository<Entity, Creatable, Identifiable, EntityFie
   constructor(protected client: SQLExecutor = getDbClient()) {}
   protected abstract getDefaultValueString(): Partial<{ [P in keyof Entity]: Entity[P] | string | null }>;
 
-  async query(query: Query): Promise<ResultRow[]> {
+  protected async query(query: Query): Promise<ResultRow[]> {
     const sql = queryToSql(query);
     return this.client.rawQuery(sql);
   }
@@ -76,8 +75,8 @@ export abstract class SasatRepository<Entity, Creatable, Identifiable, EntityFie
   }
 
   async find2(
-    where?: BooleanValueExpression,
     fields?: EntityFields,
+    where?: BooleanValueExpression,
     limit?: number,
     offset?: number,
   ): Promise<EntityResult<Entity, Identifiable>[]> {
@@ -94,10 +93,10 @@ export abstract class SasatRepository<Entity, Creatable, Identifiable, EntityFie
   }
 
   async first2(
-    where?: BooleanValueExpression,
     fields?: EntityFields,
+    where?: BooleanValueExpression,
   ): Promise<EntityResult<Entity, Identifiable> | null> {
-    const result = await this.find2(where, fields, 1);
+    const result = await this.find2(fields, where, 1);
     if (result.length !== 0) return result[0];
     return null;
   }

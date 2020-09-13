@@ -36,4 +36,8 @@ export class RootNode {
   mutations(): MutationNode[] {
     return this.repositories.flatMap(it => it.mutations);
   }
+
+  findRepository(entityName: EntityName): RepositoryNode {
+    return this.repositories.find(it => it.entityName.name === entityName.name)!;
+  }
 }

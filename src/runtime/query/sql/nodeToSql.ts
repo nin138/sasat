@@ -21,13 +21,11 @@ import {
 import { SqlString } from './sqlString';
 export const SELECT_ALIAS_SEPARATOR = '__';
 export const Sql = {
-  select: (select: SelectExpr): string => {
-    if (select.kind === QueryNodeKind.Field) return Sql.field(select);
-    return Sql.fn(select);
-  },
-
+  select: (expr: SelectExpr): string => (expr.kind === QueryNodeKind.Field ? Sql.fieldInSelect(expr) : Sql.fn(expr)),
   literal: (literal: Literal): string => SqlString.escape(literal.value),
-  field: (identifier: Field): string => {
+  fieldInCondition: (identifier: Field): string =>
+    SqlString.escapeId(identifier.table) + '.' + SqlString.escapeId(identifier.name),
+  fieldInSelect: (identifier: Field): string => {
     return (
       SqlString.escapeId(identifier.table) +
       '.' +
@@ -39,10 +37,9 @@ export const Sql = {
   fn: (fn: Fn): string => `${fn.fnName}(${fn.args.map(Sql.value).join(',')})`,
   value: (v: Value): string => {
     if (v.kind === QueryNodeKind.Function) return Sql.fn(v);
-    if (v.kind === QueryNodeKind.Field) return Sql.field(v);
+    if (v.kind === QueryNodeKind.Field) return Sql.fieldInCondition(v);
     return Sql.literal(v);
   },
-  selectExpr: (expr: SelectExpr): string => (expr.kind === QueryNodeKind.Field ? Sql.field(expr) : Sql.fn(expr)),
   between: (expr: BetweenExpression): string =>
     `${Sql.value(expr.left)} BETWEEN ${Sql.value(expr.begin)} AND ${Sql.value(expr.end)}`,
   contains: (expr: ContainsExpression): string => {

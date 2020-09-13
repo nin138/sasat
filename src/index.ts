@@ -1,9 +1,7 @@
-import { QExpr } from './db/query/factory';
-
+export { QExpr } from './runtime/query/factory';
 export { RelationMap } from './runtime/query/createQueryResolveInfo';
 export { Fields } from './runtime/resolveField';
-export { resolveInfoToField } from './runtime/resolveInfoToField';
-export { createFieldResolver } from './runtime/resolveField';
+export { gqlResolveInfoToField } from './runtime/gqlResolveInfoToField';
 export { ComparisonOperators } from './db/sql/expression/comparison';
 export { MigrationStore } from './migration/storeMigrator';
 export { SasatMigration } from './migration/migration';

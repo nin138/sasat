@@ -21,6 +21,23 @@ export const schema = {
 };
 `;
 
+const baseDBDataSourceFile = `\
+import { Fields, SasatRepository } from '../../src';
+import { identifiableKeyMap, relationMap } from './__generated__/relationMap';
+
+
+export abstract class BaseDBDataSource<Entity, Creatable, Identifiable, EntityFields extends Fields> extends SasatRepository<
+  Entity,
+  Creatable,
+  Identifiable,
+  EntityFields
+> {
+  protected maps = {
+    relation: relationMap,
+    identifiable: identifiableKeyMap,
+  };
+}
+`;
 export const staticFiles: FileData = [
   {
     name: 'context',
@@ -33,5 +50,9 @@ export const staticFiles: FileData = [
   {
     name: 'schema',
     body: schemaFile,
+  },
+  {
+    name: 'baseDBDataSource',
+    body: baseDBDataSourceFile,
   },
 ];
