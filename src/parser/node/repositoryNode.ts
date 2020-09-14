@@ -5,8 +5,8 @@ import { QueryNode } from './gql/queryNode';
 import { MutationNode } from './gql/mutationNode';
 import { MutationNodeFactory } from '../nodeFactory/mutationNodeFactory';
 import { QueryNodeFactory } from '../nodeFactory/queryNodeFactory';
-import { EntityName } from '../../entity/entityName';
 import { TableHandler } from '../../migration/serializable/table';
+import { EntityName } from './entityName';
 
 export class RepositoryNode {
   readonly tableName: string;

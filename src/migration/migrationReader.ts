@@ -1,4 +1,4 @@
-import { StoreMigrator } from './storeMigrator';
+import { StoreMigrator } from './front/storeMigrator';
 import { Direction, MigrationTargetResolver } from './migrationTargetResolver';
 import * as fs from 'fs';
 import * as path from 'path';

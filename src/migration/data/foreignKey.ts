@@ -1,5 +1,3 @@
-import { Relation } from './relation';
-
 export enum ForeignKeyReferentialAction {
   Restrict = 'RESTRICT',
   Cascade = 'CASCADE',

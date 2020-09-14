@@ -1,6 +1,6 @@
-import { Table, TableHandler } from '../migration/serializable/table';
-import { SerializedStore } from '../migration/serialized/serializedStore';
-import { ReferenceColumn } from '../migration/serializable/column';
+import { Table, TableHandler } from './serializable/table';
+import { SerializedStore } from './serialized/serializedStore';
+import { ReferenceColumn } from './serializable/column';
 
 export interface DataStore {
   table(tableName: string): Table | undefined;

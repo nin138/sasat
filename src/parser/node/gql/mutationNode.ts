@@ -3,8 +3,8 @@ import { SubscriptionFilterNode } from './subscriptionFilterNode';
 import { EntityNode } from '../entityNode';
 import { ParameterNode } from '../parameterNode';
 import { TypeNode } from '../typeNode';
-import { EntityName } from '../../../entity/entityName';
 import { DBColumnTypes } from '../../../migration/column/columnTypes';
+import { EntityName } from '../entityName';
 
 type MutationType = 'Created' | 'Deleted' | 'Updated';
 

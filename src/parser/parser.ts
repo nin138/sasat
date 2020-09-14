@@ -1,4 +1,3 @@
-import { DataStoreHandler } from '../entity/dataStore';
 import { capitalizeFirstLetter } from '../util/stringUtil';
 import { Relation } from '..';
 import { RepositoryNode } from './node/repositoryNode';
@@ -8,7 +7,8 @@ import { TypeNode } from './node/typeNode';
 import { RootNode } from './node/rootNode';
 import { TableHandler } from '../migration/serializable/table';
 import { ReferenceColumn } from '../migration/serializable/column';
-import { EntityName } from '../entity/entityName';
+import { DataStoreHandler } from '../migration/dataStore';
+import { EntityName } from './node/entityName';
 
 export class Parser {
   parse(store: DataStoreHandler): RootNode {

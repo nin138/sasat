@@ -1,9 +1,9 @@
 import { TypeNode } from './typeNode';
 import { EntityNode } from './entityNode';
-import { EntityName } from '../../entity/entityName';
 import { Relation } from '../..';
 import { ReferenceColumn } from '../../migration/serializable/column';
 import { TableHandler } from '../../migration/serializable/table';
+import { EntityName } from './entityName';
 
 export class RelationNode {
   static fromReference(entity: EntityNode, ref: ReferenceColumn): RelationNode {

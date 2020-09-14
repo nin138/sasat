@@ -1,13 +1,13 @@
+export { Relation } from './migration/data/relation';
 export { QExpr } from './runtime/query/factory';
 export { RelationMap } from './runtime/query/createQueryResolveInfo';
 export { Fields } from './runtime/field';
 export { gqlResolveInfoToField } from './runtime/gqlResolveInfoToField';
 export { ComparisonOperators } from './db/sql/expression/comparison';
-export { MigrationStore } from './migration/storeMigrator';
-export { SasatMigration } from './migration/migration';
+export { MigrationStore } from './migration/front/storeMigrator';
+export { SasatMigration } from './migration/front/migration';
 export { SasatRepository, EntityResult } from './runtime/sasatRepository';
 export { getCurrentDateTimeString } from './util/dateUtil';
-export { Relation } from './entity/relation';
 export { getDbClient } from './db/getDbClient';
 export { assignDeep } from './util/assignDeep';
 export { createTypeDef } from './createTypeDef';

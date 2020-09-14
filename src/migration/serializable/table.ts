@@ -2,15 +2,15 @@ import { Serializable } from './serializable';
 import { SerializedTable } from '../serialized/serializedStore';
 import { Column, ReferenceColumn } from './column';
 import { capitalizeFirstLetter } from '../../util/stringUtil';
-import { DBIndex } from './index';
-import { getDefaultGqlOption, GqlOption, mergeGqlOption } from '../gqlOption';
 import { NestedPartial } from '../../util/type';
-import { EntityName } from '../../entity/entityName';
 import { SqlString } from '../../runtime/query/sql/sqlString';
 import { SasatError } from '../../error';
 import { Reference, SerializedReferenceColumn } from '../serialized/serializedColumn';
-import { assembleColumn } from '../../entity/assembleColumn';
-import { DataStore } from '../../entity/dataStore';
+import { DBIndex } from '../data';
+import { getDefaultGqlOption, GqlOption, mergeGqlOption } from '../data/gqlOption';
+import { assembleColumn } from '../functions/assembleColumn';
+import { EntityName } from '../../parser/node/entityName';
+import { DataStore } from '../dataStore';
 
 export interface Table extends Serializable<SerializedTable> {
   column(columnName: string): Column | undefined;

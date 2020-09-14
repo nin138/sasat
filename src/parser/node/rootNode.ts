@@ -4,9 +4,9 @@ import { RelationNode } from './relationNode';
 import { EntityNode } from './entityNode';
 import { QueryNode } from './gql/queryNode';
 import { MutationNode } from './gql/mutationNode';
-import { DataStoreHandler } from '../../entity/dataStore';
 import { ContextNodeFactory } from '../nodeFactory/contextNodeFactory';
-import { EntityName } from '../../entity/entityName';
+import { DataStoreHandler } from '../../migration/dataStore';
+import { EntityName } from './entityName';
 
 export class RootNode {
   readonly repositories: RepositoryNode[] = [];

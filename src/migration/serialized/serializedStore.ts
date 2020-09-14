@@ -1,6 +1,6 @@
-import { GqlOption } from '../gqlOption';
 import { SerializedColumn } from './serializedColumn';
-import { Index } from '../serializable';
+import { Index } from '../data';
+import { GqlOption } from '../data/gqlOption';
 
 export interface SerializedStore {
   tables: SerializedTable[];

@@ -1,12 +1,12 @@
 import { StoreMigrator } from './storeMigrator';
-import { SqlCreator } from '../db/sql/sqlCreater';
-import { NestedPartial } from '../util/type';
-import { GqlOption } from './gqlOption';
-import { Table, TableHandler } from './serializable/table';
-import { SerializedColumn, SerializedNormalColumn } from './serialized/serializedColumn';
-import { Column, NormalColumn } from './serializable/column';
-import { DBIndex } from './serializable';
-import { SerializedTable } from './serialized/serializedStore';
+import { Table, TableHandler } from '../serializable/table';
+import { SerializedColumn, SerializedNormalColumn } from '../serialized/serializedColumn';
+import { NestedPartial } from '../../util/type';
+import { GqlOption } from '../data/gqlOption';
+import { Column, NormalColumn } from '../serializable/column';
+import { DBIndex } from '../data';
+import { SerializedTable } from '../serialized/serializedStore';
+import { SqlCreator } from '../../db/sql/sqlCreater';
 
 export interface MigrationTable extends Table {
   addIndex(...columns: string[]): MigrationTable;

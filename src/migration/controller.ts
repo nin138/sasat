@@ -3,7 +3,7 @@ import * as path from 'path';
 import { config } from '../config/config';
 import { getDbClient } from '..';
 import * as ts from 'typescript';
-import { StoreMigrator } from './storeMigrator';
+import { StoreMigrator } from './front/storeMigrator';
 import { Direction, MigrationTargetResolver } from './migrationTargetResolver';
 import { MigrationReader } from './migrationReader';
 import { Console } from '../cli/console';

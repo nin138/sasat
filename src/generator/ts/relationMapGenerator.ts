@@ -2,10 +2,10 @@ import { TsFile } from './file';
 import { tsg } from './code/factory';
 import { Relation } from '../..';
 import { Directory } from '../../constants/directory';
-import { EntityName } from '../../entity/entityName';
 import { RootNode } from '../../parser/node/rootNode';
 import { EntityNode } from '../../parser/node/entityNode';
 import { KeywordTypeNode } from './code/node/type/typeKeyword';
+import { EntityName } from '../../parser/node/entityName';
 
 export class RelationMapGenerator {
   generate(root: RootNode): TsFile {

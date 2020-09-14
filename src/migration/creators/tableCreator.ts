@@ -1,11 +1,11 @@
 import { ColumnCreator } from './columnCreator';
-import { GqlOption } from '../gqlOption';
 import { NestedPartial } from '../../util/type';
 import { ColumnBuilder } from './columnBuilder';
-import { DataStore } from '../../entity/dataStore';
 import { NormalColumn } from '../serializable/column';
 import { Reference } from '../serialized/serializedColumn';
 import { TableHandler } from '../serializable/table';
+import { GqlOption } from '../data/gqlOption';
+import { DataStore } from '../dataStore';
 
 export interface TableBuilder {
   column(columnName: string): ColumnCreator;

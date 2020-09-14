@@ -19,15 +19,12 @@ import {
   CallExpression,
   Identifier,
   NewExpression,
-  NonNullExpression,
   NumericLiteral,
   ObjectLiteral,
-  ParenthesizedExpression,
   PropertyAccessExpression,
 } from '../code/node/expressions';
 import { Directory } from '../../../constants/directory';
 import { SasatError } from '../../../error';
-import { EntityName } from '../../../entity/entityName';
 import { tsg } from '../code/factory';
 import {
   CreateMutationNode,
@@ -36,6 +33,7 @@ import {
   UpdateMutationNode,
 } from '../../../parser/node/gql/mutationNode';
 import { ContextParamNode } from '../../../parser/node/gql/contextParamNode';
+import { EntityName } from '../../../parser/node/entityName';
 
 export class MutationGenerator {
   generate = (mutations: MutationNode[]): TsFile => {
@@ -55,14 +53,14 @@ export class MutationGenerator {
   }
 
   private createMutation(node: CreateMutationNode): PropertyAssignment {
-    return new PropertyAssignment(
+    return tsg.propertyAssign(
       node.functionName(),
       new ArrowFunction(
         MutationGenerator.functionParams(
           node.entityName.getTypeReference(Directory.paths.generated),
           node.useContextParams(),
         ),
-        new TypeReference('Promise', [node.entityName.toIdentifier(Directory.paths.generated)]),
+        tsg.typeRef('Promise', [node.entityName.toIdentifier(Directory.paths.generated)]),
         MutationGenerator.createFunctionBody(node),
       ).toAsync(),
     );

@@ -2,8 +2,8 @@ import { FieldNode } from './fieldNode';
 import { RepositoryNode } from './repositoryNode';
 import { RelationNode } from './relationNode';
 import { TypeDefNode } from './gql/typeDefNode';
-import { EntityName } from '../../entity/entityName';
 import { TableHandler } from '../../migration/serializable/table';
+import { EntityName } from './entityName';
 
 export class EntityNode {
   readonly entityName: EntityName;

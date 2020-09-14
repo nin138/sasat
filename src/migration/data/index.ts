@@ -1,4 +1,4 @@
-import { Serializable } from './serializable';
+import { Serializable } from '../serializable/serializable';
 
 export interface Index {
   constraintName: string;
