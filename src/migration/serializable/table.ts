@@ -5,7 +5,7 @@ import { capitalizeFirstLetter } from '../../util/stringUtil';
 import { NestedPartial } from '../../util/type';
 import { SqlString } from '../../runtime/query/sql/sqlString';
 import { SasatError } from '../../error';
-import { Reference, SerializedReferenceColumn } from '../serialized/serializedColumn';
+import { Reference, referenceToSql, SerializedReferenceColumn } from '../serialized/serializedColumn';
 import { DBIndex } from '../data';
 import { getDefaultGqlOption, GqlOption, mergeGqlOption } from '../data/gqlOption';
 import { assembleColumn } from '../functions/assembleColumn';
@@ -129,11 +129,7 @@ export class TableHandler implements Table {
         .filter(it => it.isReference())
         .map(it => {
           const ref = it as ReferenceColumn;
-          return `\
-CONSTRAINT ${ref.getConstraintName()} \
-FOREIGN KEY (${SqlString.escapeId(it.columnName())}) \
-REFERENCES ${SqlString.escapeId(ref.data.reference.targetTable)} \
-(${SqlString.escapeId(ref.data.reference.targetColumn)})`;
+          return referenceToSql(ref.getConstraintName(), ref.data.reference);
         }),
     );
     return `CREATE TABLE ${SqlString.escapeId(this.tableName)} ( ${rows.join(', ')} )`;

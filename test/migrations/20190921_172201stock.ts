@@ -1,5 +1,5 @@
-import { MigrationStore, SasatMigration } from '../../src';
-import { Relation } from '../../src';
+import { MigrationStore, Relation, SasatMigration } from '../../src';
+import { ForeignKeyReferentialAction } from '../../src/migration/data/foreignKey';
 
 export class Stock implements SasatMigration {
   up: (store: MigrationStore) => void = store => {
@@ -18,6 +18,8 @@ export class Stock implements SasatMigration {
         targetColumn: 'postId',
         columnName: 'post',
         relation: Relation.Many,
+        onDelete: ForeignKeyReferentialAction.NoAction,
+        onUpdate: ForeignKeyReferentialAction.Cascade,
       });
       table.setPrimaryKey('id');
       table.createdAt();

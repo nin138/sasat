@@ -10,6 +10,6 @@ export { SasatRepository, EntityResult } from './runtime/sasatRepository';
 export { getCurrentDateTimeString } from './util/dateUtil';
 export { getDbClient } from './db/getDbClient';
 export { assignDeep } from './util/assignDeep';
-export { createTypeDef } from './createTypeDef';
+export { createTypeDef } from './runtime/createTypeDef';
 export { CompositeCondition } from './db/sql/expression/compositeCondition';
 export { CommandResponse, QueryResponse } from './db/connectors/dbClient';

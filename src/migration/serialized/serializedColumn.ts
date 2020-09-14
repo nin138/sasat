@@ -2,6 +2,7 @@ import { DBColumnTypes } from '../column/columnTypes';
 import { SqlValueType } from '../../db/connectors/dbClient';
 import { Relation } from '../..';
 import { ForeignKeyReferentialAction } from '../data/foreignKey';
+import { SqlString } from '../../runtime/query/sql/sqlString';
 
 interface SerializedColumnBase {
   hasReference: boolean;
@@ -31,6 +32,18 @@ export interface Reference {
   onUpdate?: ForeignKeyReferentialAction;
   onDelete?: ForeignKeyReferentialAction;
 }
+
+export const referenceToSql = (constraintName: string, ref: Reference): string => {
+  const onUpdate = ref.onUpdate ? ` ON UPDATE ${ref.onUpdate}` : '';
+  const onDelete = ref.onDelete ? ` ON DELETE ${ref.onDelete}` : '';
+  return (
+    `CONSTRAINT ${constraintName} ` +
+    `FOREIGN KEY(${ref.columnName}) ` +
+    `REFERENCES ${SqlString.escapeId(ref.targetTable)}(${SqlString.escapeId(ref.targetColumn)})` +
+    onUpdate +
+    onDelete
+  );
+};
 
 export interface SerializedReferenceColumn extends SerializedColumnBase {
   hasReference: true;
