@@ -1,6 +1,6 @@
-import { Table, TableHandler } from './table';
-import { SerializedStore } from './serializedStore';
-import { ReferenceColumn } from './referenceColumn';
+import { Table, TableHandler } from '../migration/serializable/table';
+import { SerializedStore } from '../migration/serialized/serializedStore';
+import { ReferenceColumn } from '../migration/serializable/column';
 
 export interface DataStore {
   table(tableName: string): Table | undefined;
@@ -17,7 +17,9 @@ export class DataStoreHandler implements DataStore {
 
   referencedBy(tableName: string): ReferenceColumn[] {
     return this.tables
-      .map(it => it.columns.find(it => it.isReference() && it.data.targetTable === tableName) as ReferenceColumn)
+      .map(
+        it => it.columns.find(it => it.isReference() && it.data.reference.targetTable === tableName) as ReferenceColumn,
+      )
       .filter(it => it);
   }
 }

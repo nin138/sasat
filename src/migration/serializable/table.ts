@@ -1,17 +1,18 @@
+import { Serializable } from './serializable';
+import { SerializedTable } from '../serialized/serializedStore';
+import { Column, ReferenceColumn } from './column';
+import { capitalizeFirstLetter } from '../../util/stringUtil';
 import { DBIndex } from './index';
-import { ReferenceColumn, ReferenceColumnData } from './referenceColumn';
-import { Column } from './column';
-import { SasatError } from '../error';
-import { DataStore } from './dataStore';
-import { SerializedTable } from './serializedStore';
-import { assembleColumn } from './assembleColumn';
-import { capitalizeFirstLetter } from '../util/stringUtil';
-import { getDefaultGqlOption, GqlOption, mergeGqlOption } from '../migration/gqlOption';
-import { NestedPartial } from '../util/type';
-import { EntityName } from './entityName';
-import { SqlString } from '../runtime/query/sql/sqlString';
+import { getDefaultGqlOption, GqlOption, mergeGqlOption } from '../gqlOption';
+import { NestedPartial } from '../../util/type';
+import { EntityName } from '../../entity/entityName';
+import { SqlString } from '../../runtime/query/sql/sqlString';
+import { SasatError } from '../../error';
+import { Reference, SerializedReferenceColumn } from '../serialized/serializedColumn';
+import { assembleColumn } from '../../entity/assembleColumn';
+import { DataStore } from '../../entity/dataStore';
 
-export interface Table {
+export interface Table extends Serializable<SerializedTable> {
   column(columnName: string): Column | undefined;
   tableName: string;
 }
@@ -46,17 +47,17 @@ export class TableHandler implements Table {
   }
 
   column(columnName: string): Column | undefined {
-    return this.columns.find(it => it.name === columnName);
+    return this.columns.find(it => it.columnName() === columnName);
   }
 
   addColumn(column: Column, isPrimary = false, isUnique = false): void {
     this.columns.push(column);
-    if (isPrimary) this.setPrimaryKey(column.name);
-    if (isUnique) this.addUniqueKey(column.name);
+    if (isPrimary) this.setPrimaryKey(column.columnName());
+    if (isUnique) this.addUniqueKey(column.columnName());
   }
 
   dropColumn(columnName: string): void {
-    this._columns = this._columns.filter(it => it.name !== columnName);
+    this._columns = this._columns.filter(it => it.columnName() !== columnName);
   }
 
   serialize(): SerializedTable {
@@ -70,9 +71,23 @@ export class TableHandler implements Table {
     };
   }
 
-  addReferences(data: ReferenceColumnData): this {
+  addReferences(ref: Reference): this {
+    const target = this.store.table(ref.targetTable)?.column(ref.targetColumn);
+    if (!target) throw new Error(ref.targetTable + ' . ' + ref.targetColumn + ' NOT FOUND');
+    const targetData = target.serialize();
+    const data: SerializedReferenceColumn = {
+      ...targetData,
+      hasReference: true,
+      columnName: ref.columnName,
+      notNull: true,
+      default: undefined,
+      zerofill: false,
+      autoIncrement: false,
+      defaultCurrentTimeStamp: false,
+      onUpdateCurrentTimeStamp: false,
+      reference: ref,
+    };
     this.columns.push(new ReferenceColumn(data, this));
-
     return this;
   }
 
@@ -116,16 +131,16 @@ export class TableHandler implements Table {
           const ref = it as ReferenceColumn;
           return `\
 CONSTRAINT ${ref.getConstraintName()} \
-FOREIGN KEY (${SqlString.escapeId(it.name)}) \
-REFERENCES ${SqlString.escapeId(ref.data.targetTable)} \
-(${SqlString.escapeId(ref.data.targetColumn)})`;
+FOREIGN KEY (${SqlString.escapeId(it.columnName())}) \
+REFERENCES ${SqlString.escapeId(ref.data.reference.targetTable)} \
+(${SqlString.escapeId(ref.data.reference.targetColumn)})`;
         }),
     );
     return `CREATE TABLE ${SqlString.escapeId(this.tableName)} ( ${rows.join(', ')} )`;
   }
 
   hasColumn(columnName: string): boolean {
-    return !!this.columns.find(it => it.name === columnName);
+    return !!this.columns.find(it => it.columnName() === columnName);
   }
   isColumnPrimary(columnName: string): boolean {
     return this.primaryKey.includes(columnName);
@@ -135,12 +150,13 @@ REFERENCES ${SqlString.escapeId(ref.data.targetTable)} \
     return new EntityName(TableHandler.tableNameToEntityName(this.tableName));
   }
 
+  // TODO fix type nest partial
   setGqlOption(option: NestedPartial<GqlOption>): void {
     this._gqlOption = mergeGqlOption(this.gqlOption, option);
   }
 
   primaryKeyColumns(): Column[] {
-    return this.columns.filter(it => this.isColumnPrimary(it.name));
+    return this.columns.filter(it => this.isColumnPrimary(it.columnName()));
   }
 
   getReferenceColumns(): ReferenceColumn[] {

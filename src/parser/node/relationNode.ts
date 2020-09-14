@@ -1,20 +1,20 @@
 import { TypeNode } from './typeNode';
 import { EntityNode } from './entityNode';
-import { ReferenceColumn } from '../../entity/referenceColumn';
-import { TableHandler } from '../../entity/table';
 import { EntityName } from '../../entity/entityName';
 import { Relation } from '../..';
+import { ReferenceColumn } from '../../migration/serializable/column';
+import { TableHandler } from '../../migration/serializable/table';
 
 export class RelationNode {
   static fromReference(entity: EntityNode, ref: ReferenceColumn): RelationNode {
     return new RelationNode(
       entity,
-      ref.data.relationName || ref.table.getEntityName().name,
+      ref.data.reference.relationName || TableHandler.tableNameToEntityName(ref.table.tableName),
       ref.data.columnName,
-      ref.data.targetColumn,
-      ref.data.targetTable,
-      new EntityName(TableHandler.tableNameToEntityName(ref.data.targetTable)),
-      ref.data.relation,
+      ref.data.reference.targetColumn,
+      ref.data.reference.targetTable,
+      new EntityName(TableHandler.tableNameToEntityName(ref.data.reference.targetTable)),
+      ref.data.reference.relation,
     );
   }
   private constructor(

@@ -1,22 +1,22 @@
-import { Column } from '../../entity/column';
-import { TableHandler } from '../../entity/table';
 import { columnTypeToTsType, DBColumnTypes } from '../../migration/column/columnTypes';
 import { PropertySignature } from '../../generator/ts/code/node/propertySignature';
 import { tsg } from '../../generator/ts/code/factory';
 import { ParameterNode } from './parameterNode';
 import { TypeNode } from './typeNode';
 import { SqlValueType } from '../../db/connectors/dbClient';
+import { TableHandler } from '../../migration/serializable/table';
+import { Column } from '../../migration/serializable/column';
 
 export class FieldNode {
   static fromColumn(column: Column, table: TableHandler): FieldNode {
     return new FieldNode(
-      column.name,
-      column.type,
-      table.isColumnPrimary(column.name),
-      column.getData().default,
+      column.columnName(),
+      column.dataType(),
+      table.isColumnPrimary(column.columnName()),
+      column.serialize().default,
       column.isNullable(),
-      column.getData().autoIncrement,
-      column.getData().defaultCurrentTimeStamp,
+      column.serialize().autoIncrement,
+      column.serialize().defaultCurrentTimeStamp,
     );
   }
   constructor(

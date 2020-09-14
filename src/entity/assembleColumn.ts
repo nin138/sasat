@@ -1,10 +1,9 @@
-import { SerializedColumn } from './serializedStore';
-import { ReferenceColumn } from './referenceColumn';
-import { TableHandler } from './table';
-import { Column, NormalColumn } from './column';
+import { Column, NormalColumn, ReferenceColumn } from '../migration/serializable/column';
+import { SerializedColumn } from '../migration/serialized/serializedColumn';
+import { TableHandler } from '../migration/serializable/table';
 
 export const assembleColumn = (data: SerializedColumn, table: TableHandler): Column => {
-  if (data.type === 'REFERENCE') {
+  if (data.hasReference) {
     return new ReferenceColumn(data, table);
   }
   return new NormalColumn(data, table);

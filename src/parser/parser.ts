@@ -1,13 +1,14 @@
 import { DataStoreHandler } from '../entity/dataStore';
-import { TableHandler } from '../entity/table';
 import { capitalizeFirstLetter } from '../util/stringUtil';
-import { ReferenceColumn } from '../entity/referenceColumn';
 import { Relation } from '..';
 import { RepositoryNode } from './node/repositoryNode';
 import { FindMethodNode } from './node/findMethod';
 import { ParameterNode } from './node/parameterNode';
 import { TypeNode } from './node/typeNode';
 import { RootNode } from './node/rootNode';
+import { TableHandler } from '../migration/serializable/table';
+import { ReferenceColumn } from '../migration/serializable/column';
+import { EntityName } from '../entity/entityName';
 
 export class Parser {
   parse(store: DataStoreHandler): RootNode {
@@ -26,7 +27,7 @@ export class Parser {
       Parser.paramsToQueryName(...table.primaryKey),
       table.primaryKey.map(it => {
         const column = table.column(it)!;
-        return new ParameterNode(it, new TypeNode(column.type, false, false));
+        return new ParameterNode(it, new TypeNode(column.dataType(), false, false));
       }),
       new TypeNode(table.getEntityName(), false, true),
       true,
@@ -35,9 +36,9 @@ export class Parser {
 
   private createRefQuery(ref: ReferenceColumn): FindMethodNode {
     return new FindMethodNode(
-      Parser.paramsToQueryName(ref.name),
-      [new ParameterNode(ref.name, new TypeNode(ref.type, false, false))],
-      new TypeNode(ref.table.getEntityName(), ref.data.relation === Relation.Many, false),
+      Parser.paramsToQueryName(ref.columnName()),
+      [new ParameterNode(ref.columnName(), new TypeNode(ref.dataType(), false, false))],
+      new TypeNode(EntityName.fromTableName(ref.table.tableName), ref.data.reference.relation === Relation.Many, false),
       false,
     );
   }

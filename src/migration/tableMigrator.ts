@@ -1,17 +1,17 @@
-import { Table, TableHandler } from '../entity/table';
-import { Column, NormalColumn } from '../entity/column';
-import { SerializedTable } from '../entity/serializedStore';
 import { StoreMigrator } from './storeMigrator';
-import { DBIndex } from '../entity';
-import { ColumnData } from './column/columnData';
 import { SqlCreator } from '../db/sql/sqlCreater';
 import { NestedPartial } from '../util/type';
 import { GqlOption } from './gqlOption';
+import { Table, TableHandler } from './serializable/table';
+import { SerializedColumn, SerializedNormalColumn } from './serialized/serializedColumn';
+import { Column, NormalColumn } from './serializable/column';
+import { DBIndex } from './serializable';
+import { SerializedTable } from './serialized/serializedStore';
 
 export interface MigrationTable extends Table {
   addIndex(...columns: string[]): MigrationTable;
   removeIndex(...columns: string[]): MigrationTable;
-  addColumn(column: ColumnData): MigrationTable;
+  addColumn(column: SerializedColumn): MigrationTable;
   dropColumn(columnName: string): MigrationTable;
   setGqlOption(option: NestedPartial<GqlOption>): MigrationTable;
 }
@@ -52,7 +52,7 @@ export class TableMigrator implements MigrationTable {
     return this;
   }
 
-  addColumn(column: ColumnData): MigrationTable {
+  addColumn(column: SerializedNormalColumn): MigrationTable {
     this.table.addColumn(new NormalColumn(column, this.table));
     this.store.addQuery(SqlCreator.addColumn(this.tableName, column));
     return this;

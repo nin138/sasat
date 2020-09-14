@@ -1,9 +1,9 @@
-import { TableHandler } from '../../entity/table';
 import { CreateMutationNode, DeleteMutationNode, MutationNode, UpdateMutationNode } from '../node/gql/mutationNode';
 import { Parser } from '../parser';
 import { ContextParamNode } from '../node/gql/contextParamNode';
 import { SubscriptionFilterNode } from '../node/gql/subscriptionFilterNode';
 import { EntityNode } from '../node/entityNode';
+import { TableHandler } from '../../migration/serializable/table';
 
 export class MutationNodeFactory {
   create = (table: TableHandler, entity: EntityNode): MutationNode[] => {

@@ -1,8 +1,8 @@
-import { ColumnData } from '../../migration/column/columnData';
 import { DBColumnTypes } from '../../migration/column/columnTypes';
 import { SqlString } from '../../runtime/query/sql/sqlString';
+import { SerializedColumn } from '../../migration/serialized/serializedColumn';
 
-export const columnToSql = (column: ColumnData): string => {
+export const columnToSql = (column: SerializedColumn): string => {
   const words = [SqlString.escapeId(column.columnName), column.type];
   if (column.length) words.push(`(${[column.length, column.scale].filter(it => it !== undefined).join(',')})`);
   if (column.signed === true) words.push('SIGNED');

@@ -1,9 +1,11 @@
+import { Serializable } from './serializable';
+
 export interface Index {
   constraintName: string;
   columns: string[];
 }
 
-export class DBIndex implements Index {
+export class DBIndex implements Index, Serializable<Index> {
   readonly constraintName: string;
   constructor(readonly tableName: string, readonly columns: string[]) {
     this.constraintName = this.toConstraintName(columns);
@@ -19,5 +21,11 @@ export class DBIndex implements Index {
 
   dropSql(): string {
     return `DROP INDEX ${this.constraintName} ON ${this.tableName}`;
+  }
+  serialize(): Index {
+    return {
+      constraintName: this.constraintName,
+      columns: this.columns,
+    };
   }
 }

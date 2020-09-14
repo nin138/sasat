@@ -6,9 +6,9 @@ import {
   DBNumberTypes,
   DBStringTypes,
   DBTextTypes,
-} from './columnTypes';
+} from '../column/columnTypes';
 import { SqlValueType } from '../../db/connectors/dbClient';
-import { ColumnData } from './columnData';
+import { SerializedNormalColumn } from '../serialized/serializedColumn';
 
 export abstract class ColumnBuilder {
   protected _primary = false;
@@ -47,9 +47,10 @@ export abstract class ColumnBuilder {
     this._default = value;
     return this;
   }
-  build(): { data: ColumnData; isPrimary: boolean; isUnique: boolean } {
+  build(): { data: SerializedNormalColumn; isPrimary: boolean; isUnique: boolean } {
     return {
       data: {
+        hasReference: false,
         columnName: this.name,
         type: this.type,
         length: this.length,

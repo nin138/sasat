@@ -8,8 +8,12 @@ import { lowercaseFirstLetter } from '../util/stringUtil';
 import { Directory } from '../constants/directory';
 import { Identifier } from '../generator/ts/code/node/expressions';
 import { TypeReference } from '../generator/ts/code/node/type/typeReference';
+import { TableHandler } from '../migration/serializable/table';
 
 export class EntityName {
+  static fromTableName(tableName: string): EntityName {
+    return new EntityName(TableHandler.tableNameToEntityName(tableName));
+  }
   constructor(public readonly name: string) {}
   toString(): string {
     return this.name;

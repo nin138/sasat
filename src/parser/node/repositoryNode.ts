@@ -3,10 +3,10 @@ import { FindMethodNode } from './findMethod';
 import { RootNode } from './rootNode';
 import { QueryNode } from './gql/queryNode';
 import { MutationNode } from './gql/mutationNode';
-import { TableHandler } from '../../entity/table';
 import { MutationNodeFactory } from '../nodeFactory/mutationNodeFactory';
 import { QueryNodeFactory } from '../nodeFactory/queryNodeFactory';
 import { EntityName } from '../../entity/entityName';
+import { TableHandler } from '../../migration/serializable/table';
 
 export class RepositoryNode {
   readonly tableName: string;
@@ -21,7 +21,7 @@ export class RepositoryNode {
     this.entityName = table.getEntityName();
     this.primaryKeys = table.primaryKey;
     this.entity = this.createEntity(table);
-    this.autoIncrementColumn = table.columns.find(it => it.getData().autoIncrement)?.name;
+    this.autoIncrementColumn = table.columns.find(it => it.serialize().autoIncrement)?.columnName();
     this.queries = new QueryNodeFactory().create(table);
     this.mutations = new MutationNodeFactory().create(table, this.entity);
   }

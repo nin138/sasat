@@ -4,10 +4,10 @@ import { config } from '../config/config';
 import { getDbClient } from '..';
 import * as ts from 'typescript';
 import { StoreMigrator } from './storeMigrator';
-import { SerializedStore } from '../entity/serializedStore';
 import { Direction, MigrationTargetResolver } from './migrationTargetResolver';
 import { MigrationReader } from './migrationReader';
 import { Console } from '../cli/console';
+import { SerializedStore } from './serialized/serializedStore';
 
 // TODO refactor
 export class MigrationController {

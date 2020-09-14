@@ -1,15 +1,15 @@
-import { ColumnCreator } from './column/columnCreator';
-import { ColumnBuilder } from './column/columnBuilder';
-import { TableHandler } from '../entity/table';
-import { DataStore } from '../entity/dataStore';
-import { NormalColumn } from '../entity/column';
-import { GqlOption } from './gqlOption';
-import { NestedPartial } from '../util/type';
-import { ReferenceColumnData } from '../entity/referenceColumn';
+import { ColumnCreator } from './columnCreator';
+import { GqlOption } from '../gqlOption';
+import { NestedPartial } from '../../util/type';
+import { ColumnBuilder } from './columnBuilder';
+import { DataStore } from '../../entity/dataStore';
+import { NormalColumn } from '../serializable/column';
+import { Reference } from '../serialized/serializedColumn';
+import { TableHandler } from '../serializable/table';
 
 export interface TableBuilder {
   column(columnName: string): ColumnCreator;
-  references(reference: Omit<ReferenceColumnData, 'type'>): TableBuilder;
+  references(reference: Reference): TableBuilder;
   setPrimaryKey(...columnNames: string[]): TableBuilder;
   addUniqueKey(...columnNames: string[]): TableBuilder;
   createdAt(): TableBuilder;
@@ -40,8 +40,8 @@ export class TableCreator implements TableBuilder {
     return this;
   }
 
-  references(data: Omit<ReferenceColumnData, 'type'>): TableBuilder {
-    this.table.addReferences({ ...data, type: 'REFERENCE' });
+  references(ref: Reference): TableBuilder {
+    this.table.addReferences(ref);
     return this;
   }
 
