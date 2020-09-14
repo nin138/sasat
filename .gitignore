@@ -5,6 +5,8 @@ coverage
 build
 /lib/
 test/out
+test/migrations/currentSchema.yml
+test/migrations/initialSchema.yml
 
 # Created by .ignore support plugin (hsz.mobi)
 ### macOS template

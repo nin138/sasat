@@ -15,6 +15,12 @@ export class StoreMigrator implements MigrationStore {
   protected tables: TableMigrator[] = [];
   protected migrationQueue: string[] = [];
 
+  static deserialize(data: SerializedStore): StoreMigrator {
+    const store = new StoreMigrator();
+    store.tables = data.tables.map(it => TableMigrator.deserialize(it, store));
+    return store;
+  }
+
   table(tableName: string): TableMigrator | undefined {
     return this.tables.find(it => it.tableName === tableName);
   }

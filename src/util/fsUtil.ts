@@ -35,6 +35,9 @@ export const writeYmlFile = (path: string, fileName: string, obj: any): void => 
   );
 };
 
+export const readInitialSchema = (): SerializedStore => {
+  return readYmlFile(join(config().migration.dir, 'initialSchema.yml'));
+};
 export const writeCurrentSchema = (schema: SerializedStore): void => {
   writeYmlFile(config().migration.dir, 'currentSchema.yml', schema);
 };

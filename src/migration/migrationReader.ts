@@ -3,12 +3,17 @@ import { Direction, MigrationTargetResolver } from './migrationTargetResolver';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as ts from 'typescript';
+import { readInitialSchema } from '../util/fsUtil';
 
 export class MigrationReader {
   read(onMigrate?: (store: StoreMigrator) => void): StoreMigrator {
-    const files = fs.readdirSync(MigrationTargetResolver.getMigrationDir()).filter(it => it.split('.').pop() === 'ts');
+    const files = fs.readdirSync(MigrationTargetResolver.getMigrationDir());
+    const tsFiles = files.filter(it => it.split('.').pop() === 'ts');
     let store = new StoreMigrator();
-    files.forEach(fileName => {
+    if (files.includes('initialSchema.yml')) {
+      store = StoreMigrator.deserialize(readInitialSchema());
+    }
+    tsFiles.forEach(fileName => {
       store = MigrationReader.readMigration(store, fileName, Direction.Up);
       if (onMigrate) onMigrate(store);
     });

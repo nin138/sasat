@@ -6,27 +6,12 @@ import { DBColumnTypes } from '../../../migration/column/columnTypes';
 import { lexColumn } from './lexer/columnLexer';
 import { Token, TokenKind } from './lexer/lexer';
 
-const getInnerStr = (str: string, start: string, end: string, fromIndex = 0) => {
-  const startIndex = str.indexOf(start, fromIndex) + 1;
-  const endIndex = start.indexOf(end, startIndex);
-  return str.slice(startIndex, endIndex);
-};
-
 const getInParenValues = (tokens: Token[], fromIndex = 0) => {
   const sliced = tokens.slice(fromIndex);
   const start = sliced.findIndex(it => it.kind === TokenKind.Separator && it.value === '(');
   const end = sliced.findIndex(it => it.kind === TokenKind.Separator && it.value === ')');
   if (start === -1 || end === -1) return [];
   return sliced.slice(start + 1, end);
-};
-
-const getReferentialAction = (str: string, from: number) => {
-  const slice = str.slice(from);
-  if (slice.startsWith('RESTRICT')) return ForeignKeyReferentialAction.Restrict;
-  if (slice.startsWith('CASCADE')) return ForeignKeyReferentialAction.Cascade;
-  if (slice.startsWith('SET NULL')) return ForeignKeyReferentialAction.SetNull;
-  if (slice.startsWith('NO ACTION')) return ForeignKeyReferentialAction.NoAction;
-  return undefined;
 };
 
 const startStrMap: { word: string; fn: (str: string, table: SerializedTable) => SerializedTable }[] = [
@@ -88,12 +73,6 @@ const startStrMap: { word: string; fn: (str: string, table: SerializedTable) => 
         onUpdate: onUpdate !== -1 ? (tokens[onUpdate + 1].value as ForeignKeyReferentialAction) : undefined,
         onDelete: onDelete !== -1 ? (tokens[onDelete + 1].value as ForeignKeyReferentialAction) : undefined,
       };
-      console.log('ref');
-      console.log(table.tableName);
-      console.log(table.columns.map(it => it.columnName));
-      console.log(columnName);
-      console.log('----');
-
       return {
         ...table,
         columns: table.columns.map(it =>
@@ -139,12 +118,6 @@ const startStrMap: { word: string; fn: (str: string, table: SerializedTable) => 
   },
   { word: ')', fn: (_1, table) => table },
 ];
-
-const indexOfEndOfFind = (str: string, currentIndex: number, find: string) => {
-  const i = str.slice(currentIndex).indexOf(find);
-  if (i === -1) return -1;
-  return currentIndex + i + find.length;
-};
 
 // TODO rewrite
 export const serializeCreateTable = (str: string): SerializedTable => {

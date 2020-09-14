@@ -18,6 +18,10 @@ export interface MigrationTable extends Table {
 
 export class TableMigrator implements MigrationTable {
   constructor(private table: TableHandler, private store: StoreMigrator) {}
+  static deserialize(data: SerializedTable, store: StoreMigrator): TableMigrator {
+    const handler = new TableHandler(data, store);
+    return new TableMigrator(handler, store);
+  }
 
   get tableName(): string {
     return this.table.tableName;
