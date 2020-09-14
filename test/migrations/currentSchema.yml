@@ -1,0 +1,198 @@
+tables:
+  - tableName: user
+    columns:
+      - autoIncrement: true
+        columnName: userId
+        defaultCurrentTimeStamp: false
+        hasReference: false
+        notNull: true
+        onUpdateCurrentTimeStamp: false
+        signed: false
+        type: int
+        zerofill: false
+      - autoIncrement: false
+        columnName: name
+        default: no name
+        defaultCurrentTimeStamp: false
+        hasReference: false
+        length: 20
+        notNull: true
+        onUpdateCurrentTimeStamp: false
+        type: varchar
+        zerofill: false
+      - autoIncrement: false
+        columnName: nickName
+        defaultCurrentTimeStamp: false
+        hasReference: false
+        length: 20
+        notNull: false
+        onUpdateCurrentTimeStamp: false
+        type: varchar
+        zerofill: false
+      - autoIncrement: false
+        columnName: createdAt
+        default: CURRENT_TIMESTAMP
+        defaultCurrentTimeStamp: true
+        hasReference: false
+        notNull: true
+        onUpdateCurrentTimeStamp: false
+        type: timestamp
+        zerofill: false
+      - autoIncrement: false
+        columnName: updatedAt
+        default: CURRENT_TIMESTAMP
+        defaultCurrentTimeStamp: true
+        hasReference: false
+        notNull: true
+        onUpdateCurrentTimeStamp: true
+        type: timestamp
+        zerofill: false
+    gqlOption:
+      mutation:
+        create: true
+        delete: false
+        fromContextColumns: []
+        update: true
+      subscription:
+        filter:
+          - name
+        onCreate: true
+        onDelete: false
+        onUpdate: true
+    indexes: []
+    primaryKey:
+      - userId
+    uniqueKeys:
+      - - nickName
+  - tableName: post
+    columns:
+      - autoIncrement: false
+        columnName: userId
+        defaultCurrentTimeStamp: false
+        hasReference: true
+        notNull: true
+        onUpdateCurrentTimeStamp: false
+        reference:
+          columnName: userId
+          relation: Many
+          relationName: hoge
+          targetColumn: userId
+          targetTable: user
+        signed: false
+        type: int
+        zerofill: false
+      - autoIncrement: true
+        columnName: postId
+        defaultCurrentTimeStamp: false
+        hasReference: false
+        notNull: true
+        onUpdateCurrentTimeStamp: false
+        signed: false
+        type: int
+        zerofill: false
+      - autoIncrement: false
+        columnName: title
+        defaultCurrentTimeStamp: false
+        hasReference: false
+        length: 50
+        notNull: true
+        onUpdateCurrentTimeStamp: false
+        type: varchar
+        zerofill: false
+    gqlOption:
+      mutation:
+        create: true
+        delete: false
+        fromContextColumns:
+          - column: userId
+            contextName: userId
+        update: true
+      subscription:
+        filter: []
+        onCreate: false
+        onDelete: false
+        onUpdate: false
+    indexes: []
+    primaryKey:
+      - postId
+    uniqueKeys: []
+  - tableName: stock
+    columns:
+      - autoIncrement: false
+        columnName: user
+        defaultCurrentTimeStamp: false
+        hasReference: true
+        notNull: true
+        onUpdateCurrentTimeStamp: false
+        reference:
+          columnName: user
+          relation: Many
+          relationName: stock_user
+          targetColumn: userId
+          targetTable: user
+        signed: false
+        type: int
+        zerofill: false
+      - autoIncrement: false
+        columnName: post
+        defaultCurrentTimeStamp: false
+        hasReference: true
+        notNull: true
+        onUpdateCurrentTimeStamp: false
+        reference:
+          columnName: post
+          onDelete: NO ACTION
+          onUpdate: CASCADE
+          relation: Many
+          relationName: stockPost
+          targetColumn: postId
+          targetTable: post
+        signed: false
+        type: int
+        zerofill: false
+      - autoIncrement: true
+        columnName: id
+        defaultCurrentTimeStamp: false
+        hasReference: false
+        notNull: true
+        onUpdateCurrentTimeStamp: false
+        signed: false
+        type: int
+        zerofill: false
+      - autoIncrement: false
+        columnName: createdAt
+        default: CURRENT_TIMESTAMP
+        defaultCurrentTimeStamp: true
+        hasReference: false
+        notNull: true
+        onUpdateCurrentTimeStamp: false
+        type: timestamp
+        zerofill: false
+      - autoIncrement: false
+        columnName: updatedAt
+        default: CURRENT_TIMESTAMP
+        defaultCurrentTimeStamp: true
+        hasReference: false
+        notNull: true
+        onUpdateCurrentTimeStamp: true
+        type: timestamp
+        zerofill: false
+    gqlOption:
+      mutation:
+        create: true
+        delete: true
+        fromContextColumns:
+          - column: user
+            contextName: userId
+        update: true
+      subscription:
+        filter: []
+        onCreate: false
+        onDelete: true
+        onUpdate: false
+    indexes: []
+    primaryKey:
+      - id
+    uniqueKeys:
+      - - user
+        - post

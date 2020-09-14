@@ -12,6 +12,14 @@ const getInnerStr = (str: string, start: string, end: string, fromIndex = 0) => 
   return str.slice(startIndex, endIndex);
 };
 
+const getInParenValues = (tokens: Token[], fromIndex = 0) => {
+  const sliced = tokens.slice(fromIndex);
+  const start = sliced.findIndex(it => it.kind === TokenKind.Separator && it.value === '(');
+  const end = sliced.findIndex(it => it.kind === TokenKind.Separator && it.value === ')');
+  if (start === -1 || end === -1) return [];
+  return sliced.slice(start + 1, end);
+};
+
 const getReferentialAction = (str: string, from: number) => {
   const slice = str.slice(from);
   if (slice.startsWith('RESTRICT')) return ForeignKeyReferentialAction.Restrict;
@@ -21,55 +29,71 @@ const getReferentialAction = (str: string, from: number) => {
   return undefined;
 };
 
-const getColumns = (str: string) =>
-  getInnerStr(str, '(', ')')
-    .split(',')
-    .map(it => it.replace('`', ''));
 const startStrMap: { word: string; fn: (str: string, table: SerializedTable) => SerializedTable }[] = [
-  { word: 'PRIMARY KEY', fn: (str: string, table) => ({ ...table, primaryKey: getColumns(str) }) },
+  {
+    word: 'PRIMARY KEY',
+    fn: (str: string, table) => {
+      const tokens = getInParenValues(lexColumn(str));
+      return { ...table, primaryKey: tokens.filter(it => it.kind === TokenKind.String).map(it => it.value) };
+    },
+  },
   {
     word: 'UNIQUE KEY',
-    fn: (str: string, table) => ({ ...table, uniqueKeys: [...table.uniqueKeys, getColumns(str)] }),
+    fn: (str: string, table) => {
+      const tokens = lexColumn(str);
+      const inParen = getInParenValues(tokens);
+      return {
+        ...table,
+        uniqueKeys: [...table.uniqueKeys, inParen.filter(it => it.kind === TokenKind.String).map(it => it.value)],
+      };
+    },
   },
   {
     word: 'KEY',
-    fn: (str, table) => ({
-      ...table,
-      indexes: [
-        ...table.indexes,
-        {
-          constraintName: getInnerStr(str, '`', '`'),
-          columns: getColumns(str),
-        },
-      ],
-    }),
+    fn: (str, table) => {
+      const tokens = lexColumn(str);
+      return {
+        ...table,
+        indexes: [
+          ...table.indexes,
+          {
+            constraintName: tokens[1].value,
+            columns: getInParenValues(tokens)
+              .filter(it => it.kind === TokenKind.String)
+              .map(it => it.value),
+          },
+        ],
+      };
+    },
   },
   {
     word: 'CONSTRAINT',
     fn: (str: string, table) => {
-      let i = indexOfEndOfFind(str, 0, 'CONSTRAINT');
-      // const constraintName = getInnerStr(str, '`', '`', i);
-      i = indexOfEndOfFind(str, i, 'FOREIGN KEY');
-      const columnName = getInnerStr(str, '`', '`', i);
-      i = indexOfEndOfFind(str, i, 'REFERENCES');
-      const targetTable = getInnerStr(str, '`', '`', i);
-      i += targetTable.length + 4;
-      const targetColumn = getInnerStr(str, '`', '`', i);
-      let j = indexOfEndOfFind(str, i, 'ON UPDATE');
-      const onUpdate = j !== -1 ? getReferentialAction(str, j + 1) : undefined;
-      j = indexOfEndOfFind(str, i, 'ON DELETE');
-      const onDelete = j !== -1 ? getReferentialAction(str, j + 1) : undefined;
+      const tokens = lexColumn(str);
+      const columnName = getInParenValues(tokens)[0].value;
+      const refIndex = tokens.findIndex(it => it.kind === TokenKind.Keyword && it.value === 'REFERENCES');
+      const targetTable = tokens[refIndex + 1].value;
+      const targetColumn = getInParenValues(tokens, refIndex)[0].value;
       const isColumnUnique = table.uniqueKeys.filter(it => it.length === 1).find(it => it[0] === columnName);
       const sameTableRefs = table.columns.filter(it => it.hasReference && it.reference.targetTable === targetTable);
+      const onUpdate = tokens.findIndex(it => it.kind === TokenKind.Keyword && it.value === 'ON UPDATE');
+      const onDelete = tokens.findIndex(it => it.kind === TokenKind.Keyword && it.value === 'ON DELETE');
+
       const reference: Reference = {
         targetTable,
         targetColumn,
         columnName,
         relation: isColumnUnique ? Relation.OneOrZero : Relation.Many,
         relationName: sameTableRefs.length !== 0 ? targetTable + sameTableRefs.length : undefined,
-        onUpdate,
-        onDelete,
+        onUpdate: onUpdate !== -1 ? (tokens[onUpdate + 1].value as ForeignKeyReferentialAction) : undefined,
+        onDelete: onDelete !== -1 ? (tokens[onDelete + 1].value as ForeignKeyReferentialAction) : undefined,
       };
+      console.log('ref');
+      console.log(table.tableName);
+      console.log(table.columns.map(it => it.columnName));
+      console.log(columnName);
+      console.log('----');
+
       return {
         ...table,
         columns: table.columns.map(it =>
@@ -92,11 +116,6 @@ const startStrMap: { word: string; fn: (str: string, table: SerializedTable) => 
         return undefined;
       };
       const defaultToken = getDefault();
-      const getInParenValues = (tokens: Token[]) => {
-        const start = tokens.findIndex(it => it.kind === TokenKind.Separator && it.value === '(');
-        const end = tokens.findIndex(it => it.kind === TokenKind.Separator && it.value === ')');
-        return tokens.slice(start + 1, end);
-      };
       const inPrenValues = getInParenValues(tokens);
       const column: SerializedNormalColumn = {
         hasReference: false,
@@ -127,10 +146,11 @@ const indexOfEndOfFind = (str: string, currentIndex: number, find: string) => {
   return currentIndex + i + find.length;
 };
 
+// TODO rewrite
 export const serializeCreateTable = (str: string): SerializedTable => {
   const lines = str.split('\n').map(it => it.trim());
-  const table: SerializedTable = {
-    tableName: getInnerStr(lines[0], '`', '`'),
+  let table: SerializedTable = {
+    tableName: lexColumn(lines[0])[1].value,
     columns: [],
     primaryKey: [],
     uniqueKeys: [],
@@ -152,7 +172,7 @@ export const serializeCreateTable = (str: string): SerializedTable => {
   };
 
   lines.slice(1).forEach(line => {
-    startStrMap.find(it => line.startsWith(it.word))!.fn(line, table);
+    table = startStrMap.find(it => line.startsWith(it.word))!.fn(line, table);
   });
   return table;
 };
