@@ -9,7 +9,7 @@ export class RelationNode {
   static fromReference(entity: EntityNode, ref: ReferenceColumn): RelationNode {
     return new RelationNode(
       entity,
-      ref.data.reference.relationName || TableHandler.tableNameToEntityName(ref.table.tableName),
+      ref.data.reference.relationName,
       ref.data.columnName,
       ref.data.reference.targetColumn,
       ref.data.reference.targetTable,

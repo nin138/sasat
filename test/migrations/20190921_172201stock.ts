@@ -13,7 +13,7 @@ export class Stock implements SasatMigration {
         relation: Relation.Many,
       });
       table.references({
-        relationName: 'stockPost',
+        // relationName: 'stockPost',
         targetTable: 'post',
         targetColumn: 'postId',
         columnName: 'post',

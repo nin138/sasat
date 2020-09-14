@@ -6,7 +6,7 @@ export class Post implements SasatMigration {
       table.column('postId').int().unsigned().autoIncrement().primary();
       table.references({
         columnName: 'userId',
-        relationName: 'hoge',
+        // relationName: 'hoge',
         targetColumn: 'userId',
         targetTable: 'user',
         relation: Relation.Many,
