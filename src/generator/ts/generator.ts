@@ -39,7 +39,7 @@ export class TsCodeGenerator implements CodeGenerator {
   }
 
   generateGqlResolver(root: RootNode): string {
-    return new ResolverGenerator().generate(root.entities()).toString();
+    return new ResolverGenerator().generate(root).toString();
   }
 
   generateGqlMutation(root: RootNode): string {

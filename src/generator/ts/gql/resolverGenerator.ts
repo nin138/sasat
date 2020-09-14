@@ -8,6 +8,8 @@ import { Directory } from '../../../constants/directory';
 import { Parser } from '../../../parser/parser';
 import { RelationNode } from '../../../parser/node/relationNode';
 import { EntityNode } from '../../../parser/node/entityNode';
+import { RootNode } from '../../../parser/node/rootNode';
+import has = Reflect.has;
 
 export class ResolverGenerator {
   private relationProperty(relation: RelationNode) {
@@ -76,16 +78,23 @@ export class ResolverGenerator {
     );
   };
 
-  generate(nodes: EntityNode[]): TsFile {
+  generate(root: RootNode): TsFile {
+    const hasSubscription = root.mutations().some(it => it.subscribed);
+    const properties = [
+      new PropertyAssignment('Query', new Identifier('query').importFrom('./query')),
+      new PropertyAssignment('Mutation', new Identifier('mutation').importFrom('./mutation')),
+    ];
+    if (hasSubscription)
+      properties.push(
+        new PropertyAssignment('Subscription', new Identifier('subscription').importFrom('./subscription')),
+      );
     return new TsFile(
       new VariableDeclaration(
         'const',
         new Identifier('resolvers'),
         new ObjectLiteral(
-          new PropertyAssignment('Query', new Identifier('query').importFrom('./query')),
-          new PropertyAssignment('Mutation', new Identifier('mutation').importFrom('./mutation')),
-          new PropertyAssignment('Subscription', new Identifier('subscription').importFrom('./subscription')),
-          new SpreadAssignment(new ObjectLiteral(...nodes.map(this.entityResolver))),
+          ...properties,
+          new SpreadAssignment(new ObjectLiteral(...root.entities().map(this.entityResolver))),
         ),
       ).export(),
     );
