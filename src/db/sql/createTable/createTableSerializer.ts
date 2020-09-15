@@ -2,7 +2,7 @@ import { SerializedTable } from '../../../migration/serialized/serializedStore';
 import { Reference, SerializedNormalColumn } from '../../../migration/serialized/serializedColumn';
 import { Relation } from '../../..';
 import { ForeignKeyReferentialAction } from '../../../migration/data/foreignKey';
-import { DBColumnTypes } from '../../../migration/column/columnTypes';
+import { columnTypeToTsType, DBColumnTypes } from '../../../migration/column/columnTypes';
 import { lexColumn } from './lexer/columnLexer';
 import { Token, TokenKind } from './lexer/lexer';
 
@@ -95,13 +95,21 @@ const startStrMap: { word: string; fn: (str: string, table: SerializedTable) => 
         return undefined;
       };
       const defaultToken = getDefault();
+      const type = tokens[1].value as DBColumnTypes;
+      const getDefaultValue = (defaultToken?: Token): string | number | undefined | null => {
+        if (!defaultToken || defaultToken.kind === TokenKind.Identifier) return undefined;
+        if (defaultToken.kind === TokenKind.Keyword && defaultToken.value === 'NULL') return null;
+        if (columnTypeToTsType(type) === 'number') return +defaultToken.value;
+        return defaultToken.value;
+      };
+
       const inPrenValues = getInParenValues(tokens);
       const column: SerializedNormalColumn = {
         hasReference: false,
         columnName: tokens[0].value,
-        type: tokens[1].value as DBColumnTypes,
+        type,
         notNull: keywords.includes('NOT NULL'),
-        default: defaultToken && defaultToken.kind !== TokenKind.Identifier ? defaultToken.value : undefined,
+        default: getDefaultValue(defaultToken),
         zerofill: keywords.includes('zerofill'),
         signed: keywords.includes('unsigned') ? false : keywords.includes('signed') ? true : undefined,
         autoIncrement: keywords.includes('AUTO_INCREMENT'),
@@ -145,7 +153,7 @@ export const serializeCreateTable = (str: string): SerializedTable => {
   };
 
   lines.slice(1).forEach(line => {
-    table = startStrMap.find(it => line.startsWith(it.word))!.fn(line, table);
+    table = startStrMap.find(it => line.startsWith(it.word))?.fn(line, table) || table;
   });
   return table;
 };

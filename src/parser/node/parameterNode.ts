@@ -1,9 +1,10 @@
 import { TypeNode } from './typeNode';
+import { FieldNode } from './fieldNode';
 
 export class ParameterNode {
   constructor(readonly name: string, readonly type: TypeNode) {}
   toGqlString(): string {
-    return `${this.name}: ${this.type.toGqlString()}`;
+    return `${FieldNode.normalizeFieldName(this.name)}: ${this.type.toGqlString()}`;
   }
 
   static parametersToGqlString(...params: ParameterNode[]): string {

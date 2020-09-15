@@ -2,7 +2,7 @@ import { SqlValueType } from '../db/connectors/dbClient';
 import { SELECT_ALIAS_SEPARATOR } from './query/sql/nodeToSql';
 import { Query, QueryNodeKind, Table } from './query/query';
 import { IdentifiableKeyMap } from './query/createQueryResolveInfo';
-import { QExpr } from 'sasat';
+import { QExpr } from '../runtime/query/factory';
 
 export type QueryResolveInfo = {
   tableAlias: string;
@@ -33,9 +33,11 @@ const rowToObjs = (row: ResultRow): ParseObjs => {
 
 const hydrateRow = (info: QueryResolveInfo, objs: ParseObjs) => {
   const result: Record<string, unknown> = objs[info.tableAlias];
+  if (result[info.keyAliases[0]] === null) return null;
   info.joins.forEach(it => {
     if (it.isArray) {
-      result[it.property] = [hydrateRow(it, objs)];
+      const child = hydrateRow(it, objs);
+      result[it.property] = child ? [child] : [];
     } else {
       result[it.property] = hydrateRow(it, objs);
     }

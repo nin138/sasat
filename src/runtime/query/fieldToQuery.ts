@@ -15,7 +15,7 @@ const join = (
   const joins: Join[] = Object.entries(fields.relations || {})
     .filter(([, fields]) => fields)
     .map(([rel, fields]) => join(tableAlias, fields!, map[info.table][rel], map, selects));
-  return QExpr.join(QExpr.table(info.table, joins, fields.tableAlias), info.on(parentTableAlias, tableAlias));
+  return QExpr.join(QExpr.table(info.table, joins, fields.tableAlias), info.on(parentTableAlias, tableAlias), 'LEFT');
 };
 
 export const fieldToQuery = (tableName: string, fields: Fields, map: RelationMap): Query => {

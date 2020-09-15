@@ -12,11 +12,11 @@ import { ReturnStatement } from '../code/node/returnStatement';
 import { MethodDeclaration } from '../code/node/methodDeclaration';
 import { MethodModifiers } from '../code/node/modifier/methodModifiers';
 import { Parameter } from '../code/node/parameter';
-import { TypeLiteral } from '../code/node/type/typeLiteral';
 import { TsExpression } from '../code/node/expressions';
 import { tsg } from '../code/factory';
 import { RepositoryNode } from '../../../parser/node/repositoryNode';
 import { SqlValueType } from '../../../db/connectors/dbClient';
+import { FieldNode } from '../../../parser/node/fieldNode';
 
 export class GeneratedRepositoryGenerator {
   constructor(private node: RepositoryNode) {}
@@ -89,7 +89,7 @@ export class GeneratedRepositoryGenerator {
         }
         return this.sqlValueToTsExpression(it.defaultValue!);
       };
-      return new PropertyAssignment(it.fieldName, fieldToExpression());
+      return new PropertyAssignment(it.normalizedName(), fieldToExpression());
     });
     const body = new ReturnStatement(tsg.object(...properties));
 
@@ -97,7 +97,9 @@ export class GeneratedRepositoryGenerator {
     return new MethodDeclaration(
       'getDefaultValueString',
       [],
-      columns.length !== 0 ? tsg.typeRef(node.entityName.name).pick(...columns) : tsg.typeRef('Record<string, never>'),
+      columns.length !== 0
+        ? tsg.typeRef(node.entityName.name).pick(...columns.map(FieldNode.normalizeFieldName))
+        : tsg.typeRef('Record<string, never>'),
       [body],
     ).modifiers(new MethodModifiers().protected());
   }
@@ -124,7 +126,7 @@ export class GeneratedRepositoryGenerator {
               : qExpr
                   .property('conditions')
                   .property('and')
-                  .call(tsg.identifier('fields'), ...exps),
+                  .call(...exps),
           ),
         ),
       ];

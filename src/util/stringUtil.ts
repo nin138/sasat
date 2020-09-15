@@ -8,4 +8,8 @@ export const camelize = (str: string): string =>
     .replace(/(?:^\w|[A-Z]|_\w|\b\w)/g, (word, index) => (index == 0 ? word.toLowerCase() : word.toUpperCase()))
     .replace(/\s|_|-+/g, '');
 
-export const plural = (str: string): string => pluralize(str);
+export const plural = (str: string): string => {
+  const ret = pluralize(str);
+  if (str === ret) return str + 'List';
+  return ret;
+};

@@ -16,6 +16,7 @@ const keywords = [
   'CREATE TABLE',
   'UNIQUE KEY',
   'REFERENCES',
+  'NULL',
 ];
 
 export const lexColumn = (str: string): Token[] => new Lexer(str, keywords).lex();

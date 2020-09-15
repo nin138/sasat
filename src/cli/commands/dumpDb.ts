@@ -22,6 +22,10 @@ export const dumpDB = async (): Promise<void> => {
     const supportedTypes = Object.values(DBColumnTypes);
     const store: SerializedStore = {
       tables: serialized.filter(it => {
+        if (it.primaryKey.length === 0) {
+          Console.error(`table ${it.tableName} skipped, reason: missing primary key`);
+          return false;
+        }
         const notSupported = it.columns.find(it => !supportedTypes.includes(it.type));
         if (notSupported) {
           Console.error(
