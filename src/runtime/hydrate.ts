@@ -1,5 +1,8 @@
 import { SqlValueType } from '../db/connectors/dbClient';
 import { SELECT_ALIAS_SEPARATOR } from './query/sql/nodeToSql';
+import { Query, QueryNodeKind, Table } from './query/query';
+import { IdentifiableKeyMap } from './query/createQueryResolveInfo';
+import { QExpr } from 'sasat';
 
 export type QueryResolveInfo = {
   tableAlias: string;
@@ -58,7 +61,9 @@ const findAndAppend = (base: Record<string, unknown>, info: QueryResolveInfo, ob
   return true;
 };
 
-// @ts-ignore
+/**
+ * to use this function require to select primary keys for every table
+ */
 export const hydrate = (data: ResultRow[], info: QueryResolveInfo): unknown[] => {
   const result: Record<string, unknown>[] = [];
   // Record<uniqueValue, index of result>
@@ -77,4 +82,18 @@ export const hydrate = (data: ResultRow[], info: QueryResolveInfo): unknown[] =>
   });
 
   return result;
+};
+
+export const appendKeysToQuery = (query: Query, identifiableKeyMap: IdentifiableKeyMap): Query => {
+  const getTables = (table: Table): Table[] => [table, ...table.joins.flatMap(it => getTables(it.table))];
+  const tables = getTables(query.from);
+  tables.forEach(table => {
+    const keys = identifiableKeyMap[table.name];
+    keys.forEach(key => {
+      if (!query.select.some(it => it.kind === QueryNodeKind.Field && it.table === table.alias && it.name === key)) {
+        query.select.push(QExpr.field(table.alias!, key));
+      }
+    });
+  });
+  return query;
 };

@@ -2,7 +2,7 @@ import { CommandResponse, getDbClient } from '..';
 import { Fields } from './field';
 import * as SqlString from 'sqlstring';
 import { SasatError } from '../error';
-import { hydrate, ResultRow } from './hydrate';
+import { appendKeysToQuery, hydrate, ResultRow } from './hydrate';
 import { createSQLString, SQL } from '../db/sql/condition';
 import { SQLExecutor } from '../db/connectors/dbClient';
 import { createQueryResolveInfo, ResolveMaps } from './query/createQueryResolveInfo';
@@ -88,7 +88,7 @@ export abstract class SasatRepository<Entity, Creatable, Identifiable, EntityFie
       offset,
     };
     const info = createQueryResolveInfo(this.tableName, field, this.maps.relation, this.maps.identifiable);
-    const result = await this.query(query);
+    const result = await this.query(appendKeysToQuery(query, this.maps.identifiable));
     return hydrate(result, info) as EntityResult<Entity, Identifiable>[];
   }
 
