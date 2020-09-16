@@ -54,7 +54,7 @@ const findAndAppend = (base: Record<string, unknown>, info: QueryResolveInfo, ob
     const tArr: Record<string, unknown>[] = base[info.property] as Record<string, unknown>[];
     const target = tArr.find(item => info.keyAliases.every(key => item[key] === objs[info.tableAlias][key]));
     if (!target) {
-      tArr.push(hydrateRow(info, objs));
+      tArr.push(hydrateRow(info, objs)!);
       return true;
     } else return info.joins.some(info => findAndAppend(target, info, objs));
   }
@@ -76,7 +76,7 @@ export const hydrate = (data: ResultRow[], info: QueryResolveInfo): unknown[] =>
     const objs: Record<string, Record<string, unknown>> = rowToObjs(row);
     if (t0mapper[unique] === undefined) {
       t0mapper[unique] = result.length;
-      result.push(hydrateRow(info, objs));
+      result.push(hydrateRow(info, objs)!);
       return;
     }
     const base = result[t0mapper[unique]];

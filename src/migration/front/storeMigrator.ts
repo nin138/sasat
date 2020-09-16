@@ -22,7 +22,9 @@ export class StoreMigrator implements MigrationStore {
   }
 
   table(tableName: string): TableMigrator | undefined {
-    return this.tables.find(it => it.tableName === tableName);
+    const table = this.tables.find(it => it.tableName === tableName);
+    if (!table) throw new Error('Table: ' + tableName + ' Not Found');
+    return table;
   }
 
   addQuery(...query: string[]): void {

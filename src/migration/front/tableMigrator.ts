@@ -1,9 +1,9 @@
 import { StoreMigrator } from './storeMigrator';
 import { Table, TableHandler } from '../serializable/table';
-import { SerializedColumn, SerializedNormalColumn } from '../serialized/serializedColumn';
+import { Reference, SerializedColumn, SerializedNormalColumn } from '../serialized/serializedColumn';
 import { NestedPartial } from '../../util/type';
 import { GqlOption } from '../data/gqlOption';
-import { Column, NormalColumn } from '../serializable/column';
+import { Column, NormalColumn, ReferenceColumn } from '../serializable/column';
 import { DBIndex } from '../data';
 import { SerializedTable } from '../serialized/serializedStore';
 import { SqlCreator } from '../../db/sql/sqlCreater';
@@ -14,6 +14,7 @@ export interface MigrationTable extends Table {
   addColumn(column: SerializedColumn): MigrationTable;
   dropColumn(columnName: string): MigrationTable;
   setGqlOption(option: NestedPartial<GqlOption>): MigrationTable;
+  addForeignKey(reference: Reference): MigrationTable;
 }
 
 export class TableMigrator implements MigrationTable {
@@ -71,5 +72,19 @@ export class TableMigrator implements MigrationTable {
   setGqlOption(option: NestedPartial<GqlOption>): MigrationTable {
     this.table.setGqlOption(option);
     return this;
+  }
+
+  addForeignKey(reference: Reference): MigrationTable {
+    this.tableExists(reference.targetTable);
+    this.table.addForeignKey(reference);
+    const column = this.table.column(reference.columnName) as ReferenceColumn;
+    this.store.addQuery(SqlCreator.addForeignKey(this.tableName, column.getConstraintName(), reference));
+    return this;
+  }
+  protected tableExists(tableName: string): true {
+    if (!this.store.table(tableName)) {
+      throw new Error('Table: ' + tableName + ' Not Exists');
+    }
+    return true;
   }
 }

@@ -28,7 +28,7 @@ export class RelationNode {
   ) {}
 
   refPropertyName(): string {
-    return this.relationName || this.toEntityName.name;
+    return this.relationName || this.fromColumn + this.toEntityName.name;
   }
 
   referencedByPropertyName(): string {

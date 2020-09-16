@@ -42,29 +42,27 @@ export class RelationMapGenerator {
 
   private entityRelationType(node: EntityNode) {
     const importEntity = (entity: EntityName) => Directory.entityPath(Directory.paths.generated, entity);
+    const typeProperties = [
+      ...node.relations.map(it =>
+        tsg.propertySignature(
+          it.refPropertyName(),
+          it.refType().toTsType().addImport([it.toEntityName.name], importEntity(it.toEntityName)),
+        ),
+      ),
+      ...node
+        .findReferencedRelations()
+        .map(it =>
+          tsg.propertySignature(
+            it.referencedByPropertyName(),
+            it.referenceByType().toTsType().addImport([it.parent.entityName.name], importEntity(it.parent.entityName)),
+          ),
+        ),
+    ];
     return [
       tsg
         .typeAlias(
           node.entityName.relationTypeName(),
-          tsg.typeLiteral([
-            ...node.relations.map(it =>
-              tsg.propertySignature(
-                it.refPropertyName(),
-                it.refType().toTsType().addImport([it.toEntityName.name], importEntity(it.toEntityName)),
-              ),
-            ),
-            ...node
-              .findReferencedRelations()
-              .map(it =>
-                tsg.propertySignature(
-                  it.referencedByPropertyName(),
-                  it
-                    .referenceByType()
-                    .toTsType()
-                    .addImport([it.parent.entityName.name], importEntity(it.parent.entityName)),
-                ),
-              ),
-          ]),
+          typeProperties.length !== 0 ? tsg.typeLiteral(typeProperties) : tsg.typeRef('Record<never, never>'),
         )
         .export(),
       tsg
@@ -100,7 +98,7 @@ export class RelationMapGenerator {
             tsg.parameter('parentTableAlias', KeywordTypeNode.string),
             tsg.parameter('childTableAlias', KeywordTypeNode.string),
           ],
-          undefined,
+          tsg.typeRef('BooleanValueExpression').importFrom('sasat'),
           qExpr
             .property('conditions')
             .property('eq')

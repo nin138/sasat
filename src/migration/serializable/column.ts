@@ -3,7 +3,12 @@ import { GqlPrimitive } from '../../generator/gql/types';
 import { columnTypeToGqlPrimitive } from '../../generator/gql/columnToGqlType';
 import { columnToSql } from '../../db/sql/columnToSql';
 import { Serializable } from './serializable';
-import { SerializedColumn, SerializedNormalColumn, SerializedReferenceColumn } from '../serialized/serializedColumn';
+import {
+  Reference,
+  SerializedColumn,
+  SerializedNormalColumn,
+  SerializedReferenceColumn,
+} from '../serialized/serializedColumn';
 import { Table } from './table';
 
 export interface Column extends Serializable<SerializedColumn> {
@@ -59,6 +64,10 @@ export class NormalColumn extends BaseColumn {
   constructor(public data: SerializedNormalColumn, table: Table) {
     super(data, table);
   }
+
+  addReference(reference: Reference): ReferenceColumn {
+    return new ReferenceColumn({ ...this.data, hasReference: true, reference }, this.table);
+  }
 }
 
 export class ReferenceColumn extends BaseColumn {
@@ -71,47 +80,4 @@ export class ReferenceColumn extends BaseColumn {
       this.data.reference.targetColumn
     }`;
   }
-  //
-  // toSql(): string {
-  //   return columnToSql({
-  //     ...this.getRootColumn().data,
-  //     ...{ autoIncrement: false, default: undefined, columnName: this.name },
-  //   });
-  // }
-  //
-  // getTargetColumn(): Column {
-  //   return this.table.store.table(this.data.reference.targetTable)!.column(this.data.reference.targetColumn)!;
-  // }
-  //
-  // getRootColumn(): NormalColumn {
-  //   let column = this.getTargetColumn();
-  //   while (column.isReference() === true) {
-  //     column = (column as ReferenceColumn).getTargetColumn();
-  //   }
-  //   return column as NormalColumn;
-  // }
-  //
-  // isReference(): this is ReferenceColumn {
-  //   return true;
-  // }
-  //
-  // serialize(): ReferenceColumnData {
-  //   return this.data;
-  // }
-  //
-  // isNullable(): boolean {
-  //   return false;
-  // }
-  //
-  // gqlType(): GqlPrimitive {
-  //   return this.getRootColumn().gqlType();
-  // }
-  //
-  // isNullableOnCreate(): boolean {
-  //   return false;
-  // }
-  //
-  // getConstraintName(): string {
-  //   return `ref_${this.table.tableName}_${this.name}__${this.data.reference.targetTable}_${this.data.reference.targetColumn}`;
-  // }
 }

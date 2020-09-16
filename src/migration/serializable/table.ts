@@ -1,6 +1,6 @@
 import { Serializable } from './serializable';
 import { SerializedTable } from '../serialized/serializedStore';
-import { Column, ReferenceColumn } from './column';
+import { Column, NormalColumn, ReferenceColumn } from './column';
 import { capitalizeFirstLetter } from '../../util/stringUtil';
 import { NestedPartial } from '../../util/type';
 import { SqlString } from '../../runtime/query/sql/sqlString';
@@ -11,6 +11,8 @@ import { getDefaultGqlOption, GqlOption, mergeGqlOption } from '../data/gqlOptio
 import { assembleColumn } from '../functions/assembleColumn';
 import { EntityName } from '../../parser/node/entityName';
 import { DataStore } from '../dataStore';
+import { Relation } from 'sasat';
+import { ForeignKeyReferentialAction } from '../data/foreignKey';
 
 export interface Table extends Serializable<SerializedTable> {
   column(columnName: string): Column | undefined;
@@ -157,5 +159,15 @@ export class TableHandler implements Table {
 
   getReferenceColumns(): ReferenceColumn[] {
     return this.columns.filter(it => it.isReference()) as ReferenceColumn[];
+  }
+  addForeignKey(reference: Reference): void {
+    const columnName = reference.columnName;
+    const target = this.column(columnName);
+    if (!target) throw new Error('Column: `' + columnName + '` Not Found');
+    // TODO
+    if (target.isReference())
+      throw new Error('Column: `' + columnName + '`already has reference, multiple reference is not supported');
+    const ref = (target as NormalColumn).addReference(reference);
+    this._columns = this.columns.map(it => (it.columnName() === columnName ? ref : it));
   }
 }
