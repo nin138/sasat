@@ -4,6 +4,7 @@ import { TypeNode } from '../node/typeNode';
 import { ParameterNode } from '../node/parameterNode';
 import { Parser } from '../parser';
 import { TableHandler } from '../../migration/serializable/table';
+import { FindMethodNode } from '../node/findMethod';
 
 export class QueryNodeFactory {
   create(table: TableHandler): QueryNode[] {
@@ -17,7 +18,7 @@ export class QueryNodeFactory {
   private primaryQuery(table: TableHandler) {
     return new QueryNode(
       table.tableName,
-      Parser.paramsToQueryName(...table.primaryKey),
+      FindMethodNode.paramsToName(...table.primaryKey),
       table.primaryKey.map(it => new ParameterNode(it, new TypeNode(table.column(it)!.dataType(), false, false))),
       new TypeNode(table.getEntityName(), false, true),
     );

@@ -46,6 +46,7 @@ export class GeneratedRepositoryGenerator {
     );
   }
 
+  // TODO MOVE
   private sqlValueToTsExpression(value: SqlValueType): TsExpression {
     if (typeof value === 'string') {
       return tsg.string(value);
@@ -106,7 +107,7 @@ export class GeneratedRepositoryGenerator {
 
   private findMethods(node: RepositoryNode) {
     const qExpr = tsg.identifier('QExpr').importFrom('sasat');
-    return node.findMethods.map(it => {
+    return node.findMethods().map(it => {
       const exps = it.params.map(it =>
         qExpr
           .property('conditions')

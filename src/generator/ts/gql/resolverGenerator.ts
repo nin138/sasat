@@ -10,6 +10,7 @@ import { RelationNode } from '../../../parser/node/relationNode';
 import { EntityNode } from '../../../parser/node/entityNode';
 import { RootNode } from '../../../parser/node/rootNode';
 import has = Reflect.has;
+import { FindMethodNode } from '../../../parser/node/findMethod';
 
 export class ResolverGenerator {
   private relationProperty(relation: RelationNode) {
@@ -32,7 +33,7 @@ export class ResolverGenerator {
                   .identifier(relation.toEntityName.dataSourceName())
                   .importFrom(Directory.dataSourcePath(Directory.paths.generated, relation.toEntityName)),
               )
-              .property(Parser.paramsToQueryName(relation.toColumn))
+              .property(FindMethodNode.paramsToName(relation.toColumn))
               .call(tsg.identifier(paramName).property(relation.fromColumn).nonNull()),
           ),
         ),
@@ -60,7 +61,7 @@ export class ResolverGenerator {
                   .identifier(relation.parent.entityName.dataSourceName())
                   .importFrom(Directory.dataSourcePath(Directory.paths.generated, relation.parent.entityName)),
               )
-              .property(Parser.paramsToQueryName(relation.fromColumn))
+              .property(FindMethodNode.paramsToName(relation.fromColumn))
               .call(tsg.identifier(paramName).property(relation.toColumn).nonNull()),
           ),
         ),

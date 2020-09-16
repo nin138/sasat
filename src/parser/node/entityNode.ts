@@ -15,6 +15,10 @@ export class EntityNode {
     this.relations = table.getReferenceColumns().map(it => RelationNode.fromReference(this, it));
   }
 
+  field(fieldName: string): FieldNode {
+    return this.fields.find(it => it.fieldName === fieldName)!;
+  }
+
   allTypeDefs(): TypeDefNode[] {
     return [this.typeDef(), this.deleteTypeDef()];
   }

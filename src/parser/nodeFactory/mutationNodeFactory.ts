@@ -4,6 +4,7 @@ import { ContextParamNode } from '../node/gql/contextParamNode';
 import { SubscriptionFilterNode } from '../node/gql/subscriptionFilterNode';
 import { EntityNode } from '../node/entityNode';
 import { TableHandler } from '../../migration/serializable/table';
+import { FindMethodNode } from '../node/findMethod';
 
 export class MutationNodeFactory {
   create = (table: TableHandler, entity: EntityNode): MutationNode[] => {
@@ -30,7 +31,7 @@ export class MutationNodeFactory {
     return [
       entity,
       table.primaryKey,
-      Parser.paramsToQueryName(...table.primaryKey),
+      FindMethodNode.paramsToName(...table.primaryKey),
       table.gqlOption.mutation.fromContextColumns.map(
         it => new ContextParamNode(it.column, it.contextName || it.column),
       ),

@@ -22,7 +22,7 @@ export interface Column extends Serializable<SerializedColumn> {
   isNullableOnCreate(): boolean;
 }
 
-class BaseColumn implements Column {
+export class BaseColumn implements Column {
   constructor(public data: SerializedColumn, public table: Table) {}
   columnName(): string {
     return this.data.columnName;

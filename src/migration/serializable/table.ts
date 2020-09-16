@@ -1,18 +1,24 @@
 import { Serializable } from './serializable';
 import { SerializedTable } from '../serialized/serializedStore';
-import { Column, NormalColumn, ReferenceColumn } from './column';
+import { BaseColumn, Column, NormalColumn, ReferenceColumn } from './column';
 import { capitalizeFirstLetter } from '../../util/stringUtil';
 import { NestedPartial } from '../../util/type';
 import { SqlString } from '../../runtime/query/sql/sqlString';
 import { SasatError } from '../../error';
-import { Reference, referenceToSql, SerializedReferenceColumn } from '../serialized/serializedColumn';
+import {
+  Reference,
+  referenceToSql,
+  SerializedColumn,
+  SerializedNormalColumn,
+  SerializedReferenceColumn,
+} from '../serialized/serializedColumn';
 import { DBIndex } from '../data';
 import { getDefaultGqlOption, GqlOption, mergeGqlOption } from '../data/gqlOption';
 import { assembleColumn } from '../functions/assembleColumn';
 import { EntityName } from '../../parser/node/entityName';
 import { DataStore } from '../dataStore';
-import { Relation } from 'sasat';
-import { ForeignKeyReferentialAction } from '../data/foreignKey';
+import { DBColumnTypes } from '../column/columnTypes';
+import { MigrationTable } from '../front/tableMigrator';
 
 export interface Table extends Serializable<SerializedTable> {
   column(columnName: string): Column | undefined;
@@ -27,8 +33,8 @@ export class TableHandler implements Table {
   get index(): DBIndex[] {
     return this.indexes;
   }
-  private _columns: Column[];
-  get columns(): Column[] {
+  private _columns: BaseColumn[];
+  get columns(): BaseColumn[] {
     return this._columns;
   }
   primaryKey: string[];
@@ -52,7 +58,7 @@ export class TableHandler implements Table {
     return this.columns.find(it => it.columnName() === columnName);
   }
 
-  addColumn(column: Column, isPrimary = false, isUnique = false): void {
+  addColumn(column: BaseColumn, isPrimary = false, isUnique = false): void {
     this.columns.push(column);
     if (isPrimary) this.setPrimaryKey(column.columnName());
     if (isUnique) this.addUniqueKey(column.columnName());
@@ -160,14 +166,34 @@ export class TableHandler implements Table {
   getReferenceColumns(): ReferenceColumn[] {
     return this.columns.filter(it => it.isReference()) as ReferenceColumn[];
   }
+
   addForeignKey(reference: Reference): void {
     const columnName = reference.columnName;
-    const target = this.column(columnName);
-    if (!target) throw new Error('Column: `' + columnName + '` Not Found');
+    const column1 = this.column(columnName);
+    if (!column1) throw new Error('Column: `' + columnName + '` Not Found');
     // TODO
-    if (target.isReference())
+    if (column1.isReference())
       throw new Error('Column: `' + columnName + '`already has reference, multiple reference is not supported');
-    const ref = (target as NormalColumn).addReference(reference);
+    const ref = (column1 as NormalColumn).addReference(reference);
     this._columns = this.columns.map(it => (it.columnName() === columnName ? ref : it));
+  }
+
+  changeType(columnName: string, type: DBColumnTypes): void {
+    this.updateColumn(columnName, { type });
+  }
+
+  setDefault(columnName: string, value: string | number | null): void {
+    this.updateColumn(columnName, { default: value });
+  }
+  protected updateColumn(columnName: string, diff: Partial<SerializedColumn>): void {
+    const update = (column: BaseColumn) => {
+      if (column.isReference())
+        return new ReferenceColumn({ ...column.serialize(), ...diff } as SerializedReferenceColumn, this);
+      return new NormalColumn({ ...column.serialize(), ...diff } as SerializedNormalColumn, this);
+    };
+    if (!this.column(columnName)) {
+      throw new Error(this.tableName + '.' + columnName + ' Not Found');
+    }
+    this._columns = this.columns.map(it => (it.columnName() === columnName ? update(it) : it));
   }
 }

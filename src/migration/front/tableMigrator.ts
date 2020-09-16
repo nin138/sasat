@@ -7,6 +7,8 @@ import { Column, NormalColumn, ReferenceColumn } from '../serializable/column';
 import { DBIndex } from '../data';
 import { SerializedTable } from '../serialized/serializedStore';
 import { SqlCreator } from '../../db/sql/sqlCreater';
+import { DBColumnTypes, DBType } from '../column/columnTypes';
+import { SqlString } from '../../runtime/query/sql/sqlString';
 
 export interface MigrationTable extends Table {
   addIndex(...columns: string[]): MigrationTable;
@@ -15,6 +17,8 @@ export interface MigrationTable extends Table {
   dropColumn(columnName: string): MigrationTable;
   setGqlOption(option: NestedPartial<GqlOption>): MigrationTable;
   addForeignKey(reference: Reference): MigrationTable;
+  changeColumnType(columnName: string, type: DBType): MigrationTable;
+  setDefault(columnName: string, value: string | number | null): MigrationTable;
 }
 
 export class TableMigrator implements MigrationTable {
@@ -78,13 +82,37 @@ export class TableMigrator implements MigrationTable {
     this.tableExists(reference.targetTable);
     this.table.addForeignKey(reference);
     const column = this.table.column(reference.columnName) as ReferenceColumn;
+    const targetColumn = this.store.table(reference.targetTable)!.column(reference.targetColumn);
+    if (!targetColumn)
+      throw new Error('Column: ' + reference.targetTable + '.' + reference.targetColumn + ' Not Exists');
+    if (column.dataType() !== targetColumn.dataType()) {
+      throw new Error(
+        `${this.tableName}.${reference.columnName} AND ${reference.targetTable}.${
+          reference.targetColumn
+        } is different Type( ${column.dataType()} != ${targetColumn.dataType()} )`,
+      );
+    }
     this.store.addQuery(SqlCreator.addForeignKey(this.tableName, column.getConstraintName(), reference));
     return this;
   }
+
+  changeColumnType(columnName: string, type: DBType): MigrationTable {
+    this.table.changeType(columnName, type as DBColumnTypes);
+    this.store.addQuery(`ALTER TABLE ${this.tableName} MODIFY ${columnName} ${type}`);
+    return this;
+  }
+
   protected tableExists(tableName: string): true {
     if (!this.store.table(tableName)) {
       throw new Error('Table: ' + tableName + ' Not Exists');
     }
     return true;
+  }
+
+  setDefault(columnName: string, value: string | number | null): MigrationTable {
+    // ALTER ... SET DEFAULT
+    this.table.setDefault(columnName, value);
+    this.store.addQuery(`ALTER TABLE ${this.tableName} ALTER ${columnName} SET DEFAULT ${SqlString.escape(value)}`);
+    return this;
   }
 }

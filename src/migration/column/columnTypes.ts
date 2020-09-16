@@ -18,6 +18,25 @@ export enum DBColumnTypes {
   boolean = 'boolean',
 }
 
+export type DBType =
+  | 'char'
+  | 'varchar'
+  | 'text'
+  | 'tinyint'
+  | 'smallint'
+  | 'mediumint'
+  | 'int'
+  | 'bigint'
+  | 'float'
+  | 'double'
+  | 'decimal'
+  | 'year'
+  | 'date'
+  | 'time'
+  | 'datetime'
+  | 'timestamp'
+  | 'boolean';
+
 export type DBStringTypes = DBColumnTypes.char | DBColumnTypes.varchar;
 export type DBTextTypes = DBColumnTypes.text;
 export type DBIntegerTypes =
