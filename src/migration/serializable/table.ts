@@ -3,7 +3,7 @@ import { SerializedTable } from '../serialized/serializedStore';
 import { BaseColumn, Column, NormalColumn, ReferenceColumn } from './column';
 import { capitalizeFirstLetter } from '../../util/stringUtil';
 import { NestedPartial } from '../../util/type';
-import { SqlString } from '../../runtime/query/sql/sqlString';
+import { SqlString } from '../../runtime/sql/sqlString';
 import { SasatError } from '../../error';
 import {
   Reference,

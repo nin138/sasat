@@ -14,11 +14,11 @@ import {
   ParenthesisExpression,
   QueryNodeKind,
   SelectExpr,
-  Table,
+  QueryTable,
   Value,
 } from '../query';
 
-import { SqlString } from './sqlString';
+import { SqlString } from '../../../sql/sqlString';
 export const SELECT_ALIAS_SEPARATOR = '__';
 export const Sql = {
   select: (expr: SelectExpr): string => (expr.kind === QueryNodeKind.Field ? Sql.fieldInSelect(expr) : Sql.fn(expr)),
@@ -54,7 +54,7 @@ export const Sql = {
     `${Sql.booleanValue(expr.left)}  ${expr.operator} ${Sql.booleanValue(expr.right)}`,
   isNull: (expr: IsNullExpression): string => `${Sql.value(expr.expr)} ${expr.isNot ? 'IS NOT NULL' : 'IS NULL'}`,
   paren: (expr: ParenthesisExpression): string => '(' + Sql.booleanValue(expr) + ')',
-  table: (table: Table): string => {
+  table: (table: QueryTable): string => {
     if (!table.alias) return SqlString.escapeId(table.name);
     return SqlString.escapeId(table.name) + ' AS ' + SqlString.escapeId(table.alias);
   },

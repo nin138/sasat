@@ -1,8 +1,8 @@
-import { Fields } from '../..';
 import { Join, Query, SelectExpr } from './query';
-import { QExpr } from './factory';
 import { RelationInfo, RelationMap } from './createQueryResolveInfo';
 import { SELECT_ALIAS_SEPARATOR } from './sql/nodeToSql';
+import { Fields } from 'sasat';
+import { QExpr } from '../factory';
 
 const join = (
   parentTableAlias: string,

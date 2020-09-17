@@ -1,8 +1,8 @@
-export { DataStoreInfo } from './runtime/query/createQueryResolveInfo';
-export { BooleanValueExpression } from './runtime/query/query';
+export { DataStoreInfo } from './runtime/dsl/query/createQueryResolveInfo';
+export { BooleanValueExpression } from './runtime/dsl/query/query';
 export { Relation } from './migration/data/relation';
-export { QExpr } from './runtime/query/factory';
-export { RelationMap } from './runtime/query/createQueryResolveInfo';
+export { QExpr } from './runtime/dsl/factory';
+export { RelationMap } from './runtime/dsl/query/createQueryResolveInfo';
 export { Fields } from './runtime/field';
 export { gqlResolveInfoToField } from './runtime/gqlResolveInfoToField';
 export { ComparisonOperators } from './db/sql/expression/comparison';

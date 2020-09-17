@@ -23,7 +23,7 @@ export class StoreMigrator implements MigrationStore {
 
   table(tableName: string): TableMigrator {
     const table = this.tables.find(it => it.tableName === tableName);
-    if (!table) throw new Error('Table: ' + tableName + ' Not Found');
+    if (!table) throw new Error('QueryTable: ' + tableName + ' Not Found');
     return table;
   }
 

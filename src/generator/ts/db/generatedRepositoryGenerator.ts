@@ -64,7 +64,7 @@ export class GeneratedRepositoryGenerator {
         .modifiers(tsg.propertyModifiers().readonly())
         .initializer(tsg.string(node.tableName)),
       tsg
-        .propertyDeclaration('columns', tsg.arrayType(KeywordTypeNode.string), false)
+        .propertyDeclaration('fields', tsg.arrayType(KeywordTypeNode.string), false)
         .modifiers(tsg.propertyModifiers().readonly())
         .initializer(tsg.array(node.entity.fields.map(it => tsg.string(it.fieldName)))),
       tsg

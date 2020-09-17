@@ -2,7 +2,7 @@ import { DBColumnTypes } from '../column/columnTypes';
 import { SqlValueType } from '../../db/connectors/dbClient';
 import { Relation } from '../..';
 import { ForeignKeyReferentialAction } from '../data/foreignKey';
-import { SqlString } from '../../runtime/query/sql/sqlString';
+import { SqlString } from '../../runtime/sql/sqlString';
 
 interface SerializedColumnBase {
   hasReference: boolean;

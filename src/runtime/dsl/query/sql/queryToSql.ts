@@ -1,7 +1,7 @@
-import { Join, Query, Table } from '../query';
+import { Join, Query, QueryTable } from '../query';
 import { Sql } from './nodeToSql';
 
-const getJoin = (from: Table): Join[] => {
+const getJoin = (from: QueryTable): Join[] => {
   return from.joins.flatMap(join => [join, ...getJoin(join.table)]);
 };
 

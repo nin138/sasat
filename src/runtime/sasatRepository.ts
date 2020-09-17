@@ -1,14 +1,13 @@
-import { CommandResponse, DataStoreInfo, getDbClient } from '..';
+import { CommandResponse, DataStoreInfo, getDbClient, QExpr } from '..';
 import { Fields } from './field';
-import * as SqlString from 'sqlstring';
-import { SasatError } from '../error';
-import { appendKeysToQuery, hydrate, ResultRow } from './hydrate';
-import { SQLExecutor } from '../db/connectors/dbClient';
-import { createQueryResolveInfo } from './query/createQueryResolveInfo';
-import { queryToSql } from './query/sql/queryToSql';
-import { fieldToQuery } from './query/fieldToQuery';
-import { BooleanValueExpression, Query } from './query/query';
-import { replaceAliases } from './query/replaceAliases';
+import { appendKeysToQuery, hydrate, ResultRow } from './dsl/query/sql/hydrate';
+import { SQLExecutor, SqlValueType } from '../db/connectors/dbClient';
+import { createQueryResolveInfo } from './dsl/query/createQueryResolveInfo';
+import { queryToSql } from './dsl/query/sql/queryToSql';
+import { fieldToQuery } from './dsl/query/fieldToQuery';
+import { BooleanValueExpression, Query } from './dsl/query/query';
+import { replaceAliases } from './dsl/replaceAliases';
+import { Create, createToSql, Delete, deleteToSql, Update, updateToSql } from './dsl/mutation/mutation';
 
 export type EntityResult<Entity, Identifiable> = Identifiable & Partial<Entity>;
 interface Repository<Entity, Creatable, Identifiable> {
@@ -21,7 +20,7 @@ export abstract class SasatRepository<Entity, Creatable, Identifiable, EntityFie
   implements Repository<Entity, Creatable, Identifiable> {
   protected abstract maps: DataStoreInfo;
   abstract readonly tableName: string;
-  abstract readonly columns: string[];
+  abstract readonly fields: string[];
   protected abstract readonly primaryKeys: string[];
   protected abstract readonly autoIncrementColumn?: string;
   constructor(protected client: SQLExecutor = getDbClient()) {}
@@ -33,32 +32,37 @@ export abstract class SasatRepository<Entity, Creatable, Identifiable, EntityFie
   }
 
   async create(entity: Creatable): Promise<Entity> {
-    const columns: string[] = [];
-    const values: string[] = [];
     const obj: Entity = ({
       ...this.getDefaultValueString(),
       ...entity,
     } as unknown) as Entity;
-    Object.entries(obj).forEach(([column, value]) => {
-      columns.push(column);
-      values.push(value as string);
-    });
-    const response = await this.client.rawCommand(
-      `INSERT INTO ${this.tableName}(${columns.map(it => SqlString.escapeId(it)).join(', ')}) VALUES (${values
-        .map(SqlString.escape)
-        .join(', ')})`,
-    );
+    const dsl: Create = {
+      table: this.tableName,
+      values: Object.entries(obj).map(([column, value]) => ({ field: column, value })),
+    };
+    const response = await this.client.rawCommand(createToSql(dsl, this.maps.tableInfo));
     if (!this.autoIncrementColumn) return obj;
-    const map: Record<string, number> = {};
-    map[this.autoIncrementColumn] = response.insertId;
     return ({
-      ...map,
       ...obj,
+      [this.autoIncrementColumn]: response.insertId,
     } as unknown) as Entity;
   }
 
+  update(entity: Identifiable & Partial<Entity>): Promise<CommandResponse> {
+    const dsl: Update = {
+      table: this.tableName,
+      values: Object.entries(entity).map(([column, value]) => ({ field: column, value: value as SqlValueType })),
+      where: this.createIdentifiableExpression(entity),
+    };
+    return this.client.rawCommand(updateToSql(dsl, this.maps.tableInfo));
+  }
+
   async delete(entity: Identifiable): Promise<CommandResponse> {
-    return this.client.rawCommand(`DELETE FROM ${this.tableName} WHERE ${this.getIdentifiableWhereClause(entity)}`);
+    const dsl: Delete = {
+      table: this.tableName,
+      where: this.createIdentifiableExpression(entity),
+    };
+    return this.client.rawCommand(deleteToSql(dsl, this.maps.tableInfo));
   }
 
   async find(
@@ -67,7 +71,7 @@ export abstract class SasatRepository<Entity, Creatable, Identifiable, EntityFie
     limit?: number,
     offset?: number,
   ): Promise<EntityResult<Entity, Identifiable>[]> {
-    const field = fields || { fields: this.columns };
+    const field = fields || { fields: this.fields };
     const query = {
       ...fieldToQuery(this.tableName, field, this.maps.relationMap),
       where,
@@ -88,37 +92,13 @@ export abstract class SasatRepository<Entity, Creatable, Identifiable, EntityFie
     return null;
   }
 
-  update(entity: Identifiable & Partial<Entity>): Promise<CommandResponse> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const values = this.objToSql(entity).join(', ');
-    return this.client.rawCommand(
-      `UPDATE ${this.tableName} SET ${values} WHERE ${this.getIdentifiableWhereClause(entity)}`,
-    );
-  }
-
-  protected resultToEntity(obj: { [key: string]: string }): Entity {
-    return (obj as unknown) as Entity;
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private objToSql(obj: Record<string, any>): string[] {
-    return Object.entries(obj).map(([column, value]) => `${SqlString.escapeId(column)} = ${SqlString.escape(value)}`);
-  }
-
-  private getIdentifiableWhereClause(entity: Identifiable) {
-    return this.primaryKeys
-      .map(it => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if ((entity as any)[it] === undefined) throw new SasatError('Require Identifiable Key');
-        return it;
-      })
-      .map(
-        it =>
-          `${SqlString.escapeId(it)} = ${SqlString.escape(
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (entity as any)[it],
-          )}`,
-      )
-      .join(' AND ');
+  private createIdentifiableExpression(entity: Identifiable) {
+    const expr = this.primaryKeys.map(it => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const value = (entity as any)[it];
+      if (!value) throw new Error(`field ${it} is required`);
+      return QExpr.conditions.eq(QExpr.field(this.tableName, it), QExpr.value(value));
+    });
+    return QExpr.conditions.and(...expr);
   }
 }

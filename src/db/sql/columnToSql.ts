@@ -1,5 +1,5 @@
 import { DBColumnTypes } from '../../migration/column/columnTypes';
-import { SqlString } from '../../runtime/query/sql/sqlString';
+import { SqlString } from '../../runtime/sql/sqlString';
 import { SerializedColumn } from '../../migration/serialized/serializedColumn';
 
 export const columnToSql = (column: SerializedColumn): string => {

@@ -15,28 +15,27 @@ import {
   QueryNode,
   QueryNodeKind,
   SelectExpr,
-  Table,
-} from './query';
-import { TableInfo } from './createQueryResolveInfo';
+  QueryTable,
+} from './query/query';
+import { TableInfo } from './query/createQueryResolveInfo';
 
-export const replaceAliases = (query: Query, tableInfo: TableInfo): Query => {
-  const tableAliases: Record<string, string> = {};
-  const addAlias = (table: Table) => {
-    tableAliases[table.alias || table.name] = table.name;
-    table.joins.forEach(it => addAlias(it.table));
-  };
-  addAlias(query.from);
-  const replaceAlias = (node: QueryNode): typeof node => {
-    const map: Record<any, (node: any) => typeof node> = {
+export const createAliasReplacer = (
+  tableInfo: TableInfo,
+  tableAliases: Record<string, string> = {},
+): (<T extends QueryNode>(node: T) => T) => {
+  const replaceAlias = <T extends QueryNode>(node: T): T => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const map: Record<QueryNodeKind, (node: any) => typeof node> = {
       [QueryNodeKind.Field]: (node: Field): typeof node => {
         return {
           ...node,
-          name: tableInfo[tableAliases[node.table]].columnMap[node.name] || node.name,
+          name:
+            tableInfo[tableAliases[node.table]]?.columnMap[node.name] || tableInfo[node.table]?.columnMap[node.name],
           alias: node.alias || node.name,
         };
       },
       [QueryNodeKind.Function]: (node: Fn) => ({ ...node, args: node.args.map(replaceAlias) }),
-      [QueryNodeKind.Table]: (node: Table) => ({ ...node, joins: node.joins.map(replaceAlias) }),
+      [QueryNodeKind.Table]: (node: QueryTable) => ({ ...node, joins: node.joins.map(replaceAlias) }),
       [QueryNodeKind.Join]: (node: Join) => ({
         ...node,
         table: replaceAlias(node.table),
@@ -70,10 +69,21 @@ export const replaceAliases = (query: Query, tableInfo: TableInfo): Query => {
     };
     return map[node.kind](node);
   };
+  return replaceAlias;
+};
+
+export const replaceAliases = (query: Query, tableInfo: TableInfo): Query => {
+  const tableAliases: Record<string, string> = {};
+  const addAlias = (table: QueryTable) => {
+    tableAliases[table.alias || table.name] = table.name;
+    table.joins.forEach(it => addAlias(it.table));
+  };
+  addAlias(query.from);
+  const replaceAlias = createAliasReplacer(tableInfo, tableAliases);
 
   return {
     select: query.select.map(replaceAlias) as SelectExpr[],
-    from: replaceAlias(query.from) as Table,
+    from: replaceAlias(query.from) as QueryTable,
     where: query.where ? (replaceAlias(query.where) as BooleanValueExpression) : undefined,
     limit: query.limit,
     offset: query.offset,

@@ -8,7 +8,7 @@ import { DBIndex } from '../data';
 import { SerializedTable } from '../serialized/serializedStore';
 import { SqlCreator } from '../../db/sql/sqlCreater';
 import { DBColumnTypes, DBType } from '../column/columnTypes';
-import { SqlString } from '../../runtime/query/sql/sqlString';
+import { SqlString } from '../../runtime/sql/sqlString';
 
 export interface MigrationTable extends Table {
   addIndex(...columns: string[]): MigrationTable;
@@ -104,7 +104,7 @@ export class TableMigrator implements MigrationTable {
 
   protected tableExists(tableName: string): true {
     if (!this.store.table(tableName)) {
-      throw new Error('Table: ' + tableName + ' Not Exists');
+      throw new Error('QueryTable: ' + tableName + ' Not Exists');
     }
     return true;
   }

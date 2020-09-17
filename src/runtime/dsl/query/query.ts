@@ -1,4 +1,5 @@
-import { ComparisonOperators } from '../..';
+import { ComparisonOperators } from 'sasat';
+
 export enum QueryNodeKind {
   Field,
   Function,
@@ -16,7 +17,7 @@ export enum QueryNodeKind {
 
 export type Query = {
   select: Select;
-  from: Table;
+  from: QueryTable;
   where?: BooleanValueExpression;
   // TODO order
   limit?: number;
@@ -40,7 +41,7 @@ export type Fn = {
 
 export type SelectExpr = Field | Fn;
 
-export type Table = {
+export type QueryTable = {
   kind: QueryNodeKind.Table;
   name: string;
   alias?: string;
@@ -51,7 +52,7 @@ export type JoinType = 'INNER' | 'LEFT' | 'RIGHT' | 'OUTER';
 export type Join = {
   kind: QueryNodeKind.Join;
   type?: JoinType;
-  table: Table;
+  table: QueryTable;
   conditions: BooleanValueExpression;
 };
 
@@ -122,4 +123,4 @@ export type Literal = {
   value: string | boolean | number | null;
 };
 
-export type QueryNode = Field | Fn | Table | Literal | BooleanValueExpression | Join;
+export type QueryNode = Field | Fn | QueryTable | Literal | BooleanValueExpression | Join;

@@ -13,10 +13,10 @@ import {
   InExpression,
   ComparisonExpression,
   Fn,
-  Table,
+  QueryTable,
   Join,
   JoinType,
-} from './query';
+} from './query/query';
 
 const compound = (expr: BooleanValueExpression[], operator: CompoundOperator): BooleanValueExpression => {
   return expr.reduce((acc, current) => ({
@@ -112,14 +112,14 @@ const conditions = {
   isNotNull: isNull(true),
 };
 
-const table = (name: string, joins: Join[], alias?: string): Table => ({
+const table = (name: string, joins: Join[], alias?: string): QueryTable => ({
   kind: QueryNodeKind.Table,
   name,
   alias,
   joins,
 });
 
-const join = (table: Table, conditions: BooleanValueExpression, type?: JoinType): Join => ({
+const join = (table: QueryTable, conditions: BooleanValueExpression, type?: JoinType): Join => ({
   kind: QueryNodeKind.Join,
   type,
   table,

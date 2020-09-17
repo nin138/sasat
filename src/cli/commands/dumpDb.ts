@@ -2,7 +2,7 @@ import { Console } from '../console';
 import { getDbClient } from '../..';
 import { serializeCreateTable } from '../../db/sql/createTable/createTableSerializer';
 import { SerializedStore } from '../../migration/serialized/serializedStore';
-import { SqlString } from '../../runtime/query/sql/sqlString';
+import { SqlString } from '../../runtime/sql/sqlString';
 import { writeYmlFile } from '../../util/fsUtil';
 import { DBColumnTypes } from '../../migration/column/columnTypes';
 import { config } from '../../config/config';
@@ -15,7 +15,7 @@ export const dumpDB = async (): Promise<void> => {
       tables.map(table => {
         return con
           .rawQuery('show create table ' + SqlString.escapeId(table))
-          .then(it => it[0]['Create Table'])
+          .then(it => it[0]['Create QueryTable'])
           .then(serializeCreateTable);
       }),
     );

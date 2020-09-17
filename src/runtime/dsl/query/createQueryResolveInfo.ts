@@ -1,6 +1,6 @@
-import { QueryResolveInfo } from '../hydrate';
-import { Fields } from '../..';
 import { BooleanValueExpression } from './query';
+import { Fields } from 'sasat';
+import { QueryResolveInfo } from './sql/hydrate';
 
 export type RelationInfo = {
   table: string;
