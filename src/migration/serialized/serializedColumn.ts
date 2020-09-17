@@ -6,6 +6,7 @@ import { SqlString } from '../../runtime/query/sql/sqlString';
 
 interface SerializedColumnBase {
   hasReference: boolean;
+  fieldName: string;
   columnName: string;
   type: DBColumnTypes;
   notNull: boolean;

@@ -11,33 +11,26 @@ export class RelationMapGenerator {
   generate(root: RootNode): TsFile {
     return new TsFile(
       this.relationMap(root),
-      this.identifiableKeyMap(root),
+      this.tableInfo(root),
+      tsg
+        .variable(
+          'const',
+          'dataStoreInfo',
+          tsg.object(tsg.propertyAssign('tableInfo'), tsg.propertyAssign('relationMap')),
+          tsg.typeRef('DataStoreInfo').importFrom('sasat'),
+        )
+        .export(),
       ...root.entities().flatMap(this.entityRelationType),
     );
   }
 
   private relationMap(root: RootNode) {
-    return tsg
-      .variable(
-        'const',
-        tsg.identifier('relationMap'),
-        tsg.object(...root.entities().map(it => this.entityRelationMap(it))),
-        tsg.typeRef('RelationMap').importFrom('sasat'),
-      )
-      .export();
-  }
-
-  private identifiableKeyMap(root: RootNode) {
-    return tsg
-      .variable(
-        'const',
-        'identifiableKeyMap',
-        tsg.object(
-          ...root.repositories.map(it => tsg.propertyAssign(it.tableName, tsg.array(it.primaryKeys.map(tsg.string)))),
-        ),
-        tsg.typeRef('Record<string, string[]>'),
-      )
-      .export();
+    return tsg.variable(
+      'const',
+      tsg.identifier('relationMap'),
+      tsg.object(...root.entities().map(it => this.entityRelationMap(it))),
+      tsg.typeRef('RelationMap').importFrom('sasat'),
+    );
   }
 
   private entityRelationType(node: EntityNode) {
@@ -117,7 +110,7 @@ export class RelationMapGenerator {
             rel.refPropertyName(),
             tsg.object(
               tsg.propertyAssign('table', tsg.string(rel.toTableName)),
-              on(rel.fromColumn, rel.toColumn),
+              on(rel.fromField, rel.toField),
               tsg.propertyAssign('relation', tsg.string(Relation.One)),
             ),
           ),
@@ -129,11 +122,34 @@ export class RelationMapGenerator {
               rel.referencedByPropertyName(),
               tsg.object(
                 tsg.propertyAssign('table', tsg.string(rel.parent.repository.tableName)),
-                on(rel.toColumn, rel.fromColumn),
+                on(rel.toField, rel.fromField),
                 tsg.propertyAssign('relation', tsg.string(rel.relation)),
               ),
             ),
           ),
+      ),
+    );
+  }
+
+  private tableInfo(root: RootNode) {
+    const columnMap = (entity: EntityNode) =>
+      tsg.propertyAssign(
+        'columnMap',
+        tsg.object(...entity.fields.map(field => tsg.propertyAssign(field.fieldName, tsg.string(field.columnName)))),
+      );
+    return tsg.variable(
+      'const',
+      'tableInfo',
+      tsg.object(
+        ...root.repositories.map(repo =>
+          tsg.propertyAssign(
+            repo.tableName,
+            tsg.object(
+              tsg.propertyAssign('identifiableKeys', tsg.array(repo.primaryKeys.map(tsg.string))),
+              columnMap(repo.entity),
+            ),
+          ),
+        ),
       ),
     );
   }

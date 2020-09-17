@@ -45,10 +45,11 @@ const comparison = (operator: ComparisonOperators) => (left: Value, right: Value
 const and = (...expr: BooleanValueExpression[]): BooleanValueExpression => compound(expr, 'AND');
 const or = (...expr: BooleanValueExpression[]): BooleanValueExpression => compound(expr, 'OR');
 
-const field = (table: string, name: string): Field => ({
+const field = (table: string, name: string, alias?: string): Field => ({
   kind: QueryNodeKind.Field,
   table,
-  name,
+  name: name,
+  alias,
 });
 
 const fn = (fnName: string, args: Value[]): Fn => ({

@@ -33,8 +33,8 @@ export class ResolverGenerator {
                   .identifier(relation.toEntityName.dataSourceName())
                   .importFrom(Directory.dataSourcePath(Directory.paths.generated, relation.toEntityName)),
               )
-              .property(FindMethodNode.paramsToName(relation.toColumn))
-              .call(tsg.identifier(paramName).property(relation.fromColumn).nonNull()),
+              .property(FindMethodNode.paramsToName(relation.toField))
+              .call(tsg.identifier(paramName).property(relation.fromField).nonNull()),
           ),
         ),
       ),
@@ -61,8 +61,8 @@ export class ResolverGenerator {
                   .identifier(relation.parent.entityName.dataSourceName())
                   .importFrom(Directory.dataSourcePath(Directory.paths.generated, relation.parent.entityName)),
               )
-              .property(FindMethodNode.paramsToName(relation.fromColumn))
-              .call(tsg.identifier(paramName).property(relation.toColumn).nonNull()),
+              .property(FindMethodNode.paramsToName(relation.fromField))
+              .call(tsg.identifier(paramName).property(relation.toField).nonNull()),
           ),
         ),
       ),

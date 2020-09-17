@@ -9,10 +9,18 @@ export class EntityNode {
   readonly entityName: EntityName;
   readonly fields: FieldNode[];
   readonly relations: RelationNode[];
-  constructor(readonly repository: RepositoryNode, private table: TableHandler) {
+  constructor(readonly repository: RepositoryNode, table: TableHandler) {
     this.entityName = table.getEntityName();
     this.fields = table.columns.map(column => FieldNode.fromColumn(column, table));
-    this.relations = table.getReferenceColumns().map(it => RelationNode.fromReference(this, it));
+    this.relations = table
+      .getReferenceColumns()
+      .map(it =>
+        RelationNode.fromReference(
+          this,
+          it,
+          table.store.table(it.data.reference.targetTable).column(it.data.reference.targetColumn).fieldName(),
+        ),
+      );
   }
 
   field(fieldName: string): FieldNode {

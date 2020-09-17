@@ -2,7 +2,6 @@ import { plural } from '../../util/stringUtil';
 import { QueryNode } from '../node/gql/queryNode';
 import { TypeNode } from '../node/typeNode';
 import { ParameterNode } from '../node/parameterNode';
-import { Parser } from '../parser';
 import { TableHandler } from '../../migration/serializable/table';
 import { FindMethodNode } from '../node/findMethod';
 
@@ -16,10 +15,13 @@ export class QueryNodeFactory {
   }
 
   private primaryQuery(table: TableHandler) {
+    const primaryKeys = table.primaryKey.map(it => table.column(it).fieldName());
     return new QueryNode(
       table.tableName,
-      FindMethodNode.paramsToName(...table.primaryKey),
-      table.primaryKey.map(it => new ParameterNode(it, new TypeNode(table.column(it)!.dataType(), false, false))),
+      FindMethodNode.paramsToName(...primaryKeys),
+      table.primaryKey.map(
+        it => new ParameterNode(table.column(it).fieldName(), new TypeNode(table.column(it)!.dataType(), false, false)),
+      ),
       new TypeNode(table.getEntityName(), false, true),
     );
   }

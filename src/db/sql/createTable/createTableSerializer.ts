@@ -5,6 +5,7 @@ import { ForeignKeyReferentialAction } from '../../../migration/data/foreignKey'
 import { columnTypeToTsType, DBColumnTypes } from '../../../migration/column/columnTypes';
 import { lexColumn } from './lexer/columnLexer';
 import { Token, TokenKind } from './lexer/lexer';
+import { camelize } from '../../../util/stringUtil';
 
 const getInParenValues = (tokens: Token[], fromIndex = 0) => {
   const sliced = tokens.slice(fromIndex);
@@ -107,6 +108,7 @@ const startStrMap: { word: string; fn: (str: string, table: SerializedTable) => 
       const column: SerializedNormalColumn = {
         hasReference: false,
         columnName: tokens[0].value,
+        fieldName: camelize(tokens[0].value),
         type,
         notNull: keywords.includes('NOT NULL'),
         default: getDefaultValue(defaultToken),

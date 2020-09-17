@@ -32,7 +32,7 @@ export class TableMigrator implements MigrationTable {
     return this.table.tableName;
   }
 
-  column(columnName: string): Column | undefined {
+  column(columnName: string): Column {
     return this.table.column(columnName);
   }
 

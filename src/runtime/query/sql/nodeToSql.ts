@@ -24,15 +24,10 @@ export const Sql = {
   select: (expr: SelectExpr): string => (expr.kind === QueryNodeKind.Field ? Sql.fieldInSelect(expr) : Sql.fn(expr)),
   literal: (literal: Literal): string => SqlString.escape(literal.value),
   fieldInCondition: (identifier: Field): string =>
-    SqlString.escapeId(identifier.table) + '.' + SqlString.escapeId(identifier.name),
+    SqlString.escapeId(identifier.table) + '.' + SqlString.escapeId(identifier.alias || identifier.name),
   fieldInSelect: (identifier: Field): string => {
-    return (
-      SqlString.escapeId(identifier.table) +
-      '.' +
-      SqlString.escapeId(identifier.name) +
-      ' AS ' +
-      SqlString.escapeId(identifier.table + SELECT_ALIAS_SEPARATOR + identifier.name)
-    );
+    const alias = identifier.alias ? ' AS ' + SqlString.escapeId(identifier.alias) : '';
+    return SqlString.escapeId(identifier.table) + '.' + SqlString.escapeId(identifier.name) + alias;
   },
   fn: (fn: Fn): string => `${fn.fnName}(${fn.args.map(Sql.value).join(',')})`,
   value: (v: Value): string => {

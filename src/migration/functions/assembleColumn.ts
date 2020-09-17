@@ -1,6 +1,6 @@
 import { SerializedColumn } from '../serialized/serializedColumn';
 import { TableHandler } from '../serializable/table';
-import { BaseColumn, Column, NormalColumn, ReferenceColumn } from '../serializable/column';
+import { BaseColumn, NormalColumn, ReferenceColumn } from '../serializable/column';
 
 export const assembleColumn = (data: SerializedColumn, table: TableHandler): BaseColumn => {
   if (data.hasReference) {

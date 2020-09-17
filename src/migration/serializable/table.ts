@@ -18,10 +18,9 @@ import { assembleColumn } from '../functions/assembleColumn';
 import { EntityName } from '../../parser/node/entityName';
 import { DataStore } from '../dataStore';
 import { DBColumnTypes } from '../column/columnTypes';
-import { MigrationTable } from '../front/tableMigrator';
 
 export interface Table extends Serializable<SerializedTable> {
-  column(columnName: string): Column | undefined;
+  column(columnName: string): Column;
   tableName: string;
 }
 
@@ -54,8 +53,10 @@ export class TableHandler implements Table {
     this._columns = (table.columns || []).map(it => assembleColumn(it, this));
   }
 
-  column(columnName: string): Column | undefined {
-    return this.columns.find(it => it.columnName() === columnName);
+  column(columnName: string): Column {
+    const column = this.columns.find(it => it.columnName() === columnName);
+    if (!column) throw new Error(`${this.tableName}.${columnName} is Not Found`);
+    return column;
   }
 
   addColumn(column: BaseColumn, isPrimary = false, isUnique = false): void {
@@ -65,7 +66,7 @@ export class TableHandler implements Table {
   }
 
   dropColumn(columnName: string): void {
-    this._columns = this._columns.filter(it => it.columnName() !== columnName);
+    this._columns = this._columns.filter(it => it.fieldName() !== columnName);
   }
 
   serialize(): SerializedTable {
@@ -79,13 +80,13 @@ export class TableHandler implements Table {
     };
   }
 
-  addReferences(ref: Reference): this {
-    const target = this.store.table(ref.targetTable)?.column(ref.targetColumn);
-    if (!target) throw new Error(ref.targetTable + ' . ' + ref.targetColumn + ' NOT FOUND');
+  addReferences(ref: Reference, fieldName?: string): this {
+    const target = this.store.table(ref.targetTable).column(ref.targetColumn);
     const targetData = target.serialize();
     const data: SerializedReferenceColumn = {
       ...targetData,
       hasReference: true,
+      fieldName: fieldName || ref.columnName,
       columnName: ref.columnName,
       notNull: true,
       default: undefined,
@@ -100,6 +101,7 @@ export class TableHandler implements Table {
   }
 
   private getIndexConstraintName(columns: string[]): string {
+    // TODO max len = 64 https://dev.mysql.com/doc/refman/8.0/en/identifier-length.html
     return `index_${this.tableName}__${columns.join('_')}`;
   }
 
@@ -121,6 +123,7 @@ export class TableHandler implements Table {
   }
 
   setPrimaryKey(...columnNames: string[]): this {
+    if (columnNames.length === 0) throw new Error('Primary key is required');
     this.primaryKey = columnNames;
     return this;
   }
@@ -157,10 +160,6 @@ export class TableHandler implements Table {
   // TODO fix type nest partial
   setGqlOption(option: NestedPartial<GqlOption>): void {
     this._gqlOption = mergeGqlOption(this.gqlOption, option);
-  }
-
-  primaryKeyColumns(): Column[] {
-    return this.columns.filter(it => this.isColumnPrimary(it.columnName()));
   }
 
   getReferenceColumns(): ReferenceColumn[] {

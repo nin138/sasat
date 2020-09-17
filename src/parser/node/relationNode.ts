@@ -6,12 +6,12 @@ import { TableHandler } from '../../migration/serializable/table';
 import { EntityName } from './entityName';
 
 export class RelationNode {
-  static fromReference(entity: EntityNode, ref: ReferenceColumn): RelationNode {
+  static fromReference(entity: EntityNode, ref: ReferenceColumn, targetFieldName: string): RelationNode {
     return new RelationNode(
       entity,
       ref.data.reference.relationName,
-      ref.data.columnName,
-      ref.data.reference.targetColumn,
+      ref.data.fieldName,
+      targetFieldName,
       ref.data.reference.targetTable,
       new EntityName(TableHandler.tableNameToEntityName(ref.data.reference.targetTable)),
       ref.data.reference.relation,
@@ -20,15 +20,15 @@ export class RelationNode {
   private constructor(
     readonly parent: EntityNode,
     readonly relationName: string | undefined,
-    readonly fromColumn: string,
-    readonly toColumn: string,
+    readonly fromField: string,
+    readonly toField: string,
     readonly toTableName: string,
     readonly toEntityName: EntityName,
     readonly relation: Relation,
   ) {}
 
   refPropertyName(): string {
-    return this.relationName || this.fromColumn + this.toEntityName.name;
+    return this.relationName || this.fromField + this.toEntityName.name;
   }
 
   referencedByPropertyName(): string {

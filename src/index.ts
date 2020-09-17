@@ -1,3 +1,4 @@
+export { DataStoreInfo } from './runtime/query/createQueryResolveInfo';
 export { BooleanValueExpression } from './runtime/query/query';
 export { Relation } from './migration/data/relation';
 export { QExpr } from './runtime/query/factory';

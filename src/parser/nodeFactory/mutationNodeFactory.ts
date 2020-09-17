@@ -28,10 +28,11 @@ export class MutationNodeFactory {
     entity: EntityNode,
     subscribed: boolean,
   ): [EntityNode, string[], string, ContextParamNode[], boolean, SubscriptionFilterNode[]] {
+    const primaryKeys = table.primaryKey.map(it => table.column(it).fieldName());
     return [
       entity,
-      table.primaryKey,
-      FindMethodNode.paramsToName(...table.primaryKey),
+      primaryKeys,
+      FindMethodNode.paramsToName(...primaryKeys),
       table.gqlOption.mutation.fromContextColumns.map(
         it => new ContextParamNode(it.column, it.contextName || it.column),
       ),

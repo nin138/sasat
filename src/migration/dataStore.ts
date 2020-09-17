@@ -3,7 +3,7 @@ import { SerializedStore } from './serialized/serializedStore';
 import { ReferenceColumn } from './serializable/column';
 
 export interface DataStore {
-  table(tableName: string): Table | undefined;
+  table(tableName: string): Table;
 }
 
 export class DataStoreHandler implements DataStore {
@@ -11,8 +11,10 @@ export class DataStoreHandler implements DataStore {
   constructor(store: SerializedStore) {
     this.tables = store.tables.map(it => new TableHandler(it, this));
   }
-  table(tableName: string): Table | undefined {
-    return this.tables.find(it => it.tableName === tableName);
+  table(tableName: string): Table {
+    const table = this.tables.find(it => it.tableName === tableName);
+    if (!table) throw new Error(`Table: ${tableName} is Not Found`);
+    return table;
   }
 
   referencedBy(tableName: string): ReferenceColumn[] {

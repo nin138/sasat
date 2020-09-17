@@ -7,7 +7,7 @@ import { SerializedStore } from '../serialized/serializedStore';
 export interface MigrationStore extends DataStore {
   createTable(tableName: string, tableCreator: (table: TableBuilder) => void): MigrationStore;
   dropTable(tableName: string): MigrationStore;
-  table(tableName: string): MigrationTable | undefined;
+  table(tableName: string): MigrationTable;
   sql(sql: string): MigrationStore;
 }
 
@@ -21,7 +21,7 @@ export class StoreMigrator implements MigrationStore {
     return store;
   }
 
-  table(tableName: string): TableMigrator | undefined {
+  table(tableName: string): TableMigrator {
     const table = this.tables.find(it => it.tableName === tableName);
     if (!table) throw new Error('Table: ' + tableName + ' Not Found');
     return table;
@@ -32,7 +32,7 @@ export class StoreMigrator implements MigrationStore {
   }
 
   createTable(tableName: string, tableCreator: (table: TableBuilder) => void): MigrationStore {
-    if (this.table(tableName)) throw new SasatError(`${tableName} is already exist`);
+    if (this.tables.find(it => it.tableName === tableName)) throw new SasatError(`${tableName} is already exist`);
     const creator = new TableCreator(tableName, this);
     tableCreator(creator);
     const table = new TableMigrator(creator.create(), this);

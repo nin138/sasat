@@ -29,6 +29,7 @@ export type Field = {
   kind: QueryNodeKind.Field;
   table: string;
   name: string;
+  alias?: string;
 };
 
 export type Fn = {
@@ -120,3 +121,5 @@ export type Literal = {
   kind: QueryNodeKind.Literal;
   value: string | boolean | number | null;
 };
+
+export type QueryNode = Field | Fn | Table | Literal | BooleanValueExpression | Join;

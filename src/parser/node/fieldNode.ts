@@ -10,6 +10,7 @@ import { Column } from '../../migration/serializable/column';
 export class FieldNode {
   static fromColumn(column: Column, table: TableHandler): FieldNode {
     return new FieldNode(
+      column.fieldName(),
       column.columnName(),
       column.dataType(),
       table.isColumnPrimary(column.columnName()),
@@ -21,6 +22,7 @@ export class FieldNode {
   }
   constructor(
     public readonly fieldName: string,
+    public readonly columnName: string,
     public readonly dbType: DBColumnTypes,
     public readonly isPrimary: boolean,
     public readonly defaultValue: SqlValueType | undefined,

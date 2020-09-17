@@ -1,8 +1,8 @@
 import { SqlValueType } from '../db/connectors/dbClient';
 import { SELECT_ALIAS_SEPARATOR } from './query/sql/nodeToSql';
 import { Query, QueryNodeKind, Table } from './query/query';
-import { IdentifiableKeyMap } from './query/createQueryResolveInfo';
 import { QExpr } from '../runtime/query/factory';
+import { TableInfo } from './query/createQueryResolveInfo';
 
 export type QueryResolveInfo = {
   tableAlias: string;
@@ -86,11 +86,11 @@ export const hydrate = (data: ResultRow[], info: QueryResolveInfo): unknown[] =>
   return result;
 };
 
-export const appendKeysToQuery = (query: Query, identifiableKeyMap: IdentifiableKeyMap): Query => {
+export const appendKeysToQuery = (query: Query, identifiableKeyMap: TableInfo): Query => {
   const getTables = (table: Table): Table[] => [table, ...table.joins.flatMap(it => getTables(it.table))];
   const tables = getTables(query.from);
   tables.forEach(table => {
-    const keys = identifiableKeyMap[table.name];
+    const keys = identifiableKeyMap[table.name].identifiableKeys;
     keys.forEach(key => {
       if (!query.select.some(it => it.kind === QueryNodeKind.Field && it.table === table.alias && it.name === key)) {
         query.select.push(QExpr.field(table.alias!, key));

@@ -12,6 +12,7 @@ import {
 import { Table } from './table';
 
 export interface Column extends Serializable<SerializedColumn> {
+  fieldName(): string;
   columnName(): string;
   dataType(): DBColumnTypes;
   toSql(): string;
@@ -24,6 +25,10 @@ export interface Column extends Serializable<SerializedColumn> {
 
 export class BaseColumn implements Column {
   constructor(public data: SerializedColumn, public table: Table) {}
+  fieldName(): string {
+    return this.data.fieldName;
+  }
+
   columnName(): string {
     return this.data.columnName;
   }
@@ -76,7 +81,7 @@ export class ReferenceColumn extends BaseColumn {
   }
 
   getConstraintName(): string {
-    return `ref_${this.table.tableName}_${this.columnName()}__${this.data.reference.targetTable}_${
+    return `ref_${this.table.tableName}_${this.fieldName()}__${this.data.reference.targetTable}_${
       this.data.reference.targetColumn
     }`;
   }

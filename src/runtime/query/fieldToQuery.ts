@@ -2,6 +2,7 @@ import { Fields } from '../..';
 import { Join, Query, SelectExpr } from './query';
 import { QExpr } from './factory';
 import { RelationInfo, RelationMap } from './createQueryResolveInfo';
+import { SELECT_ALIAS_SEPARATOR } from './sql/nodeToSql';
 
 const join = (
   parentTableAlias: string,
@@ -11,7 +12,7 @@ const join = (
   selects: SelectExpr[],
 ): Join => {
   const tableAlias = fields.tableAlias || info.table;
-  selects.push(...fields.fields.map(it => QExpr.field(tableAlias, it)));
+  selects.push(...fields.fields.map(it => QExpr.field(tableAlias, it, tableAlias + SELECT_ALIAS_SEPARATOR + it)));
   const joins: Join[] = Object.entries(fields.relations || {})
     .filter(([, fields]) => fields)
     .map(([rel, fields]) => join(tableAlias, fields!, map[info.table][rel], map, selects));
@@ -20,7 +21,9 @@ const join = (
 
 export const fieldToQuery = (tableName: string, fields: Fields, map: RelationMap): Query => {
   const tableAlias = fields.tableAlias || tableName;
-  const select: SelectExpr[] = fields.fields.map(it => QExpr.field(tableAlias, it));
+  const select: SelectExpr[] = fields.fields.map(it =>
+    QExpr.field(tableAlias, it, tableAlias + SELECT_ALIAS_SEPARATOR + it),
+  );
   const joins: Join[] = Object.entries(fields.relations || {})
     .filter(([, fields]) => fields)
     .map(([rel, fields]) => join(tableAlias, fields!, map[tableName][rel], map, select));

@@ -7,7 +7,7 @@ import { ForeignKey } from '../../migration/data/foreignKey';
 //   const onDelete = foreignKey.onDelete ? ` ON DELETE ${foreignKey.onDelete}` : '';
 //   return (
 //     `CONSTRAINT ${foreignKey.constraintName} ` +
-//     `FOREIGN KEY(${foreignKey.columnName}) ` +
+//     `FOREIGN KEY(${foreignKey.fieldName}) ` +
 //     `REFERENCES ${foreignKey.referenceTable}(${foreignKey.referenceColumn})` +
 //     onUpdate +
 //     onDelete

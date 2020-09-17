@@ -20,12 +20,20 @@ export abstract class ColumnBuilder {
   protected _default: SqlValueType | undefined;
   protected _defaultCurrentTimeStamp = false;
   protected _onUpdateCurrentTimeStamp = false;
+  protected _fieldName: string;
   protected constructor(
     readonly name: string,
     protected type: DBColumnTypes,
     protected length?: number,
     protected scale?: number,
-  ) {}
+  ) {
+    this._fieldName = name;
+  }
+
+  fieldName(fieldName: string): this {
+    this._fieldName = fieldName;
+    return this;
+  }
 
   notNull(): this {
     this._notNull = true;
@@ -52,6 +60,7 @@ export abstract class ColumnBuilder {
       data: {
         hasReference: false,
         columnName: this.name,
+        fieldName: this._fieldName,
         type: this.type,
         length: this.length,
         scale: this.scale,

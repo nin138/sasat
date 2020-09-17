@@ -1,27 +1,25 @@
-import { CommandResponse, getDbClient } from '..';
+import { CommandResponse, DataStoreInfo, getDbClient } from '..';
 import { Fields } from './field';
 import * as SqlString from 'sqlstring';
 import { SasatError } from '../error';
 import { appendKeysToQuery, hydrate, ResultRow } from './hydrate';
-import { createSQLString, SQL } from '../db/sql/condition';
 import { SQLExecutor } from '../db/connectors/dbClient';
-import { createQueryResolveInfo, ResolveMaps } from './query/createQueryResolveInfo';
+import { createQueryResolveInfo } from './query/createQueryResolveInfo';
 import { queryToSql } from './query/sql/queryToSql';
 import { fieldToQuery } from './query/fieldToQuery';
 import { BooleanValueExpression, Query } from './query/query';
+import { replaceAliases } from './query/replaceAliases';
 
 export type EntityResult<Entity, Identifiable> = Identifiable & Partial<Entity>;
 interface Repository<Entity, Creatable, Identifiable> {
   create(entity: Creatable): Promise<Entity>;
   update(entity: Partial<Entity> & Identifiable): Promise<CommandResponse>;
   delete(entity: Identifiable): Promise<CommandResponse>;
-  list(): Promise<Entity[]>;
-  find(condition: SQL<Entity>): Promise<Entity[]>;
 }
 
 export abstract class SasatRepository<Entity, Creatable, Identifiable, EntityFields extends Fields>
   implements Repository<Entity, Creatable, Identifiable> {
-  protected abstract maps: ResolveMaps;
+  protected abstract maps: DataStoreInfo;
   abstract readonly tableName: string;
   abstract readonly columns: string[];
   protected abstract readonly primaryKeys: string[];
@@ -30,7 +28,7 @@ export abstract class SasatRepository<Entity, Creatable, Identifiable, EntityFie
   protected abstract getDefaultValueString(): Partial<{ [P in keyof Entity]: Entity[P] | string | null }>;
 
   protected async query(query: Query): Promise<ResultRow[]> {
-    const sql = queryToSql(query);
+    const sql = queryToSql(replaceAliases(query, this.maps.tableInfo));
     return this.client.rawQuery(sql);
   }
 
@@ -63,17 +61,6 @@ export abstract class SasatRepository<Entity, Creatable, Identifiable, EntityFie
     return this.client.rawCommand(`DELETE FROM ${this.tableName} WHERE ${this.getIdentifiableWhereClause(entity)}`);
   }
 
-  async find(condition: Omit<SQL<Entity>, 'from'>): Promise<Entity[]> {
-    const result = await this.client.rawQuery(createSQLString({ ...condition, from: this.tableName }));
-    return result.map(it => this.resultToEntity(it));
-  }
-
-  async first(condition: Omit<SQL<Entity>, 'from' | 'limit'>): Promise<Entity | null> {
-    const result = await this.find({ ...condition, limit: 1 });
-    if (result.length !== 0) return result[0];
-    return null;
-  }
-
   async find2(
     fields?: EntityFields,
     where?: BooleanValueExpression,
@@ -82,13 +69,13 @@ export abstract class SasatRepository<Entity, Creatable, Identifiable, EntityFie
   ): Promise<EntityResult<Entity, Identifiable>[]> {
     const field = fields || { fields: this.columns };
     const query = {
-      ...fieldToQuery(this.tableName, field, this.maps.relation),
+      ...fieldToQuery(this.tableName, field, this.maps.relationMap),
       where,
       limit,
       offset,
     };
-    const info = createQueryResolveInfo(this.tableName, field, this.maps.relation, this.maps.identifiable);
-    const result = await this.query(appendKeysToQuery(query, this.maps.identifiable));
+    const info = createQueryResolveInfo(this.tableName, field, this.maps.relationMap, this.maps.tableInfo);
+    const result = await this.query(appendKeysToQuery(query, this.maps.tableInfo));
     return hydrate(result, info) as EntityResult<Entity, Identifiable>[];
   }
 
@@ -99,13 +86,6 @@ export abstract class SasatRepository<Entity, Creatable, Identifiable, EntityFie
     const result = await this.find2(fields, where, 1);
     if (result.length !== 0) return result[0];
     return null;
-  }
-
-  async list(select?: Array<keyof Entity>): Promise<Entity[]> {
-    const result = await this.client.rawQuery(
-      `SELECT ${select ? select.map(it => SqlString.escapeId(it)).join(', ') : '*'} FROM ${this.tableName}`,
-    );
-    return result.map(it => this.resultToEntity(it));
   }
 
   update(entity: Identifiable & Partial<Entity>): Promise<CommandResponse> {

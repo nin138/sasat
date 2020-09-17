@@ -23,9 +23,9 @@ export class RepositoryNode {
   constructor(readonly root: RootNode, table: TableHandler) {
     this.tableName = table.tableName;
     this.entityName = table.getEntityName();
-    this.primaryKeys = table.primaryKey;
+    this.primaryKeys = table.primaryKey.map(it => table.column(it).fieldName());
     this.entity = this.createEntity(table);
-    this.autoIncrementColumn = table.columns.find(it => it.serialize().autoIncrement)?.columnName();
+    this.autoIncrementColumn = table.columns.find(it => it.serialize().autoIncrement)?.fieldName();
     this.queries = new QueryNodeFactory().create(table);
     this.mutations = new MutationNodeFactory().create(table, this.entity);
   }
@@ -53,8 +53,8 @@ export class RepositoryNode {
       return new FindMethodNode(
         [
           new ParameterNode(
-            relation.fromColumn,
-            new TypeNode(relation.parent.field(relation.fromColumn).dbType, false, false),
+            relation.fromField,
+            new TypeNode(relation.parent.field(relation.fromField).dbType, false, false),
           ),
         ],
         new TypeNode(
@@ -68,7 +68,7 @@ export class RepositoryNode {
     const referencedByMethod = (relation: RelationNode) => {
       const to = relation.parent.repository.root.findRepository(relation.toEntityName);
       return new FindMethodNode(
-        [new ParameterNode(relation.toColumn, new TypeNode(to.entity.field(relation.toColumn).dbType, false, false))],
+        [new ParameterNode(relation.toField, new TypeNode(to.entity.field(relation.toField).dbType, false, false))],
         new TypeNode(relation.toEntityName, false, false),
         false,
       );
