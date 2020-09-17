@@ -61,7 +61,7 @@ export abstract class SasatRepository<Entity, Creatable, Identifiable, EntityFie
     return this.client.rawCommand(`DELETE FROM ${this.tableName} WHERE ${this.getIdentifiableWhereClause(entity)}`);
   }
 
-  async find2(
+  async find(
     fields?: EntityFields,
     where?: BooleanValueExpression,
     limit?: number,
@@ -79,11 +79,11 @@ export abstract class SasatRepository<Entity, Creatable, Identifiable, EntityFie
     return hydrate(result, info) as EntityResult<Entity, Identifiable>[];
   }
 
-  async first2(
+  async first(
     fields?: EntityFields,
     where?: BooleanValueExpression,
   ): Promise<EntityResult<Entity, Identifiable> | null> {
-    const result = await this.find2(fields, where, 1);
+    const result = await this.find(fields, where, 1);
     if (result.length !== 0) return result[0];
     return null;
   }

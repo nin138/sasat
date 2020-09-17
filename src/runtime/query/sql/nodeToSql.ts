@@ -24,7 +24,7 @@ export const Sql = {
   select: (expr: SelectExpr): string => (expr.kind === QueryNodeKind.Field ? Sql.fieldInSelect(expr) : Sql.fn(expr)),
   literal: (literal: Literal): string => SqlString.escape(literal.value),
   fieldInCondition: (identifier: Field): string =>
-    SqlString.escapeId(identifier.table) + '.' + SqlString.escapeId(identifier.alias || identifier.name),
+    SqlString.escapeId(identifier.table) + '.' + SqlString.escapeId(identifier.name),
   fieldInSelect: (identifier: Field): string => {
     const alias = identifier.alias ? ' AS ' + SqlString.escapeId(identifier.alias) : '';
     return SqlString.escapeId(identifier.table) + '.' + SqlString.escapeId(identifier.name) + alias;

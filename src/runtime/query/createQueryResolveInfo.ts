@@ -53,8 +53,6 @@ export const createQueryResolveInfo = (
   tableInfo: TableInfo,
 ): QueryResolveInfo => {
   const tableAlias = fields.tableAlias || tableName;
-  console.log(tableInfo);
-  console.log(tableName);
   return {
     tableAlias,
     isArray: true,

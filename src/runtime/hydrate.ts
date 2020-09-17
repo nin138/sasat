@@ -52,7 +52,7 @@ const findAndAppend = (base: Record<string, unknown>, info: QueryResolveInfo, ob
       return true;
     }
     const tArr: Record<string, unknown>[] = base[info.property] as Record<string, unknown>[];
-    const target = tArr.find(item => info.keyAliases.every(key => item[key] === objs[info.tableAlias][key]));
+    const target = tArr.find(item => item && info.keyAliases.every(key => item[key] === objs[info.tableAlias][key]));
     if (!target) {
       tArr.push(hydrateRow(info, objs)!);
       return true;
@@ -93,7 +93,7 @@ export const appendKeysToQuery = (query: Query, identifiableKeyMap: TableInfo): 
     const keys = identifiableKeyMap[table.name].identifiableKeys;
     keys.forEach(key => {
       if (!query.select.some(it => it.kind === QueryNodeKind.Field && it.table === table.alias && it.name === key)) {
-        query.select.push(QExpr.field(table.alias!, key));
+        query.select.push(QExpr.field(table.alias!, key, table.alias! + SELECT_ALIAS_SEPARATOR + key));
       }
     });
   });

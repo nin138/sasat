@@ -120,7 +120,7 @@ export class GeneratedRepositoryGenerator {
       const body = [
         tsg.variable('const', 'tableName', tsg.identifier('fields?.tableAlias || this.tableName')),
         tsg.return(
-          tsg.identifier(it.returnType.isArray ? 'this.find2' : 'this.first2').call(
+          tsg.identifier(it.returnType.isArray ? 'this.find' : 'this.first').call(
             tsg.identifier('fields'),
             exps.length === 1
               ? exps[0]

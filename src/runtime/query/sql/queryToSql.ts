@@ -6,7 +6,6 @@ const getJoin = (from: Table): Join[] => {
 };
 
 export const queryToSql = (query: Query): string => {
-  console.log(query.select);
   const select = query.select.map(Sql.select).join(', ');
   const join = getJoin(query.from).map(Sql.join).join(' ');
   const where = query.where ? 'WHERE ' + Sql.booleanValue(query.where) : '';
