@@ -108,7 +108,7 @@ const startStrMap: { word: string; fn: (str: string, table: SerializedTable) => 
       const column: SerializedNormalColumn = {
         hasReference: false,
         columnName: tokens[0].value,
-        fieldName: camelize(tokens[0].value),
+        fieldName: normalizeFieldName(camelize(tokens[0].value)),
         type,
         notNull: keywords.includes('NOT NULL'),
         default: getDefaultValue(defaultToken),
@@ -128,6 +128,10 @@ const startStrMap: { word: string; fn: (str: string, table: SerializedTable) => 
   },
   { word: ')', fn: (_1, table) => table },
 ];
+
+const normalizeFieldName = (fieldName: string): string => {
+  return /^[0-9].*/.test(fieldName) ? '_' + fieldName : fieldName;
+};
 
 // TODO rewrite
 export const serializeCreateTable = (str: string): SerializedTable => {

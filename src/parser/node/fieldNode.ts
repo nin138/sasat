@@ -31,14 +31,6 @@ export class FieldNode {
     public readonly onCreateCurrentTimestamp: boolean,
   ) {}
 
-  static normalizeFieldName(fieldName: string): string {
-    return /^[0-9].*/.test(fieldName) ? '_' + fieldName : fieldName;
-  }
-
-  public normalizedName(): string {
-    return FieldNode.normalizeFieldName(this.fieldName);
-  }
-
   public isRequiredToIdentify(): boolean {
     return this.isPrimary;
   }
@@ -53,7 +45,7 @@ export class FieldNode {
   }
 
   public toPropertySignature(): PropertySignature {
-    return new PropertySignature(FieldNode.normalizeFieldName(this.fieldName), tsg.typeRef(this.tsType()), false, true);
+    return new PropertySignature(this.fieldName, tsg.typeRef(this.tsType()), false, true);
   }
 
   public hasDefaultValue(): boolean {

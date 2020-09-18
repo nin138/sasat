@@ -1,4 +1,4 @@
-import { plural } from '../../util/stringUtil';
+import { lowercaseFirstLetter, plural } from '../../util/stringUtil';
 import { QueryNode } from '../node/gql/queryNode';
 import { TypeNode } from '../node/typeNode';
 import { ParameterNode } from '../node/parameterNode';
@@ -11,13 +11,18 @@ export class QueryNodeFactory {
   }
 
   private listQuery(table: TableHandler) {
-    return new QueryNode(plural(table.tableName), 'find', [], new TypeNode(table.getEntityName(), true, false));
+    return new QueryNode(
+      lowercaseFirstLetter(plural(table.getEntityName().name)),
+      'find',
+      [],
+      new TypeNode(table.getEntityName(), true, false),
+    );
   }
 
   private primaryQuery(table: TableHandler) {
     const primaryKeys = table.primaryKey.map(it => table.column(it).fieldName());
     return new QueryNode(
-      table.tableName,
+      lowercaseFirstLetter(table.getEntityName().name),
       FindMethodNode.paramsToName(...primaryKeys),
       table.primaryKey.map(
         it => new ParameterNode(table.column(it).fieldName(), new TypeNode(table.column(it)!.dataType(), false, false)),

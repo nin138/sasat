@@ -90,7 +90,7 @@ export class GeneratedRepositoryGenerator {
         }
         return this.sqlValueToTsExpression(it.defaultValue!);
       };
-      return new PropertyAssignment(it.normalizedName(), fieldToExpression());
+      return new PropertyAssignment(it.fieldName, fieldToExpression());
     });
     const body = new ReturnStatement(tsg.object(...properties));
 
@@ -98,9 +98,7 @@ export class GeneratedRepositoryGenerator {
     return new MethodDeclaration(
       'getDefaultValueString',
       [],
-      columns.length !== 0
-        ? tsg.typeRef(node.entityName.name).pick(...columns.map(FieldNode.normalizeFieldName))
-        : tsg.typeRef('Record<string, never>'),
+      columns.length !== 0 ? tsg.typeRef(node.entityName.name).pick(...columns) : tsg.typeRef('Record<string, never>'),
       [body],
     ).modifiers(new MethodModifiers().protected());
   }

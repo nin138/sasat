@@ -1,7 +1,7 @@
 import { Serializable } from './serializable';
 import { SerializedTable } from '../serialized/serializedStore';
 import { BaseColumn, Column, NormalColumn, ReferenceColumn } from './column';
-import { capitalizeFirstLetter } from '../../util/stringUtil';
+import { camelize, capitalizeFirstLetter } from '../../util/stringUtil';
 import { NestedPartial } from '../../util/type';
 import { SqlString } from '../../runtime/sql/sqlString';
 import { SasatError } from '../../error';
@@ -26,7 +26,7 @@ export interface Table extends Serializable<SerializedTable> {
 
 export class TableHandler implements Table {
   static tableNameToEntityName(tableName: string): string {
-    return capitalizeFirstLetter(tableName);
+    return capitalizeFirstLetter(camelize(tableName));
   }
   private indexes: DBIndex[];
   get index(): DBIndex[] {
