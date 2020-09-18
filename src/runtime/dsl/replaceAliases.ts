@@ -1,6 +1,5 @@
 import {
   BetweenExpression,
-  BooleanValueExpression,
   ComparisonExpression,
   CompoundExpression,
   ContainsExpression,
@@ -16,6 +15,7 @@ import {
   QueryNodeKind,
   SelectExpr,
   QueryTable,
+  Sort,
 } from './query/query';
 import { TableInfo } from './query/createQueryResolveInfo';
 
@@ -66,6 +66,7 @@ export const createAliasReplacer = (
       }),
       [QueryNodeKind.ContainsExpr]: (node: ContainsExpression) => ({ ...node, left: replaceAlias(node.left) }),
       [QueryNodeKind.Literal]: (node: Literal) => node,
+      [QueryNodeKind.Sort]: (node: Sort) => ({ ...node, field: replaceAlias(node.field) }),
     };
     return map[node.kind](node);
   };
@@ -84,7 +85,8 @@ export const replaceAliases = (query: Query, tableInfo: TableInfo): Query => {
   return {
     select: query.select.map(replaceAlias) as SelectExpr[],
     from: replaceAlias(query.from) as QueryTable,
-    where: query.where ? (replaceAlias(query.where) as BooleanValueExpression) : undefined,
+    where: query.where ? replaceAlias(query.where) : undefined,
+    sort: query.sort ? query.sort.map(replaceAlias) : undefined,
     limit: query.limit,
     offset: query.offset,
   };

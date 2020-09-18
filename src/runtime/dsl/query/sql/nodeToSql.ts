@@ -16,6 +16,7 @@ import {
   SelectExpr,
   QueryTable,
   Value,
+  Sort,
 } from '../query';
 
 import { SqlString } from '../../../sql/sqlString';
@@ -78,4 +79,6 @@ export const Sql = {
         return Sql.isNull(expr);
     }
   },
+  sort: (expr: Sort): string => `${Sql.fieldInCondition(expr.field)} ${expr.direction === 'DESC' ? 'DESC' : 'ASC'}`,
+  sorts: (sorts: Sort[]): string => sorts.map(Sql.sort).join(', '),
 };

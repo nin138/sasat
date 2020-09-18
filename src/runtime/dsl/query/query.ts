@@ -13,13 +13,14 @@ export enum QueryNodeKind {
   BetweenExpr,
   ContainsExpr,
   Literal,
+  Sort,
 }
 
 export type Query = {
   select: Select;
   from: QueryTable;
   where?: BooleanValueExpression;
-  // TODO order
+  sort?: Sort[];
   limit?: number;
   offset?: number;
 };
@@ -123,4 +124,10 @@ export type Literal = {
   value: string | boolean | number | null;
 };
 
-export type QueryNode = Field | Fn | QueryTable | Literal | BooleanValueExpression | Join;
+export type Sort = {
+  kind: QueryNodeKind.Sort;
+  field: Field;
+  direction: 'ASC' | 'DESC';
+};
+
+export type QueryNode = Field | Fn | QueryTable | Literal | BooleanValueExpression | Join | Sort;
