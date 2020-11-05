@@ -8,6 +8,7 @@ const keywords = [
   'PRIMARY',
   'KEY',
   'UNIQUE',
+  'FOREIGN',
   'NOT',
   'NULL',
   'DEFAULT',

@@ -6,6 +6,8 @@ import { columnTypeToTsType, DBColumnTypes } from '../../../migration/column/col
 import { lexColumn } from './lexer/columnLexer';
 import { Token, TokenKind } from './lexer/lexer';
 import { camelize } from '../../../util/stringUtil';
+import { createTableLexer } from './lexer/createTableLexer';
+import { CreateTableParser } from './createTableParser';
 
 const getInParenValues = (tokens: Token[], fromIndex = 0) => {
   const sliced = tokens.slice(fromIndex);
@@ -133,33 +135,6 @@ const normalizeFieldName = (fieldName: string): string => {
   return /^[0-9].*/.test(fieldName) ? '_' + fieldName : fieldName;
 };
 
-// TODO rewrite
 export const serializeCreateTable = (str: string): SerializedTable => {
-  const lines = str.split('\n').map(it => it.trim());
-  let table: SerializedTable = {
-    tableName: lexColumn(lines[0])[1].value,
-    columns: [],
-    primaryKey: [],
-    uniqueKeys: [],
-    indexes: [],
-    gqlOption: {
-      mutation: {
-        create: true,
-        update: true,
-        delete: true,
-        fromContextColumns: [],
-      },
-      subscription: {
-        onCreate: false,
-        onUpdate: false,
-        onDelete: false,
-        filter: [],
-      },
-    },
-  };
-
-  lines.slice(1).forEach(line => {
-    table = startStrMap.find(it => line.startsWith(it.word))?.fn(line, table) || table;
-  });
-  return table;
+  return new CreateTableParser(createTableLexer(str).lex()).parse();
 };
