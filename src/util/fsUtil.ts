@@ -17,7 +17,7 @@ export const writeFileIfNotExist = (path: string, data: string): Promise<void> =
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const writeYmlFile = (path: string, fileName: string, obj: any): void => {
+export const writeYmlFile = (path: string, fileName: string, obj: Record<string, any>): void => {
   mkDirIfNotExist(path);
   fs.writeFileSync(
     join(path, fileName),

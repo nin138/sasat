@@ -4,10 +4,11 @@ export enum TokenKind {
   Identifier = 'identifier',
   Separator = 'separator',
   Number = 'number',
+  Operator = 'operator',
 }
 
 export type Token = {
-  kind: TokenKind;
+  kind: string;
   value: string;
 };
 

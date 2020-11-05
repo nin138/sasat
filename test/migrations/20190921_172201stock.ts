@@ -3,6 +3,7 @@ import { ForeignKeyReferentialAction } from '../../src/migration/data/foreignKey
 
 export class Stock implements SasatMigration {
   up: (store: MigrationStore) => void = store => {
+    return;
     store.createTable('stock', table => {
       table.column('id').int().autoIncrement().unsigned();
       table.references({
