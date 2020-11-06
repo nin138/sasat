@@ -54,7 +54,8 @@ const findAndAppend = (base: Record<string, unknown>, info: QueryResolveInfo, ob
     const tArr: Record<string, unknown>[] = base[info.property] as Record<string, unknown>[];
     const target = tArr.find(item => item && info.keyAliases.every(key => item[key] === objs[info.tableAlias][key]));
     if (!target) {
-      tArr.push(hydrateRow(info, objs)!);
+      const child = hydrateRow(info, objs);
+      if (child) tArr.push(child);
       return true;
     } else return info.joins.some(info => findAndAppend(target, info, objs));
   }
