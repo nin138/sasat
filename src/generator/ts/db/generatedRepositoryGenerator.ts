@@ -16,14 +16,13 @@ import { TsExpression } from '../code/node/expressions';
 import { tsg } from '../code/factory';
 import { RepositoryNode } from '../../../parser/node/repositoryNode';
 import { SqlValueType } from '../../../db/connectors/dbClient';
-import { FieldNode } from '../../../parser/node/fieldNode';
 
 export class GeneratedRepositoryGenerator {
   constructor(private node: RepositoryNode) {}
 
   generate(): TsFile {
     const node = this.node;
-    const entityPath = Directory.entityPath(Directory.paths.generatedDataSource, node.entityName);
+    const entityPath = Directory.entityPath(Directory.paths.generatedDataSource.db, node.entityName);
     return new TsFile(
       new Class(node.entityName.generatedDataSourceName())
         .export()
@@ -34,11 +33,11 @@ export class GeneratedRepositoryGenerator {
               tsg.typeRef(node.entityName.name).importFrom(entityPath),
               tsg.typeRef(node.entityName.creatableInterface()).importFrom(entityPath),
               tsg.typeRef(node.entityName.identifiableInterfaceName()).importFrom(entityPath),
-              node.entityName.fieldTypeRef(Directory.paths.generatedDataSource),
+              node.entityName.fieldTypeRef(Directory.paths.generatedDataSource.db),
             ]),
           ).addImport(
             ['BaseDBDataSource'],
-            Directory.basePath(Directory.paths.generatedDataSource, 'baseDBDataSource'),
+            Directory.basePath(Directory.paths.generatedDataSource.db, 'baseDBDataSource'),
           ),
         )
         .addProperty(...this.properties(node))
@@ -143,7 +142,7 @@ export class GeneratedRepositoryGenerator {
             `fields?`,
             tsg
               .typeRef(`${node.entityName}Fields`)
-              .importFrom(Directory.generatedPath(Directory.paths.generatedDataSource, 'fields')),
+              .importFrom(Directory.generatedPath(Directory.paths.generatedDataSource.db, 'fields')),
           ),
         ],
         new TypeReference('Promise', [

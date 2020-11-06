@@ -1,7 +1,7 @@
 import {
   creatableInterfaceName,
-  dataSourceName,
-  generatedDataSourceName,
+  dbDataSourceName,
+  generatedDBDataSourceName,
   identifiableInterfaceName,
 } from '../../constants/interfaceConstants';
 import { lowercaseFirstLetter } from '../../util/stringUtil';
@@ -54,10 +54,10 @@ export class EntityName {
   }
 
   dataSourceName(): string {
-    return dataSourceName(this.name);
+    return dbDataSourceName(this.name);
   }
   generatedDataSourceName(): string {
-    return generatedDataSourceName(this.name);
+    return generatedDBDataSourceName(this.name);
   }
   lowerCase(): string {
     return lowercaseFirstLetter(this.name);

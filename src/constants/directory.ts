@@ -3,8 +3,8 @@ import { EntityName } from '../parser/node/entityName';
 
 const GeneratedDirName = '__generated__';
 const EntityDirName = 'entities';
-const DataSourceDirName = 'repositories';
-const GeneratedDataSourceDirName = 'repositories';
+const DataSourceDirName = 'dataSources';
+const GeneratedDataSourceDirName = 'dataSources';
 
 const relative = (from: string, to: string) => {
   const result = path.relative(from, to);
@@ -12,19 +12,25 @@ const relative = (from: string, to: string) => {
   return './' + result;
 };
 
+const dataSourcePath = `/${DataSourceDirName}/`;
+const generatedDataSourcePath = `/${GeneratedDirName}/${GeneratedDataSourceDirName}/`;
 const paths = {
   generated: `/${GeneratedDirName}/`,
   entity: `/${GeneratedDirName}/${EntityDirName}/`,
-  dataSource: `/${DataSourceDirName}/`,
-  generatedDataSource: `/${GeneratedDirName}/${GeneratedDataSourceDirName}/`,
+  dataSource: {
+    db: dataSourcePath + 'db/',
+  },
+  generatedDataSource: {
+    db: generatedDataSourcePath + 'db/',
+  },
 };
 
 class DirectoryResolver {
   readonly paths = paths;
-  generatedDataSourcePath = (fromPath: string, entityName: string | EntityName) =>
-    relative(fromPath, `${this.paths.generatedDataSource}${entityName}`);
-  dataSourcePath = (fromPath: string, entityName: string | EntityName) =>
-    relative(fromPath, `${this.paths.dataSource}${entityName.toString()}`);
+  generatedDBDataSourcePath = (fromPath: string, entityName: string | EntityName) =>
+    relative(fromPath, `${this.paths.generatedDataSource.db}${entityName}`);
+  dbDataSourcePath = (fromPath: string, entityName: string | EntityName) =>
+    relative(fromPath, `${this.paths.dataSource.db}${entityName.toString()}`);
   entityPath = (fromPath: string, entityName: string | EntityName) =>
     relative(fromPath, `${this.paths.entity}${entityName.toString()}`);
   generatedPath = (fromPath: string, fileName: string) => relative(fromPath, `${this.paths.generated}${fileName}`);

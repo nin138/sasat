@@ -119,7 +119,7 @@ export class MutationGenerator {
 
   private static getDatasourceIdentifier(entityName: EntityName) {
     return new Identifier(entityName.dataSourceName()).importFrom(
-      Directory.dataSourcePath(Directory.paths.generated, entityName),
+      Directory.dbDataSourcePath(Directory.paths.generated, entityName),
     );
   }
 

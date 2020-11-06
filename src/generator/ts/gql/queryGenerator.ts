@@ -48,7 +48,7 @@ export class QueryGenerator {
             .new(
               tsg
                 .identifier(node.entityName.dataSourceName())
-                .importFrom(Directory.dataSourcePath(Directory.paths.generated, node.entityName)),
+                .importFrom(Directory.dbDataSourcePath(Directory.paths.generated, node.entityName)),
             )
             .property(it.repoMethodName)
             .call(

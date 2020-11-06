@@ -12,10 +12,10 @@ import { EntityNode } from '../parser/node/entityNode';
 export class CodeGenerateController {
   private codeGen: CodeGenerator = new TsCodeGenerator();
   private outDir = config().migration.out;
-  private repositoryDir = path.join(this.outDir, Directory.paths.dataSource);
+  private dbDataSourceDir = path.join(this.outDir, Directory.paths.dataSource.db);
   private generateDir = path.join(this.outDir, Directory.paths.generated);
   private generateEntityDir = path.join(this.outDir, Directory.paths.entity);
-  private generateRepositoryDir = path.join(this.outDir, Directory.paths.generatedDataSource);
+  private generateDbDataSourceDir = path.join(this.outDir, Directory.paths.generatedDataSource.db);
   constructor(readonly root: RootNode) {}
   async generate(): Promise<void> {
     await this.prepareDirs();
@@ -33,8 +33,8 @@ export class CodeGenerateController {
     mkDirIfNotExist(this.generateDir);
     await emptyDir(this.generateDir);
     mkDirIfNotExist(this.generateEntityDir);
-    mkDirIfNotExist(this.generateRepositoryDir);
-    mkDirIfNotExist(this.repositoryDir);
+    mkDirIfNotExist(this.generateDbDataSourceDir);
+    mkDirIfNotExist(this.dbDataSourceDir);
   }
 
   private getFullPath(basePath: string, entityName: string) {
@@ -47,14 +47,14 @@ export class CodeGenerateController {
 
   private generateRepository(ir: RepositoryNode) {
     return writeFileIfNotExist(
-      this.getFullPath(this.repositoryDir, ir.entityName.name),
+      this.getFullPath(this.dbDataSourceDir, ir.entityName.name),
       this.codeGen.generateRepository(ir),
     );
   }
 
   private generateGeneratedRepository(ir: RepositoryNode) {
     return writeFile(
-      this.getFullPath(this.generateRepositoryDir, ir.entityName.name),
+      this.getFullPath(this.generateDbDataSourceDir, ir.entityName.name),
       this.codeGen.generateGeneratedRepository(ir),
     );
   }

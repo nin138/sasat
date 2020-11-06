@@ -31,7 +31,7 @@ export class ResolverGenerator {
               .new(
                 tsg
                   .identifier(relation.toEntityName.dataSourceName())
-                  .importFrom(Directory.dataSourcePath(Directory.paths.generated, relation.toEntityName)),
+                  .importFrom(Directory.dbDataSourcePath(Directory.paths.generated, relation.toEntityName)),
               )
               .property(FindMethodNode.paramsToName(relation.toField))
               .call(tsg.identifier(paramName).property(relation.fromField).nonNull()),
@@ -59,7 +59,7 @@ export class ResolverGenerator {
               .new(
                 tsg
                   .identifier(relation.parent.entityName.dataSourceName())
-                  .importFrom(Directory.dataSourcePath(Directory.paths.generated, relation.parent.entityName)),
+                  .importFrom(Directory.dbDataSourcePath(Directory.paths.generated, relation.parent.entityName)),
               )
               .property(FindMethodNode.paramsToName(relation.fromField))
               .call(tsg.identifier(paramName).property(relation.toField).nonNull()),
