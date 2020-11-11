@@ -1,9 +1,11 @@
 import { SerializedColumn } from './serializedColumn';
 import { Index } from '../data';
 import { GqlOption } from '../data/gqlOption';
+import { DomainObjectDefinition } from '../domain/domainDifinition';
 
 export interface SerializedStore {
   tables: SerializedTable[];
+  domains: DomainObjectDefinition[];
 }
 
 export interface SerializedTable {

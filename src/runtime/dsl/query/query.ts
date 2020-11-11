@@ -71,6 +71,11 @@ export type BooleanValueExpression =
   | BetweenExpression
   | ContainsExpression;
 
+// TODO use deepEq
+export const isExpEq = (left: BooleanValueExpression, right: BooleanValueExpression): boolean => {
+  return JSON.stringify(left) === JSON.stringify(right);
+};
+
 export type IsNullExpression = {
   kind: QueryNodeKind.IsNullExpr;
   expr: Value;

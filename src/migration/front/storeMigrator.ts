@@ -3,9 +3,11 @@ import { DataStore } from '../dataStore';
 import { TableBuilder, TableCreator } from '../creators/tableCreator';
 import { SasatError } from '../../error';
 import { SerializedStore } from '../serialized/serializedStore';
+import { DomainObjectDefinition } from '../domain/domainDifinition';
 
 export interface MigrationStore extends DataStore {
   createTable(tableName: string, tableCreator: (table: TableBuilder) => void): MigrationStore;
+  createDomainObject(definition: DomainObjectDefinition): MigrationStore;
   dropTable(tableName: string): MigrationStore;
   table(tableName: string): MigrationTable;
   sql(sql: string): MigrationStore;
@@ -14,6 +16,7 @@ export interface MigrationStore extends DataStore {
 export class StoreMigrator implements MigrationStore {
   protected tables: TableMigrator[] = [];
   protected migrationQueue: string[] = [];
+  protected domainObjects: DomainObjectDefinition[] = [];
 
   static deserialize(data: SerializedStore): StoreMigrator {
     const store = new StoreMigrator();
@@ -63,6 +66,15 @@ export class StoreMigrator implements MigrationStore {
   serialize(): SerializedStore {
     return {
       tables: this.tables.map(it => it.serialize()),
+      domains: this.domainObjects,
     };
+  }
+
+  createDomainObject(definition: DomainObjectDefinition): this {
+    if (this.domainObjects.some(it => it.domainName === definition.domainName)) {
+      throw new SasatError(`Domain Object: ${definition.domainName} is already exist`);
+    }
+    this.domainObjects.push(definition);
+    return this;
   }
 }

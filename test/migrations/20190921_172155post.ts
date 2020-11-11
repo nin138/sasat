@@ -2,6 +2,17 @@ import { MigrationStore, Relation, SasatMigration } from '../../src';
 
 export class Post implements SasatMigration {
   up: (store: MigrationStore) => void = store => {
+    store.createDomainObject({
+      domainName: 'ww',
+      identifiable: [store.table('').column('a')],
+      fields: {
+        w: {
+          relationName: 'a',
+          column: store.table('').column(''),
+        },
+        s: {},
+      },
+    });
     return;
     store.createTable('post', table => {
       table.column('postId').int().unsigned().autoIncrement().primary().fieldName('pid');
