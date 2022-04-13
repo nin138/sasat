@@ -937,10 +937,10 @@
   resolved "https://registry.yarnpkg.com/@types/mime/-/mime-2.0.2.tgz#857a118d8634c84bba7ae14088e4508490cd5da5"
   integrity sha512-4kPlzbljFcsttWEq6aBW0OZe6BDajAmyvr2xknBG92tejQnvdGtT9+kXSZ580DqpxY9qG2xeQVF9Dq0ymUTo5Q==
 
-"@types/mysql@2.15.15":
-  version "2.15.15"
-  resolved "https://registry.yarnpkg.com/@types/mysql/-/mysql-2.15.15.tgz#af2223d2841091a5a819eabee6dff19567f1cf1f"
-  integrity sha512-1GJnq7RwuFPRicMHdT53vza5v39nep9OKIbozxNUpFXP04CydcdWrqpZQ+MlVdlLFCisWnnt09xughajjWpFsw==
+"@types/mysql@2.15.21":
+  version "2.15.21"
+  resolved "https://registry.yarnpkg.com/@types/mysql/-/mysql-2.15.21.tgz#7516cba7f9d077f980100c85fd500c8210bd5e45"
+  integrity sha512-NPotx5CVful7yB+qZbWtXL2fA4e7aEHkihHLjklc6ID8aq7bhguHgeIoC1EmSNTAuCgI6ZXrjt2ZSaXnYX0EUg==
   dependencies:
     "@types/node" "*"
 
