@@ -44,7 +44,7 @@
     "@types/mysql": "2.15.21",
     "@types/node": "13.13.30",
     "@types/pluralize": "0.0.29",
-    "@types/prettier": "2.1.5",
+    "@types/prettier": "2.6.0",
     "@types/sqlstring": "2.2.1",
     "@typescript-eslint/eslint-plugin": "4.7.0",
     "@typescript-eslint/parser": "4.7.0",
