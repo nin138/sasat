@@ -29,7 +29,7 @@
     "cac": "6.7.12",
     "chalk": "4.1.2",
     "fs-extra": "^9.0.0",
-    "js-yaml": "^3.13.1",
+    "js-yaml": "^4.0.0",
     "mariadb": "^2.1.5",
     "mysql": "^2.17.1",
     "pluralize": "^8.0.0",
@@ -40,7 +40,7 @@
   "devDependencies": {
     "@types/fs-extra": "9.0.13",
     "@types/jest": "26.0.24",
-    "@types/js-yaml": "3.12.7",
+    "@types/js-yaml": "4.0.5",
     "@types/mysql": "2.15.21",
     "@types/node": "16.11.26",
     "@types/pluralize": "0.0.29",
