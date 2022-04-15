@@ -1,4 +1,4 @@
-import { Token, TokenKind } from './lexer';
+import { Token, TokenKind } from './lexer.js';
 
 export type Terminator = 'separator' | 'whitespace' | 'operator';
 

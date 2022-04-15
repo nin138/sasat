@@ -1,5 +1,5 @@
-import { ComparisonExpression, comparisonExpressionToSql } from './comparison';
-import { CompositeCondition } from './compositeCondition';
+import { ComparisonExpression, comparisonExpressionToSql } from './comparison.js';
+import { CompositeCondition } from './compositeCondition.js';
 
 export type ConditionExpression<T> = ComparisonExpression<T> | CompositeCondition<T>;
 export type WhereClause<T> = ConditionExpression<T> | Array<ConditionExpression<T>>;

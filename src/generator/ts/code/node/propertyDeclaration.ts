@@ -1,8 +1,8 @@
-import { TsCode } from '../abstruct/tsCode';
-import { PropertyModifiers } from './modifier/propertyModifiers';
-import { isCode, TsType } from './type/type';
-import { TsUtil } from '../tsUtil';
-import { Identifier, Literal } from './expressions';
+import { TsCode } from '../abstruct/tsCode.js';
+import { PropertyModifiers } from './modifier/propertyModifiers.js';
+import { isCode, TsType } from './type/type.js';
+import { TsUtil } from '../tsUtil.js';
+import { Identifier, Literal } from './expressions.js';
 
 export class PropertyDeclaration extends TsCode {
   private _modifiers = new PropertyModifiers();

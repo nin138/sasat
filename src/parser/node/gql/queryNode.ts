@@ -1,5 +1,5 @@
-import { ParameterNode } from '../parameterNode';
-import { TypeNode } from '../typeNode';
+import { ParameterNode } from '../parameterNode.js';
+import { TypeNode } from '../typeNode.js';
 
 export class QueryNode {
   constructor(

@@ -1,6 +1,6 @@
-import { TsCode } from '../../abstruct/tsCode';
-import { TypeLiteral } from './typeLiteral';
-import { TypeReference } from './typeReference';
+import { TsCode } from '../../abstruct/tsCode.js';
+import { TypeLiteral } from './typeLiteral.js';
+import { TypeReference } from './typeReference.js';
 
 export class IntersectionType extends TsCode {
   private readonly types: Array<TypeLiteral | TypeReference>;

@@ -1,9 +1,9 @@
-import { lowercaseFirstLetter, plural } from '../../util/stringUtil';
-import { QueryNode } from '../node/gql/queryNode';
-import { TypeNode } from '../node/typeNode';
-import { ParameterNode } from '../node/parameterNode';
-import { TableHandler } from '../../migration/serializable/table';
-import { FindMethodNode } from '../node/findMethod';
+import { lowercaseFirstLetter, plural } from '../../util/stringUtil.js';
+import { QueryNode } from '../node/gql/queryNode.js';
+import { TypeNode } from '../node/typeNode.js';
+import { ParameterNode } from '../node/parameterNode.js';
+import { TableHandler } from '../../migration/serializable/table.js';
+import { FindMethodNode } from '../node/findMethod.js';
 
 export class QueryNodeFactory {
   create(table: TableHandler): QueryNode[] {

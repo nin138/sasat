@@ -1,4 +1,4 @@
-import { formatQuery } from '../formatQuery';
+import { formatQuery } from '../formatQuery.js';
 
 export type QueryResponse = Array<{ [key: string]: string }>;
 export interface CommandResponse {

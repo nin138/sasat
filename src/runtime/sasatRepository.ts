@@ -1,13 +1,13 @@
-import { CommandResponse, DataStoreInfo, getDbClient, QExpr } from '..';
-import { Fields } from './field';
-import { appendKeysToQuery, hydrate, ResultRow } from './dsl/query/sql/hydrate';
-import { SQLExecutor, SqlValueType } from '../db/connectors/dbClient';
-import { createQueryResolveInfo } from './dsl/query/createQueryResolveInfo';
-import { queryToSql } from './dsl/query/sql/queryToSql';
-import { fieldToQuery } from './dsl/query/fieldToQuery';
-import { BooleanValueExpression, Query } from './dsl/query/query';
-import { replaceAliases } from './dsl/replaceAliases';
-import { Create, createToSql, Delete, deleteToSql, Update, updateToSql } from './dsl/mutation/mutation';
+import { CommandResponse, DataStoreInfo, getDbClient, QExpr } from '../index.js';
+import { Fields } from './field.js';
+import { appendKeysToQuery, hydrate, ResultRow } from './dsl/query/sql/hydrate.js';
+import { SQLExecutor, SqlValueType } from '../db/connectors/dbClient.js';
+import { createQueryResolveInfo } from './dsl/query/createQueryResolveInfo.js';
+import { queryToSql } from './dsl/query/sql/queryToSql.js';
+import { fieldToQuery } from './dsl/query/fieldToQuery.js';
+import { BooleanValueExpression, Query } from './dsl/query/query.js';
+import { replaceAliases } from './dsl/replaceAliases.js';
+import { Create, createToSql, Delete, deleteToSql, Update, updateToSql } from './dsl/mutation/mutation.js';
 
 export type EntityResult<Entity, Identifiable> = Identifiable & Partial<Entity>;
 interface Repository<Entity, Creatable, Identifiable> {

@@ -1,8 +1,8 @@
-import { SqlValueType } from '../../../../db/connectors/dbClient';
-import { SELECT_ALIAS_SEPARATOR } from './nodeToSql';
-import { Query, QueryNodeKind, QueryTable } from '../query';
-import { TableInfo } from '../createQueryResolveInfo';
-import { QExpr } from '../../factory';
+import { SqlValueType } from '../../../../db/connectors/dbClient.js';
+import { SELECT_ALIAS_SEPARATOR } from './nodeToSql.js';
+import { Query, QueryNodeKind, QueryTable } from '../query.js';
+import { TableInfo } from '../createQueryResolveInfo.js';
+import { QExpr } from '../../factory.js';
 
 export type QueryResolveInfo = {
   tableAlias: string;

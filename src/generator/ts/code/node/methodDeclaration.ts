@@ -1,8 +1,8 @@
-import { TsCode } from '../abstruct/tsCode';
-import { isCode, TsType } from './type/type';
-import { MethodModifiers } from './modifier/methodModifiers';
-import { Parameter } from './parameter';
-import { TsStatement } from '../abstruct/statement';
+import { TsCode } from '../abstruct/tsCode.js';
+import { isCode, TsType } from './type/type.js';
+import { MethodModifiers } from './modifier/methodModifiers.js';
+import { Parameter } from './parameter.js';
+import { TsStatement } from '../abstruct/statement.js';
 
 export class MethodDeclaration extends TsCode {
   private _modifiers: MethodModifiers = new MethodModifiers();

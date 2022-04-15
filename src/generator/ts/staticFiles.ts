@@ -1,4 +1,4 @@
-import { FileData } from '../generator';
+import { FileData } from '../generator.js';
 
 const contextFile = `\
 import { BaseGqlContext } from './__generated__/context';

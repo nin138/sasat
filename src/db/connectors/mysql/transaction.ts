@@ -1,6 +1,6 @@
 import * as mysql from 'mysql';
 import { promisify } from 'util';
-import { CommandResponse, QueryResponse, SQLTransaction } from '../dbClient';
+import { CommandResponse, QueryResponse, SQLTransaction } from '../dbClient.js';
 
 export class MySqlTransaction extends SQLTransaction {
   constructor(private connection: mysql.Connection) {

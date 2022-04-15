@@ -1,11 +1,11 @@
-import { columnTypeToTsType, DBColumnTypes } from '../../migration/column/columnTypes';
-import { PropertySignature } from '../../generator/ts/code/node/propertySignature';
-import { tsg } from '../../generator/ts/code/factory';
-import { ParameterNode } from './parameterNode';
-import { TypeNode } from './typeNode';
-import { SqlValueType } from '../../db/connectors/dbClient';
-import { TableHandler } from '../../migration/serializable/table';
-import { Column } from '../../migration/serializable/column';
+import { columnTypeToTsType, DBColumnTypes } from '../../migration/column/columnTypes.js';
+import { PropertySignature } from '../../generator/ts/code/node/propertySignature.js';
+import { tsg } from '../../generator/ts/code/factory.js';
+import { ParameterNode } from './parameterNode.js';
+import { TypeNode } from './typeNode.js';
+import { SqlValueType } from '../../db/connectors/dbClient.js';
+import { TableHandler } from '../../migration/serializable/table.js';
+import { Column } from '../../migration/serializable/column.js';
 
 export class FieldNode {
   static fromColumn(column: Column, table: TableHandler): FieldNode {

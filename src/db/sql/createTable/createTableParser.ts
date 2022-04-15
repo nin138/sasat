@@ -1,11 +1,11 @@
-import { Token, TokenKind } from './lexer/lexer';
-import { SerializedTable } from '../../../migration/serialized/serializedStore';
-import { camelize } from '../../../util/stringUtil';
-import { DBColumnTypes } from '../../../migration/column/columnTypes';
-import { Reference, SerializedNormalColumn } from '../../../migration/serialized/serializedColumn';
-import { Relation } from '../../../migration/data/relation';
-import { columnTypeToGqlPrimitive } from '../../../generator/gql/columnToGqlType';
-import { GqlPrimitive } from '../../../generator/gql/types';
+import { Token, TokenKind } from './lexer/lexer.js';
+import { SerializedTable } from '../../../migration/serialized/serializedStore.js';
+import { camelize } from '../../../util/stringUtil.js';
+import { DBColumnTypes } from '../../../migration/column/columnTypes.js';
+import { Reference, SerializedNormalColumn } from '../../../migration/serialized/serializedColumn.js';
+import { Relation } from '../../../migration/data/relation.js';
+import { columnTypeToGqlPrimitive } from '../../../generator/gql/columnToGqlType.js';
+import { GqlPrimitive } from '../../../generator/gql/types.js';
 
 const splitArray = <T>(array: T[], callback: (item: T) => boolean): T[][] => {
   const indexes: number[] = [];

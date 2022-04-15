@@ -1,13 +1,13 @@
-import { TsFile } from '../file';
-import { VariableDeclaration } from '../code/node/variableDeclaration';
-import { EnumDeclaration } from '../code/node/enumDeclaration';
-import { EnumMember } from '../code/node/enumMember';
-import { PropertyAssignment } from '../code/node/propertyAssignment';
-import { Parameter } from '../code/node/parameter';
-import { TypeReference } from '../code/node/type/typeReference';
-import { KeywordTypeNode } from '../code/node/type/typeKeyword';
-import { Block } from '../code/node/block';
-import { ReturnStatement } from '../code/node/returnStatement';
+import { TsFile } from '../file.js';
+import { VariableDeclaration } from '../code/node/variableDeclaration.js';
+import { EnumDeclaration } from '../code/node/enumDeclaration.js';
+import { EnumMember } from '../code/node/enumMember.js';
+import { PropertyAssignment } from '../code/node/propertyAssignment.js';
+import { Parameter } from '../code/node/parameter.js';
+import { TypeReference } from '../code/node/type/typeReference.js';
+import { KeywordTypeNode } from '../code/node/type/typeKeyword.js';
+import { Block } from '../code/node/block.js';
+import { ReturnStatement } from '../code/node/returnStatement.js';
 import {
   ArrayLiteral,
   ArrowFunction,
@@ -17,11 +17,11 @@ import {
   ObjectLiteral,
   PropertyAccessExpression,
   StringLiteral,
-} from '../code/node/expressions';
-import { tsg } from '../code/factory';
-import { Directory } from '../../../constants/directory';
-import { MutationNode } from '../../../parser/node/gql/mutationNode';
-import { EntityName } from '../../../parser/node/entityName';
+} from '../code/node/expressions.js';
+import { tsg } from '../code/factory.js';
+import { Directory } from '../../../constants/directory.js';
+import { MutationNode } from '../../../parser/node/gql/mutationNode.js';
+import { EntityName } from '../../../parser/node/entityName.js';
 
 interface Subscription {
   entity: EntityName;

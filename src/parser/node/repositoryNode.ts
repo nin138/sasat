@@ -1,16 +1,16 @@
-import { EntityNode } from './entityNode';
-import { FindMethodNode } from './findMethod';
-import { RootNode } from './rootNode';
-import { QueryNode } from './gql/queryNode';
-import { MutationNode } from './gql/mutationNode';
-import { MutationNodeFactory } from '../nodeFactory/mutationNodeFactory';
-import { QueryNodeFactory } from '../nodeFactory/queryNodeFactory';
-import { TableHandler } from '../../migration/serializable/table';
-import { EntityName } from './entityName';
-import { RelationNode } from './relationNode';
-import { ParameterNode } from './parameterNode';
-import { TypeNode } from './typeNode';
-import { Relation } from '../..';
+import { EntityNode } from './entityNode.js';
+import { FindMethodNode } from './findMethod.js';
+import { RootNode } from './rootNode.js';
+import { QueryNode } from './gql/queryNode.js';
+import { MutationNode } from './gql/mutationNode.js';
+import { MutationNodeFactory } from '../nodeFactory/mutationNodeFactory.js';
+import { QueryNodeFactory } from '../nodeFactory/queryNodeFactory.js';
+import { TableHandler } from '../../migration/serializable/table.js';
+import { EntityName } from './entityName.js';
+import { RelationNode } from './relationNode.js';
+import { ParameterNode } from './parameterNode.js';
+import { TypeNode } from './typeNode.js';
+import {Relation} from "../../migration/data/relation.js";
 
 export class RepositoryNode {
   readonly tableName: string;

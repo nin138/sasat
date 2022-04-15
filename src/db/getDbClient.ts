@@ -1,5 +1,5 @@
-import { DBClient } from './connectors/dbClient';
-import { MysqlClient } from './connectors/mysql/client';
+import { DBClient } from './connectors/dbClient.js';
+import { MysqlClient } from './connectors/mysql/client.js';
 
 let client: DBClient | undefined;
 

@@ -1,11 +1,11 @@
-import { Console } from '../console';
-import { getDbClient } from '../..';
-import { serializeCreateTable } from '../../db/sql/createTable/createTableSerializer';
-import { SerializedStore } from '../../migration/serialized/serializedStore';
-import { SqlString } from '../../runtime/sql/sqlString';
-import { writeYmlFile } from '../../util/fsUtil';
-import { DBColumnTypes } from '../../migration/column/columnTypes';
-import { config } from '../../config/config';
+import { Console } from '../console.js';
+import { serializeCreateTable } from '../../db/sql/createTable/createTableSerializer.js';
+import { SerializedStore } from '../../migration/serialized/serializedStore.js';
+import { SqlString } from '../../runtime/sql/sqlString.js';
+import { writeYmlFile } from '../../util/fsUtil.js';
+import { DBColumnTypes } from '../../migration/column/columnTypes.js';
+import { config } from '../../config/config.js';
+import {getDbClient} from "../../db/getDbClient.js";
 
 export const dumpDB = async (): Promise<void> => {
   const con = getDbClient();
@@ -39,7 +39,7 @@ export const dumpDB = async (): Promise<void> => {
 
     writeYmlFile(config().migration.dir, 'initialSchema.yml', store);
   } catch (e) {
-    Console.error(e.message);
+    Console.error((e as Error).message);
     throw e;
   } finally {
     await con.release();

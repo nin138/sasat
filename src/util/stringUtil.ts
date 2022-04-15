@@ -1,4 +1,4 @@
-import * as pluralize from 'pluralize';
+import pluralize from 'pluralize';
 
 export const capitalizeFirstLetter = (str: string): string => str.slice(0, 1).toUpperCase() + str.slice(1);
 export const lowercaseFirstLetter = (str: string): string => str.slice(0, 1).toLowerCase() + str.slice(1);

@@ -1,21 +1,21 @@
-import { TsFile } from '../file';
-import { Directory } from '../../../constants/directory';
-import { Class } from '../code/node/class';
-import { ExtendsClause } from '../code/node/extendsClause';
-import { TypeReference } from '../code/node/type/typeReference';
-import { PropertyModifiers } from '../code/node/modifier/propertyModifiers';
-import { KeywordTypeNode } from '../code/node/type/typeKeyword';
-import { ArrayType } from '../code/node/type/arrayType';
-import { UnionType } from '../code/node/type/unionType';
-import { PropertyAssignment } from '../code/node/propertyAssignment';
-import { ReturnStatement } from '../code/node/returnStatement';
-import { MethodDeclaration } from '../code/node/methodDeclaration';
-import { MethodModifiers } from '../code/node/modifier/methodModifiers';
-import { Parameter } from '../code/node/parameter';
-import { TsExpression } from '../code/node/expressions';
-import { tsg } from '../code/factory';
-import { RepositoryNode } from '../../../parser/node/repositoryNode';
-import { SqlValueType } from '../../../db/connectors/dbClient';
+import { TsFile } from '../file.js';
+import { Directory } from '../../../constants/directory.js';
+import { Class } from '../code/node/class.js';
+import { ExtendsClause } from '../code/node/extendsClause.js';
+import { TypeReference } from '../code/node/type/typeReference.js';
+import { PropertyModifiers } from '../code/node/modifier/propertyModifiers.js';
+import { KeywordTypeNode } from '../code/node/type/typeKeyword.js';
+import { ArrayType } from '../code/node/type/arrayType.js';
+import { UnionType } from '../code/node/type/unionType.js';
+import { PropertyAssignment } from '../code/node/propertyAssignment.js';
+import { ReturnStatement } from '../code/node/returnStatement.js';
+import { MethodDeclaration } from '../code/node/methodDeclaration.js';
+import { MethodModifiers } from '../code/node/modifier/methodModifiers.js';
+import { Parameter } from '../code/node/parameter.js';
+import { TsExpression } from '../code/node/expressions.js';
+import { tsg } from '../code/factory.js';
+import { RepositoryNode } from '../../../parser/node/repositoryNode.js';
+import { SqlValueType } from '../../../db/connectors/dbClient.js';
 
 export class GeneratedRepositoryGenerator {
   constructor(private node: RepositoryNode) {}

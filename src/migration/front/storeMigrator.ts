@@ -1,8 +1,8 @@
-import { MigrationTable, TableMigrator } from './tableMigrator';
-import { DataStore } from '../dataStore';
-import { TableBuilder, TableCreator } from '../creators/tableCreator';
-import { SasatError } from '../../error';
-import { SerializedStore } from '../serialized/serializedStore';
+import { MigrationTable, TableMigrator } from './tableMigrator.js';
+import { DataStore } from '../dataStore.js';
+import { TableBuilder, TableCreator } from '../creators/tableCreator.js';
+import { SasatError } from '../../error.js';
+import { SerializedStore } from '../serialized/serializedStore.js';
 
 export interface MigrationStore extends DataStore {
   createTable(tableName: string, tableCreator: (table: TableBuilder) => void): MigrationStore;

@@ -1,4 +1,5 @@
-import { escapeId, escape } from 'sqlstring';
+import pkg from 'sqlstring';
+const { escapeId, escape } = pkg;
 
 export const SqlString = {
   escape: escape,

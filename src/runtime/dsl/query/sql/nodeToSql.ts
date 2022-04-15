@@ -17,9 +17,9 @@ import {
   QueryTable,
   Value,
   Sort,
-} from '../query';
+} from '../query.js';
 
-import { SqlString } from '../../../sql/sqlString';
+import { SqlString } from '../../../sql/sqlString.js';
 export const SELECT_ALIAS_SEPARATOR = '__';
 export const Sql = {
   select: (expr: SelectExpr): string => (expr.kind === QueryNodeKind.Field ? Sql.fieldInSelect(expr) : Sql.fn(expr)),

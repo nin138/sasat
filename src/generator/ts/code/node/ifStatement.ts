@@ -1,6 +1,5 @@
-import { TsStatement } from '../abstruct/statement';
-import { Block } from './block';
-import { TsExpression } from './expressions';
+import { TsStatement } from '../abstruct/statement.js';
+import { TsExpression } from './expressions.js';
 
 export class IfStatement extends TsStatement {
   constructor(private readonly condition: TsExpression, private readonly statement: TsStatement) {

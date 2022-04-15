@@ -1,10 +1,10 @@
-import { CreateMutationNode, DeleteMutationNode, MutationNode, UpdateMutationNode } from '../node/gql/mutationNode';
-import { Parser } from '../parser';
-import { ContextParamNode } from '../node/gql/contextParamNode';
-import { SubscriptionFilterNode } from '../node/gql/subscriptionFilterNode';
-import { EntityNode } from '../node/entityNode';
-import { TableHandler } from '../../migration/serializable/table';
-import { FindMethodNode } from '../node/findMethod';
+import { CreateMutationNode, DeleteMutationNode, MutationNode, UpdateMutationNode } from '../node/gql/mutationNode.js';
+import { Parser } from '../parser.js';
+import { ContextParamNode } from '../node/gql/contextParamNode.js';
+import { SubscriptionFilterNode } from '../node/gql/subscriptionFilterNode.js';
+import { EntityNode } from '../node/entityNode.js';
+import { TableHandler } from '../../migration/serializable/table.js';
+import { FindMethodNode } from '../node/findMethod.js';
 
 export class MutationNodeFactory {
   create = (table: TableHandler, entity: EntityNode): MutationNode[] => {

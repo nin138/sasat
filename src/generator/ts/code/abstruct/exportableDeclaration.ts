@@ -1,4 +1,4 @@
-import { TsStatement } from './statement';
+import { TsStatement } from './statement.js';
 
 export abstract class ExportableDeclaration extends TsStatement {
   private isExported = false;

@@ -1,11 +1,11 @@
-import { ColumnCreator } from './columnCreator';
-import { NestedPartial } from '../../util/type';
-import { ColumnBuilder } from './columnBuilder';
-import { NormalColumn } from '../serializable/column';
-import { Reference } from '../serialized/serializedColumn';
-import { TableHandler } from '../serializable/table';
-import { GqlOption } from '../data/gqlOption';
-import { DataStore } from '../dataStore';
+import { ColumnCreator } from './columnCreator.js';
+import { NestedPartial } from '../../util/type.js';
+import { ColumnBuilder } from './columnBuilder.js';
+import { NormalColumn } from '../serializable/column.js';
+import { Reference } from '../serialized/serializedColumn.js';
+import { TableHandler } from '../serializable/table.js';
+import { GqlOption } from '../data/gqlOption.js';
+import { DataStore } from '../dataStore.js';
 
 export interface TableBuilder {
   column(columnName: string): ColumnCreator;

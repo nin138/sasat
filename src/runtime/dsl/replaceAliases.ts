@@ -16,8 +16,8 @@ import {
   SelectExpr,
   QueryTable,
   Sort,
-} from './query/query';
-import { TableInfo } from './query/createQueryResolveInfo';
+} from './query/query.js';
+import { TableInfo } from './query/createQueryResolveInfo.js';
 
 export const createAliasReplacer = (
   tableInfo: TableInfo,

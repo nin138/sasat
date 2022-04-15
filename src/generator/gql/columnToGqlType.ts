@@ -1,5 +1,5 @@
-import { GqlPrimitive } from './types';
-import { DBColumnTypes } from '../../migration/column/columnTypes';
+import { GqlPrimitive } from './types.js';
+import { DBColumnTypes } from '../../migration/column/columnTypes.js';
 
 export const columnTypeToGqlPrimitive = (type: DBColumnTypes): GqlPrimitive => {
   switch (type) {

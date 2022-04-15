@@ -1,5 +1,4 @@
-import { TypeNode } from './typeNode';
-import { FieldNode } from './fieldNode';
+import { TypeNode } from './typeNode.js';
 
 export class ParameterNode {
   constructor(readonly name: string, readonly type: TypeNode) {}

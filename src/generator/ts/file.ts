@@ -1,7 +1,7 @@
 import * as prettier from 'prettier';
-import { TsCode } from './code/abstruct/tsCode';
-import { TsStatement } from './code/abstruct/statement';
-import { ImportDeclaration } from './code/importDeclaration';
+import { TsCode } from './code/abstruct/tsCode.js';
+import { TsStatement } from './code/abstruct/statement.js';
+import { ImportDeclaration } from './code/importDeclaration.js';
 
 export class TsFile extends TsCode {
   private readonly statements: TsStatement[];

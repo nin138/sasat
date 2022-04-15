@@ -6,9 +6,9 @@ import {
   DBNumberTypes,
   DBStringTypes,
   DBTextTypes,
-} from '../column/columnTypes';
-import { SqlValueType } from '../../db/connectors/dbClient';
-import { SerializedNormalColumn } from '../serialized/serializedColumn';
+} from '../column/columnTypes.js';
+import { SqlValueType } from '../../db/connectors/dbClient.js';
+import { SerializedNormalColumn } from '../serialized/serializedColumn.js';
 
 export abstract class ColumnBuilder {
   protected _primary = false;

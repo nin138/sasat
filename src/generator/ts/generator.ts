@@ -1,18 +1,18 @@
-import { CodeGenerator, FileData } from '../generator';
-import { EntityGenerator } from './entityGenerator';
-import { TypeDefGenerator } from './gql/typeDefGenerator';
-import { QueryGenerator } from './gql/queryGenerator';
-import { ResolverGenerator } from './gql/resolverGenerator';
-import { MutationGenerator } from './gql/mutationGenerator';
-import { SubscriptionGenerator } from './gql/subscriptionGenerator';
-import { ContextGenerator } from './gql/contextGenerator';
-import { GeneratedRepositoryGenerator } from './db/generatedRepositoryGenerator';
-import { RepositoryGenerator } from './db/repositoryGenerator';
-import { staticFiles } from './staticFiles';
-import { RelationMapGenerator } from './relationMapGenerator';
-import { FieldGenerator } from './fieldGenerator';
-import { EntityNode } from '../../parser/node/entityNode';
-import { RepositoryNode } from '../../parser/node/repositoryNode';
+import { CodeGenerator, FileData } from '../generator.js';
+import { EntityGenerator } from './entityGenerator.js';
+import { TypeDefGenerator } from './gql/typeDefGenerator.js';
+import { QueryGenerator } from './gql/queryGenerator.js';
+import { ResolverGenerator } from './gql/resolverGenerator.js';
+import { MutationGenerator } from './gql/mutationGenerator.js';
+import { SubscriptionGenerator } from './gql/subscriptionGenerator.js';
+import { ContextGenerator } from './gql/contextGenerator.js';
+import { GeneratedRepositoryGenerator } from './db/generatedRepositoryGenerator.js';
+import { RepositoryGenerator } from './db/repositoryGenerator.js';
+import { staticFiles } from './staticFiles.js';
+import { RelationMapGenerator } from './relationMapGenerator.js';
+import { FieldGenerator } from './fieldGenerator.js';
+import { EntityNode } from '../../parser/node/entityNode.js';
+import { RepositoryNode } from '../../parser/node/repositoryNode.js';
 import { RootNode } from '../../parser/node/rootNode';
 
 export class TsCodeGenerator implements CodeGenerator {

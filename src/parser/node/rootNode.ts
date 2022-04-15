@@ -1,12 +1,12 @@
-import { RepositoryNode } from './repositoryNode';
-import { ContextNode } from './gql/contextNode';
-import { RelationNode } from './relationNode';
-import { EntityNode } from './entityNode';
-import { QueryNode } from './gql/queryNode';
-import { MutationNode } from './gql/mutationNode';
-import { ContextNodeFactory } from '../nodeFactory/contextNodeFactory';
-import { DataStoreHandler } from '../../migration/dataStore';
-import { EntityName } from './entityName';
+import { RepositoryNode } from './repositoryNode.js';
+import { ContextNode } from './gql/contextNode.js';
+import { RelationNode } from './relationNode.js';
+import { EntityNode } from './entityNode.js';
+import { QueryNode } from './gql/queryNode.js';
+import { MutationNode } from './gql/mutationNode.js';
+import { ContextNodeFactory } from '../nodeFactory/contextNodeFactory.js';
+import { DataStoreHandler } from '../../migration/dataStore.js';
+import { EntityName } from './entityName.js';
 
 export class RootNode {
   readonly repositories: RepositoryNode[] = [];

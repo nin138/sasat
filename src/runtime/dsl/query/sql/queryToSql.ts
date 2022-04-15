@@ -1,5 +1,5 @@
-import { Join, Query, QueryTable } from '../query';
-import { Sql } from './nodeToSql';
+import { Join, Query, QueryTable } from '../query.js';
+import { Sql } from './nodeToSql.js';
 
 const getJoin = (from: QueryTable): Join[] => {
   return from.joins.flatMap(join => [join, ...getJoin(join.table)]);

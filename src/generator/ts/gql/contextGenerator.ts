@@ -1,7 +1,7 @@
-import { TsFile } from '../file';
-import { TsInterface } from '../code/node/interface';
-import { PropertySignature } from '../code/node/propertySignature';
-import { ContextNode } from '../../../parser/node/gql/contextNode';
+import { TsFile } from '../file.js';
+import { TsInterface } from '../code/node/interface.js';
+import { PropertySignature } from '../code/node/propertySignature.js';
+import { ContextNode } from '../../../parser/node/gql/contextNode.js';
 
 export class ContextGenerator {
   generate(contexts: ContextNode[]): TsFile {

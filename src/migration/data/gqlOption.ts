@@ -1,4 +1,4 @@
-import { NestedPartial } from '../../util/type';
+import { NestedPartial } from '../../util/type.js';
 
 export interface GqlFromContextParam {
   column: string;

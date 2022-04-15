@@ -1,14 +1,14 @@
-import { StoreMigrator } from './storeMigrator';
-import { Table, TableHandler } from '../serializable/table';
-import { Reference, SerializedColumn, SerializedNormalColumn } from '../serialized/serializedColumn';
-import { NestedPartial } from '../../util/type';
-import { GqlOption } from '../data/gqlOption';
-import { Column, NormalColumn, ReferenceColumn } from '../serializable/column';
-import { DBIndex } from '../data';
-import { SerializedTable } from '../serialized/serializedStore';
-import { SqlCreator } from '../../db/sql/sqlCreater';
-import { DBColumnTypes, DBType } from '../column/columnTypes';
-import { SqlString } from '../../runtime/sql/sqlString';
+import { StoreMigrator } from './storeMigrator.js';
+import { Table, TableHandler } from '../serializable/table.js';
+import { Reference, SerializedColumn, SerializedNormalColumn } from '../serialized/serializedColumn.js';
+import { NestedPartial } from '../../util/type.js';
+import { GqlOption } from '../data/gqlOption.js';
+import { Column, NormalColumn, ReferenceColumn } from '../serializable/column.js';
+import { SerializedTable } from '../serialized/serializedStore.js';
+import { SqlCreator } from '../../db/sql/sqlCreater.js';
+import { DBColumnTypes, DBType } from '../column/columnTypes.js';
+import { SqlString } from '../../runtime/sql/sqlString.js';
+import {DBIndex} from "../data/index.js";
 
 export interface MigrationTable extends Table {
   addIndex(...columns: string[]): MigrationTable;

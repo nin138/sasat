@@ -1,5 +1,5 @@
-import { testStoreHandler } from '../../../test/testDataStore';
-import { ContextNodeFactory } from './contextNodeFactory';
+import { testStoreHandler } from '../../../test/testDataStore.js';
+import { ContextNodeFactory } from './contextNodeFactory.js';
 
 describe('Parser', () => {
   const parser = new ContextNodeFactory();

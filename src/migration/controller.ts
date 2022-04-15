@@ -1,13 +1,13 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { config } from '../config/config';
-import { getDbClient } from '..';
+import { config } from '../config/config.js';
+import { getDbClient } from '../index.js';
 import * as ts from 'typescript';
-import { StoreMigrator } from './front/storeMigrator';
-import { Direction, MigrationTargetResolver } from './migrationTargetResolver';
-import { MigrationReader } from './migrationReader';
-import { Console } from '../cli/console';
-import { SerializedStore } from './serialized/serializedStore';
+import { StoreMigrator } from './front/storeMigrator.js';
+import { Direction, MigrationTargetResolver } from './migrationTargetResolver.js';
+import { MigrationReader } from './migrationReader.js';
+import { Console } from '../cli/console.js';
+import { SerializedStore } from './serialized/serializedStore.js';
 
 // TODO refactor
 export class MigrationController {

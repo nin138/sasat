@@ -1,4 +1,4 @@
-import { MigrationStore } from './storeMigrator';
+import { MigrationStore } from './storeMigrator.js';
 
 export interface SasatMigration {
   up: (store: MigrationStore) => void;

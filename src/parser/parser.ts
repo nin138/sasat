@@ -1,6 +1,6 @@
-import { RepositoryNode } from './node/repositoryNode';
-import { RootNode } from './node/rootNode';
-import { DataStoreHandler } from '../migration/dataStore';
+import { RepositoryNode } from './node/repositoryNode.js';
+import { RootNode } from './node/rootNode.js';
+import { DataStoreHandler } from '../migration/dataStore.js';
 
 export class Parser {
   parse(store: DataStoreHandler): RootNode {

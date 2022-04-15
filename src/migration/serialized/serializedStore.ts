@@ -1,6 +1,6 @@
-import { SerializedColumn } from './serializedColumn';
-import { Index } from '../data';
-import { GqlOption } from '../data/gqlOption';
+import { SerializedColumn } from './serializedColumn.js';
+import { Index } from '../data/index.js';
+import { GqlOption } from '../data/gqlOption.js';
 
 export interface SerializedStore {
   tables: SerializedTable[];

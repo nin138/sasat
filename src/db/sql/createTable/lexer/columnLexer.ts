@@ -1,4 +1,4 @@
-import { Lexer, Token } from './lexer';
+import { Lexer, Token } from './lexer.js';
 
 const keywords = [
   'NOT NULL',

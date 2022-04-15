@@ -1,7 +1,7 @@
-import { Directory } from '../../../constants/directory';
-import { TsFile } from '../file';
-import { tsg } from '../code/factory';
-import { RepositoryNode } from '../../../parser/node/repositoryNode';
+import { Directory } from '../../../constants/directory.js';
+import { TsFile } from '../file.js';
+import { tsg } from '../code/factory.js';
+import { RepositoryNode } from '../../../parser/node/repositoryNode.js';
 
 export class RepositoryGenerator {
   generate(node: RepositoryNode): TsFile {

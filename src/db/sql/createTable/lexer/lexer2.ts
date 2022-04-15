@@ -1,5 +1,5 @@
-import { Token, TokenKind } from './lexer';
-import { Rule, Terminator } from './rules';
+import { Token, TokenKind } from './lexer.js';
+import { Rule, Terminator } from './rules.js';
 
 type Current = {
   hasNext: boolean;

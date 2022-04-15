@@ -1,5 +1,5 @@
 import * as SqlString from 'sqlstring';
-import { SasatError } from '../../../error';
+import { SasatError } from '../../../error.js';
 
 export enum Comparison {
   eq = '=',
@@ -40,7 +40,7 @@ export const comparisonExpressionToSql = (exp: ComparisonExpression<unknown>): s
       if (value[0] === 'IS NOT NULL') return `${column} IS NOT NULL`;
       if (value[0] === 'IN') {
         const [, ...columns] = value;
-        return `${column} IN (${[columns.map(SqlString.escape).join(', ')]})`;
+        return `${column} IN (${[columns.map(column => SqlString.escape(column)).join(', ')]})`;
       }
       if (value[0] === 'BETWEEN')
         return `${column} BETWEEN ${SqlString.escape(value[1])} AND ${SqlString.escape(value[2])}`;

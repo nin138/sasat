@@ -1,5 +1,5 @@
-import { TsCode } from '../abstruct/tsCode';
-import { Identifier, NumericLiteral, StringLiteral } from './expressions';
+import { TsCode } from '../abstruct/tsCode.js';
+import { Identifier, NumericLiteral, StringLiteral } from './expressions.js';
 
 export class EnumMember extends TsCode {
   constructor(private readonly identifier: Identifier, private readonly value?: StringLiteral | NumericLiteral) {

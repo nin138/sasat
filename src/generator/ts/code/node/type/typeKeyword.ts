@@ -1,4 +1,4 @@
-import { TypeReference } from './typeReference';
+import { TypeReference } from './typeReference.js';
 
 export const KeywordTypeNode = {
   any: new TypeReference('any'),

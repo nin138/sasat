@@ -1,5 +1,5 @@
-import { SasatConfigLoader } from './loader';
-import { NestedPartial } from '../util/type';
+import { SasatConfigLoader } from './loader.js';
+import { NestedPartial } from '../util/type.js';
 
 export interface SasatConfigDb {
   host: string;

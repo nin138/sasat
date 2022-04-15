@@ -1,13 +1,15 @@
-import { CodeGenerator } from './generator';
-import { TsCodeGenerator } from './ts/generator';
-import { config } from '../config/config';
+import { CodeGenerator } from './generator.js';
+import { TsCodeGenerator } from './ts/generator.js';
+import { config } from '../config/config.js';
 import * as path from 'path';
-import { emptyDir, writeFile } from 'fs-extra';
-import { mkDirIfNotExist, writeFileIfNotExist } from '../util/fsUtil';
-import { Directory } from '../constants/directory';
-import { RootNode } from '../parser/node/rootNode';
-import { RepositoryNode } from '../parser/node/repositoryNode';
-import { EntityNode } from '../parser/node/entityNode';
+import fs from 'fs-extra';
+import { mkDirIfNotExist, writeFileIfNotExist } from '../util/fsUtil.js';
+import { Directory } from '../constants/directory.js';
+import { RootNode } from '../parser/node/rootNode.js';
+import { RepositoryNode } from '../parser/node/repositoryNode.js';
+import { EntityNode } from '../parser/node/entityNode.js';
+
+const { emptyDir, writeFile } = fs;
 
 export class CodeGenerateController {
   private codeGen: CodeGenerator = new TsCodeGenerator();

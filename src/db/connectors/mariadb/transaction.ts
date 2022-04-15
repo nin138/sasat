@@ -1,5 +1,5 @@
 import * as maria from 'mariadb';
-import { CommandResponse, QueryResponse, SQLTransaction } from '../dbClient';
+import { CommandResponse, QueryResponse, SQLTransaction } from '../dbClient.js';
 
 export class MariaDBTransaction extends SQLTransaction {
   constructor(private connection: maria.Connection) {

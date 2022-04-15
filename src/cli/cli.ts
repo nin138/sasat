@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 import { cac } from 'cac';
-import { migrate } from './commands/migrate';
-import { createMigration } from './commands/createMigration';
-import { init } from './commands/init';
-import { generate } from './commands/generate';
-import { dumpDB } from './commands/dumpDb';
+import { createMigration } from './commands/createMigration.js';
+import { migrate } from './commands/migrate.js';
+import { init } from './commands/init.js';
+import { generate } from './commands/generate.js';
+import { dumpDB } from './commands/dumpDb.js';
 
 const cli = cac();
 try {

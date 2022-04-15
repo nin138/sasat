@@ -1,5 +1,5 @@
 import { GraphQLResolveInfo, SelectionNode } from 'graphql';
-import { Fields } from './field';
+import { Fields } from './field.js';
 
 const selectionSetToField = (selections: readonly SelectionNode[], number: number): [Fields, number] => {
   const result: Fields = {

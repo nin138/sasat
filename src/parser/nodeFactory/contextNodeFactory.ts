@@ -1,6 +1,6 @@
-import { ContextNode } from '../node/gql/contextNode';
-import { TypeNode } from '../node/typeNode';
-import { TableHandler } from '../../migration/serializable/table';
+import { ContextNode } from '../node/gql/contextNode.js';
+import { TypeNode } from '../node/typeNode.js';
+import { TableHandler } from '../../migration/serializable/table.js';
 
 export class ContextNodeFactory {
   create(tables: TableHandler[]): ContextNode[] {

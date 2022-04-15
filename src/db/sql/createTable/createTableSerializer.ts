@@ -1,13 +1,13 @@
-import { SerializedTable } from '../../../migration/serialized/serializedStore';
-import { Reference, SerializedNormalColumn } from '../../../migration/serialized/serializedColumn';
-import { Relation } from '../../..';
-import { ForeignKeyReferentialAction } from '../../../migration/data/foreignKey';
-import { columnTypeToTsType, DBColumnTypes } from '../../../migration/column/columnTypes';
-import { lexColumn } from './lexer/columnLexer';
-import { Token, TokenKind } from './lexer/lexer';
-import { camelize } from '../../../util/stringUtil';
-import { createTableLexer } from './lexer/createTableLexer';
-import { CreateTableParser } from './createTableParser';
+import { SerializedTable } from '../../../migration/serialized/serializedStore.js';
+import { Reference, SerializedNormalColumn } from '../../../migration/serialized/serializedColumn.js';
+import { ForeignKeyReferentialAction } from '../../../migration/data/foreignKey.js';
+import { columnTypeToTsType, DBColumnTypes } from '../../../migration/column/columnTypes.js';
+import { lexColumn } from './lexer/columnLexer.js';
+import { Token, TokenKind } from './lexer/lexer.js';
+import { camelize } from '../../../util/stringUtil.js';
+import { createTableLexer } from './lexer/createTableLexer.js';
+import { CreateTableParser } from './createTableParser.js';
+import {Relation} from "../../../migration/data/relation.js";
 
 const getInParenValues = (tokens: Token[], fromIndex = 0) => {
   const sliced = tokens.slice(fromIndex);

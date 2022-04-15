@@ -1,8 +1,8 @@
-import { columnTypeToTsType, DBColumnTypes } from '../../migration/column/columnTypes';
-import { TsType } from '../../generator/ts/code/node/type/type';
-import { tsg } from '../../generator/ts/code/factory';
-import { columnTypeToGqlPrimitive } from '../../generator/gql/columnToGqlType';
-import { EntityName } from './entityName';
+import { columnTypeToTsType, DBColumnTypes } from '../../migration/column/columnTypes.js';
+import { TsType } from '../../generator/ts/code/node/type/type.js';
+import { tsg } from '../../generator/ts/code/factory.js';
+import { columnTypeToGqlPrimitive } from '../../generator/gql/columnToGqlType.js';
+import { EntityName } from './entityName.js';
 
 export class TypeNode {
   constructor(

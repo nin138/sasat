@@ -1,9 +1,9 @@
-import { SqlValueType } from '../../../db/connectors/dbClient';
-import { BooleanValueExpression } from 'sasat';
-import { SqlString } from '../../sql/sqlString';
-import { TableInfo } from '../query/createQueryResolveInfo';
-import { createAliasReplacer } from '../replaceAliases';
-import { Sql } from '../query/sql/nodeToSql';
+import { SqlValueType } from '../../../db/connectors/dbClient.js';
+import { SqlString } from '../../sql/sqlString.js';
+import { TableInfo } from '../query/createQueryResolveInfo.js';
+import { createAliasReplacer } from '../replaceAliases.js';
+import { Sql } from '../query/sql/nodeToSql.js';
+import {BooleanValueExpression} from "../query/query.js";
 
 type ValueSet = {
   field: string;

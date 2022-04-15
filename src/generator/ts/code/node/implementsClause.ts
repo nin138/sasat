@@ -1,5 +1,5 @@
-import { TsCode } from '../abstruct/tsCode';
-import { TypeReference } from './type/typeReference';
+import { TsCode } from '../abstruct/tsCode.js';
+import { TypeReference } from './type/typeReference.js';
 
 export class ImplementsClause extends TsCode {
   private readonly types: TypeReference[];

@@ -1,15 +1,15 @@
-import { columnTypeToTsType, DBColumnTypes } from '../column/columnTypes';
-import { GqlPrimitive } from '../../generator/gql/types';
-import { columnTypeToGqlPrimitive } from '../../generator/gql/columnToGqlType';
-import { columnToSql } from '../../db/sql/columnToSql';
-import { Serializable } from './serializable';
+import { columnTypeToTsType, DBColumnTypes } from '../column/columnTypes.js';
+import { GqlPrimitive } from '../../generator/gql/types.js';
+import { columnTypeToGqlPrimitive } from '../../generator/gql/columnToGqlType.js';
+import { columnToSql } from '../../db/sql/columnToSql.js';
+import { Serializable } from './serializable.js';
 import {
   Reference,
   SerializedColumn,
   SerializedNormalColumn,
   SerializedReferenceColumn,
-} from '../serialized/serializedColumn';
-import { Table } from './table';
+} from '../serialized/serializedColumn.js';
+import { Table } from './table.js';
 
 export interface Column extends Serializable<SerializedColumn> {
   fieldName(): string;

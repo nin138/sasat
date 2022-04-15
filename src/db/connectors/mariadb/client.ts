@@ -1,7 +1,7 @@
-import { CommandResponse, DBClient, QueryResponse, SQLTransaction } from '../dbClient';
+import { CommandResponse, DBClient, QueryResponse, SQLTransaction } from '../dbClient.js';
 import * as maria from 'mariadb';
-import { config } from '../../../config/config';
-import { MariaDBTransaction } from './transaction';
+import { config } from '../../../config/config.js';
+import { MariaDBTransaction } from './transaction.js';
 
 const connectionConfig = { ...config().db, dateStrings: true };
 export class MariaDBClient extends DBClient {

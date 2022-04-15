@@ -1,5 +1,5 @@
-import { columnToSql } from './columnToSql';
-import { Reference, SerializedNormalColumn } from '../../migration/serialized/serializedColumn';
+import { columnToSql } from './columnToSql.js';
+import { Reference, SerializedNormalColumn } from '../../migration/serialized/serializedColumn.js';
 import { ForeignKey } from '../../migration/data/foreignKey';
 
 // export const foreignKeyToSql = (foreignKey: ForeignKey): string => {

@@ -1,8 +1,8 @@
-import { DBColumnTypes } from '../column/columnTypes';
-import { SqlValueType } from '../../db/connectors/dbClient';
-import { Relation } from '../..';
-import { ForeignKeyReferentialAction } from '../data/foreignKey';
-import { SqlString } from '../../runtime/sql/sqlString';
+import { DBColumnTypes } from '../column/columnTypes.js';
+import { SqlValueType } from '../../db/connectors/dbClient.js';
+import { ForeignKeyReferentialAction } from '../data/foreignKey.js';
+import { SqlString } from '../../runtime/sql/sqlString.js';
+import {Relation} from "../data/relation.js";
 
 interface SerializedColumnBase {
   hasReference: boolean;

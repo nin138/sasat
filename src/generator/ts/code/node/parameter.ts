@@ -1,5 +1,5 @@
-import { TsType } from './type/type';
-import { TsCode } from '../abstruct/tsCode';
+import { TsType } from './type/type.js';
+import { TsCode } from '../abstruct/tsCode.js';
 
 export class Parameter extends TsCode {
   constructor(private paramName: string, private type?: TsType) {

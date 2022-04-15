@@ -1,6 +1,6 @@
-import { PropertySignature } from './propertySignature';
-import { ExportableDeclaration } from '../abstruct/exportableDeclaration';
-import { TsType } from './type/type';
+import { PropertySignature } from './propertySignature.js';
+import { ExportableDeclaration } from '../abstruct/exportableDeclaration.js';
+import { TsType } from './type/type.js';
 
 export class TsInterface extends ExportableDeclaration {
   private properties: PropertySignature[] = [];

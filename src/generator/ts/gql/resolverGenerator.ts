@@ -1,16 +1,14 @@
-import { TsFile } from '../file';
-import { VariableDeclaration } from '../code/node/variableDeclaration';
-import { PropertyAssignment } from '../code/node/propertyAssignment';
-import { SpreadAssignment } from '../code/node/spreadAssignment';
-import { Identifier, ObjectLiteral } from '../code/node/expressions';
-import { tsg } from '../code/factory';
-import { Directory } from '../../../constants/directory';
-import { Parser } from '../../../parser/parser';
-import { RelationNode } from '../../../parser/node/relationNode';
-import { EntityNode } from '../../../parser/node/entityNode';
-import { RootNode } from '../../../parser/node/rootNode';
-import has = Reflect.has;
-import { FindMethodNode } from '../../../parser/node/findMethod';
+import { TsFile } from '../file.js';
+import { VariableDeclaration } from '../code/node/variableDeclaration.js';
+import { PropertyAssignment } from '../code/node/propertyAssignment.js';
+import { SpreadAssignment } from '../code/node/spreadAssignment.js';
+import { Identifier, ObjectLiteral } from '../code/node/expressions.js';
+import { tsg } from '../code/factory.js';
+import { Directory } from '../../../constants/directory.js';
+import { RelationNode } from '../../../parser/node/relationNode.js';
+import { EntityNode } from '../../../parser/node/entityNode.js';
+import { RootNode } from '../../../parser/node/rootNode.js';
+import { FindMethodNode } from '../../../parser/node/findMethod.js';
 
 export class ResolverGenerator {
   private relationProperty(relation: RelationNode) {

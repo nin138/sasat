@@ -1,9 +1,9 @@
-import { FieldNode } from './fieldNode';
-import { RepositoryNode } from './repositoryNode';
-import { RelationNode } from './relationNode';
-import { TypeDefNode } from './gql/typeDefNode';
-import { TableHandler } from '../../migration/serializable/table';
-import { EntityName } from './entityName';
+import { FieldNode } from './fieldNode.js';
+import { RepositoryNode } from './repositoryNode.js';
+import { RelationNode } from './relationNode.js';
+import { TypeDefNode } from './gql/typeDefNode.js';
+import { TableHandler } from '../../migration/serializable/table.js';
+import { EntityName } from './entityName.js';
 
 export class EntityNode {
   readonly entityName: EntityName;

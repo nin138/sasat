@@ -1,9 +1,9 @@
-import { Parser } from '../../parser/parser';
-import { CodeGenerateController } from '../../generator/controller';
-import { Console } from '../console';
-import { MigrationReader } from '../../migration/migrationReader';
-import { DataStoreHandler } from '../../migration/dataStore';
-import { writeCurrentSchema } from '../../util/fsUtil';
+import { Parser } from '../../parser/parser.js';
+import { CodeGenerateController } from '../../generator/controller.js';
+import { Console } from '../console.js';
+import { MigrationReader } from '../../migration/migrationReader.js';
+import { DataStoreHandler } from '../../migration/dataStore.js';
+import { writeCurrentSchema } from '../../util/fsUtil.js';
 
 export const generate = async (): Promise<void> => {
   try {
@@ -13,7 +13,7 @@ export const generate = async (): Promise<void> => {
     const ir = new Parser().parse(storeHandler);
     await new CodeGenerateController(ir).generate();
   } catch (e) {
-    Console.error(e.message);
+    Console.error((e as Error).message);
     throw e;
   }
 };

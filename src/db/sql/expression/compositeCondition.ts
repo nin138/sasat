@@ -1,4 +1,4 @@
-import { ConditionExpression, conditionExpressionToSql } from './conditionExpression';
+import { ConditionExpression, conditionExpressionToSql } from './conditionExpression.js';
 
 export class CompositeCondition<T> {
   private constructor(private type: 'AND' | 'OR', private conditions: ConditionExpression<T>[]) {}

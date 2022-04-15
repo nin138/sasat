@@ -1,6 +1,6 @@
-import { TsCode } from '../abstruct/tsCode';
-import { TsUtil } from '../tsUtil';
-import { TsType } from './type/type';
+import { TsCode } from '../abstruct/tsCode.js';
+import { TsUtil } from '../tsUtil.js';
+import { TsType } from './type/type.js';
 
 export class PropertySignature extends TsCode {
   constructor(

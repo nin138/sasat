@@ -7,9 +7,9 @@ import {
   StringColumnBuilder,
   TextColumnBuilder,
   TimeStampColumnBuilder,
-} from './columnBuilder';
-import { TableCreator } from './tableCreator';
-import { DBColumnTypes } from '../column/columnTypes';
+} from './columnBuilder.js';
+import { TableCreator } from './tableCreator.js';
+import { DBColumnTypes } from '../column/columnTypes.js';
 
 export class ColumnCreator {
   constructor(private table: TableCreator, private name: string) {}

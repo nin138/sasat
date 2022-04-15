@@ -1,9 +1,9 @@
-import { Console } from '../console';
 import * as fs from 'fs';
 import { join } from 'path';
-import { config } from '../../config/config';
-import { capitalizeFirstLetter } from '../../util/stringUtil';
-import { mkDirIfNotExist } from '../../util/fsUtil';
+import { config } from '../../config/config.js';
+import { capitalizeFirstLetter } from '../../util/stringUtil.js';
+import { mkDirIfNotExist } from '../../util/fsUtil.js';
+import { Console } from '../console.js';
 
 const getMigrationFile = (className: string) =>
   `import { SasatMigration } from "sasat";

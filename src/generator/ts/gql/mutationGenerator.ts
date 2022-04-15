@@ -1,16 +1,16 @@
-import { TsFile } from '../file';
-import { VariableDeclaration } from '../code/node/variableDeclaration';
-import { PropertyAssignment } from '../code/node/propertyAssignment';
-import { TypeReference } from '../code/node/type/typeReference';
-import { Parameter } from '../code/node/parameter';
-import { Block } from '../code/node/Block';
-import { ReturnStatement } from '../code/node/returnStatement';
-import { SpreadAssignment } from '../code/node/spreadAssignment';
-import { ExpressionStatement } from '../code/node/ExpressionStatement';
-import { IntersectionType } from '../code/node/type/intersectionType';
-import { TsType } from '../code/node/type/type';
-import { KeywordTypeNode } from '../code/node/type/typeKeyword';
-import { IfStatement } from '../code/node/ifStatement';
+import { TsFile } from '../file.js';
+import { VariableDeclaration } from '../code/node/variableDeclaration.js';
+import { PropertyAssignment } from '../code/node/propertyAssignment.js';
+import { TypeReference } from '../code/node/type/typeReference.js';
+import { Parameter } from '../code/node/parameter.js';
+import { Block } from '../code/node/Block.js';
+import { ReturnStatement } from '../code/node/returnStatement.js';
+import { SpreadAssignment } from '../code/node/spreadAssignment.js';
+import { ExpressionStatement } from '../code/node/ExpressionStatement.js';
+import { IntersectionType } from '../code/node/type/intersectionType.js';
+import { TsType } from '../code/node/type/type.js';
+import { KeywordTypeNode } from '../code/node/type/typeKeyword.js';
+import { IfStatement } from '../code/node/ifStatement.js';
 import {
   ArrowFunction,
   AsyncExpression,
@@ -22,18 +22,18 @@ import {
   NumericLiteral,
   ObjectLiteral,
   PropertyAccessExpression,
-} from '../code/node/expressions';
-import { Directory } from '../../../constants/directory';
-import { SasatError } from '../../../error';
-import { tsg } from '../code/factory';
+} from '../code/node/expressions.js';
+import { Directory } from '../../../constants/directory.js';
+import { SasatError } from '../../../error.js';
+import { tsg } from '../code/factory.js';
 import {
   CreateMutationNode,
   DeleteMutationNode,
   MutationNode,
   UpdateMutationNode,
-} from '../../../parser/node/gql/mutationNode';
-import { ContextParamNode } from '../../../parser/node/gql/contextParamNode';
-import { EntityName } from '../../../parser/node/entityName';
+} from '../../../parser/node/gql/mutationNode.js';
+import { ContextParamNode } from '../../../parser/node/gql/contextParamNode.js';
+import { EntityName } from '../../../parser/node/entityName.js';
 
 export class MutationGenerator {
   generate = (mutations: MutationNode[]): TsFile => {

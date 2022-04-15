@@ -1,5 +1,5 @@
-import { ParameterNode } from '../parameterNode';
-import { EntityNode } from '../entityNode';
+import { ParameterNode } from '../parameterNode.js';
+import { EntityNode } from '../entityNode.js';
 
 export class TypeDefNode {
   static new(entity: EntityNode): TypeDefNode {

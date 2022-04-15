@@ -1,4 +1,4 @@
-import { TsStatement } from '../abstruct/statement';
+import { TsStatement } from '../abstruct/statement.js';
 
 export class Block extends TsStatement {
   private readonly statements: TsStatement[];

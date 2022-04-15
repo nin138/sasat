@@ -1,7 +1,7 @@
-import { getDbClient } from '..';
 import * as fs from 'fs';
 import * as path from 'path';
-import { config } from '../config/config';
+import { config } from '../config/config.js';
+import {getDbClient} from "../db/getDbClient.js";
 
 export enum Direction {
   Up = 'up',

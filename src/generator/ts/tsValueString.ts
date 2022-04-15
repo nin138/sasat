@@ -1,4 +1,4 @@
-import { SasatError } from '../../error';
+import { SasatError } from '../../error.js';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types
 export const tsValueString = (value: any): string => {

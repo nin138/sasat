@@ -1,11 +1,11 @@
 import * as yaml from 'js-yaml';
-import * as fs from 'fs-extra';
+import fs from 'fs-extra';
 import { join } from 'path';
-import { config } from '../config/config';
-import { SerializedStore } from '../migration/serialized/serializedStore';
+import { config } from '../config/config.js';
+import { SerializedStore } from '../migration/serialized/serializedStore.js';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const readYmlFile = (filepath: string): any => yaml.safeLoad(fs.readFileSync(filepath, 'utf8'));
+export const readYmlFile = (filepath: string): any => yaml.load(fs.readFileSync(filepath, 'utf8'));
 
 export const mkDirIfNotExist = (path: string): void => {
   if (!fs.pathExistsSync(path)) fs.mkdirpSync(path);
@@ -21,7 +21,7 @@ export const writeYmlFile = (path: string, fileName: string, obj: Record<string,
   mkDirIfNotExist(path);
   fs.writeFileSync(
     join(path, fileName),
-    yaml.safeDump(obj, {
+    yaml.dump(obj, {
       skipInvalid: true,
       sortKeys: (a, b) => {
         if (b === 'tableName') return 1;

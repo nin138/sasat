@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { EntityName } from '../parser/node/entityName';
+import { EntityName } from '../parser/node/entityName.js';
 
 const GeneratedDirName = '__generated__';
 const EntityDirName = 'entities';

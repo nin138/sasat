@@ -1,6 +1,6 @@
-import { ParameterNode } from './parameterNode';
-import { TypeNode } from './typeNode';
-import { capitalizeFirstLetter } from '../../util/stringUtil';
+import { ParameterNode } from './parameterNode.js';
+import { TypeNode } from './typeNode.js';
+import { capitalizeFirstLetter } from '../../util/stringUtil.js';
 
 export class FindMethodNode {
   static paramsToName(...params: string[]): string {

@@ -1,6 +1,6 @@
-import { Table, TableHandler } from './serializable/table';
-import { SerializedStore } from './serialized/serializedStore';
-import { ReferenceColumn } from './serializable/column';
+import { Table, TableHandler } from './serializable/table.js';
+import { SerializedStore } from './serialized/serializedStore.js';
+import { ReferenceColumn } from './serializable/column.js';
 
 export interface DataStore {
   table(tableName: string): Table;

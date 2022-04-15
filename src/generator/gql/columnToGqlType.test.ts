@@ -1,6 +1,6 @@
-import { columnTypeToGqlPrimitive } from './columnToGqlType';
-import { DBColumnTypes } from '../../migration/column/columnTypes';
-import { GqlPrimitive } from './types';
+import { columnTypeToGqlPrimitive } from './columnToGqlType.js';
+import { DBColumnTypes } from '../../migration/column/columnTypes.js';
+import { GqlPrimitive } from './types.js';
 
 describe('columnToGqlPrimitive', () => {
   it('int', () => {

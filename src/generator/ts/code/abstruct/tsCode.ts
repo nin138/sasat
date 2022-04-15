@@ -1,4 +1,4 @@
-import { ImportDeclaration } from '../importDeclaration';
+import { ImportDeclaration } from '../importDeclaration.js';
 
 export abstract class TsCode {
   protected readonly importDeclarations: ImportDeclaration[] = [];

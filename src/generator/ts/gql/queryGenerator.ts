@@ -1,9 +1,9 @@
-import { TsFile } from '../file';
-import { PropertyAssignment } from '../code/node/propertyAssignment';
-import { Directory } from '../../../constants/directory';
-import { tsg } from '../code/factory';
-import { RepositoryNode } from '../../../parser/node/repositoryNode';
-import { QueryNode } from '../../../parser/node/gql/queryNode';
+import { TsFile } from '../file.js';
+import { PropertyAssignment } from '../code/node/propertyAssignment.js';
+import { Directory } from '../../../constants/directory.js';
+import { tsg } from '../code/factory.js';
+import { RepositoryNode } from '../../../parser/node/repositoryNode.js';
+import { QueryNode } from '../../../parser/node/gql/queryNode.js';
 
 export class QueryGenerator {
   generate(nodes: RepositoryNode[]): TsFile {

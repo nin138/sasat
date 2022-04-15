@@ -1,13 +1,13 @@
 import * as path from 'path';
 import * as fs from 'fs';
-import { defaultConf, PartialSasatConfig, SasatConfig } from './config';
-import { readYmlFile } from '../util/fsUtil';
+import { defaultConf, PartialSasatConfig, SasatConfig } from './config.js';
+import { readYmlFile } from '../util/fsUtil.js';
 
 export class SasatConfigLoader {
-  private static loadFile(): PartialSasatConfig {
+  private static loadConfig(): PartialSasatConfig {
     const fileName = 'sasat.yml';
     const filepath = path.join(process.cwd(), fileName);
-    if (!fs.existsSync(filepath)) throw new Error(`${fileName} not Found in Project root folder`);
+    if (!fs.existsSync(filepath)) return defaultConf;
     return readYmlFile(filepath);
   }
 
@@ -16,7 +16,7 @@ export class SasatConfigLoader {
   constructor() {
     const conf: SasatConfig = this.readValue({
       ...defaultConf,
-      ...SasatConfigLoader.loadFile(),
+      ...SasatConfigLoader.loadConfig(),
     });
     this.conf = {
       ...conf,

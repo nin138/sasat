@@ -1,10 +1,10 @@
-import { ContextParamNode } from './contextParamNode';
-import { SubscriptionFilterNode } from './subscriptionFilterNode';
-import { EntityNode } from '../entityNode';
-import { ParameterNode } from '../parameterNode';
-import { TypeNode } from '../typeNode';
-import { DBColumnTypes } from '../../../migration/column/columnTypes';
-import { EntityName } from '../entityName';
+import { ContextParamNode } from './contextParamNode.js';
+import { SubscriptionFilterNode } from './subscriptionFilterNode.js';
+import { EntityNode } from '../entityNode.js';
+import { ParameterNode } from '../parameterNode.js';
+import { TypeNode } from '../typeNode.js';
+import { DBColumnTypes } from '../../../migration/column/columnTypes.js';
+import { EntityName } from '../entityName.js';
 
 type MutationType = 'Created' | 'Deleted' | 'Updated';
 

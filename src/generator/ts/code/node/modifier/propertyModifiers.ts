@@ -1,5 +1,5 @@
-import { Modifiers } from './modifiers';
-import { TsAccessor } from '../../accessors';
+import { Modifiers } from './modifiers.js';
+import { TsAccessor } from '../../accessors.js';
 
 export class PropertyModifiers extends Modifiers {
   accessor(accessor: TsAccessor): this {

@@ -1,5 +1,5 @@
-import { createSimpleLexer } from './createSimpleLexer';
-import { Lexer2 } from './lexer2';
+import { createSimpleLexer } from './createSimpleLexer.js';
+import { Lexer2 } from './lexer2.js';
 
 const separators = ['(', ')', ','];
 const keywords = [

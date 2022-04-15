@@ -1,23 +1,23 @@
-import { Serializable } from './serializable';
-import { SerializedTable } from '../serialized/serializedStore';
-import { BaseColumn, Column, NormalColumn, ReferenceColumn } from './column';
-import { camelize, capitalizeFirstLetter } from '../../util/stringUtil';
-import { NestedPartial } from '../../util/type';
-import { SqlString } from '../../runtime/sql/sqlString';
-import { SasatError } from '../../error';
+import { Serializable } from './serializable.js';
+import { SerializedTable } from '../serialized/serializedStore.js';
+import { BaseColumn, Column, NormalColumn, ReferenceColumn } from './column.js';
+import { camelize, capitalizeFirstLetter } from '../../util/stringUtil.js';
+import { NestedPartial } from '../../util/type.js';
+import { SqlString } from '../../runtime/sql/sqlString.js';
+import { SasatError } from '../../error.js';
 import {
   Reference,
   referenceToSql,
   SerializedColumn,
   SerializedNormalColumn,
   SerializedReferenceColumn,
-} from '../serialized/serializedColumn';
-import { DBIndex } from '../data';
-import { getDefaultGqlOption, GqlOption, mergeGqlOption } from '../data/gqlOption';
-import { assembleColumn } from '../functions/assembleColumn';
-import { EntityName } from '../../parser/node/entityName';
-import { DataStore } from '../dataStore';
-import { DBColumnTypes } from '../column/columnTypes';
+} from '../serialized/serializedColumn.js';
+import { DBIndex } from '../data/index.js';
+import { getDefaultGqlOption, GqlOption, mergeGqlOption } from '../data/gqlOption.js';
+import { assembleColumn } from '../functions/assembleColumn.js';
+import { EntityName } from '../../parser/node/entityName.js';
+import { DataStore } from '../dataStore.js';
+import { DBColumnTypes } from '../column/columnTypes.js';
 
 export interface Table extends Serializable<SerializedTable> {
   column(columnName: string): Column;

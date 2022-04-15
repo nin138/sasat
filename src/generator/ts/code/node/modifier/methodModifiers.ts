@@ -1,4 +1,4 @@
-import { Modifiers } from './modifiers';
+import { Modifiers } from './modifiers.js';
 
 export class MethodModifiers extends Modifiers {
   private(): this {
