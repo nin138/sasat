@@ -1,19 +1,18 @@
 import { FileData } from '../generator.js';
 
 const contextFile = `\
-import { BaseGqlContext } from './__generated__/context';
+import { BaseGqlContext } from './__generated__/context.js';
 export interface GqlContext extends BaseGqlContext {}
 `;
 const pubsubFile = `\
-import { PubSub } from "apollo-server";
-import { PubSubEngine } from "graphql-subscriptions";
+import { PubSub, PubSubEngine } from "graphql-subscriptions";
 
 export const pubsub: PubSubEngine = new PubSub();
 `;
 const schemaFile = `\
 import { assignDeep, createTypeDef } from "sasat";
-import { typeDef } from "./__generated__/typeDefs";
-import { resolvers } from "./__generated__/resolver";
+import { typeDef } from "./__generated__/typeDefs.js";
+import { resolvers } from "./__generated__/resolver.js";
 
 export const schema = {
   typeDefs: createTypeDef(assignDeep(typeDef, {})),
@@ -22,8 +21,8 @@ export const schema = {
 `;
 
 const baseDBDataSourceFile = `\
-import { Fields, SasatRepository } from '../../src';
-import { dataStoreInfo } from './__generated__/relationMap';
+import { Fields, SasatRepository } from 'sasat';
+import { dataStoreInfo } from './__generated__/relationMap.js';
 
 
 export abstract class BaseDBDataSource<Entity, Creatable, Identifiable, EntityFields extends Fields> extends SasatRepository<
