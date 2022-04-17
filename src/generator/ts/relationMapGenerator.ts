@@ -111,7 +111,7 @@ export class RelationMapGenerator {
             tsg.object(
               tsg.propertyAssign('table', tsg.string(rel.toTableName)),
               on(rel.fromField, rel.toField),
-              tsg.propertyAssign('relation', tsg.string(Relation.One)),
+              tsg.propertyAssign('relation', tsg.string('One')),
             ),
           ),
         ),

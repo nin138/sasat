@@ -1,5 +1,1 @@
-export enum Relation {
-  One = 'One',
-  OneOrZero = 'OneOrZero',
-  Many = 'Many',
-}
+export type Relation = 'One' |'OneOrZero' | 'Many';

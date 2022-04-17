@@ -59,7 +59,7 @@ export class RepositoryNode {
         ],
         new TypeNode(
           EntityName.fromTableName(relation.parent.repository.tableName),
-          relation.relation === Relation.Many,
+          relation.relation === "Many",
           false,
         ),
         false,

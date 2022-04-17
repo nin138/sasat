@@ -22,8 +22,8 @@
     "test": "env-cmd jest --coverage --silent=false --verbose false",
     "resetdb": "docker-compose exec db sh -c \"mysql -u root < /docker-entrypoint-initdb.d/temp.sql\"",
     "prepare": "yarn build",
-    "sasat": "yarn env-cmd node --loader ts-node/esm ./src/cli/cli.ts",
-    "server": "yarn env-cmd node --loader ts-node/esm --project testServer.tsconfig.json -r tsconfig-paths/register ./test/testServer.ts"
+    "sasat": "yarn env-cmd ts-node-esm ./src/cli/cli.ts",
+    "server": "yarn env-cmd ts-node-esm --project testServer.tsconfig.json -r tsconfig-paths/register ./test/testServer.ts"
   },
   "dependencies": {
     "cac": "6.7.12",

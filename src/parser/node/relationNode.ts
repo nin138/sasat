@@ -40,7 +40,7 @@ export class RelationNode {
   }
 
   referenceByType(): TypeNode {
-    if (this.relation === Relation.Many) return new TypeNode(this.parent.entityName, true, false);
-    return new TypeNode(this.parent.entityName, false, this.relation !== Relation.One);
+    if (this.relation === 'Many') return new TypeNode(this.parent.entityName, true, false);
+    return new TypeNode(this.parent.entityName, false, this.relation !== 'One');
   }
 }

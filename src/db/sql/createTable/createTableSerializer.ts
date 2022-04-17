@@ -7,7 +7,6 @@ import { Token, TokenKind } from './lexer/lexer.js';
 import { camelize } from '../../../util/stringUtil.js';
 import { createTableLexer } from './lexer/createTableLexer.js';
 import { CreateTableParser } from './createTableParser.js';
-import {Relation} from "../../../migration/data/relation.js";
 
 const getInParenValues = (tokens: Token[], fromIndex = 0) => {
   const sliced = tokens.slice(fromIndex);
@@ -71,7 +70,7 @@ const startStrMap: { word: string; fn: (str: string, table: SerializedTable) => 
         targetTable,
         targetColumn,
         columnName,
-        relation: isColumnUnique ? Relation.OneOrZero : Relation.Many,
+        relation: isColumnUnique ? "OneOrZero" : "Many",
         relationName: sameTableRefs.length !== 0 ? targetTable + sameTableRefs.length : undefined,
         onUpdate: onUpdate !== -1 ? (tokens[onUpdate + 1].value as ForeignKeyReferentialAction) : undefined,
         onDelete: onDelete !== -1 ? (tokens[onDelete + 1].value as ForeignKeyReferentialAction) : undefined,

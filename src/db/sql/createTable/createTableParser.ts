@@ -230,7 +230,7 @@ export class CreateTableParser {
       targetTable,
       targetColumn,
       columnName,
-      relation: isColumnUnique ? Relation.OneOrZero : Relation.Many,
+      relation: isColumnUnique ? "OneOrZero" : "Many",
       relationName: sameTableRefs.length !== 0 ? targetTable + sameTableRefs.length : undefined,
       onUpdate,
       onDelete,

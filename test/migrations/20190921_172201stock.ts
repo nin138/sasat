@@ -1,26 +1,24 @@
 import { MigrationStore, Relation, SasatMigration } from '../../src';
-import { ForeignKeyReferentialAction } from '../../src/migration/data/foreignKey';
 
-export class Stock implements SasatMigration {
+class Stock implements SasatMigration {
   up: (store: MigrationStore) => void = store => {
-    return;
-    store.createTable('stock', table => {
+    return store.createTable('stock', table => {
       table.column('id').int().autoIncrement().unsigned();
       table.references({
         targetTable: 'user',
         targetColumn: 'userId',
         relationName: 'stock_user',
         columnName: 'user',
-        relation: Relation.Many,
+        relation: 'Many',
       });
       table.references({
         // relationName: 'stockPost',
         targetTable: 'post',
         targetColumn: 'postId',
         columnName: 'post',
-        relation: Relation.Many,
-        onDelete: ForeignKeyReferentialAction.NoAction,
-        onUpdate: ForeignKeyReferentialAction.Cascade,
+        relation: 'Many',
+        onDelete: 'NO ACTION',
+        onUpdate: 'CASCADE',
       });
       table.setPrimaryKey('id');
       table.createdAt();
@@ -39,3 +37,5 @@ export class Stock implements SasatMigration {
     store.dropTable('stock');
   };
 }
+
+new Stock();

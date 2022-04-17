@@ -1,10 +1,9 @@
 import { SasatMigration } from '../../src';
 import { MigrationStore } from '../../src';
 
-export class CreateUser implements SasatMigration {
+class CreateUser implements SasatMigration {
   up: (store: MigrationStore) => void = store => {
-    return;
-    store.createTable('user', table => {
+    return store.createTable('user', table => {
       table.column('userId').int().primary().unsigned().autoIncrement().fieldName('uid');
       table.column('name').varchar(20).default('no name').notNull().fieldName('NNN');
       table.column('nickName').varchar(20).nullable().unique().fieldName('nick');
@@ -21,3 +20,4 @@ export class CreateUser implements SasatMigration {
     store.dropTable('user');
   };
 }
+new CreateUser();
