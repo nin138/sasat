@@ -7,7 +7,7 @@ const DataSourceDirName = 'dataSources';
 const GeneratedDataSourceDirName = 'dataSources';
 
 const relative = (from: string, to: string) => {
-  const result = path.relative(from, to);
+  const result = path.posix.relative(from, to);
   if (result.startsWith('../')) return result;
   return './' + result;
 };

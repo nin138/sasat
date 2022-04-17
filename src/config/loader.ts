@@ -1,5 +1,5 @@
-import * as path from 'path';
-import * as fs from 'fs';
+import  path from 'path';
+import fs from 'fs-extra';
 import { defaultConf, PartialSasatConfig, SasatConfig } from './config.js';
 import { readYmlFile } from '../util/fsUtil.js';
 

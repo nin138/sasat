@@ -5,7 +5,6 @@ import { RootNode } from '../../parser/node/rootNode.js';
 import { EntityNode } from '../../parser/node/entityNode.js';
 import { KeywordTypeNode } from './code/node/type/typeKeyword.js';
 import { EntityName } from '../../parser/node/entityName.js';
-import {Relation} from "../../migration/data/relation.js";
 
 export class RelationMapGenerator {
   generate(root: RootNode): TsFile {

@@ -6,10 +6,9 @@ import { mkDirIfNotExist } from '../../util/fsUtil.js';
 import { Console } from '../console.js';
 
 const getMigrationFile = (className: string) =>
-  `import { SasatMigration } from "sasat";
-import { MigrationStore } from "sasat";
+  `import { SasatMigration, MigrationStore } from "sasat";
 
-export class ${capitalizeFirstLetter(className)} implements SasatMigration {
+class ${capitalizeFirstLetter(className)} implements SasatMigration {
   
   up: (store: MigrationStore) => void = store => {
 
@@ -19,6 +18,10 @@ export class ${capitalizeFirstLetter(className)} implements SasatMigration {
     throw new Error('Down is not implemented on ${className}');
   };
 }
+
+
+// DO NOT EDIT (last line is used)
+new ${capitalizeFirstLetter(className)}()
 
 `;
 

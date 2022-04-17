@@ -2,10 +2,9 @@ import { StoreMigrator } from './front/storeMigrator.js';
 import { Direction, MigrationTargetResolver } from './migrationTargetResolver.js';
 import * as fs from 'fs';
 import * as path from 'path';
-import ts, {TsConfigSourceFile} from 'typescript';
+import ts from 'typescript';
 import { readInitialSchema } from '../util/fsUtil.js';
 import {config} from "../config/config.js";
-import Module from "module";
 
 export class MigrationReader {
   read(onMigrate?: (store: StoreMigrator) => void): StoreMigrator {
