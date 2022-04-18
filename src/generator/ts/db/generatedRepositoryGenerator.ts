@@ -114,19 +114,20 @@ export class GeneratedRepositoryGenerator {
             qExpr.property('value').call(tsg.identifier(it.name)),
           ),
       );
+
+
       const body = [
         tsg.variable('const', 'tableName', tsg.identifier('fields?.tableAlias || this.tableName')),
-        tsg.return(
-          tsg.identifier(it.returnType.isArray ? 'this.find' : 'this.first').call(
-            tsg.identifier('fields'),
-            exps.length === 1
-              ? exps[0]
-              : qExpr
-                  .property('conditions')
-                  .property('and')
-                  .call(...exps),
-          ),
-        ),
+        tsg.variable('const', 'result', tsg.await(tsg.identifier('this.find').call(
+          tsg.identifier('fields'),
+          exps.length === 1
+            ? exps[0]
+            : qExpr
+              .property('conditions')
+              .property('and')
+              .call(...exps),
+        ))),
+        tsg.return(tsg.identifier(it.returnType.isArray ? 'result' : 'result[0] || null')),
       ];
       const returnType = tsg
         .typeRef('EntityResult', [
@@ -149,7 +150,7 @@ export class GeneratedRepositoryGenerator {
           it.returnType.isArray ? tsg.arrayType(returnType) : tsg.unionType([returnType, tsg.typeRef('null')]),
         ]),
         body,
-      );
+      ).modifiers(new MethodModifiers().async());
     });
   }
 }

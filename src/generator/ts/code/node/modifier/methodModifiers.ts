@@ -16,4 +16,8 @@ export class MethodModifiers extends Modifiers {
   static(): this {
     return super.static();
   }
+
+  async(): this {
+    return super.async();
+  }
 }
