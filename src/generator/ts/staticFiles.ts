@@ -1,18 +1,18 @@
 import { FileData } from '../generator.js';
-
+import {ImportDeclaration} from "./code/importDeclaration.js";
 const contextFile = `\
-import { BaseGqlContext } from './__generated__/context.js';
+${new ImportDeclaration(['BaseGqlContext'], './__generated__/context').toString()}
 export interface GqlContext extends BaseGqlContext {}
 `;
 const pubsubFile = `\
-import { PubSub, PubSubEngine } from "graphql-subscriptions";
+${new ImportDeclaration(['PubSub', 'PubSubEngine'], 'graphql-subscriptions').toString()}
 
 export const pubsub: PubSubEngine = new PubSub();
 `;
 const schemaFile = `\
-import { assignDeep, createTypeDef } from "sasat";
-import { typeDef } from "./__generated__/typeDefs.js";
-import { resolvers } from "./__generated__/resolver.js";
+${new ImportDeclaration(['assignDeep', 'createTypeDef'], 'sasat').toString()}
+${new ImportDeclaration(['typeDef'], './__generated__/typeDefs').toString()}
+${new ImportDeclaration(['resolvers'], './__generated__/resolver.j').toString()}
 
 export const schema = {
   typeDefs: createTypeDef(assignDeep(typeDef, {})),
@@ -21,9 +21,8 @@ export const schema = {
 `;
 
 const baseDBDataSourceFile = `\
-import { Fields, SasatRepository } from 'sasat';
-import { dataStoreInfo } from './__generated__/relationMap.js';
-
+${new ImportDeclaration(['Fields', 'SasatRepository'], 'sasat').toString()}
+${new ImportDeclaration(['dataStoreInfo'], './__generated__/relationMap').toString()}
 
 export abstract class BaseDBDataSource<Entity, Creatable, Identifiable, EntityFields extends Fields> extends SasatRepository<
   Entity,
