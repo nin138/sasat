@@ -4,6 +4,7 @@ migration:
   out: test/out
 
 generator:
+  addJsExtToImportStatement: true
   gql:
     subscription: true
 

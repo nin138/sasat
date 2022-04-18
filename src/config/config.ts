@@ -42,6 +42,7 @@ const defaultConfMigration: SasatConfigMigration = {
 };
 
 export interface SasatConfigGenerator {
+  addJsExtToImportStatement: boolean,
   gql: {
     subscription: boolean;
   };
@@ -60,6 +61,7 @@ export const defaultConf: SasatConfig = {
   db: defaultConfDb,
   migration: defaultConfMigration,
   generator: {
+    addJsExtToImportStatement: false,
     gql: {
       subscription: true,
     },
