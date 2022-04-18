@@ -87,7 +87,7 @@ export abstract class SasatRepository<Entity, Creatable, Identifiable, EntityFie
     fields?: EntityFields,
     where?: BooleanValueExpression,
   ): Promise<EntityResult<Entity, Identifiable> | null> {
-    const result = await this.find(fields, where, 1);
+    const result = await this.find(fields, where);
     if (result.length !== 0) return result[0];
     return null;
   }
