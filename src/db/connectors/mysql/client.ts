@@ -16,7 +16,6 @@ export class MysqlClient extends DBClient {
   async transaction(): Promise<SQLTransaction> {
     const connection = mysql.createConnection(connectionConfig);
     await promisify(connection.beginTransaction).bind(connection)();
-    await promisify(connection.query).bind(connection)('SET autocommit = 1');
     return new MySqlTransaction(connection);
   }
 
@@ -26,7 +25,6 @@ export class MysqlClient extends DBClient {
   }
 
   protected execSql(sql: string): Promise<QueryResponse | CommandResponse> {
-    console.log(sql);
     return promisify(this.pool.query).bind(this.pool)(sql) as Promise<QueryResponse | CommandResponse>;
   }
 }

@@ -20,7 +20,6 @@ export class MySqlTransaction extends SQLTransaction {
   }
 
   protected execSql(sql: string): Promise<QueryResponse | CommandResponse> {
-    console.log(sql);
     return promisify(this.connection.query).bind(this.connection)(sql) as Promise<QueryResponse | CommandResponse>;
   }
 }
