@@ -122,9 +122,9 @@ export class GeneratedRepositoryGenerator {
             exps.length === 1
               ? exps[0]
               : qExpr
-                .property('conditions')
-                .property('and')
-                .call(...exps),
+                  .property('conditions')
+                  .property('and')
+                  .call(...exps),
           ),
         ),
       ];

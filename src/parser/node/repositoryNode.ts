@@ -10,7 +10,7 @@ import { EntityName } from './entityName.js';
 import { RelationNode } from './relationNode.js';
 import { ParameterNode } from './parameterNode.js';
 import { TypeNode } from './typeNode.js';
-import {Relation} from "../../migration/data/relation.js";
+import { Relation } from '../../migration/data/relation.js';
 
 export class RepositoryNode {
   readonly tableName: string;
@@ -59,7 +59,7 @@ export class RepositoryNode {
         ],
         new TypeNode(
           EntityName.fromTableName(relation.parent.repository.tableName),
-          relation.relation === "Many",
+          relation.relation === 'Many',
           false,
         ),
         false,

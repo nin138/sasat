@@ -5,7 +5,7 @@ import { SqlString } from '../../runtime/sql/sqlString.js';
 import { writeYmlFile } from '../../util/fsUtil.js';
 import { DBColumnTypes } from '../../migration/column/columnTypes.js';
 import { config } from '../../config/config.js';
-import {getDbClient} from "../../db/getDbClient.js";
+import { getDbClient } from '../../db/getDbClient.js';
 
 export const dumpDB = async (): Promise<void> => {
   const con = getDbClient();

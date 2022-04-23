@@ -2,7 +2,7 @@ import { Join, Query, SelectExpr } from './query.js';
 import { RelationInfo, RelationMap } from './createQueryResolveInfo.js';
 import { SELECT_ALIAS_SEPARATOR } from './sql/nodeToSql.js';
 import { QExpr } from '../factory.js';
-import { Fields } from "../../field.js";
+import { Fields } from '../../field.js';
 
 const join = (
   parentTableAlias: string,

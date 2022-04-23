@@ -1,5 +1,4 @@
-export type ForeignKeyReferentialAction =
- 'RESTRICT' | 'CASCADE' | 'SET NULL' | 'NO ACTION';
+export type ForeignKeyReferentialAction = 'RESTRICT' | 'CASCADE' | 'SET NULL' | 'NO ACTION';
 
 export interface ForeignKey {
   constraintName: string;

@@ -3,7 +3,7 @@ import { SqlString } from '../../sql/sqlString.js';
 import { TableInfo } from '../query/createQueryResolveInfo.js';
 import { createAliasReplacer } from '../replaceAliases.js';
 import { Sql } from '../query/sql/nodeToSql.js';
-import {BooleanValueExpression} from "../query/query.js";
+import { BooleanValueExpression } from '../query/query.js';
 
 type ValueSet = {
   field: string;

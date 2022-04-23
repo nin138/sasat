@@ -1,4 +1,4 @@
-import {DBClient, SQLTransaction} from "./dbClient.js";
+import { DBClient, SQLTransaction } from './dbClient.js';
 
 class MockDBTransaction extends SQLTransaction {
   commit(): Promise<void> {
@@ -12,7 +12,6 @@ class MockDBTransaction extends SQLTransaction {
   rollback(): Promise<void> {
     return Promise.resolve();
   }
-
 }
 
 export class MockDBClient extends DBClient {
@@ -30,5 +29,4 @@ export class MockDBClient extends DBClient {
   transaction() {
     return Promise.resolve(new MockDBTransaction());
   }
-
 }

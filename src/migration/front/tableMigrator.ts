@@ -8,7 +8,7 @@ import { SerializedTable } from '../serialized/serializedStore.js';
 import { SqlCreator } from '../../db/sql/sqlCreater.js';
 import { DBColumnTypes, DBType } from '../column/columnTypes.js';
 import { SqlString } from '../../runtime/sql/sqlString.js';
-import {DBIndex} from "../data/index.js";
+import { DBIndex } from '../data/index.js';
 
 export interface MigrationTable extends Table {
   addIndex(...columns: string[]): MigrationTable;

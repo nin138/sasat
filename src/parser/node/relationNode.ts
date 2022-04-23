@@ -3,7 +3,7 @@ import { EntityNode } from './entityNode.js';
 import { ReferenceColumn } from '../../migration/serializable/column.js';
 import { TableHandler } from '../../migration/serializable/table.js';
 import { EntityName } from './entityName.js';
-import {Relation} from "../../migration/data/relation.js";
+import { Relation } from '../../migration/data/relation.js';
 
 export class RelationNode {
   static fromReference(entity: EntityNode, ref: ReferenceColumn, targetFieldName: string): RelationNode {

@@ -16,7 +16,7 @@ import {
   Join,
   JoinType,
 } from './query/query.js';
-import {ComparisonOperators} from "../../db/sql/expression/comparison.js";
+import { ComparisonOperators } from '../../db/sql/expression/comparison.js';
 
 const compound = (expr: BooleanValueExpression[], operator: CompoundOperator): BooleanValueExpression => {
   return expr.reduce((acc, current) => ({

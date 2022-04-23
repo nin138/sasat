@@ -1,1 +1,1 @@
-export type Relation = 'One' |'OneOrZero' | 'Many';
+export type Relation = 'One' | 'OneOrZero' | 'Many';

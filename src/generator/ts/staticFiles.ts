@@ -1,5 +1,5 @@
 import { FileData } from '../generator.js';
-import {ImportDeclaration} from "./code/importDeclaration.js";
+import { ImportDeclaration } from './code/importDeclaration.js';
 const contextFile = `\
 ${new ImportDeclaration(['BaseGqlContext'], './__generated__/context').toString()}
 export interface GqlContext extends BaseGqlContext {}
