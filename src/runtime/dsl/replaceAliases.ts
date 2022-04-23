@@ -83,7 +83,7 @@ export const replaceAliases = (query: Query, tableInfo: TableInfo): Query => {
   const replaceAlias = createAliasReplacer(tableInfo, tableAliases);
 
   return {
-    select: query.select.map(replaceAlias) as SelectExpr[],
+    select: query.select.map(replaceAlias).filter(it => it.kind !== QueryNodeKind.Field || it.name) as SelectExpr[],
     from: replaceAlias(query.from) as QueryTable,
     where: query.where ? replaceAlias(query.where) : undefined,
     sort: query.sort ? query.sort.map(replaceAlias) : undefined,
