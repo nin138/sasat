@@ -1,2 +1,2 @@
-FROM mysql:5.7
-COPY  init.sql /docker-entrypoint-initdb.d/temp.sql
+FROM mysql:8
+COPY init.sql /docker-entrypoint-initdb.d/temp.sql

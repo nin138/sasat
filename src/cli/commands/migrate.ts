@@ -20,7 +20,7 @@ export const migrate = async (options: { [key: string]: boolean }): Promise<void
       await new CodeGenerateController(ir).generate();
     }
   } catch (e) {
-    Console.error(e.message);
+    Console.error((e as any).message);
     throw e;
   } finally {
     await getDbClient().release();
