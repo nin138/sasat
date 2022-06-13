@@ -20,6 +20,8 @@
     "prettier": "prettier --write './**/*.ts'",
     "pretest": "yarn resetdb && yarn sasat migrate",
     "test": "env-cmd jest --coverage --silent=false --verbose false",
+    "test:single": "env-cmd jest --silent=false --verbose false",
+    "test:base": "node --experimental-vm-modules node_modules/.bin/jest",
     "resetdb": "docker-compose exec db sh -c \"mysql -u root < /docker-entrypoint-initdb.d/temp.sql\"",
     "prepare": "yarn build",
     "sasat": "yarn env-cmd ts-node-esm ./src/cli/cli.ts",
@@ -40,6 +42,7 @@
     "typescript": "4.6.3"
   },
   "devDependencies": {
+    "sasat": "link:./src",
     "@types/fs-extra": "9.0.13",
     "@types/jest": "27.4.1",
     "@types/js-yaml": "4.0.5",
@@ -74,32 +77,6 @@
     "hooks": {
       "pre-commit": "lint-staged"
     }
-  },
-  "jest": {
-    "moduleFileExtensions": [
-      "ts",
-      "js"
-    ],
-    "moduleNameMapper": {
-      "^sasat": "<rootDir>/lib"
-    },
-    "coveragePathIgnorePatterns": [
-      "/node_modules/",
-      "<rootDir>/lib",
-      "<rootDir>/test"
-    ],
-    "transform": {
-      "^.+\\.(ts|tsx)$": "ts-jest"
-    },
-    "globals": {
-      "ts-jest": {
-        "tsConfig": "tsconfig.json",
-        "diagnostics": true
-      }
-    },
-    "testMatch": [
-      "**/*.test.+(ts|tsx|js)"
-    ]
   },
   "type": "module"
 }

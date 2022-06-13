@@ -1,5 +1,5 @@
 import { TsCode } from '../abstruct/tsCode.js';
-import { ExpressionStatement } from './ExpressionStatement.js';
+import { ExpressionStatement } from './expressionStatement.js';
 import { SpreadAssignment } from './spreadAssignment.js';
 import { PropertyAssignment } from './propertyAssignment.js';
 import { Parameter } from './parameter.js';

@@ -5,7 +5,7 @@ import { SQLExecutor, SqlValueType } from '../db/connectors/dbClient.js';
 import { createQueryResolveInfo } from './dsl/query/createQueryResolveInfo.js';
 import { queryToSql } from './dsl/query/sql/queryToSql.js';
 import { fieldToQuery } from './dsl/query/fieldToQuery.js';
-import { BooleanValueExpression, Query } from './dsl/query/query.js';
+import {BooleanValueExpression, Query, Sort} from './dsl/query/query.js';
 import { replaceAliases } from './dsl/replaceAliases.js';
 import { Create, createToSql, Delete, deleteToSql, Update, updateToSql } from './dsl/mutation/mutation.js';
 
@@ -65,31 +65,38 @@ export abstract class SasatRepository<Entity, Creatable, Identifiable, EntityFie
     return this.client.rawCommand(deleteToSql(dsl, this.maps.tableInfo));
   }
 
+  async first(
+    fields?: EntityFields,
+    option?: {
+      where?: BooleanValueExpression,
+      sort?: Sort[],
+    }
+  ): Promise<EntityResult<Entity, Identifiable> | null> {
+    const result = await this.find(fields, option);
+    if (result.length !== 0) return result[0];
+    return null;
+  }
+
   async find(
     fields?: EntityFields,
-    where?: BooleanValueExpression,
-    limit?: number,
-    offset?: number,
+    options?: {
+      where?: BooleanValueExpression,
+      sort?: Sort[],
+      limit?: number,
+      offset?: number,
+    },
   ): Promise<EntityResult<Entity, Identifiable>[]> {
     const field = fields || { fields: this.fields };
     const query = {
       ...fieldToQuery(this.tableName, field, this.maps.relationMap),
-      where,
-      limit,
-      offset,
+      where: options?.where,
+      sort: options?.sort,
+      limit: options?.limit,
+      offset: options?.offset,
     };
     const info = createQueryResolveInfo(this.tableName, field, this.maps.relationMap, this.maps.tableInfo);
     const result = await this.query(appendKeysToQuery(query, this.maps.tableInfo));
     return hydrate(result, info) as EntityResult<Entity, Identifiable>[];
-  }
-
-  async first(
-    fields?: EntityFields,
-    where?: BooleanValueExpression,
-  ): Promise<EntityResult<Entity, Identifiable> | null> {
-    const result = await this.find(fields, where);
-    if (result.length !== 0) return result[0];
-    return null;
   }
 
   private createIdentifiableExpression(entity: Identifiable) {

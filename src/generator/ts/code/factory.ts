@@ -4,7 +4,7 @@ import { Block } from './node/block.js';
 import { Class } from './node/class.js';
 import { EnumDeclaration } from './node/enumDeclaration.js';
 import { EnumMember } from './node/enumMember.js';
-import { ExpressionStatement } from './node/ExpressionStatement.js';
+import { ExpressionStatement } from './node/expressionStatement.js';
 import { ExtendsClause } from './node/extendsClause.js';
 import { IfStatement } from './node/ifStatement.js';
 import { ImplementsClause } from './node/implementsClause.js';

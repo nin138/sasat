@@ -124,10 +124,11 @@ export type Literal = {
   value: string | boolean | number | null;
 };
 
+export type SortDirection = 'ASC' | 'DESC';
 export type Sort = {
   kind: QueryNodeKind.Sort;
   field: Field;
-  direction: 'ASC' | 'DESC';
+  direction: SortDirection;
 };
 
 export type QueryNode = Field | Fn | QueryTable | Literal | BooleanValueExpression | Join | Sort;

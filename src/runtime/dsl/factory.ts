@@ -1,22 +1,21 @@
 import {
-  BooleanValueExpression,
-  ContainType,
-  QueryNodeKind,
-  CompoundOperator,
-  Literal,
-  IsNullExpression,
-  Value,
-  ParenthesisExpression,
-  Field,
   BetweenExpression,
-  InExpression,
+  BooleanValueExpression,
   ComparisonExpression,
+  CompoundOperator,
+  ContainType,
+  Field,
   Fn,
-  QueryTable,
+  InExpression,
+  IsNullExpression,
   Join,
   JoinType,
+  Literal,
+  ParenthesisExpression, QueryNodeKind,
+  QueryTable, Sort, SortDirection,
+  Value,
 } from './query/query.js';
-import { ComparisonOperators } from '../../db/sql/expression/comparison.js';
+import {ComparisonOperators} from '../../db/sql/expression/comparison.js';
 
 const compound = (expr: BooleanValueExpression[], operator: CompoundOperator): BooleanValueExpression => {
   return expr.reduce((acc, current) => ({
@@ -131,6 +130,12 @@ const literal = (value: string | boolean | number | null): Literal => ({
   value,
 });
 
+const sort = (field: Field, direction: SortDirection): Sort => ({
+  kind: QueryNodeKind.Sort,
+  field,
+  direction,
+})
+
 export const QExpr = {
   conditions,
   field,
@@ -139,4 +144,6 @@ export const QExpr = {
   table,
   join,
   value: literal,
-};
+  sort,
+  order: sort,
+} as const;
