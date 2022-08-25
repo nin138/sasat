@@ -32,6 +32,7 @@ export interface Reference {
   relationName?: string;
   onUpdate?: ForeignKeyReferentialAction;
   onDelete?: ForeignKeyReferentialAction;
+  noFKey?: boolean;
 }
 
 export const referenceToSql = (constraintName: string, ref: Reference): string => {

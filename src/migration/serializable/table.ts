@@ -137,7 +137,7 @@ export class TableHandler implements Table {
     });
     rows.push(
       ...this._columns
-        .filter(it => it.isReference())
+        .filter(it => it.isReference() && it.data.reference.noFKey)
         .map(it => {
           const ref = it as ReferenceColumn;
           return referenceToSql(ref.getConstraintName(), ref.data.reference);
