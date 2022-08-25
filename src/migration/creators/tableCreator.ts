@@ -9,7 +9,7 @@ import { DataStore } from '../dataStore.js';
 
 export interface TableBuilder {
   column(columnName: string): ColumnCreator;
-  references(reference: Reference): TableBuilder;
+  references(reference: Reference, notNull: boolean): TableBuilder;
   setPrimaryKey(...columnNames: string[]): TableBuilder;
   addUniqueKey(...columnNames: string[]): TableBuilder;
   createdAt(): TableBuilder;
@@ -40,8 +40,8 @@ export class TableCreator implements TableBuilder {
     return this;
   }
 
-  references(ref: Reference): TableBuilder {
-    this.table.addReferences(ref);
+  references(ref: Reference, notNull = true): TableBuilder {
+    this.table.addReferences(ref, undefined, notNull);
     return this;
   }
 

@@ -80,7 +80,7 @@ export class TableHandler implements Table {
     };
   }
 
-  addReferences(ref: Reference, fieldName?: string): this {
+  addReferences(ref: Reference, fieldName?: string, notNull = true): this {
     const target = this.store.table(ref.targetTable).column(ref.targetColumn);
     const targetData = target.serialize();
     const data: SerializedReferenceColumn = {
@@ -88,7 +88,7 @@ export class TableHandler implements Table {
       hasReference: true,
       fieldName: fieldName || ref.columnName,
       columnName: ref.columnName,
-      notNull: true,
+      notNull,
       default: undefined,
       zerofill: false,
       autoIncrement: false,
