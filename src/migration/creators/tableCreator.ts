@@ -9,7 +9,7 @@ import { DataStore } from '../dataStore.js';
 
 export interface TableBuilder {
   column(columnName: string): ColumnCreator;
-  references(reference: Reference, notNull: boolean): TableBuilder;
+  references(reference: Reference, notNull?: boolean ): TableBuilder;
   setPrimaryKey(...columnNames: string[]): TableBuilder;
   addUniqueKey(...columnNames: string[]): TableBuilder;
   createdAt(): TableBuilder;
