@@ -7,14 +7,12 @@ import {Block} from '../code/node/block.js';
 import {ReturnStatement} from '../code/node/returnStatement.js';
 import {SpreadAssignment} from '../code/node/spreadAssignment.js';
 import {ExpressionStatement} from '../code/node/expressionStatement.js';
-import {IntersectionType} from '../code/node/type/intersectionType.js';
 import {TsType} from '../code/node/type/type.js';
 import {KeywordTypeNode} from '../code/node/type/typeKeyword.js';
 import {
   ArrowFunction,
   AsyncExpression,
   AwaitExpression,
-  BinaryExpression,
   CallExpression,
   Identifier,
   NewExpression,
@@ -33,6 +31,7 @@ import {
 } from '../../../parser/node/gql/mutationNode.js';
 import {ContextParamNode} from '../../../parser/node/gql/contextParamNode.js';
 import {EntityName} from '../../../parser/node/entityName.js';
+import {TsStatement} from "../code/abstruct/statement";
 
 export class MutationGenerator {
   generate = (mutations: MutationNode[]): TsFile => {
@@ -45,10 +44,13 @@ export class MutationGenerator {
     );
   };
 
-  private static functionParams(paramType: TsType, useContext: boolean) {
-    const params = [new Parameter('_', tsg.typeRef('unknown')), new Parameter('params', paramType)];
-    if (!useContext) return params;
-    return [...params, new Parameter('context', new TypeReference('GqlContext').importFrom('../context'))];
+  private static functionParams(paramType: TsType, useContext: boolean, reFetch: boolean) {
+    return [
+      tsg.parameter('_', tsg.typeRef('unknown')),
+      tsg.parameter('params', paramType),
+      tsg.parameter(useContext ? 'context' : '_1', tsg.typeRef('GqlContext').importFrom('../context')),
+      tsg.parameter(reFetch ? 'info' : '_2', tsg.typeRef('GraphQLResolveInfo').importFrom('graphql')),
+    ];
   }
 
   private createMutation(node: CreateMutationNode): PropertyAssignment {
@@ -58,6 +60,7 @@ export class MutationGenerator {
         MutationGenerator.functionParams(
           node.entityName.getTypeReference(Directory.paths.generated),
           node.useContextParams(),
+          node.reFetch,
         ),
         tsg.typeRef('Promise', [node.entityName.toIdentifier(Directory.paths.generated)]),
         MutationGenerator.createFunctionBody(node),
@@ -66,21 +69,26 @@ export class MutationGenerator {
   }
 
   private updateMutation(node: UpdateMutationNode): PropertyAssignment {
-    return new PropertyAssignment(
+    const returnType = node.reFetch
+        ? node.entityName.entityResultType(Directory.paths.generated)
+        : KeywordTypeNode.boolean;
+
+    return tsg.propertyAssign(
       node.functionName(),
-      new AsyncExpression(
-        new ArrowFunction(
+      tsg.async(
+        tsg.arrowFunc(
           MutationGenerator.functionParams(
-            new IntersectionType(
+            tsg.intersectionType(
               node.entityName.identifiableTypeReference(Directory.paths.generated),
-              new TypeReference(node.entityName.name).partial(),
+              tsg.typeRef(node.entityName.name).partial(),
             ),
             node.useContextParams(),
+            node.reFetch,
           ),
-          new TypeReference('Promise', [KeywordTypeNode.boolean]),
+          tsg.typeRef('Promise', [returnType]),
           MutationGenerator.updateFunctionBody(node),
-        ),
-      ),
+        )
+      )
     );
   }
 
@@ -141,41 +149,70 @@ export class MutationGenerator {
   }
 
   private static updateFunctionBody(node: MutationNode) {
-    const updateCall = new NewExpression(this.getDatasourceIdentifier(node.entityName))
-      .property('update')
-      .call(this.toDatasourceParam(node.contextParams))
-      .property('then')
-      .call(
-        new ArrowFunction(
-          [new Parameter('it', new TypeReference('CommandResponse').importFrom('sasat'))],
-          KeywordTypeNode.boolean,
-          new BinaryExpression(new Identifier('it.changedRows'), '===', new NumericLiteral(1)),
+    const resultIdentifier = tsg.identifier('result');
+
+    const statements: TsStatement[] = [
+      tsg.variable(
+        'const',
+        resultIdentifier,
+        tsg.await(
+          tsg.new(this.getDatasourceIdentifier(node.entityName))
+            .property('update')
+            .call(this.toDatasourceParam(node.contextParams))
+            .property('then')
+            .call(
+              tsg.arrowFunc(
+                [tsg.parameter('it', tsg.typeRef('CommandResponse').importFrom('sasat'))],
+                KeywordTypeNode.boolean,
+                tsg.binary(tsg.identifier('it.changedRows'), '===', tsg.number(1)),
+              )
+            )
+        ))
+    ];
+    if(node.subscribed) {
+      const publishCall = tsg.identifier(node.publishFunctionName()).importFrom('./subscription')
+        .call(
+          tsg.parenthesis(
+            tsg.await(
+            tsg
+              .new(tsg.identifier(node.entityName.dataSourceName()))
+              .property(node.primaryFindQueryName)
+              .call(...node.primaryKeys.map(it => tsg.identifier(`params.${it}`))),
+          ),
+        ).nonNull().as(tsg.typeRef(node.entityName.name)),
+      )
+
+      statements.push(
+        tsg.if(
+          resultIdentifier,
+          tsg.block(
+            tsg.await(
+              publishCall
+            ).toStatement(),
+          ),
         )
       );
-    if (!node.subscribed) return updateCall;
-    const resultIdentifier = new Identifier('result');
-    return new Block(
-      tsg.variable('const', resultIdentifier, tsg.await(updateCall)),
-      tsg.if(
-        resultIdentifier,
-        tsg.block(
-          tsg.await(
-            tsg.identifier(node.publishFunctionName()).importFrom('./subscription').call(
-              tsg.parenthesis(
-                tsg.await(
-                  tsg
-                    .new(tsg.identifier(node.entityName.dataSourceName()))
-                    .property(node.primaryFindQueryName)
-                    .call(...node.primaryKeys.map(it => tsg.identifier(`params.${it}`))),
-                ),
-              ).nonNull()
-                .as(tsg.typeRef(node.entityName.name)),
-            )
-          ).toStatement(),
-        ),
-      ),
-      new ReturnStatement(resultIdentifier),
-    );
+    }
+
+    if(node.reFetch) {
+      statements.push(
+        tsg.return(
+          tsg.identifier('query')
+            .importFrom('./query')
+            .property(node.entityName.lowerCase())
+            .call(
+              tsg.identifier('_'),
+              tsg.identifier('params'),
+              tsg.identifier('context'),
+              tsg.identifier('info'),
+            ).as(tsg.typeRef('Promise', [tsg.typeRef(node.entityName.name)]))
+        )
+      )
+    } else {
+      statements.push(tsg.return(resultIdentifier))
+    }
+
+    return tsg.block(...statements);
   }
 
   private static deleteFunctionBody(node: MutationNode) {

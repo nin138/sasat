@@ -13,7 +13,6 @@ export class QueryGenerator {
           'const',
           tsg.identifier('query'),
           tsg.object(...nodes.flatMap(node => this.entity(node))),
-          tsg.typeRef('IResolvers').importFrom('@graphql-tools/utils/Interfaces'),
         )
         .export(),
     ).addImport(['GraphQLResolveInfo'], 'graphql');

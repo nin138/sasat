@@ -9,6 +9,7 @@ import { Identifier } from '../../generator/ts/code/node/expressions.js';
 import { TypeReference } from '../../generator/ts/code/node/type/typeReference.js';
 import { TableHandler } from '../../migration/serializable/table.js';
 import { Directory } from '../../constants/directory.js';
+import {tsg} from "../../generator/ts/code/factory.js";
 
 export class EntityName {
   static fromTableName(tableName: string): EntityName {
@@ -64,5 +65,11 @@ export class EntityName {
   }
   getTypeReference(fromPath: string): TypeReference {
     return new TypeReference(this.name).importFrom(Directory.entityPath(fromPath, this.name));
+  }
+  entityResultType(fromPath: string): TypeReference {
+    return tsg.typeRef('EntityResult', [
+      this.toIdentifier(fromPath),
+      this.identifiableTypeReference(fromPath),
+    ]).importFrom('sasat');
   }
 }
