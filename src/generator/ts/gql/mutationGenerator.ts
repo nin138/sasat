@@ -1,37 +1,30 @@
-import { TsFile } from '../file.js';
-import { VariableDeclaration } from '../code/node/variableDeclaration.js';
-import { PropertyAssignment } from '../code/node/propertyAssignment.js';
-import { TypeReference } from '../code/node/type/typeReference.js';
-import { Parameter } from '../code/node/parameter.js';
-import { Block } from '../code/node/block.js';
-import { ReturnStatement } from '../code/node/returnStatement.js';
-import { SpreadAssignment } from '../code/node/spreadAssignment.js';
-import { ExpressionStatement } from '../code/node/expressionStatement.js';
-import { TsType } from '../code/node/type/type.js';
-import { KeywordTypeNode } from '../code/node/type/typeKeyword.js';
+import {TsFile} from '../file.js';
+import {VariableDeclaration} from '../code/node/variableDeclaration.js';
+import {PropertyAssignment} from '../code/node/propertyAssignment.js';
+import {TypeReference} from '../code/node/type/typeReference.js';
+import {Parameter} from '../code/node/parameter.js';
+import {SpreadAssignment} from '../code/node/spreadAssignment.js';
+import {TsType} from '../code/node/type/type.js';
+import {KeywordTypeNode} from '../code/node/type/typeKeyword.js';
 import {
   ArrowFunction,
   AsyncExpression,
-  AwaitExpression,
-  CallExpression,
   Identifier,
-  NewExpression,
   NumericLiteral,
   ObjectLiteral,
-  PropertyAccessExpression,
 } from '../code/node/expressions.js';
-import { Directory } from '../../../constants/directory.js';
-import { SasatError } from '../../../error.js';
-import { tsg } from '../code/factory.js';
+import {Directory} from '../../../constants/directory.js';
+import {SasatError} from '../../../error.js';
+import {tsg} from '../code/factory.js';
 import {
   CreateMutationNode,
   DeleteMutationNode,
   MutationNode,
   UpdateMutationNode,
 } from '../../../parser/node/gql/mutationNode.js';
-import { ContextParamNode } from '../../../parser/node/gql/contextParamNode.js';
-import { EntityName } from '../../../parser/node/entityName.js';
-import { TsStatement } from '../code/abstruct/statement';
+import {ContextParamNode} from '../../../parser/node/gql/contextParamNode.js';
+import {EntityName} from '../../../parser/node/entityName.js';
+import {TsStatement} from '../code/abstruct/statement';
 
 export class MutationGenerator {
   generate = (mutations: MutationNode[]): TsFile => {
@@ -66,7 +59,7 @@ export class MutationGenerator {
   private createMutation(node: CreateMutationNode): PropertyAssignment {
     return tsg.propertyAssign(
       node.functionName(),
-      new ArrowFunction(
+      tsg.arrowFunc(
         MutationGenerator.functionParams(
           node.entityName.getTypeReference(Directory.paths.generated),
           node.useContextParams(),
@@ -156,32 +149,35 @@ export class MutationGenerator {
   }
 
   private static createFunctionBody(node: MutationNode) {
-    const createCallExpression = new CallExpression(
-      new PropertyAccessExpression(
-        new NewExpression(this.getDatasourceIdentifier(node.entityName)),
-        'create',
-      ),
-      this.toDatasourceParam(node.contextParams),
-    );
-    if (!node.subscribed) return createCallExpression;
+    const createCallExpression = tsg
+      .new(this.getDatasourceIdentifier(node.entityName))
+      .property('create')
+      .call(this.toDatasourceParam(node.contextParams));
+
+    if (!node.subscribed) {
+      if (!node.reFetch) return createCallExpression;
+      return tsg.block(
+        tsg.await(createCallExpression).toStatement(),
+        tsg.return(MutationGenerator.createReFetchResult(node))
+      );
+    }
     const resultIdentifier = new Identifier('result');
-    return new Block(
-      new VariableDeclaration(
+    return tsg.block(
+      tsg.variable(
         'const',
         resultIdentifier,
-        new AwaitExpression(createCallExpression),
+        tsg.await(createCallExpression)
       ),
-      new ExpressionStatement(
-        new AwaitExpression(
-          new CallExpression(
-            new Identifier(node.publishFunctionName()).importFrom(
-              './subscription',
-            ),
-            resultIdentifier,
-          ),
-        ),
-      ),
-      new ReturnStatement(resultIdentifier),
+      tsg.await(
+        tsg.identifier(node.publishFunctionName())
+          .importFrom(
+            './subscription',
+          ).call(resultIdentifier)
+      ).toStatement(),
+      tsg.return(
+        node.reFetch
+          ? MutationGenerator.createReFetchResult(node)
+          : resultIdentifier),
     );
   }
 
@@ -250,17 +246,7 @@ export class MutationGenerator {
     if (node.reFetch) {
       statements.push(
         tsg.return(
-          tsg
-            .identifier('query')
-            .importFrom('./query')
-            .property(node.entityName.lowerCase())
-            .call(
-              tsg.identifier('_'),
-              tsg.identifier('params'),
-              tsg.identifier('context'),
-              tsg.identifier('info'),
-            )
-            .as(tsg.typeRef('Promise', [tsg.typeRef(node.entityName.name)])),
+          MutationGenerator.createReFetchResult(node)
         ),
       );
     } else {
@@ -312,6 +298,22 @@ export class MutationGenerator {
         ),
       ),
       tsg.return(result),
+    );
+  }
+
+  private static createReFetchResult(node: MutationNode) {
+    return tsg.await(
+      tsg
+        .identifier('query')
+        .importFrom('./query')
+        .property(node.entityName.lowerCase())
+        .call(
+          tsg.identifier('_'),
+          tsg.identifier('params'),
+          tsg.identifier('context'),
+          tsg.identifier('info'),
+        )
+        .as(tsg.typeRef(node.entityName.name))
     );
   }
 }
