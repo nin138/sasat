@@ -31,9 +31,9 @@ const escapeId = SqlString.escapeId;
 
 export const createToSql = (dsl: Create, tableInfo: TableInfo): string => {
   const map = tableInfo[dsl.table].columnMap;
-  return `INSERT INTO ${escapeId(dsl.table)}(${dsl.values.map(it =>
-    escapeId(map[it.field]),
-  )}) VALUES(${dsl.values.map(it => escape(it.value))})`;
+  return `INSERT INTO ${escapeId(dsl.table)}(${dsl.values.map(it => escapeId(map[it.field]))}) VALUES(${dsl.values.map(
+    it => escape(it.value),
+  )})`;
 };
 
 export const updateToSql = (dsl: Update, tableInfo: TableInfo): string => {

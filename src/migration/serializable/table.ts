@@ -2,7 +2,6 @@ import { Serializable } from './serializable.js';
 import { SerializedTable } from '../serialized/serializedStore.js';
 import { BaseColumn, Column, NormalColumn, ReferenceColumn } from './column.js';
 import { camelize, capitalizeFirstLetter } from '../../util/stringUtil.js';
-import { NestedPartial } from '../../util/type.js';
 import { SqlString } from '../../runtime/sql/sqlString.js';
 import { SasatError } from '../../error.js';
 import {
@@ -13,7 +12,14 @@ import {
   SerializedReferenceColumn,
 } from '../serialized/serializedColumn.js';
 import { DBIndex } from '../data/index.js';
-import { getDefaultGqlOption, GqlOption, mergeGqlOption } from '../data/gqlOption.js';
+import {
+  defaultMutationOption,
+  getDefaultGqlOption,
+  GqlFromContextParam,
+  GqlOption,
+  MutationOption,
+  updateMutationOption,
+} from '../data/gqlOption.js';
 import { assembleColumn } from '../functions/assembleColumn.js';
 import { EntityName } from '../../parser/node/entityName.js';
 import { DataStore } from '../dataStore.js';
@@ -21,6 +27,7 @@ import { DBColumnTypes } from '../column/columnTypes.js';
 
 export interface Table extends Serializable<SerializedTable> {
   column(columnName: string): Column;
+
   tableName: string;
 }
 
@@ -28,14 +35,18 @@ export class TableHandler implements Table {
   static tableNameToEntityName(tableName: string): string {
     return capitalizeFirstLetter(camelize(tableName));
   }
+
   private indexes: DBIndex[];
+
   get index(): DBIndex[] {
     return this.indexes;
   }
+
   private _columns: BaseColumn[];
   get columns(): BaseColumn[] {
     return this._columns;
   }
+
   primaryKey: string[];
   readonly uniqueKeys: string[][];
   readonly tableName: string;
@@ -143,12 +154,16 @@ export class TableHandler implements Table {
           return referenceToSql(ref.getConstraintName(), ref.data.reference);
         }),
     );
-    return `CREATE TABLE ${SqlString.escapeId(this.tableName)} ( ${rows.join(', ')} )`;
+    return `CREATE TABLE ${SqlString.escapeId(this.tableName)}
+            (
+              ${rows.join(', ')}
+            )`;
   }
 
   hasColumn(columnName: string): boolean {
     return !!this.columns.find(it => it.columnName() === columnName);
   }
+
   isColumnPrimary(columnName: string): boolean {
     return this.primaryKey.includes(columnName);
   }
@@ -157,9 +172,26 @@ export class TableHandler implements Table {
     return new EntityName(TableHandler.tableNameToEntityName(this.tableName));
   }
 
-  // TODO fix type nest partial
-  setGqlOption(option: NestedPartial<GqlOption>): void {
-    this._gqlOption = mergeGqlOption(this.gqlOption, option);
+  setGqlCreate(enabled: boolean, options?: MutationOption): void {
+    this._gqlOption = updateMutationOption(this._gqlOption, {
+      create: { enabled, ...(options || defaultMutationOption) },
+    });
+  }
+
+  setGqlUpdate(enabled: boolean, options?: MutationOption) {
+    this._gqlOption = updateMutationOption(this._gqlOption, {
+      update: { enabled, ...(options || defaultMutationOption) },
+    });
+  }
+
+  setGqlDelete(enabled: boolean, options?: Omit<MutationOption, 'noReFetch'>) {
+    this._gqlOption = updateMutationOption(this._gqlOption, {
+      delete: { enabled, ...(options || defaultMutationOption) },
+    });
+  }
+
+  setGqlContextColumn(columns: GqlFromContextParam[]) {
+    this._gqlOption = updateMutationOption(this._gqlOption, { fromContextColumns: columns });
   }
 
   getReferenceColumns(): ReferenceColumn[] {
@@ -184,6 +216,7 @@ export class TableHandler implements Table {
   setDefault(columnName: string, value: string | number | null): void {
     this.updateColumn(columnName, { default: value });
   }
+
   protected updateColumn(columnName: string, diff: Partial<SerializedColumn>): void {
     const update = (column: BaseColumn) => {
       if (column.isReference())

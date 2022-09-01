@@ -20,6 +20,7 @@ export abstract class MutationNode {
     readonly primaryFindQueryName: string,
     readonly subscribed: boolean,
     readonly subscriptionFilters: SubscriptionFilterNode[],
+    readonly reFetch: boolean,
   ) {}
 
   publishFunctionName(): string {
@@ -62,6 +63,7 @@ export class CreateMutationNode extends MutationNode {
     contextParams: ContextParamNode[],
     subscribed: boolean,
     subscriptionFilters: SubscriptionFilterNode[],
+    refetch: boolean,
   ) {
     super(
       entity,
@@ -77,6 +79,7 @@ export class CreateMutationNode extends MutationNode {
       primaryFindQueryName,
       subscribed,
       subscriptionFilters,
+      refetch,
     );
   }
 
@@ -94,6 +97,7 @@ export class UpdateMutationNode extends MutationNode {
     contextParams: ContextParamNode[],
     subscribed: boolean,
     subscriptionFilters: SubscriptionFilterNode[],
+    reFetch: boolean,
   ) {
     super(
       entity,
@@ -106,6 +110,7 @@ export class UpdateMutationNode extends MutationNode {
       primaryFindQueryName,
       subscribed,
       subscriptionFilters,
+      reFetch,
     );
   }
   functionName(): string {
@@ -134,6 +139,7 @@ export class DeleteMutationNode extends MutationNode {
       primaryFindQueryName,
       subscribed,
       subscriptionFilters,
+      false,
     );
   }
   functionName(): string {

@@ -1,8 +1,7 @@
 import { StoreMigrator } from './storeMigrator.js';
 import { Table, TableHandler } from '../serializable/table.js';
 import { Reference, SerializedColumn, SerializedNormalColumn } from '../serialized/serializedColumn.js';
-import { NestedPartial } from '../../util/type.js';
-import { GqlOption } from '../data/gqlOption.js';
+import {GqlFromContextParam, MutationOption,} from '../data/gqlOption.js';
 import { Column, NormalColumn, ReferenceColumn } from '../serializable/column.js';
 import { SerializedTable } from '../serialized/serializedStore.js';
 import { SqlCreator } from '../../db/sql/sqlCreater.js';
@@ -15,10 +14,13 @@ export interface MigrationTable extends Table {
   removeIndex(...columns: string[]): MigrationTable;
   addColumn(column: SerializedColumn): MigrationTable;
   dropColumn(columnName: string): MigrationTable;
-  setGqlOption(option: NestedPartial<GqlOption>): MigrationTable;
   addForeignKey(reference: Reference): MigrationTable;
   changeColumnType(columnName: string, type: DBType): MigrationTable;
   setDefault(columnName: string, value: string | number | null): MigrationTable;
+  setGqlCreate(enabled: boolean, options?: MutationOption): MigrationTable;
+  setGqlUpdate(enabled: boolean, options?: MutationOption): MigrationTable;
+  setGqlDelete(enabled: boolean, options?: Omit<MutationOption, 'noReFetch'>): MigrationTable;
+  setGqlContextColumn(columns: GqlFromContextParam[]): MigrationTable
 }
 
 export class TableMigrator implements MigrationTable {
@@ -73,8 +75,23 @@ export class TableMigrator implements MigrationTable {
     return this;
   }
 
-  setGqlOption(option: NestedPartial<GqlOption>): MigrationTable {
-    this.table.setGqlOption(option);
+  setGqlCreate(enabled: boolean, options?: MutationOption): MigrationTable  {
+    this.table.setGqlCreate(enabled, options);
+    return this;
+  }
+
+  setGqlUpdate(enabled: boolean, options?: MutationOption): MigrationTable  {
+    this.table.setGqlUpdate(enabled, options);
+    return this;
+  }
+
+  setGqlDelete(enabled: boolean, options?: Omit<MutationOption, 'noReFetch'>): MigrationTable  {
+    this.table.setGqlDelete(enabled, options);
+    return this;
+  }
+
+  setGqlContextColumn(columns: GqlFromContextParam[]): MigrationTable  {
+    this.table.setGqlContextColumn(columns);
     return this;
   }
 

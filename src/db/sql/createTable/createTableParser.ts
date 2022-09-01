@@ -6,6 +6,7 @@ import { Reference, SerializedNormalColumn } from '../../../migration/serialized
 import { Relation } from '../../../migration/data/relation.js';
 import { columnTypeToGqlPrimitive } from '../../../generator/gql/columnToGqlType.js';
 import { GqlPrimitive } from '../../../generator/gql/types.js';
+import {getDefaultGqlOption} from "../../../migration/data/gqlOption";
 
 const splitArray = <T>(array: T[], callback: (item: T) => boolean): T[][] => {
   const indexes: number[] = [];
@@ -39,28 +40,13 @@ export class CreateTableParser {
   private readonly result: SerializedTable;
 
   constructor(private readonly tokens: Token[]) {
-    const defaultGqlOption = {
-      mutation: {
-        create: true,
-        update: true,
-        delete: true,
-        fromContextColumns: [],
-      },
-      subscription: {
-        onCreate: false,
-        onUpdate: false,
-        onDelete: false,
-        filter: [],
-      },
-    };
-
     this.result = {
       tableName: '',
       columns: [],
       primaryKey: [],
       uniqueKeys: [],
       indexes: [],
-      gqlOption: defaultGqlOption,
+      gqlOption: getDefaultGqlOption(),
     };
   }
 

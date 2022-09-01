@@ -1,21 +1,23 @@
 import { ColumnCreator } from './columnCreator.js';
-import { NestedPartial } from '../../util/type.js';
 import { ColumnBuilder } from './columnBuilder.js';
 import { NormalColumn } from '../serializable/column.js';
 import { Reference } from '../serialized/serializedColumn.js';
 import { TableHandler } from '../serializable/table.js';
-import { GqlOption } from '../data/gqlOption.js';
+import {GqlFromContextParam, MutationOption} from '../data/gqlOption.js';
 import { DataStore } from '../dataStore.js';
 
 export interface TableBuilder {
   column(columnName: string): ColumnCreator;
-  references(reference: Reference, notNull?: boolean ): TableBuilder;
+  references(reference: Reference, notNull?: boolean): TableBuilder;
   setPrimaryKey(...columnNames: string[]): TableBuilder;
   addUniqueKey(...columnNames: string[]): TableBuilder;
   createdAt(): TableBuilder;
   updatedAt(): TableBuilder;
   addIndex(...columns: string[]): TableBuilder;
-  setGqlOption(option: NestedPartial<GqlOption>): TableBuilder;
+  setGqlCreate(enabled: boolean, options?: MutationOption): TableBuilder;
+  setGqlUpdate(enabled: boolean, options?: MutationOption): TableBuilder;
+  setGqlDelete(enabled: boolean, options?: Omit<MutationOption, 'noReFetch'>): TableBuilder;
+  setGqlContextColumn(columns: GqlFromContextParam[]): TableBuilder
 }
 
 export class TableCreator implements TableBuilder {
@@ -73,8 +75,23 @@ export class TableCreator implements TableBuilder {
     return this;
   }
 
-  setGqlOption(option: NestedPartial<GqlOption>): TableBuilder {
-    this.table.setGqlOption(option);
+  setGqlCreate(enabled: boolean, options?: MutationOption): TableBuilder  {
+    this.table.setGqlCreate(enabled, options);
+    return this;
+  }
+
+  setGqlUpdate(enabled: boolean, options?: MutationOption): TableBuilder  {
+    this.table.setGqlUpdate(enabled, options);
+    return this;
+  }
+
+  setGqlDelete(enabled: boolean, options?: Omit<MutationOption, 'noReFetch'>): TableBuilder  {
+    this.table.setGqlDelete(enabled, options);
+    return this;
+  }
+
+  setGqlContextColumn(columns: GqlFromContextParam[]): TableBuilder  {
+    this.table.setGqlContextColumn(columns);
     return this;
   }
 }

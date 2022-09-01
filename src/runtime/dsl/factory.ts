@@ -11,11 +11,14 @@ import {
   Join,
   JoinType,
   Literal,
-  ParenthesisExpression, QueryNodeKind,
-  QueryTable, Sort, SortDirection,
+  ParenthesisExpression,
+  QueryNodeKind,
+  QueryTable,
+  Sort,
+  SortDirection,
   Value,
 } from './query/query.js';
-import {ComparisonOperators} from '../../db/sql/expression/comparison.js';
+import { ComparisonOperators } from '../../db/sql/expression/comparison.js';
 
 const compound = (expr: BooleanValueExpression[], operator: CompoundOperator): BooleanValueExpression => {
   return expr.reduce((acc, current) => ({
@@ -26,20 +29,24 @@ const compound = (expr: BooleanValueExpression[], operator: CompoundOperator): B
   }));
 };
 
-const containsExpr = (isNot: boolean, type: ContainType) => (left: Value, right: string): BooleanValueExpression => ({
-  kind: QueryNodeKind.ContainsExpr,
-  type,
-  left,
-  isNot,
-  right,
-});
+const containsExpr =
+  (isNot: boolean, type: ContainType) =>
+  (left: Value, right: string): BooleanValueExpression => ({
+    kind: QueryNodeKind.ContainsExpr,
+    type,
+    left,
+    isNot,
+    right,
+  });
 
-const comparison = (operator: ComparisonOperators) => (left: Value, right: Value): ComparisonExpression => ({
-  kind: QueryNodeKind.ComparisonExpr,
-  left,
-  operator,
-  right,
-});
+const comparison =
+  (operator: ComparisonOperators) =>
+  (left: Value, right: Value): ComparisonExpression => ({
+    kind: QueryNodeKind.ComparisonExpr,
+    left,
+    operator,
+    right,
+  });
 
 const and = (...expr: BooleanValueExpression[]): BooleanValueExpression => compound(expr, 'AND');
 const or = (...expr: BooleanValueExpression[]): BooleanValueExpression => compound(expr, 'OR');
@@ -83,11 +90,13 @@ const between = (left: Value, begin: Value, end: Value): BetweenExpression => ({
   end,
 });
 
-const isNull = (isNot: boolean) => (expr: Value): IsNullExpression => ({
-  kind: QueryNodeKind.IsNullExpr,
-  expr,
-  isNot,
-});
+const isNull =
+  (isNot: boolean) =>
+  (expr: Value): IsNullExpression => ({
+    kind: QueryNodeKind.IsNullExpr,
+    expr,
+    isNot,
+  });
 
 const conditions = {
   and,
@@ -134,7 +143,7 @@ const sort = (field: Field, direction: SortDirection): Sort => ({
   kind: QueryNodeKind.Sort,
   field,
   direction,
-})
+});
 
 export const QExpr = {
   conditions,

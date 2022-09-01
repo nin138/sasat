@@ -5,7 +5,7 @@ import { SQLExecutor, SqlValueType } from '../db/connectors/dbClient.js';
 import { createQueryResolveInfo } from './dsl/query/createQueryResolveInfo.js';
 import { queryToSql } from './dsl/query/sql/queryToSql.js';
 import { fieldToQuery } from './dsl/query/fieldToQuery.js';
-import {BooleanValueExpression, Query, Sort} from './dsl/query/query.js';
+import { BooleanValueExpression, Query, Sort } from './dsl/query/query.js';
 import { replaceAliases } from './dsl/replaceAliases.js';
 import { Create, createToSql, Delete, deleteToSql, Update, updateToSql } from './dsl/mutation/mutation.js';
 
@@ -16,8 +16,13 @@ interface Repository<Entity, Creatable, Identifiable> {
   delete(entity: Identifiable): Promise<CommandResponse>;
 }
 
-export abstract class SasatRepository<Entity extends Record<string, SqlValueType>, Creatable, Identifiable, EntityFields extends Fields>
-  implements Repository<Entity, Creatable, Identifiable> {
+export abstract class SasatRepository<
+  Entity extends Record<string, SqlValueType>,
+  Creatable,
+  Identifiable,
+  EntityFields extends Fields,
+> implements Repository<Entity, Creatable, Identifiable>
+{
   protected abstract maps: DataStoreInfo;
   abstract readonly tableName: string;
   abstract readonly fields: string[];
@@ -32,20 +37,20 @@ export abstract class SasatRepository<Entity extends Record<string, SqlValueType
   }
 
   async create(entity: Creatable): Promise<Entity> {
-    const obj: Entity = ({
+    const obj: Entity = {
       ...this.getDefaultValueString(),
       ...entity,
-    } as unknown) as Entity;
+    } as unknown as Entity;
     const dsl: Create = {
       table: this.tableName,
       values: Object.entries(obj).map(([column, value]) => ({ field: column, value })),
     };
     const response = await this.client.rawCommand(createToSql(dsl, this.maps.tableInfo));
     if (!this.autoIncrementColumn) return obj;
-    return ({
+    return {
       ...obj,
       [this.autoIncrementColumn]: response.insertId,
-    } as unknown) as Entity;
+    } as unknown as Entity;
   }
 
   update(entity: Identifiable & Partial<Entity>): Promise<CommandResponse> {
@@ -68,9 +73,9 @@ export abstract class SasatRepository<Entity extends Record<string, SqlValueType
   async first(
     fields?: EntityFields,
     option?: {
-      where?: BooleanValueExpression,
-      sort?: Sort[],
-    }
+      where?: BooleanValueExpression;
+      sort?: Sort[];
+    },
   ): Promise<EntityResult<Entity, Identifiable> | null> {
     const result = await this.find(fields, option);
     if (result.length !== 0) return result[0];
@@ -80,10 +85,10 @@ export abstract class SasatRepository<Entity extends Record<string, SqlValueType
   async find(
     fields?: EntityFields,
     options?: {
-      where?: BooleanValueExpression,
-      sort?: Sort[],
-      limit?: number,
-      offset?: number,
+      where?: BooleanValueExpression;
+      sort?: Sort[];
+      limit?: number;
+      offset?: number;
     },
   ): Promise<EntityResult<Entity, Identifiable>[]> {
     const field = fields || { fields: this.fields };

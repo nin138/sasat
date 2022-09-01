@@ -119,16 +119,17 @@ export class GeneratedRepositoryGenerator {
         tsg.return(
           tsg.identifier(it.returnType.isArray ? 'this.find' : 'this.first').call(
             tsg.identifier('fields'),
-            tsg.object()
-              .addProperties(tsg.propertyAssign(
+            tsg.object().addProperties(
+              tsg.propertyAssign(
                 'where',
                 exps.length === 1
                   ? exps[0]
                   : qExpr
-                    .property('conditions')
-                    .property('and')
-                    .call(...exps),
-                ))
+                      .property('conditions')
+                      .property('and')
+                      .call(...exps),
+              ),
+            ),
           ),
         ),
       ];
