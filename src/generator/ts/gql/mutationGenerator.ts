@@ -1,16 +1,15 @@
-import { TsFile } from '../file.js';
-import { VariableDeclaration } from '../code/node/variableDeclaration.js';
-import { PropertyAssignment } from '../code/node/propertyAssignment.js';
-import { TypeReference } from '../code/node/type/typeReference.js';
-import { Parameter } from '../code/node/parameter.js';
-import { Block } from '../code/node/block.js';
-import { ReturnStatement } from '../code/node/returnStatement.js';
-import { SpreadAssignment } from '../code/node/spreadAssignment.js';
-import { ExpressionStatement } from '../code/node/expressionStatement.js';
-import { IntersectionType } from '../code/node/type/intersectionType.js';
-import { TsType } from '../code/node/type/type.js';
-import { KeywordTypeNode } from '../code/node/type/typeKeyword.js';
-import { IfStatement } from '../code/node/ifStatement.js';
+import {TsFile} from '../file.js';
+import {VariableDeclaration} from '../code/node/variableDeclaration.js';
+import {PropertyAssignment} from '../code/node/propertyAssignment.js';
+import {TypeReference} from '../code/node/type/typeReference.js';
+import {Parameter} from '../code/node/parameter.js';
+import {Block} from '../code/node/block.js';
+import {ReturnStatement} from '../code/node/returnStatement.js';
+import {SpreadAssignment} from '../code/node/spreadAssignment.js';
+import {ExpressionStatement} from '../code/node/expressionStatement.js';
+import {IntersectionType} from '../code/node/type/intersectionType.js';
+import {TsType} from '../code/node/type/type.js';
+import {KeywordTypeNode} from '../code/node/type/typeKeyword.js';
 import {
   ArrowFunction,
   AsyncExpression,
@@ -23,17 +22,17 @@ import {
   ObjectLiteral,
   PropertyAccessExpression,
 } from '../code/node/expressions.js';
-import { Directory } from '../../../constants/directory.js';
-import { SasatError } from '../../../error.js';
-import { tsg } from '../code/factory.js';
+import {Directory} from '../../../constants/directory.js';
+import {SasatError} from '../../../error.js';
+import {tsg} from '../code/factory.js';
 import {
   CreateMutationNode,
   DeleteMutationNode,
   MutationNode,
   UpdateMutationNode,
 } from '../../../parser/node/gql/mutationNode.js';
-import { ContextParamNode } from '../../../parser/node/gql/contextParamNode.js';
-import { EntityName } from '../../../parser/node/entityName.js';
+import {ContextParamNode} from '../../../parser/node/gql/contextParamNode.js';
+import {EntityName} from '../../../parser/node/entityName.js';
 
 export class MutationGenerator {
   generate = (mutations: MutationNode[]): TsFile => {
@@ -142,42 +141,36 @@ export class MutationGenerator {
   }
 
   private static updateFunctionBody(node: MutationNode) {
-    const updateCall = new CallExpression(
-      new PropertyAccessExpression(
-        new CallExpression(
-          new PropertyAccessExpression(new NewExpression(this.getDatasourceIdentifier(node.entityName)), 'update'),
-          this.toDatasourceParam(node.contextParams),
-        ),
-        'then',
-      ),
-      new ArrowFunction(
-        [new Parameter('it', new TypeReference('CommandResponse').importFrom('sasat'))],
-        KeywordTypeNode.boolean,
-        new BinaryExpression(new Identifier('it.changedRows'), '===', new NumericLiteral(1)),
-      ),
-    );
+    const updateCall = new NewExpression(this.getDatasourceIdentifier(node.entityName))
+      .property('update')
+      .call(this.toDatasourceParam(node.contextParams))
+      .property('then')
+      .call(
+        new ArrowFunction(
+          [new Parameter('it', new TypeReference('CommandResponse').importFrom('sasat'))],
+          KeywordTypeNode.boolean,
+          new BinaryExpression(new Identifier('it.changedRows'), '===', new NumericLiteral(1)),
+        )
+      );
     if (!node.subscribed) return updateCall;
     const resultIdentifier = new Identifier('result');
     return new Block(
-      new VariableDeclaration('const', resultIdentifier, updateCall),
-      new IfStatement(
+      tsg.variable('const', resultIdentifier, tsg.await(updateCall)),
+      tsg.if(
         resultIdentifier,
-        new Block(
-          new AwaitExpression(
-            new CallExpression(
-              tsg.identifier(node.publishFunctionName()).importFrom('./subscription'),
-              tsg
-                .parenthesis(
-                  tsg.await(
-                    tsg
-                      .new(tsg.identifier(node.entityName.dataSourceName()))
-                      .property(node.primaryFindQueryName)
-                      .call(...node.primaryKeys.map(it => tsg.identifier(`params.${it}`))),
-                  ),
-                )
-                .nonNull()
+        tsg.block(
+          tsg.await(
+            tsg.identifier(node.publishFunctionName()).importFrom('./subscription').call(
+              tsg.parenthesis(
+                tsg.await(
+                  tsg
+                    .new(tsg.identifier(node.entityName.dataSourceName()))
+                    .property(node.primaryFindQueryName)
+                    .call(...node.primaryKeys.map(it => tsg.identifier(`params.${it}`))),
+                ),
+              ).nonNull()
                 .as(tsg.typeRef(node.entityName.name)),
-            ),
+            )
           ).toStatement(),
         ),
       ),
@@ -186,41 +179,30 @@ export class MutationGenerator {
   }
 
   private static deleteFunctionBody(node: MutationNode) {
-    const deleteCall = new CallExpression(
-      new PropertyAccessExpression(
-        new CallExpression(
-          new PropertyAccessExpression(
-            new NewExpression(MutationGenerator.getDatasourceIdentifier(node.entityName)),
-            'delete',
-          ),
-          new Identifier('params'),
-        ),
-        'then',
-      ),
-      new ArrowFunction(
-        [new Parameter('it', new TypeReference('CommandResponse').importFrom('sasat'))],
+    const deleteCall = tsg.new(MutationGenerator.getDatasourceIdentifier(node.entityName))
+      .property('delete')
+      .call(tsg.identifier('params'))
+      .property('then')
+      .call(tsg.arrowFunc(
+        [tsg.parameter('it', tsg.typeRef('CommandResponse').importFrom('sasat'))],
         KeywordTypeNode.boolean,
-        new BinaryExpression(new Identifier('it.affectedRows'), '===', new NumericLiteral(1)),
-      ),
-    );
+        tsg.binary(tsg.identifier('it.affectedRows'), '===', new NumericLiteral(1)),
+      ));
 
     if (!node.subscribed) return deleteCall;
     const result = new Identifier('result');
 
-    return new Block(
-      new VariableDeclaration('const', result, deleteCall),
-      new IfStatement(
+    return tsg.block(
+      tsg.variable('const', result, tsg.await(deleteCall)),
+      tsg.if(
         result,
-        new Block(
-          new AwaitExpression(
-            new CallExpression(
-              new Identifier(node.publishFunctionName()).importFrom('./subscription'),
-              new Identifier('params'),
-            ),
+        tsg.block(
+          tsg.await(
+            tsg.identifier(node.publishFunctionName()).importFrom('./subscription').call(tsg.identifier('params'))
           ).toStatement(),
         ),
       ),
-      new ReturnStatement(result),
+      tsg.return(result),
     );
   }
 }
