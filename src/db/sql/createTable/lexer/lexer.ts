@@ -124,7 +124,10 @@ export class Lexer {
   }
 
   protected findKeyWord(): boolean {
-    const keyword = this.keywords.find(it => this.chars.slice(this.index, this.index + it.length).join('') === it);
+    const keyword = this.keywords.find(
+      it =>
+        this.chars.slice(this.index, this.index + it.length).join('') === it,
+    );
     if (!keyword) return false;
     this.tokens.push({
       kind: TokenKind.Keyword,

@@ -35,13 +35,18 @@ export interface Reference {
   noFKey?: boolean;
 }
 
-export const referenceToSql = (constraintName: string, ref: Reference): string => {
+export const referenceToSql = (
+  constraintName: string,
+  ref: Reference,
+): string => {
   const onUpdate = ref.onUpdate ? ` ON UPDATE ${ref.onUpdate}` : '';
   const onDelete = ref.onDelete ? ` ON DELETE ${ref.onDelete}` : '';
   return (
     `CONSTRAINT ${constraintName} ` +
     `FOREIGN KEY(${ref.columnName}) ` +
-    `REFERENCES ${SqlString.escapeId(ref.targetTable)}(${SqlString.escapeId(ref.targetColumn)})` +
+    `REFERENCES ${SqlString.escapeId(ref.targetTable)}(${SqlString.escapeId(
+      ref.targetColumn,
+    )})` +
     onUpdate +
     onDelete
   );
@@ -52,4 +57,6 @@ export interface SerializedReferenceColumn extends SerializedColumnBase {
   reference: Reference;
 }
 
-export type SerializedColumn = SerializedNormalColumn | SerializedReferenceColumn;
+export type SerializedColumn =
+  | SerializedNormalColumn
+  | SerializedReferenceColumn;

@@ -16,7 +16,9 @@ export class DBIndex implements Index, Serializable<Index> {
   }
 
   addSql(): string {
-    return `ALTER TABLE ${this.tableName} ADD INDEX ${this.constraintName}(${this.columns.join(',')})`;
+    return `ALTER TABLE ${this.tableName} ADD INDEX ${
+      this.constraintName
+    }(${this.columns.join(',')})`;
   }
 
   dropSql(): string {

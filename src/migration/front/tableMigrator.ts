@@ -1,8 +1,16 @@
 import { StoreMigrator } from './storeMigrator.js';
 import { Table, TableHandler } from '../serializable/table.js';
-import { Reference, SerializedColumn, SerializedNormalColumn } from '../serialized/serializedColumn.js';
-import {GqlFromContextParam, MutationOption,} from '../data/gqlOption.js';
-import { Column, NormalColumn, ReferenceColumn } from '../serializable/column.js';
+import {
+  Reference,
+  SerializedColumn,
+  SerializedNormalColumn,
+} from '../serialized/serializedColumn.js';
+import { GqlFromContextParam, MutationOption } from '../data/gqlOption.js';
+import {
+  Column,
+  NormalColumn,
+  ReferenceColumn,
+} from '../serializable/column.js';
 import { SerializedTable } from '../serialized/serializedStore.js';
 import { SqlCreator } from '../../db/sql/sqlCreater.js';
 import { DBColumnTypes, DBType } from '../column/columnTypes.js';
@@ -17,15 +25,27 @@ export interface MigrationTable extends Table {
   addForeignKey(reference: Reference): MigrationTable;
   changeColumnType(columnName: string, type: DBType): MigrationTable;
   setDefault(columnName: string, value: string | number | null): MigrationTable;
-  setGqlCreate(enabled: boolean, options?: Partial<MutationOption>): MigrationTable;
-  setGqlUpdate(enabled: boolean, options?: Partial<MutationOption>): MigrationTable;
-  setGqlDelete(enabled: boolean, options?: Partial<Omit<MutationOption, 'noReFetch'>>): MigrationTable;
-  setGqlContextColumn(columns: GqlFromContextParam[]): MigrationTable
+  setGqlCreate(
+    enabled: boolean,
+    options?: Partial<MutationOption>,
+  ): MigrationTable;
+  setGqlUpdate(
+    enabled: boolean,
+    options?: Partial<MutationOption>,
+  ): MigrationTable;
+  setGqlDelete(
+    enabled: boolean,
+    options?: Partial<Omit<MutationOption, 'noReFetch'>>,
+  ): MigrationTable;
+  setGqlContextColumn(columns: GqlFromContextParam[]): MigrationTable;
 }
 
 export class TableMigrator implements MigrationTable {
   constructor(private table: TableHandler, private store: StoreMigrator) {}
-  static deserialize(data: SerializedTable, store: StoreMigrator): TableMigrator {
+  static deserialize(
+    data: SerializedTable,
+    store: StoreMigrator,
+  ): TableMigrator {
     const handler = new TableHandler(data, store);
     return new TableMigrator(handler, store);
   }
@@ -75,22 +95,31 @@ export class TableMigrator implements MigrationTable {
     return this;
   }
 
-  setGqlCreate(enabled: boolean, options?: Partial<MutationOption>): MigrationTable  {
+  setGqlCreate(
+    enabled: boolean,
+    options?: Partial<MutationOption>,
+  ): MigrationTable {
     this.table.setGqlCreate(enabled, options);
     return this;
   }
 
-  setGqlUpdate(enabled: boolean, options?: Partial<MutationOption>): MigrationTable  {
+  setGqlUpdate(
+    enabled: boolean,
+    options?: Partial<MutationOption>,
+  ): MigrationTable {
     this.table.setGqlUpdate(enabled, options);
     return this;
   }
 
-  setGqlDelete(enabled: boolean, options?: Partial<Omit<MutationOption, 'noReFetch'>>): MigrationTable  {
+  setGqlDelete(
+    enabled: boolean,
+    options?: Partial<Omit<MutationOption, 'noReFetch'>>,
+  ): MigrationTable {
     this.table.setGqlDelete(enabled, options);
     return this;
   }
 
-  setGqlContextColumn(columns: GqlFromContextParam[]): MigrationTable  {
+  setGqlContextColumn(columns: GqlFromContextParam[]): MigrationTable {
     this.table.setGqlContextColumn(columns);
     return this;
   }
@@ -99,23 +128,41 @@ export class TableMigrator implements MigrationTable {
     this.tableExists(reference.targetTable);
     this.table.addForeignKey(reference);
     const column = this.table.column(reference.columnName) as ReferenceColumn;
-    const targetColumn = this.store.table(reference.targetTable)!.column(reference.targetColumn);
+    const targetColumn = this.store
+      .table(reference.targetTable)!
+      .column(reference.targetColumn);
     if (!targetColumn)
-      throw new Error('Column: ' + reference.targetTable + '.' + reference.targetColumn + ' Not Exists');
+      throw new Error(
+        'Column: ' +
+          reference.targetTable +
+          '.' +
+          reference.targetColumn +
+          ' Not Exists',
+      );
     if (column.dataType() !== targetColumn.dataType()) {
       throw new Error(
-        `${this.tableName}.${reference.columnName} AND ${reference.targetTable}.${
+        `${this.tableName}.${reference.columnName} AND ${
+          reference.targetTable
+        }.${
           reference.targetColumn
         } is different Type( ${column.dataType()} != ${targetColumn.dataType()} )`,
       );
     }
-    this.store.addQuery(SqlCreator.addForeignKey(this.tableName, column.getConstraintName(), reference));
+    this.store.addQuery(
+      SqlCreator.addForeignKey(
+        this.tableName,
+        column.getConstraintName(),
+        reference,
+      ),
+    );
     return this;
   }
 
   changeColumnType(columnName: string, type: DBType): MigrationTable {
     this.table.changeType(columnName, type as DBColumnTypes);
-    this.store.addQuery(`ALTER TABLE ${this.tableName} MODIFY ${columnName} ${type}`);
+    this.store.addQuery(
+      `ALTER TABLE ${this.tableName} MODIFY ${columnName} ${type}`,
+    );
     return this;
   }
 
@@ -126,10 +173,17 @@ export class TableMigrator implements MigrationTable {
     return true;
   }
 
-  setDefault(columnName: string, value: string | number | null): MigrationTable {
+  setDefault(
+    columnName: string,
+    value: string | number | null,
+  ): MigrationTable {
     // ALTER ... SET DEFAULT
     this.table.setDefault(columnName, value);
-    this.store.addQuery(`ALTER TABLE ${this.tableName} ALTER ${columnName} SET DEFAULT ${SqlString.escape(value)}`);
+    this.store.addQuery(
+      `ALTER TABLE ${
+        this.tableName
+      } ALTER ${columnName} SET DEFAULT ${SqlString.escape(value)}`,
+    );
     return this;
   }
 }

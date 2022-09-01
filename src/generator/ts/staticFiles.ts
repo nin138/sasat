@@ -1,11 +1,17 @@
 import { FileData } from '../generator.js';
 import { ImportDeclaration } from './code/importDeclaration.js';
 const contextFile = `\
-${new ImportDeclaration(['BaseGqlContext'], './__generated__/context').toString()}
+${new ImportDeclaration(
+  ['BaseGqlContext'],
+  './__generated__/context',
+).toString()}
 export interface GqlContext extends BaseGqlContext {}
 `;
 const pubsubFile = `\
-${new ImportDeclaration(['PubSub', 'PubSubEngine'], 'graphql-subscriptions').toString()}
+${new ImportDeclaration(
+  ['PubSub', 'PubSubEngine'],
+  'graphql-subscriptions',
+).toString()}
 
 export const pubsub: PubSubEngine = new PubSub();
 `;
@@ -22,7 +28,10 @@ export const schema = {
 
 const baseDBDataSourceFile = `\
 ${new ImportDeclaration(['Fields', 'SasatRepository'], 'sasat').toString()}
-${new ImportDeclaration(['dataStoreInfo'], './__generated__/relationMap').toString()}
+${new ImportDeclaration(
+  ['dataStoreInfo'],
+  './__generated__/relationMap',
+).toString()}
 
 export abstract class BaseDBDataSource<Entity, Creatable, Identifiable, EntityFields extends Fields> extends SasatRepository<
   Entity,

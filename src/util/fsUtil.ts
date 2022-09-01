@@ -5,19 +5,27 @@ import { config } from '../config/config.js';
 import { SerializedStore } from '../migration/serialized/serializedStore.js';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const readYmlFile = (filepath: string): any => yaml.load(fs.readFileSync(filepath, 'utf8'));
+export const readYmlFile = (filepath: string): any =>
+  yaml.load(fs.readFileSync(filepath, 'utf8'));
 
 export const mkDirIfNotExist = (path: string): void => {
   if (!fs.pathExistsSync(path)) fs.mkdirpSync(path);
 };
 
-export const writeFileIfNotExist = (path: string, data: string): Promise<void> => {
+export const writeFileIfNotExist = (
+  path: string,
+  data: string,
+): Promise<void> => {
   if (fs.existsSync(path)) return Promise.resolve();
   return fs.writeFile(path, data);
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const writeYmlFile = (path: string, fileName: string, obj: Record<string, any>): void => {
+export const writeYmlFile = (
+  path: string,
+  fileName: string,
+  obj: Record<string, any>,
+): void => {
   mkDirIfNotExist(path);
   fs.writeFileSync(
     join(path, fileName),

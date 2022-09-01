@@ -4,7 +4,10 @@ import { config } from '../config/config.js';
 import { getDbClient } from '../index.js';
 import * as ts from 'typescript';
 import { StoreMigrator } from './front/storeMigrator.js';
-import { Direction, MigrationTargetResolver } from './migrationTargetResolver.js';
+import {
+  Direction,
+  MigrationTargetResolver,
+} from './migrationTargetResolver.js';
 import { MigrationReader } from './migrationReader.js';
 import { Console } from '../cli/console.js';
 import { SerializedStore } from './serialized/serializedStore.js';
@@ -12,13 +15,16 @@ import { SerializedStore } from './serialized/serializedStore.js';
 // TODO refactor
 export class MigrationController {
   private migrationDir = path.join(process.cwd(), config().migration.dir);
-  private files = fs.readdirSync(this.migrationDir).filter(it => it.split('.').pop() === 'ts');
+  private files = fs
+    .readdirSync(this.migrationDir)
+    .filter(it => it.split('.').pop() === 'ts');
 
   async migrate(): Promise<{
     store: SerializedStore;
     currentMigration: string;
   }> {
-    const currentMigration = await new MigrationTargetResolver().getCurrentMigration();
+    const currentMigration =
+      await new MigrationTargetResolver().getCurrentMigration();
     const store = this.getCurrentDataStore(this.files, currentMigration);
     const target = this.getTargets(this.files, currentMigration);
     for (const fileName of target.files) {
@@ -28,14 +34,20 @@ export class MigrationController {
     }
     return {
       store: store.serialize(),
-      currentMigration: config().migration.target || this.files[this.files.length - 1],
+      currentMigration:
+        config().migration.target || this.files[this.files.length - 1],
     };
   }
 
-  private getTargets(files: string[], current: string | undefined): { direction: Direction; files: string[] } {
+  private getTargets(
+    files: string[],
+    current: string | undefined,
+  ): { direction: Direction; files: string[] } {
     const currentIndex = current ? files.indexOf(current) + 1 : 0;
-    const targetIndex = files.indexOf(config().migration.target || files[files.length - 1]) + 1;
-    if (currentIndex === -1 || targetIndex === -1) throw new Error('migration target not found');
+    const targetIndex =
+      files.indexOf(config().migration.target || files[files.length - 1]) + 1;
+    if (currentIndex === -1 || targetIndex === -1)
+      throw new Error('migration target not found');
     if (targetIndex >= currentIndex)
       return {
         direction: Direction.Up,
@@ -50,12 +62,18 @@ export class MigrationController {
     const store = new StoreMigrator();
     if (!current) return store;
     files = files.slice(0, files.indexOf(current) + 1);
-    files.forEach(fileName => MigrationReader.readMigration(store, fileName, Direction.Up));
+    files.forEach(fileName =>
+      MigrationReader.readMigration(store, fileName, Direction.Up),
+    );
     store.resetQueue();
     return store;
   }
 
-  private async execMigration(store: StoreMigrator, migrationName: string, direction: Direction) {
+  private async execMigration(
+    store: StoreMigrator,
+    migrationName: string,
+    direction: Direction,
+  ) {
     const sqls = store.getSql();
     const transaction = await getDbClient().transaction();
     try {
@@ -68,7 +86,10 @@ export class MigrationController {
         });
       }
       await transaction.query`insert into ${() =>
-        MigrationTargetResolver.getMigrationTable()} (name, direction) values (${[migrationName, direction]})`;
+        MigrationTargetResolver.getMigrationTable()} (name, direction) values (${[
+        migrationName,
+        direction,
+      ]})`;
       return await transaction.commit();
     } catch (e) {
       await transaction.rollback();

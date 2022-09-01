@@ -31,7 +31,9 @@ export class QueryGenerator {
         tsg.parameter('_1', tsg.typeRef('unknown')),
         tsg.parameter(
           `{ ${paramNames.join(',')} }`,
-          node.entityName.getTypeReference(Directory.paths.generated).pick(...paramNames),
+          node.entityName
+            .getTypeReference(Directory.paths.generated)
+            .pick(...paramNames),
         ),
         tsg.parameter('_2', tsg.typeRef('unknown')),
         tsg.parameter('info', tsg.typeRef('GraphQLResolveInfo')),
@@ -47,7 +49,12 @@ export class QueryGenerator {
             .new(
               tsg
                 .identifier(node.entityName.dataSourceName())
-                .importFrom(Directory.dbDataSourcePath(Directory.paths.generated, node.entityName)),
+                .importFrom(
+                  Directory.dbDataSourcePath(
+                    Directory.paths.generated,
+                    node.entityName,
+                  ),
+                ),
             )
             .property(it.repoMethodName)
             .call(

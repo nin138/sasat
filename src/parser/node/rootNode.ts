@@ -38,6 +38,8 @@ export class RootNode {
   }
 
   findRepository(entityName: EntityName): RepositoryNode {
-    return this.repositories.find(it => it.entityName.name === entityName.name)!;
+    return this.repositories.find(
+      it => it.entityName.name === entityName.name,
+    )!;
   }
 }

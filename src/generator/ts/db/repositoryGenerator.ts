@@ -12,7 +12,12 @@ export class RepositoryGenerator {
           tsg.extends(
             tsg
               .typeRef(node.entityName.generatedDataSourceName())
-              .importFrom(Directory.generatedDBDataSourcePath(Directory.paths.dataSource.db, node.entityName)),
+              .importFrom(
+                Directory.generatedDBDataSourcePath(
+                  Directory.paths.dataSource.db,
+                  node.entityName,
+                ),
+              ),
           ),
         )
         .export(),

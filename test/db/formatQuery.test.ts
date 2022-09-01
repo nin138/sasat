@@ -4,9 +4,15 @@ import * as SQLString from 'sqlstring';
 import { User } from '../out/__generated__/entity/User';
 
 test('mysql DBClient', () => {
-  expect(formatQuery`select ${'a'},${'b'} from test`).toBe("select 'a','b' from test");
-  expect(formatQuery`select ${() => 'a'},${() => 'b'} from test`).toBe('select a,b from test');
-  expect(formatQuery`select ${['a', 'b', 'c']} from test`).toBe("select 'a', 'b', 'c' from test");
+  expect(formatQuery`select ${'a'},${'b'} from test`).toBe(
+    "select 'a','b' from test",
+  );
+  expect(formatQuery`select ${() => 'a'},${() => 'b'} from test`).toBe(
+    'select a,b from test',
+  );
+  expect(formatQuery`select ${['a', 'b', 'c']} from test`).toBe(
+    "select 'a', 'b', 'c' from test",
+  );
 
   expect(SQLString.escape('a')).toBe("'a'");
   expect(SQLString.escape("'b'")).toBe("'\\'b\\''");

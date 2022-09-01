@@ -55,18 +55,23 @@ export class TableHandler implements Table {
     return this._gqlOption;
   }
 
-  constructor(table: Partial<SerializedTable> & Pick<SerializedTable, 'tableName'>, public store: DataStore) {
+  constructor(
+    table: Partial<SerializedTable> & Pick<SerializedTable, 'tableName'>,
+    public store: DataStore,
+  ) {
     this.tableName = table.tableName;
     this.primaryKey = table.primaryKey || [];
     this.uniqueKeys = table.uniqueKeys || [];
-    this.indexes = table.indexes?.map(it => new DBIndex(this.tableName, it.columns)) || [];
+    this.indexes =
+      table.indexes?.map(it => new DBIndex(this.tableName, it.columns)) || [];
     this._gqlOption = table.gqlOption || getDefaultGqlOption();
     this._columns = (table.columns || []).map(it => assembleColumn(it, this));
   }
 
   column(columnName: string): Column {
     const column = this.columns.find(it => it.columnName() === columnName);
-    if (!column) throw new Error(`${this.tableName}.${columnName} is Not Found`);
+    if (!column)
+      throw new Error(`${this.tableName}.${columnName} is Not Found`);
     return column;
   }
 
@@ -128,7 +133,8 @@ export class TableHandler implements Table {
   }
 
   addUniqueKey(...columnNames: string[]): this {
-    if (columnNames.length === 0) throw new SasatError('No column name specified');
+    if (columnNames.length === 0)
+      throw new SasatError('No column name specified');
     this.uniqueKeys.push(columnNames);
     return this;
   }
@@ -142,9 +148,13 @@ export class TableHandler implements Table {
   showCreateTable(): string {
     const columns = this.columns.map(it => it.toSql());
     const rows = [...columns];
-    if (this.primaryKey.length !== 0) rows.push(`PRIMARY KEY (${this.primaryKey.map(SqlString.escapeId).join(',')})`);
+    if (this.primaryKey.length !== 0)
+      rows.push(
+        `PRIMARY KEY (${this.primaryKey.map(SqlString.escapeId).join(',')})`,
+      );
     this.uniqueKeys.forEach(it => {
-      if (this.uniqueKeys.length !== 0) rows.push(`UNIQUE KEY (${it.join(',')})`);
+      if (this.uniqueKeys.length !== 0)
+        rows.push(`UNIQUE KEY (${it.join(',')})`);
     });
     rows.push(
       ...this._columns
@@ -174,24 +184,41 @@ export class TableHandler implements Table {
 
   setGqlCreate(enabled: boolean, options?: Partial<MutationOption>): void {
     this._gqlOption = updateMutationOption(this._gqlOption, {
-      create: { ...defaultMutationOption, ...(options || defaultMutationOption), enabled },
+      create: {
+        ...defaultMutationOption,
+        ...(options || defaultMutationOption),
+        enabled,
+      },
     });
   }
 
   setGqlUpdate(enabled: boolean, options?: Partial<MutationOption>) {
     this._gqlOption = updateMutationOption(this._gqlOption, {
-      update: { ...defaultMutationOption, ...(options || defaultMutationOption), enabled },
+      update: {
+        ...defaultMutationOption,
+        ...(options || defaultMutationOption),
+        enabled,
+      },
     });
   }
 
-  setGqlDelete(enabled: boolean, options?: Partial<Omit<MutationOption, 'noReFetch'>>) {
+  setGqlDelete(
+    enabled: boolean,
+    options?: Partial<Omit<MutationOption, 'noReFetch'>>,
+  ) {
     this._gqlOption = updateMutationOption(this._gqlOption, {
-      delete: { ...defaultMutationOption, ...(options || defaultMutationOption), enabled },
+      delete: {
+        ...defaultMutationOption,
+        ...(options || defaultMutationOption),
+        enabled,
+      },
     });
   }
 
   setGqlContextColumn(columns: GqlFromContextParam[]) {
-    this._gqlOption = updateMutationOption(this._gqlOption, { fromContextColumns: columns });
+    this._gqlOption = updateMutationOption(this._gqlOption, {
+      fromContextColumns: columns,
+    });
   }
 
   getReferenceColumns(): ReferenceColumn[] {
@@ -204,9 +231,15 @@ export class TableHandler implements Table {
     if (!column1) throw new Error('Column: `' + columnName + '` Not Found');
     // TODO
     if (column1.isReference())
-      throw new Error('Column: `' + columnName + '`already has reference, multiple reference is not supported');
+      throw new Error(
+        'Column: `' +
+          columnName +
+          '`already has reference, multiple reference is not supported',
+      );
     const ref = (column1 as NormalColumn).addReference(reference);
-    this._columns = this.columns.map(it => (it.columnName() === columnName ? ref : it));
+    this._columns = this.columns.map(it =>
+      it.columnName() === columnName ? ref : it,
+    );
   }
 
   changeType(columnName: string, type: DBColumnTypes): void {
@@ -217,15 +250,26 @@ export class TableHandler implements Table {
     this.updateColumn(columnName, { default: value });
   }
 
-  protected updateColumn(columnName: string, diff: Partial<SerializedColumn>): void {
+  protected updateColumn(
+    columnName: string,
+    diff: Partial<SerializedColumn>,
+  ): void {
     const update = (column: BaseColumn) => {
       if (column.isReference())
-        return new ReferenceColumn({ ...column.serialize(), ...diff } as SerializedReferenceColumn, this);
-      return new NormalColumn({ ...column.serialize(), ...diff } as SerializedNormalColumn, this);
+        return new ReferenceColumn(
+          { ...column.serialize(), ...diff } as SerializedReferenceColumn,
+          this,
+        );
+      return new NormalColumn(
+        { ...column.serialize(), ...diff } as SerializedNormalColumn,
+        this,
+      );
     };
     if (!this.column(columnName)) {
       throw new Error(this.tableName + '.' + columnName + ' Not Found');
     }
-    this._columns = this.columns.map(it => (it.columnName() === columnName ? update(it) : it));
+    this._columns = this.columns.map(it =>
+      it.columnName() === columnName ? update(it) : it,
+    );
   }
 }

@@ -14,10 +14,16 @@ const { emptyDir, writeFile } = fs;
 export class CodeGenerateController {
   private codeGen: CodeGenerator = new TsCodeGenerator();
   private outDir = config().migration.out;
-  private dbDataSourceDir = path.join(this.outDir, Directory.paths.dataSource.db);
+  private dbDataSourceDir = path.join(
+    this.outDir,
+    Directory.paths.dataSource.db,
+  );
   private generateDir = path.join(this.outDir, Directory.paths.generated);
   private generateEntityDir = path.join(this.outDir, Directory.paths.entity);
-  private generateDbDataSourceDir = path.join(this.outDir, Directory.paths.generatedDataSource.db);
+  private generateDbDataSourceDir = path.join(
+    this.outDir,
+    Directory.paths.generatedDataSource.db,
+  );
   constructor(readonly root: RootNode) {}
   async generate(): Promise<void> {
     await this.prepareDirs();
@@ -44,7 +50,10 @@ export class CodeGenerateController {
   }
 
   private generateEntity(ir: EntityNode) {
-    return writeFile(this.getFullPath(this.generateEntityDir, ir.entityName.name), this.codeGen.generateEntity(ir));
+    return writeFile(
+      this.getFullPath(this.generateEntityDir, ir.entityName.name),
+      this.codeGen.generateEntity(ir),
+    );
   }
 
   private generateRepository(ir: RepositoryNode) {
@@ -63,24 +72,49 @@ export class CodeGenerateController {
 
   private generateGql(rootNode: RootNode) {
     return [
-      writeFile(this.getFullPath(this.generateDir, 'typeDefs'), this.codeGen.generateGqlTypeDefs(rootNode)),
-      writeFile(this.getFullPath(this.generateDir, 'resolver'), this.codeGen.generateGqlResolver(rootNode)),
-      writeFile(this.getFullPath(this.generateDir, 'query'), this.codeGen.generateGqlQuery(rootNode)),
-      writeFile(this.getFullPath(this.generateDir, 'mutation'), this.codeGen.generateGqlMutation(rootNode)),
-      writeFile(this.getFullPath(this.generateDir, 'subscription'), this.codeGen.generateGqlSubscription(rootNode)),
-      writeFile(this.getFullPath(this.generateDir, 'context'), this.codeGen.generateGqlContext(rootNode)),
+      writeFile(
+        this.getFullPath(this.generateDir, 'typeDefs'),
+        this.codeGen.generateGqlTypeDefs(rootNode),
+      ),
+      writeFile(
+        this.getFullPath(this.generateDir, 'resolver'),
+        this.codeGen.generateGqlResolver(rootNode),
+      ),
+      writeFile(
+        this.getFullPath(this.generateDir, 'query'),
+        this.codeGen.generateGqlQuery(rootNode),
+      ),
+      writeFile(
+        this.getFullPath(this.generateDir, 'mutation'),
+        this.codeGen.generateGqlMutation(rootNode),
+      ),
+      writeFile(
+        this.getFullPath(this.generateDir, 'subscription'),
+        this.codeGen.generateGqlSubscription(rootNode),
+      ),
+      writeFile(
+        this.getFullPath(this.generateDir, 'context'),
+        this.codeGen.generateGqlContext(rootNode),
+      ),
     ];
   }
 
   private generateFiles(rootNode: RootNode) {
     return this.codeGen
       .generateFiles(rootNode)
-      .map(it => writeFileIfNotExist(this.getFullPath(this.generateDir, it.name), it.body));
+      .map(it =>
+        writeFileIfNotExist(
+          this.getFullPath(this.generateDir, it.name),
+          it.body,
+        ),
+      );
   }
 
   private generateOnceFiles(rootNode: RootNode) {
     return this.codeGen
       .generateOnceFiles(rootNode)
-      .map(it => writeFileIfNotExist(this.getFullPath(this.outDir, it.name), it.body));
+      .map(it =>
+        writeFileIfNotExist(this.getFullPath(this.outDir, it.name), it.body),
+      );
   }
 }

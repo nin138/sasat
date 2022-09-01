@@ -8,7 +8,10 @@ export class ContextNodeFactory {
     tables.forEach(table =>
       table.gqlOption.mutation.fromContextColumns.forEach(it => {
         const name = it.contextName || it.column;
-        obj[name] = new ContextNode(name, new TypeNode(table.column(it.column)!.dataType(), false, false));
+        obj[name] = new ContextNode(
+          name,
+          new TypeNode(table.column(it.column)!.dataType(), false, false),
+        );
       }),
     );
     return Object.values(obj);

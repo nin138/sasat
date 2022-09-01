@@ -49,7 +49,11 @@ export class BaseColumn implements Column {
 
   isNullableOnCreate(): boolean {
     if (this.data.hasReference) return false;
-    return !this.data.notNull || this.data.default !== undefined || this.data.autoIncrement;
+    return (
+      !this.data.notNull ||
+      this.data.default !== undefined ||
+      this.data.autoIncrement
+    );
   }
 
   isReference(): this is ReferenceColumn {
@@ -71,7 +75,10 @@ export class NormalColumn extends BaseColumn {
   }
 
   addReference(reference: Reference): ReferenceColumn {
-    return new ReferenceColumn({ ...this.data, hasReference: true, reference }, this.table);
+    return new ReferenceColumn(
+      { ...this.data, hasReference: true, reference },
+      this.table,
+    );
   }
 }
 
@@ -81,8 +88,8 @@ export class ReferenceColumn extends BaseColumn {
   }
 
   getConstraintName(): string {
-    return `ref_${this.table.tableName}_${this.fieldName()}__${this.data.reference.targetTable}_${
-      this.data.reference.targetColumn
-    }`;
+    return `ref_${this.table.tableName}_${this.fieldName()}__${
+      this.data.reference.targetTable
+    }_${this.data.reference.targetColumn}`;
   }
 }

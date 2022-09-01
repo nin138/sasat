@@ -103,7 +103,10 @@ export class UpdateMutationNode extends MutationNode {
       entity,
       entity.entityName,
       'Updated',
-      [...entity.identifiableFields().map(it => it.toParam()), ...entity.dataFields().map(it => it.toOptionalParam())],
+      [
+        ...entity.identifiableFields().map(it => it.toParam()),
+        ...entity.dataFields().map(it => it.toOptionalParam()),
+      ],
       contextParams,
       reFetch
         ? new TypeNode(entity.entityName, false, false)

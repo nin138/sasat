@@ -131,4 +131,11 @@ export type Sort = {
   direction: SortDirection;
 };
 
-export type QueryNode = Field | Fn | QueryTable | Literal | BooleanValueExpression | Join | Sort;
+export type QueryNode =
+  | Field
+  | Fn
+  | QueryTable
+  | Literal
+  | BooleanValueExpression
+  | Join
+  | Sort;

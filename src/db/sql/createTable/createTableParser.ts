@@ -2,10 +2,13 @@ import { Token, TokenKind } from './lexer/lexer.js';
 import { SerializedTable } from '../../../migration/serialized/serializedStore.js';
 import { camelize } from '../../../util/stringUtil.js';
 import { DBColumnTypes } from '../../../migration/column/columnTypes.js';
-import { Reference, SerializedNormalColumn } from '../../../migration/serialized/serializedColumn.js';
+import {
+  Reference,
+  SerializedNormalColumn,
+} from '../../../migration/serialized/serializedColumn.js';
 import { columnTypeToGqlPrimitive } from '../../../generator/gql/columnToGqlType.js';
 import { GqlPrimitive } from '../../../generator/gql/types.js';
-import {getDefaultGqlOption} from "../../../migration/data/gqlOption.js";
+import { getDefaultGqlOption } from '../../../migration/data/gqlOption.js';
 
 const splitArray = <T>(array: T[], callback: (item: T) => boolean): T[][] => {
   const indexes: number[] = [];
@@ -75,7 +78,9 @@ export class CreateTableParser {
     const parenStart = this.findIndex(TokenKind.Separator, '(', this.tokens);
     this.result.tableName = this.tokens[parenStart - 1].value;
     const tokens = this.resolveParen();
-    const definitionTokens = tokens.find(it => it.kind === 'Paren') as ParenToken;
+    const definitionTokens = tokens.find(
+      it => it.kind === 'Paren',
+    ) as ParenToken;
     const definitions = splitArray(
       definitionTokens.tokens,
       token => token.kind === TokenKind.Separator && token.value === ',',
@@ -85,10 +90,12 @@ export class CreateTableParser {
       if (kindIncludes('PRIMARY')) return this.parsePrimary(it);
       if (kindIncludes('UNIQUE')) return this.parseUnique(it);
       if (kindIncludes('FOREIGN')) return this.parseFkey(it);
-      if (kindIncludes('KEY') || kindIncludes('INDEX')) return this.parseIndex(it);
+      if (kindIncludes('KEY') || kindIncludes('INDEX'))
+        return this.parseIndex(it);
 
       const kind = (it[0] as Token).kind;
-      if (kind === TokenKind.Identifier || kind === TokenKind.String) return this.parseColumn(it);
+      if (kind === TokenKind.Identifier || kind === TokenKind.String)
+        return this.parseColumn(it);
       throw new Error('fail to parse sql');
     });
     return this.result;
@@ -103,7 +110,11 @@ export class CreateTableParser {
       if (defaultTokenIndex === -1) return undefined;
       const next = tokens[defaultTokenIndex + 1];
       if (next.kind === 'NULL') return undefined;
-      if (next.kind === TokenKind.Number || gqlType === GqlPrimitive.Float || gqlType === GqlPrimitive.Int)
+      if (
+        next.kind === TokenKind.Number ||
+        gqlType === GqlPrimitive.Float ||
+        gqlType === GqlPrimitive.Int
+      )
         return +next.value;
       if (next.kind === TokenKind.String) return next.value;
       return undefined;
@@ -126,8 +137,14 @@ export class CreateTableParser {
     };
     const identifiers = tokens.filter(it => it.kind === TokenKind.Identifier);
 
-    const length = tokens[2] && isParenToken(tokens[2]) ? tokens[2].tokens[0]?.value : undefined;
-    const scale = tokens[2] && isParenToken(tokens[2]) ? tokens[2].tokens[1]?.value : undefined;
+    const length =
+      tokens[2] && isParenToken(tokens[2])
+        ? tokens[2].tokens[0]?.value
+        : undefined;
+    const scale =
+      tokens[2] && isParenToken(tokens[2])
+        ? tokens[2].tokens[1]?.value
+        : undefined;
     const column: SerializedNormalColumn = {
       hasReference: false,
       columnName,
@@ -165,12 +182,18 @@ export class CreateTableParser {
   private parsePrimary(tokens: Tokens[]) {
     const keyIndex = tokens.findIndex(it => it.kind === 'KEY');
     const paren = tokens[keyIndex + 1] as ParenToken;
-    this.result.primaryKey = paren.tokens.filter(it => it.kind !== TokenKind.Separator).map(it => it.value);
+    this.result.primaryKey = paren.tokens
+      .filter(it => it.kind !== TokenKind.Separator)
+      .map(it => it.value);
   }
 
   private parseUnique(tokens: Tokens[]) {
     const paren = tokens.find(it => it.kind === 'Paren')! as ParenToken;
-    this.result.uniqueKeys.push(paren.tokens.filter(it => it.kind !== TokenKind.Separator).map(it => it.value));
+    this.result.uniqueKeys.push(
+      paren.tokens
+        .filter(it => it.kind !== TokenKind.Separator)
+        .map(it => it.value),
+    );
   }
 
   // TODO col_name(length) syntax
@@ -178,20 +201,26 @@ export class CreateTableParser {
     const paren = tokens.find(it => it.kind === 'Paren')! as ParenToken;
     this.result.indexes.push({
       constraintName: tokens[1].value,
-      columns: paren.tokens.filter(it => it.kind !== TokenKind.Separator && it.kind !== 'Paren').map(it => it.value),
+      columns: paren.tokens
+        .filter(it => it.kind !== TokenKind.Separator && it.kind !== 'Paren')
+        .map(it => it.value),
     });
   }
 
   private parseFkey(tokens: Tokens[]) {
     const f = tokens.findIndex(it => it.kind === 'FOREIGN');
     const columnName = (tokens[f + 2] as ParenToken).tokens[0].value;
-    const refIndex = tokens.findIndex(it => it.kind === 'REFERENCES' && it.value === 'REFERENCES');
+    const refIndex = tokens.findIndex(
+      it => it.kind === 'REFERENCES' && it.value === 'REFERENCES',
+    );
     const targetTable = tokens[refIndex + 1].value;
     const targetColumn = (tokens[refIndex + 2] as ParenToken).tokens[0].value;
 
     let onDelete = undefined;
     let onUpdate = undefined;
-    const on = tokens.map((it, i) => (it.kind === 'ON' ? i : 0)).filter(it => it !== 0);
+    const on = tokens
+      .map((it, i) => (it.kind === 'ON' ? i : 0))
+      .filter(it => it !== 0);
     on.forEach(it => {
       const action = () => {
         let name = tokens[it + 2].value.toUpperCase();
@@ -208,15 +237,22 @@ export class CreateTableParser {
       }
     });
 
-    const isColumnUnique = this.result.uniqueKeys.filter(it => it.length === 1).find(it => it[0] === columnName);
-    const sameTableRefs = this.result.columns.filter(it => it.hasReference && it.reference.targetTable === targetTable);
+    const isColumnUnique = this.result.uniqueKeys
+      .filter(it => it.length === 1)
+      .find(it => it[0] === columnName);
+    const sameTableRefs = this.result.columns.filter(
+      it => it.hasReference && it.reference.targetTable === targetTable,
+    );
 
     const reference: Reference = {
       targetTable,
       targetColumn,
       columnName,
       relation: isColumnUnique ? 'OneOrZero' : 'Many',
-      relationName: sameTableRefs.length !== 0 ? targetTable + sameTableRefs.length : undefined,
+      relationName:
+        sameTableRefs.length !== 0
+          ? targetTable + sameTableRefs.length
+          : undefined,
       onUpdate,
       onDelete,
     };
@@ -239,7 +275,10 @@ export class CreateTableParser {
     return tokens.findIndex(it => it.kind === kind && value === value);
   }
 
-  private findEndOfParenIndex(tokens: Token[], startParenIndex: number): number {
+  private findEndOfParenIndex(
+    tokens: Token[],
+    startParenIndex: number,
+  ): number {
     let opened = 1;
     for (let i = startParenIndex + 1; i < tokens.length; i++) {
       const token = tokens[i];

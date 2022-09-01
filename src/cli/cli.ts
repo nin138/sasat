@@ -18,7 +18,9 @@ try {
       });
     });
   cli.command('generate', 'generate files').action(generate);
-  cli.command('migration:create [name]', 'generate new migration file').action(createMigration);
+  cli
+    .command('migration:create [name]', 'generate new migration file')
+    .action(createMigration);
   cli.command('dump-db', 'dump database schema').action(dumpDB);
   cli.command('init').action(init);
 

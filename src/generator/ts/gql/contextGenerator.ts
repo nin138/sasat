@@ -7,7 +7,11 @@ export class ContextGenerator {
   generate(contexts: ContextNode[]): TsFile {
     return new TsFile(
       new TsInterface('BaseGqlContext')
-        .addProperties(contexts.map(it => new PropertySignature(it.name, it.type.toTsType())))
+        .addProperties(
+          contexts.map(
+            it => new PropertySignature(it.name, it.type.toTsType()),
+          ),
+        )
         .export(),
     );
   }

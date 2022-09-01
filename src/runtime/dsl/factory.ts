@@ -20,7 +20,10 @@ import {
 } from './query/query.js';
 import { ComparisonOperators } from '../../db/sql/expression/comparison.js';
 
-const compound = (expr: BooleanValueExpression[], operator: CompoundOperator): BooleanValueExpression => {
+const compound = (
+  expr: BooleanValueExpression[],
+  operator: CompoundOperator,
+): BooleanValueExpression => {
   return expr.reduce((acc, current) => ({
     kind: QueryNodeKind.CompoundExpr,
     left: acc,
@@ -48,8 +51,10 @@ const comparison =
     right,
   });
 
-const and = (...expr: BooleanValueExpression[]): BooleanValueExpression => compound(expr, 'AND');
-const or = (...expr: BooleanValueExpression[]): BooleanValueExpression => compound(expr, 'OR');
+const and = (...expr: BooleanValueExpression[]): BooleanValueExpression =>
+  compound(expr, 'AND');
+const or = (...expr: BooleanValueExpression[]): BooleanValueExpression =>
+  compound(expr, 'OR');
 
 const field = (table: string, name: string, alias?: string): Field => ({
   kind: QueryNodeKind.Field,
@@ -127,7 +132,11 @@ const table = (name: string, joins: Join[], alias?: string): QueryTable => ({
   joins,
 });
 
-const join = (table: QueryTable, conditions: BooleanValueExpression, type?: JoinType): Join => ({
+const join = (
+  table: QueryTable,
+  conditions: BooleanValueExpression,
+  type?: JoinType,
+): Join => ({
   kind: QueryNodeKind.Join,
   type,
   table,

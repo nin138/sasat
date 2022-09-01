@@ -39,23 +39,34 @@ export class SubscriptionGenerator {
     return new ArrowFunction(
       [],
       undefined,
-      new PropertyAccessExpression(new Identifier('pubsub').importFrom('../pubsub'), 'asyncIterator').call(
-        new ArrayLiteral([new Identifier(`SubscriptionName.${event}`)]),
-      ),
+      new PropertyAccessExpression(
+        new Identifier('pubsub').importFrom('../pubsub'),
+        'asyncIterator',
+      ).call(new ArrayLiteral([new Identifier(`SubscriptionName.${event}`)])),
     );
   }
 
   private createFile(data: Subscription[]) {
-    const subscriptionEnum = new EnumDeclaration(new Identifier('SubscriptionName'), []).export();
+    const subscriptionEnum = new EnumDeclaration(
+      new Identifier('SubscriptionName'),
+      [],
+    ).export();
     const subscriptions = new ObjectLiteral();
     const publishFunctions: VariableDeclaration[] = [];
     data.forEach(it => {
       const event = it.entity.name + it.event;
-      subscriptionEnum.addMembers(new EnumMember(new Identifier(event), new StringLiteral(event)));
+      subscriptionEnum.addMembers(
+        new EnumMember(new Identifier(event), new StringLiteral(event)),
+      );
       const fn =
-        it.filters.length === 0 ? this.createAsyncIteratorCall(event) : this.createWithFilter(event, it.filters);
+        it.filters.length === 0
+          ? this.createAsyncIteratorCall(event)
+          : this.createWithFilter(event, it.filters);
       subscriptions.addProperties(
-        new PropertyAssignment(event, new ObjectLiteral(new PropertyAssignment('subscribe', fn))),
+        new PropertyAssignment(
+          event,
+          new ObjectLiteral(new PropertyAssignment('subscribe', fn)),
+        ),
       );
       publishFunctions.push(
         tsg
@@ -67,14 +78,25 @@ export class SubscriptionGenerator {
                 tsg.parameter(
                   'entity',
                   tsg
-                    .typeRef(it.event === 'Deleted' ? it.entity.identifiableInterfaceName() : it.entity.name)
-                    .importFrom(Directory.entityPath(Directory.paths.generated, it.entity.name)),
+                    .typeRef(
+                      it.event === 'Deleted'
+                        ? it.entity.identifiableInterfaceName()
+                        : it.entity.name,
+                    )
+                    .importFrom(
+                      Directory.entityPath(
+                        Directory.paths.generated,
+                        it.entity.name,
+                      ),
+                    ),
                 ),
               ],
               tsg.typeRef('Promise', [KeywordTypeNode.void]),
               new Identifier('pubsub.publish').call(
                 new Identifier(`SubscriptionName.${event}`),
-                new ObjectLiteral(tsg.propertyAssign(event, new Identifier('entity'))),
+                new ObjectLiteral(
+                  tsg.propertyAssign(event, new Identifier('entity')),
+                ),
               ),
             ),
           )
@@ -83,22 +105,39 @@ export class SubscriptionGenerator {
     });
     return new TsFile(
       subscriptionEnum,
-      new VariableDeclaration('const', new Identifier('subscription'), subscriptions).export(),
+      new VariableDeclaration(
+        'const',
+        new Identifier('subscription'),
+        subscriptions,
+      ).export(),
       ...publishFunctions,
     );
   }
 
   private createWithFilter(event: string, filters: string[]) {
     const binaryExpressions = filters
-      .map(it => new BinaryExpression(tsg.identifier(`result.${it}`), '===', new Identifier(`variables.${it}`)))
-      .reduce((previousValue, currentValue) => new BinaryExpression(previousValue, '&&', currentValue));
+      .map(
+        it =>
+          new BinaryExpression(
+            tsg.identifier(`result.${it}`),
+            '===',
+            new Identifier(`variables.${it}`),
+          ),
+      )
+      .reduce(
+        (previousValue, currentValue) =>
+          new BinaryExpression(previousValue, '&&', currentValue),
+      );
 
     return new Identifier('withFilter')
       .importFrom('graphql-subscriptions')
       .call(
         this.createAsyncIteratorCall(event),
         new ArrowFunction(
-          [new Parameter('payload', KeywordTypeNode.any), new Parameter('variables', KeywordTypeNode.any)],
+          [
+            new Parameter('payload', KeywordTypeNode.any),
+            new Parameter('variables', KeywordTypeNode.any),
+          ],
           new TypeReference('Promise', [KeywordTypeNode.boolean]),
           new Block(
             new VariableDeclaration(

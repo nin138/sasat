@@ -30,12 +30,19 @@ export const createAliasReplacer = (
         return {
           ...node,
           name:
-            tableInfo[tableAliases[node.table]]?.columnMap[node.name] || tableInfo[node.table]?.columnMap[node.name],
+            tableInfo[tableAliases[node.table]]?.columnMap[node.name] ||
+            tableInfo[node.table]?.columnMap[node.name],
           alias: node.alias || node.name,
         };
       },
-      [QueryNodeKind.Function]: (node: Fn) => ({ ...node, args: node.args.map(replaceAlias) }),
-      [QueryNodeKind.Table]: (node: QueryTable) => ({ ...node, joins: node.joins.map(replaceAlias) }),
+      [QueryNodeKind.Function]: (node: Fn) => ({
+        ...node,
+        args: node.args.map(replaceAlias),
+      }),
+      [QueryNodeKind.Table]: (node: QueryTable) => ({
+        ...node,
+        joins: node.joins.map(replaceAlias),
+      }),
       [QueryNodeKind.Join]: (node: Join) => ({
         ...node,
         table: replaceAlias(node.table),
@@ -51,8 +58,14 @@ export const createAliasReplacer = (
         left: replaceAlias(node.left),
         right: replaceAlias(node.right),
       }),
-      [QueryNodeKind.IsNullExpr]: (node: IsNullExpression) => ({ ...node, expr: replaceAlias(node.expr) }),
-      [QueryNodeKind.Parenthesis]: (node: ParenthesisExpression) => ({ ...node, expression: node.expression }),
+      [QueryNodeKind.IsNullExpr]: (node: IsNullExpression) => ({
+        ...node,
+        expr: replaceAlias(node.expr),
+      }),
+      [QueryNodeKind.Parenthesis]: (node: ParenthesisExpression) => ({
+        ...node,
+        expression: node.expression,
+      }),
       [QueryNodeKind.InExpr]: (node: InExpression) => ({
         ...node,
         left: replaceAlias(node.left),
@@ -64,9 +77,15 @@ export const createAliasReplacer = (
         begin: replaceAlias(node.begin),
         end: replaceAlias(node.end),
       }),
-      [QueryNodeKind.ContainsExpr]: (node: ContainsExpression) => ({ ...node, left: replaceAlias(node.left) }),
+      [QueryNodeKind.ContainsExpr]: (node: ContainsExpression) => ({
+        ...node,
+        left: replaceAlias(node.left),
+      }),
       [QueryNodeKind.Literal]: (node: Literal) => node,
-      [QueryNodeKind.Sort]: (node: Sort) => ({ ...node, field: replaceAlias(node.field) }),
+      [QueryNodeKind.Sort]: (node: Sort) => ({
+        ...node,
+        field: replaceAlias(node.field),
+      }),
     };
     return map[node.kind](node);
   };
@@ -83,7 +102,9 @@ export const replaceAliases = (query: Query, tableInfo: TableInfo): Query => {
   const replaceAlias = createAliasReplacer(tableInfo, tableAliases);
 
   return {
-    select: query.select.map(replaceAlias).filter(it => it.kind !== QueryNodeKind.Field || it.name) as SelectExpr[],
+    select: query.select
+      .map(replaceAlias)
+      .filter(it => it.kind !== QueryNodeKind.Field || it.name) as SelectExpr[],
     from: replaceAlias(query.from) as QueryTable,
     where: query.where ? replaceAlias(query.where) : undefined,
     sort: query.sort ? query.sort.map(replaceAlias) : undefined,

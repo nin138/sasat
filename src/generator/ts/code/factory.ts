@@ -26,7 +26,9 @@ import { MethodModifiers } from './node/modifier/methodModifiers.js';
 import { PropertyModifiers } from './node/modifier/propertyModifiers.js';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const createFactory = <T extends new (...args: any[]) => InstanceType<T>>(Constructor: T) => {
+const createFactory = <T extends new (...args: any[]) => InstanceType<T>>(
+  Constructor: T,
+) => {
   return (...args: ConstructorParameters<T>) => new Constructor(...args);
 };
 

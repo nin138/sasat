@@ -3,7 +3,10 @@ import { pickCode, TsType } from './type.js';
 import { Identifier } from '../expressions.js';
 
 export class TypeReference extends TsCode {
-  constructor(private readonly typeName: string, private readonly typeArguments: Array<Identifier | TsType> = []) {
+  constructor(
+    private readonly typeName: string,
+    private readonly typeArguments: Array<Identifier | TsType> = [],
+  ) {
     super();
     this.mergeImport(...pickCode(typeArguments));
   }
@@ -18,11 +21,17 @@ export class TypeReference extends TsCode {
   }
 
   pick(...properties: string[]): TypeReference {
-    return new TypeReference('Pick', [this, new Identifier(properties.map(it => `'${it}'`).join('|'))]);
+    return new TypeReference('Pick', [
+      this,
+      new Identifier(properties.map(it => `'${it}'`).join('|')),
+    ]);
   }
 
   protected toTsString(): string {
-    const typeArgs = this.typeArguments.length === 0 ? '' : `<${this.typeArguments.join(',')}>`;
+    const typeArgs =
+      this.typeArguments.length === 0
+        ? ''
+        : `<${this.typeArguments.join(',')}>`;
     return `${this.typeName}${typeArgs}`;
   }
 }

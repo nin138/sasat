@@ -20,12 +20,18 @@ export class QueryNodeFactory {
   }
 
   private primaryQuery(table: TableHandler) {
-    const primaryKeys = table.primaryKey.map(it => table.column(it).fieldName());
+    const primaryKeys = table.primaryKey.map(it =>
+      table.column(it).fieldName(),
+    );
     return new QueryNode(
       lowercaseFirstLetter(table.getEntityName().name),
       FindMethodNode.paramsToName(...primaryKeys),
       table.primaryKey.map(
-        it => new ParameterNode(table.column(it).fieldName(), new TypeNode(table.column(it)!.dataType(), false, false)),
+        it =>
+          new ParameterNode(
+            table.column(it).fieldName(),
+            new TypeNode(table.column(it)!.dataType(), false, false),
+          ),
       ),
       new TypeNode(table.getEntityName(), false, true),
     );

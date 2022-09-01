@@ -39,7 +39,9 @@ export abstract class SQLClient implements SQLExecutor {
     return this.rawCommand(formatQuery(templateString, ...params));
   }
 
-  protected abstract execSql(sql: string): Promise<QueryResponse | CommandResponse>;
+  protected abstract execSql(
+    sql: string,
+  ): Promise<QueryResponse | CommandResponse>;
 }
 
 export abstract class SQLTransaction extends SQLClient {

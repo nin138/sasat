@@ -7,12 +7,18 @@ describe('columnToGqlPrimitive', () => {
     expect(columnTypeToGqlPrimitive(DBColumnTypes.int)).toBe(GqlPrimitive.Int);
   });
   it('string', () => {
-    expect(columnTypeToGqlPrimitive(DBColumnTypes.varchar)).toBe(GqlPrimitive.String);
+    expect(columnTypeToGqlPrimitive(DBColumnTypes.varchar)).toBe(
+      GqlPrimitive.String,
+    );
   });
   it('boolean', () => {
-    expect(columnTypeToGqlPrimitive(DBColumnTypes.boolean)).toBe(GqlPrimitive.Boolean);
+    expect(columnTypeToGqlPrimitive(DBColumnTypes.boolean)).toBe(
+      GqlPrimitive.Boolean,
+    );
   });
   it('float', () => {
-    expect(columnTypeToGqlPrimitive(DBColumnTypes.double)).toBe(GqlPrimitive.Float);
+    expect(columnTypeToGqlPrimitive(DBColumnTypes.double)).toBe(
+      GqlPrimitive.Float,
+    );
   });
 });

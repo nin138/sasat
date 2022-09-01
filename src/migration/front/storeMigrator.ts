@@ -5,7 +5,10 @@ import { SasatError } from '../../error.js';
 import { SerializedStore } from '../serialized/serializedStore.js';
 
 export interface MigrationStore extends DataStore {
-  createTable(tableName: string, tableCreator: (table: TableBuilder) => void): MigrationStore;
+  createTable(
+    tableName: string,
+    tableCreator: (table: TableBuilder) => void,
+  ): MigrationStore;
   dropTable(tableName: string): MigrationStore;
   table(tableName: string): MigrationTable;
   sql(sql: string): MigrationStore;
@@ -31,8 +34,12 @@ export class StoreMigrator implements MigrationStore {
     this.migrationQueue.push(...query);
   }
 
-  createTable(tableName: string, tableCreator: (table: TableBuilder) => void): MigrationStore {
-    if (this.tables.find(it => it.tableName === tableName)) throw new SasatError(`${tableName} is already exist`);
+  createTable(
+    tableName: string,
+    tableCreator: (table: TableBuilder) => void,
+  ): MigrationStore {
+    if (this.tables.find(it => it.tableName === tableName))
+      throw new SasatError(`${tableName} is already exist`);
     const creator = new TableCreator(tableName, this);
     tableCreator(creator);
     const table = new TableMigrator(creator.create(), this);

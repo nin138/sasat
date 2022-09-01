@@ -6,7 +6,12 @@ import { TsCode } from '../../abstruct/tsCode.js';
 import { UnionType } from './unionType.js';
 import { Identifier } from '../expressions.js';
 
-export type TsType = TypeReference | TypeLiteral | IntersectionType | ArrayType | UnionType;
+export type TsType =
+  | TypeReference
+  | TypeLiteral
+  | IntersectionType
+  | ArrayType
+  | UnionType;
 
 export const isCode = (t: unknown): t is TsCode => t instanceof TsCode;
 

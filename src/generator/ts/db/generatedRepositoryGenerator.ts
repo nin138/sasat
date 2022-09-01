@@ -22,7 +22,10 @@ export class GeneratedRepositoryGenerator {
 
   generate(): TsFile {
     const node = this.node;
-    const entityPath = Directory.entityPath(Directory.paths.generatedDataSource.db, node.entityName);
+    const entityPath = Directory.entityPath(
+      Directory.paths.generatedDataSource.db,
+      node.entityName,
+    );
     return new TsFile(
       new Class(node.entityName.generatedDataSourceName())
         .export()
@@ -31,13 +34,22 @@ export class GeneratedRepositoryGenerator {
           new ExtendsClause(
             tsg.typeRef('BaseDBDataSource', [
               tsg.typeRef(node.entityName.name).importFrom(entityPath),
-              tsg.typeRef(node.entityName.creatableInterface()).importFrom(entityPath),
-              tsg.typeRef(node.entityName.identifiableInterfaceName()).importFrom(entityPath),
-              node.entityName.fieldTypeRef(Directory.paths.generatedDataSource.db),
+              tsg
+                .typeRef(node.entityName.creatableInterface())
+                .importFrom(entityPath),
+              tsg
+                .typeRef(node.entityName.identifiableInterfaceName())
+                .importFrom(entityPath),
+              node.entityName.fieldTypeRef(
+                Directory.paths.generatedDataSource.db,
+              ),
             ]),
           ).addImport(
             ['BaseDBDataSource'],
-            Directory.basePath(Directory.paths.generatedDataSource.db, 'baseDBDataSource'),
+            Directory.basePath(
+              Directory.paths.generatedDataSource.db,
+              'baseDBDataSource',
+            ),
           ),
         )
         .addProperty(...this.properties(node))
@@ -63,11 +75,21 @@ export class GeneratedRepositoryGenerator {
         .modifiers(tsg.propertyModifiers().readonly())
         .initializer(tsg.string(node.tableName)),
       tsg
-        .propertyDeclaration('fields', tsg.arrayType(KeywordTypeNode.string), false)
+        .propertyDeclaration(
+          'fields',
+          tsg.arrayType(KeywordTypeNode.string),
+          false,
+        )
         .modifiers(tsg.propertyModifiers().readonly())
-        .initializer(tsg.array(node.entity.fields.map(it => tsg.string(it.fieldName)))),
+        .initializer(
+          tsg.array(node.entity.fields.map(it => tsg.string(it.fieldName))),
+        ),
       tsg
-        .propertyDeclaration('primaryKeys', new ArrayType(KeywordTypeNode.string), false)
+        .propertyDeclaration(
+          'primaryKeys',
+          new ArrayType(KeywordTypeNode.string),
+          false,
+        )
         .modifiers(new PropertyModifiers().readonly().protected())
         .initializer(tsg.array(node.primaryKeys.map(it => tsg.string(it)))),
       tsg
@@ -77,7 +99,11 @@ export class GeneratedRepositoryGenerator {
           true,
         )
         .modifiers(new PropertyModifiers().readonly().protected())
-        .initializer(node.autoIncrementColumn ? tsg.string(node.autoIncrementColumn) : tsg.identifier('undefined')),
+        .initializer(
+          node.autoIncrementColumn
+            ? tsg.string(node.autoIncrementColumn)
+            : tsg.identifier('undefined'),
+        ),
     ];
   }
 
@@ -85,7 +111,10 @@ export class GeneratedRepositoryGenerator {
     const properties = node.entity.hasDefaultValueFields().map(it => {
       const fieldToExpression = () => {
         if (it.onCreateCurrentTimestamp) {
-          return tsg.identifier('getCurrentDateTimeString').addImport(['getCurrentDateTimeString'], 'sasat').call();
+          return tsg
+            .identifier('getCurrentDateTimeString')
+            .addImport(['getCurrentDateTimeString'], 'sasat')
+            .call();
         }
         return this.sqlValueToTsExpression(it.defaultValue!);
       };
@@ -97,7 +126,9 @@ export class GeneratedRepositoryGenerator {
     return new MethodDeclaration(
       'getDefaultValueString',
       [],
-      columns.length !== 0 ? tsg.typeRef(node.entityName.name).pick(...columns) : tsg.typeRef('Record<string, never>'),
+      columns.length !== 0
+        ? tsg.typeRef(node.entityName.name).pick(...columns)
+        : tsg.typeRef('Record<string, never>'),
       [body],
     ).modifiers(new MethodModifiers().protected());
   }
@@ -110,27 +141,35 @@ export class GeneratedRepositoryGenerator {
           .property('conditions')
           .property('eq')
           .call(
-            qExpr.property('field').call(tsg.identifier('tableName'), tsg.string(it.name)),
+            qExpr
+              .property('field')
+              .call(tsg.identifier('tableName'), tsg.string(it.name)),
             qExpr.property('value').call(tsg.identifier(it.name)),
           ),
       );
       const body = [
-        tsg.variable('const', 'tableName', tsg.identifier('fields?.tableAlias || this.tableName')),
+        tsg.variable(
+          'const',
+          'tableName',
+          tsg.identifier('fields?.tableAlias || this.tableName'),
+        ),
         tsg.return(
-          tsg.identifier(it.returnType.isArray ? 'this.find' : 'this.first').call(
-            tsg.identifier('fields'),
-            tsg.object().addProperties(
-              tsg.propertyAssign(
-                'where',
-                exps.length === 1
-                  ? exps[0]
-                  : qExpr
-                      .property('conditions')
-                      .property('and')
-                      .call(...exps),
+          tsg
+            .identifier(it.returnType.isArray ? 'this.find' : 'this.first')
+            .call(
+              tsg.identifier('fields'),
+              tsg.object().addProperties(
+                tsg.propertyAssign(
+                  'where',
+                  exps.length === 1
+                    ? exps[0]
+                    : qExpr
+                        .property('conditions')
+                        .property('and')
+                        .call(...exps),
+                ),
               ),
             ),
-          ),
         ),
       ];
       const returnType = tsg
@@ -147,11 +186,18 @@ export class GeneratedRepositoryGenerator {
             `fields?`,
             tsg
               .typeRef(`${node.entityName}Fields`)
-              .importFrom(Directory.generatedPath(Directory.paths.generatedDataSource.db, 'fields')),
+              .importFrom(
+                Directory.generatedPath(
+                  Directory.paths.generatedDataSource.db,
+                  'fields',
+                ),
+              ),
           ),
         ],
         new TypeReference('Promise', [
-          it.returnType.isArray ? tsg.arrayType(returnType) : tsg.unionType([returnType, tsg.typeRef('null')]),
+          it.returnType.isArray
+            ? tsg.arrayType(returnType)
+            : tsg.unionType([returnType, tsg.typeRef('null')]),
         ]),
         body,
       );

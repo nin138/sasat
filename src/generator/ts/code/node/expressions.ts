@@ -36,14 +36,20 @@ export abstract class TsExpression extends TsCode {
 
 export class CallExpression extends TsExpression {
   private readonly args: TsExpression[];
-  constructor(private readonly identifier: TsExpression, ...args: TsExpression[]) {
+  constructor(
+    private readonly identifier: TsExpression,
+    ...args: TsExpression[]
+  ) {
     super();
     this.mergeImport(identifier, ...args);
     this.args = args;
   }
 
   protected toTsString(): string {
-    return this.identifier.toString() + `(${this.args.map(it => it.toString()).join(',')})`;
+    return (
+      this.identifier.toString() +
+      `(${this.args.map(it => it.toString()).join(',')})`
+    );
   }
 }
 
@@ -101,14 +107,20 @@ export class ObjectLiteral extends Literal {
 }
 
 export class ArrowFunction extends Literal {
-  constructor(private params: Parameter[], private returnType: TsType | undefined, private body: TsExpression | Block) {
+  constructor(
+    private params: Parameter[],
+    private returnType: TsType | undefined,
+    private body: TsExpression | Block,
+  ) {
     super();
     this.mergeImport(...params, body, returnType);
   }
 
   protected toTsString(): string {
     const returnType = this.returnType ? `: ${this.returnType}` : '';
-    return `(${Parameter.arrayToString(this.params)})${returnType} => ${this.body.toString()}`;
+    return `(${Parameter.arrayToString(
+      this.params,
+    )})${returnType} => ${this.body.toString()}`;
   }
 
   toAsync(): AsyncExpression {
@@ -139,7 +151,15 @@ export class AwaitExpression extends TsExpression {
   }
 }
 
-export type BinaryExpressionToken = '===' | '!==' | '+' | '-' | '*' | '/' | '||' | '&&';
+export type BinaryExpressionToken =
+  | '==='
+  | '!=='
+  | '+'
+  | '-'
+  | '*'
+  | '/'
+  | '||'
+  | '&&';
 export class BinaryExpression extends TsExpression {
   constructor(
     private readonly left: TsExpression,
@@ -199,7 +219,10 @@ export class NonNullExpression extends TsExpression {
 }
 
 export class PropertyAccessExpression extends TsExpression {
-  constructor(private readonly expression: TsExpression, private readonly propertyName: string) {
+  constructor(
+    private readonly expression: TsExpression,
+    private readonly propertyName: string,
+  ) {
     super();
     this.mergeImport(expression);
   }
@@ -210,7 +233,10 @@ export class PropertyAccessExpression extends TsExpression {
 }
 
 export class AsExpression extends TsExpression {
-  constructor(private readonly expression: TsExpression, private readonly asType: TsType) {
+  constructor(
+    private readonly expression: TsExpression,
+    private readonly asType: TsType,
+  ) {
     super();
     this.mergeImport(expression, asType);
   }

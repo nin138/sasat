@@ -50,6 +50,9 @@ export class Class extends ExportableDeclaration {
     const implement = this._implements ? this._implements.toString() + ' ' : '';
     const extend = this._extends ? this._extends.toString() + '' : '';
     const modifier = this.isAbstract ? 'abstract ' : '';
-    return modifier + `class ${this.name} ${implement}${extend}{${properties}${methods}}`;
+    return (
+      modifier +
+      `class ${this.name} ${implement}${extend}{${properties}${methods}}`
+    );
   }
 }

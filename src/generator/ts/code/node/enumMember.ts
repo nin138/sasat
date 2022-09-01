@@ -2,7 +2,10 @@ import { TsCode } from '../abstruct/tsCode.js';
 import { Identifier, NumericLiteral, StringLiteral } from './expressions.js';
 
 export class EnumMember extends TsCode {
-  constructor(private readonly identifier: Identifier, private readonly value?: StringLiteral | NumericLiteral) {
+  constructor(
+    private readonly identifier: Identifier,
+    private readonly value?: StringLiteral | NumericLiteral,
+  ) {
     super();
     this.mergeImport(identifier);
     if (value) this.mergeImport(value);

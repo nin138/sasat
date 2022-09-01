@@ -3,10 +3,18 @@ import { EntityNode } from '../entityNode.js';
 
 export class TypeDefNode {
   static new(entity: EntityNode): TypeDefNode {
-    const reference = entity.relations.map(rel => new ParameterNode(rel.refPropertyName(), rel.refType()));
+    const reference = entity.relations.map(
+      rel => new ParameterNode(rel.refPropertyName(), rel.refType()),
+    );
     const referencedBy = entity
       .findReferencedRelations()
-      .map(rel => new ParameterNode(rel.referencedByPropertyName(), rel.referenceByType()));
+      .map(
+        rel =>
+          new ParameterNode(
+            rel.referencedByPropertyName(),
+            rel.referenceByType(),
+          ),
+      );
 
     return new TypeDefNode(entity.entityName.name, [
       ...entity.fields.map(it => it.toParam()),

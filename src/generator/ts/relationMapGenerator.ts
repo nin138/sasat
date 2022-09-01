@@ -15,7 +15,10 @@ export class RelationMapGenerator {
         .variable(
           'const',
           'dataStoreInfo',
-          tsg.object(tsg.propertyAssign('tableInfo'), tsg.propertyAssign('relationMap')),
+          tsg.object(
+            tsg.propertyAssign('tableInfo'),
+            tsg.propertyAssign('relationMap'),
+          ),
           tsg.typeRef('DataStoreInfo').importFrom('sasat'),
         )
         .export(),
@@ -33,12 +36,16 @@ export class RelationMapGenerator {
   }
 
   private entityRelationType(node: EntityNode) {
-    const importEntity = (entity: EntityName) => Directory.entityPath(Directory.paths.generated, entity);
+    const importEntity = (entity: EntityName) =>
+      Directory.entityPath(Directory.paths.generated, entity);
     const typeProperties = [
       ...node.relations.map(it =>
         tsg.propertySignature(
           it.refPropertyName(),
-          it.refType().toTsType().addImport([it.toEntityName.name], importEntity(it.toEntityName)),
+          it
+            .refType()
+            .toTsType()
+            .addImport([it.toEntityName.name], importEntity(it.toEntityName)),
         ),
       ),
       ...node
@@ -46,7 +53,13 @@ export class RelationMapGenerator {
         .map(it =>
           tsg.propertySignature(
             it.referencedByPropertyName(),
-            it.referenceByType().toTsType().addImport([it.parent.entityName.name], importEntity(it.parent.entityName)),
+            it
+              .referenceByType()
+              .toTsType()
+              .addImport(
+                [it.parent.entityName.name],
+                importEntity(it.parent.entityName),
+              ),
           ),
         ),
     ];
@@ -54,7 +67,9 @@ export class RelationMapGenerator {
       tsg
         .typeAlias(
           node.entityName.relationTypeName(),
-          typeProperties.length !== 0 ? tsg.typeLiteral(typeProperties) : tsg.typeRef('Record<never, never>'),
+          typeProperties.length !== 0
+            ? tsg.typeLiteral(typeProperties)
+            : tsg.typeRef('Record<never, never>'),
         )
         .export(),
       tsg
@@ -72,7 +87,9 @@ export class RelationMapGenerator {
           tsg
             .typeRef('EntityResult', [
               tsg.typeRef(node.entityName.entityWithRelationTypeName()),
-              node.entityName.identifiableTypeReference(Directory.paths.generated),
+              node.entityName.identifiableTypeReference(
+                Directory.paths.generated,
+              ),
             ])
             .importFrom('sasat'),
         )
@@ -95,8 +112,18 @@ export class RelationMapGenerator {
             .property('conditions')
             .property('eq')
             .call(
-              qExpr.property('field').call(tsg.identifier('parentTableAlias'), tsg.string(parentColumn)),
-              qExpr.property('field').call(tsg.identifier('childTableAlias'), tsg.string(childColumn)),
+              qExpr
+                .property('field')
+                .call(
+                  tsg.identifier('parentTableAlias'),
+                  tsg.string(parentColumn),
+                ),
+              qExpr
+                .property('field')
+                .call(
+                  tsg.identifier('childTableAlias'),
+                  tsg.string(childColumn),
+                ),
             ),
         ),
       );
@@ -120,7 +147,10 @@ export class RelationMapGenerator {
             tsg.propertyAssign(
               rel.referencedByPropertyName(),
               tsg.object(
-                tsg.propertyAssign('table', tsg.string(rel.parent.repository.tableName)),
+                tsg.propertyAssign(
+                  'table',
+                  tsg.string(rel.parent.repository.tableName),
+                ),
                 on(rel.toField, rel.fromField),
                 tsg.propertyAssign('relation', tsg.string(rel.relation)),
               ),
@@ -134,7 +164,11 @@ export class RelationMapGenerator {
     const columnMap = (entity: EntityNode) =>
       tsg.propertyAssign(
         'columnMap',
-        tsg.object(...entity.fields.map(field => tsg.propertyAssign(field.fieldName, tsg.string(field.columnName)))),
+        tsg.object(
+          ...entity.fields.map(field =>
+            tsg.propertyAssign(field.fieldName, tsg.string(field.columnName)),
+          ),
+        ),
       );
     return tsg.variable(
       'const',
@@ -144,7 +178,10 @@ export class RelationMapGenerator {
           tsg.propertyAssign(
             repo.tableName,
             tsg.object(
-              tsg.propertyAssign('identifiableKeys', tsg.array(repo.primaryKeys.map(tsg.string))),
+              tsg.propertyAssign(
+                'identifiableKeys',
+                tsg.array(repo.primaryKeys.map(tsg.string)),
+              ),
               columnMap(repo.entity),
             ),
           ),

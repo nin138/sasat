@@ -1,4 +1,7 @@
-import { columnTypeToTsType, DBColumnTypes } from '../../migration/column/columnTypes.js';
+import {
+  columnTypeToTsType,
+  DBColumnTypes,
+} from '../../migration/column/columnTypes.js';
 import { PropertySignature } from '../../generator/ts/code/node/propertySignature.js';
 import { tsg } from '../../generator/ts/code/factory.js';
 import { ParameterNode } from './parameterNode.js';
@@ -45,7 +48,12 @@ export class FieldNode {
   }
 
   public toPropertySignature(): PropertySignature {
-    return new PropertySignature(this.fieldName, tsg.typeRef(this.tsType()), false, true);
+    return new PropertySignature(
+      this.fieldName,
+      tsg.typeRef(this.tsType()),
+      false,
+      true,
+    );
   }
 
   public hasDefaultValue(): boolean {
@@ -53,10 +61,16 @@ export class FieldNode {
   }
 
   toParam(): ParameterNode {
-    return new ParameterNode(this.fieldName, new TypeNode(this.dbType, false, this.isNullable));
+    return new ParameterNode(
+      this.fieldName,
+      new TypeNode(this.dbType, false, this.isNullable),
+    );
   }
 
   toOptionalParam(): ParameterNode {
-    return new ParameterNode(this.fieldName, new TypeNode(this.dbType, false, true));
+    return new ParameterNode(
+      this.fieldName,
+      new TypeNode(this.dbType, false, true),
+    );
   }
 }

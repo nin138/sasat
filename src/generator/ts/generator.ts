@@ -56,7 +56,10 @@ export class TsCodeGenerator implements CodeGenerator {
 
   generateFiles(root: RootNode): FileData {
     return [
-      { name: 'relationMap', body: new RelationMapGenerator().generate(root).toString() },
+      {
+        name: 'relationMap',
+        body: new RelationMapGenerator().generate(root).toString(),
+      },
       { name: 'fields', body: new FieldGenerator().generate(root).toString() },
     ];
   }

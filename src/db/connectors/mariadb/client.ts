@@ -1,4 +1,9 @@
-import { CommandResponse, DBClient, QueryResponse, SQLTransaction } from '../dbClient.js';
+import {
+  CommandResponse,
+  DBClient,
+  QueryResponse,
+  SQLTransaction,
+} from '../dbClient.js';
 import * as maria from 'mariadb';
 import { config } from '../../../config/config.js';
 import { MariaDBTransaction } from './transaction.js';

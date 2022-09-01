@@ -20,7 +20,11 @@ export class DataStoreHandler implements DataStore {
   referencedBy(tableName: string): ReferenceColumn[] {
     return this.tables
       .map(
-        it => it.columns.find(it => it.isReference() && it.data.reference.targetTable === tableName) as ReferenceColumn,
+        it =>
+          it.columns.find(
+            it =>
+              it.isReference() && it.data.reference.targetTable === tableName,
+          ) as ReferenceColumn,
       )
       .filter(it => it);
   }

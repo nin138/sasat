@@ -13,7 +13,10 @@ export class FieldGenerator {
           tsg
             .typeAlias(
               `${it.entityName}Fields`,
-              tsg.intersectionType(tsg.typeRef('Fields').importFrom('sasat'), this.typeLiteral(it)),
+              tsg.intersectionType(
+                tsg.typeRef('Fields').importFrom('sasat'),
+                this.typeLiteral(it),
+              ),
             )
             .export(),
         ),
@@ -26,19 +29,31 @@ export class FieldGenerator {
         tsg.arrayType(
           tsg
             .typeRef(`keyof ${entity.entityName}`)
-            .addImport([entity.entityName.name], Directory.entityPath(Directory.paths.generated, entity.entityName)),
+            .addImport(
+              [entity.entityName.name],
+              Directory.entityPath(
+                Directory.paths.generated,
+                entity.entityName,
+              ),
+            ),
         ),
       ),
       tsg.propertySignature(
         'relations?',
         tsg.typeLiteral([
           ...entity.relations.map(it =>
-            tsg.propertySignature(`${it.refPropertyName()}?`, tsg.typeRef(`${it.toEntityName}Fields`)),
+            tsg.propertySignature(
+              `${it.refPropertyName()}?`,
+              tsg.typeRef(`${it.toEntityName}Fields`),
+            ),
           ),
           ...entity
             .findReferencedRelations()
             .map(it =>
-              tsg.propertySignature(`${it.referencedByPropertyName()}?`, tsg.typeRef(`${it.parent.entityName}Fields`)),
+              tsg.propertySignature(
+                `${it.referencedByPropertyName()}?`,
+                tsg.typeRef(`${it.parent.entityName}Fields`),
+              ),
             ),
         ]),
       ),

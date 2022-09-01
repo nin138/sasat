@@ -16,32 +16,53 @@ export class TypeDefGenerator {
       this.createMutation(root.mutations()),
       this.createSubscription(root.mutations()),
     ].filter(it => it !== undefined) as PropertyAssignment[];
-    return new TsFile(tsg.variable('const', tsg.identifier('typeDef'), tsg.object(...types)).export());
+    return new TsFile(
+      tsg
+        .variable('const', tsg.identifier('typeDef'), tsg.object(...types))
+        .export(),
+    );
   }
   private createTypes(types: TypeDefNode[]): PropertyAssignment[] {
     return types.map(type =>
-      tsg.propertyAssign(type.typeName, tsg.array(type.params.map(it => tsg.string(it.toGqlString())))),
+      tsg.propertyAssign(
+        type.typeName,
+        tsg.array(type.params.map(it => tsg.string(it.toGqlString()))),
+      ),
     );
   }
 
   private createQuery(nodes: QueryNode[]): PropertyAssignment {
-    return tsg.propertyAssign('Query', tsg.array(nodes.map(it => tsg.string(it.toGqlString()))));
+    return tsg.propertyAssign(
+      'Query',
+      tsg.array(nodes.map(it => tsg.string(it.toGqlString()))),
+    );
   }
 
   private createMutation(nodes: MutationNode[]): PropertyAssignment {
-    return tsg.propertyAssign('Mutation', tsg.array(nodes.map(it => tsg.string(it.toTypeDefString()))));
+    return tsg.propertyAssign(
+      'Mutation',
+      tsg.array(nodes.map(it => tsg.string(it.toTypeDefString()))),
+    );
   }
 
-  private createSubscription(nodes: MutationNode[]): PropertyAssignment | undefined {
+  private createSubscription(
+    nodes: MutationNode[],
+  ): PropertyAssignment | undefined {
     const createParam = (filters: SubscriptionFilterNode[]): string => {
       if (filters.length === 0) return '';
-      return `(${filters.map(it => `${it.columnName}: ${it.type}!`).join(', ')})`;
+      return `(${filters
+        .map(it => `${it.columnName}: ${it.type}!`)
+        .join(', ')})`;
     };
     const subscriptions = nodes
       .filter(it => it.subscribed)
       .map(it => {
-        const returnType = !MutationNode.isDeleteMutation(it) ? `${it.entityName}!` : `Deleted${it.entityName}!`;
-        return `${it.entityName}${it.type}${createParam(it.subscriptionFilters)}: ${returnType}`;
+        const returnType = !MutationNode.isDeleteMutation(it)
+          ? `${it.entityName}!`
+          : `Deleted${it.entityName}!`;
+        return `${it.entityName}${it.type}${createParam(
+          it.subscriptionFilters,
+        )}: ${returnType}`;
       })
       .map(tsg.string);
     if (subscriptions.length === 0) return undefined;

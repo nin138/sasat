@@ -17,7 +17,14 @@ export class ResolverGenerator {
     return tsg.propertyAssign(
       propertyName,
       tsg.arrowFunc(
-        [tsg.parameter(paramName, tsg.typeRef(relation.parent.entityName.resultType()).importFrom('./relationMap'))],
+        [
+          tsg.parameter(
+            paramName,
+            tsg
+              .typeRef(relation.parent.entityName.resultType())
+              .importFrom('./relationMap'),
+          ),
+        ],
         undefined,
         tsg.block(
           tsg.if(
@@ -29,10 +36,20 @@ export class ResolverGenerator {
               .new(
                 tsg
                   .identifier(relation.toEntityName.dataSourceName())
-                  .importFrom(Directory.dbDataSourcePath(Directory.paths.generated, relation.toEntityName)),
+                  .importFrom(
+                    Directory.dbDataSourcePath(
+                      Directory.paths.generated,
+                      relation.toEntityName,
+                    ),
+                  ),
               )
               .property(FindMethodNode.paramsToName(relation.toField))
-              .call(tsg.identifier(paramName).property(relation.fromField).nonNull()),
+              .call(
+                tsg
+                  .identifier(paramName)
+                  .property(relation.fromField)
+                  .nonNull(),
+              ),
           ),
         ),
       ),
@@ -45,7 +62,14 @@ export class ResolverGenerator {
     return tsg.propertyAssign(
       propertyName,
       tsg.arrowFunc(
-        [tsg.parameter(paramName, tsg.typeRef(relation.toEntityName.resultType()).importFrom('./relationMap'))],
+        [
+          tsg.parameter(
+            paramName,
+            tsg
+              .typeRef(relation.toEntityName.resultType())
+              .importFrom('./relationMap'),
+          ),
+        ],
         undefined,
         tsg.block(
           tsg.if(
@@ -57,10 +81,17 @@ export class ResolverGenerator {
               .new(
                 tsg
                   .identifier(relation.parent.entityName.dataSourceName())
-                  .importFrom(Directory.dbDataSourcePath(Directory.paths.generated, relation.parent.entityName)),
+                  .importFrom(
+                    Directory.dbDataSourcePath(
+                      Directory.paths.generated,
+                      relation.parent.entityName,
+                    ),
+                  ),
               )
               .property(FindMethodNode.paramsToName(relation.fromField))
-              .call(tsg.identifier(paramName).property(relation.toField).nonNull()),
+              .call(
+                tsg.identifier(paramName).property(relation.toField).nonNull(),
+              ),
           ),
         ),
       ),
@@ -72,7 +103,9 @@ export class ResolverGenerator {
       node.entityName.name,
       tsg.object(
         ...node.relations.map(relation => this.relationProperty(relation)),
-        ...node.findReferencedRelations().map(relation => this.referencedByProperty(relation)),
+        ...node
+          .findReferencedRelations()
+          .map(relation => this.referencedByProperty(relation)),
       ),
     );
   };
@@ -80,12 +113,21 @@ export class ResolverGenerator {
   generate(root: RootNode): TsFile {
     const hasSubscription = root.mutations().some(it => it.subscribed);
     const properties = [
-      new PropertyAssignment('Query', new Identifier('query').importFrom('./query')),
-      new PropertyAssignment('Mutation', new Identifier('mutation').importFrom('./mutation')),
+      new PropertyAssignment(
+        'Query',
+        new Identifier('query').importFrom('./query'),
+      ),
+      new PropertyAssignment(
+        'Mutation',
+        new Identifier('mutation').importFrom('./mutation'),
+      ),
     ];
     if (hasSubscription)
       properties.push(
-        new PropertyAssignment('Subscription', new Identifier('subscription').importFrom('./subscription')),
+        new PropertyAssignment(
+          'Subscription',
+          new Identifier('subscription').importFrom('./subscription'),
+        ),
       );
     return new TsFile(
       new VariableDeclaration(
@@ -93,7 +135,9 @@ export class ResolverGenerator {
         new Identifier('resolvers'),
         new ObjectLiteral(
           ...properties,
-          new SpreadAssignment(new ObjectLiteral(...root.entities().map(this.entityResolver))),
+          new SpreadAssignment(
+            new ObjectLiteral(...root.entities().map(this.entityResolver)),
+          ),
         ),
       ).export(),
     );

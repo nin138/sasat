@@ -6,14 +6,20 @@ import { EntityName } from './entityName.js';
 import { Relation } from '../../migration/data/relation.js';
 
 export class RelationNode {
-  static fromReference(entity: EntityNode, ref: ReferenceColumn, targetFieldName: string): RelationNode {
+  static fromReference(
+    entity: EntityNode,
+    ref: ReferenceColumn,
+    targetFieldName: string,
+  ): RelationNode {
     return new RelationNode(
       entity,
       ref.data.reference.relationName,
       ref.data.fieldName,
       targetFieldName,
       ref.data.reference.targetTable,
-      new EntityName(TableHandler.tableNameToEntityName(ref.data.reference.targetTable)),
+      new EntityName(
+        TableHandler.tableNameToEntityName(ref.data.reference.targetTable),
+      ),
       ref.data.reference.relation,
     );
   }
@@ -40,7 +46,8 @@ export class RelationNode {
   }
 
   referenceByType(): TypeNode {
-    if (this.relation === 'Many') return new TypeNode(this.parent.entityName, true, false);
+    if (this.relation === 'Many')
+      return new TypeNode(this.parent.entityName, true, false);
     return new TypeNode(this.parent.entityName, false, this.relation !== 'One');
   }
 }

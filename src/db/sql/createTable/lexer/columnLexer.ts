@@ -19,4 +19,5 @@ const keywords = [
   'NULL',
 ];
 
-export const lexColumn = (str: string): Token[] => new Lexer(str, keywords).lex();
+export const lexColumn = (str: string): Token[] =>
+  new Lexer(str, keywords).lex();

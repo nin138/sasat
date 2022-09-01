@@ -5,7 +5,10 @@ export type Terminator = 'separator' | 'whitespace' | 'operator';
 export type Rule = {
   start: RegExp;
   terminator: Terminator[];
-  fn: (char: string, next: () => { hasNext: boolean; value: string; terminated: boolean }) => Token | undefined;
+  fn: (
+    char: string,
+    next: () => { hasNext: boolean; value: string; terminated: boolean },
+  ) => Token | undefined;
 };
 
 const createStringLiteralRule = (literalInitializer: RegExp): Rule => {
@@ -54,16 +57,22 @@ export type Keyword = {
   value: string;
   kind: string;
 };
-const createKeywordRule = (keywords: (Keyword | string)[], ignoreCase = false): Rule => {
+const createKeywordRule = (
+  keywords: (Keyword | string)[],
+  ignoreCase = false,
+): Rule => {
   return {
     start: /./,
     terminator: ['whitespace', 'separator'],
     fn: (start, next) => {
       let str = ignoreCase ? start.toUpperCase() : start;
       let words = keywords.map(it =>
-        typeof it === 'string' ? { kind: TokenKind.Keyword, value: it } : { ...it, value: it.value },
+        typeof it === 'string'
+          ? { kind: TokenKind.Keyword, value: it }
+          : { ...it, value: it.value },
       );
-      if (ignoreCase) words = words.map(it => ({ ...it, value: it.value.toUpperCase() }));
+      if (ignoreCase)
+        words = words.map(it => ({ ...it, value: it.value.toUpperCase() }));
       let v;
       // eslint-disable-next-line no-constant-condition
       while (true) {

@@ -21,7 +21,11 @@ export class EntityGenerator {
       .typeAlias(
         this.node.entityName.creatableInterface(),
         tsg.intersectionType(
-          tsg.typeLiteral(this.node.onCreateRequiredFields().map(it => it.toPropertySignature())),
+          tsg.typeLiteral(
+            this.node
+              .onCreateRequiredFields()
+              .map(it => it.toPropertySignature()),
+          ),
           tsg.typeRef(this.node.entityName.name).partial(),
         ),
       )
@@ -30,7 +34,9 @@ export class EntityGenerator {
   private identifiable(): TsStatement {
     return tsg
       .interface(this.node.entityName.identifiableInterfaceName())
-      .addProperties(this.node.identifiableFields().map(it => it.toPropertySignature()))
+      .addProperties(
+        this.node.identifiableFields().map(it => it.toPropertySignature()),
+      )
       .export();
   }
 }

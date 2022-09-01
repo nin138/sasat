@@ -22,7 +22,8 @@ export class Lexer2 {
 
   private isTerminated(value: string, terminators: Terminator[]) {
     const separator = (value: string) => this.separators.includes(value);
-    const operator = (value: string) => this.operators.some(it => it.startsWith(value));
+    const operator = (value: string) =>
+      this.operators.some(it => it.startsWith(value));
     const whiteSpace = (value: string) => this.whiteSpaces.test(value);
     return terminators.some(it => {
       switch (it) {
@@ -47,7 +48,9 @@ export class Lexer2 {
   private findOperator(current: Current): Token | undefined {
     const operator = (value: string) => ({ kind: TokenKind.Operator, value });
     if (!current.hasNext) {
-      return this.operators.includes(current.value) ? operator(current.value) : undefined;
+      return this.operators.includes(current.value)
+        ? operator(current.value)
+        : undefined;
     }
     let operators = this.operators.filter(it => it.startsWith(current.value));
     let state = current.value;

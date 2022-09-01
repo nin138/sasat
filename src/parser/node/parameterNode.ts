@@ -7,6 +7,8 @@ export class ParameterNode {
   }
 
   static parametersToGqlString(...params: ParameterNode[]): string {
-    return params.length === 0 ? '' : `(${params.map(it => it.toGqlString()).join(', ')})`;
+    return params.length === 0
+      ? ''
+      : `(${params.map(it => it.toGqlString()).join(', ')})`;
   }
 }

@@ -17,7 +17,9 @@ export type ResultRow = Record<string, SqlValueType>;
 type ParseObjs = Record<string, Record<string, unknown>>;
 
 const getUnique = (target: ResultRow, info: QueryResolveInfo) =>
-  info.keyAliases.map(it => target[info.tableAlias + SELECT_ALIAS_SEPARATOR + it]).join('_~_');
+  info.keyAliases
+    .map(it => target[info.tableAlias + SELECT_ALIAS_SEPARATOR + it])
+    .join('_~_');
 
 const rowToObjs = (row: ResultRow): ParseObjs => {
   const objs: Record<string, ResultRow> = {};
@@ -45,14 +47,25 @@ const hydrateRow = (info: QueryResolveInfo, objs: ParseObjs) => {
   return result;
 };
 
-const findAndAppend = (base: Record<string, unknown>, info: QueryResolveInfo, objs: ParseObjs): boolean => {
+const findAndAppend = (
+  base: Record<string, unknown>,
+  info: QueryResolveInfo,
+  objs: ParseObjs,
+): boolean => {
   if (info.isArray) {
     if (!base[info.property]) {
       base[info.property] = [hydrateRow(info, objs)];
       return true;
     }
-    const tArr: Record<string, unknown>[] = base[info.property] as Record<string, unknown>[];
-    const target = tArr.find(item => item && info.keyAliases.every(key => item[key] === objs[info.tableAlias][key]));
+    const tArr: Record<string, unknown>[] = base[info.property] as Record<
+      string,
+      unknown
+    >[];
+    const target = tArr.find(
+      item =>
+        item &&
+        info.keyAliases.every(key => item[key] === objs[info.tableAlias][key]),
+    );
     if (!target) {
       const child = hydrateRow(info, objs);
       if (child) tArr.push(child);
@@ -67,7 +80,10 @@ const findAndAppend = (base: Record<string, unknown>, info: QueryResolveInfo, ob
 /**
  * to use this function require to select primary keys for every table
  */
-export const hydrate = (data: ResultRow[], info: QueryResolveInfo): unknown[] => {
+export const hydrate = (
+  data: ResultRow[],
+  info: QueryResolveInfo,
+): unknown[] => {
   const result: Record<string, unknown>[] = [];
   // Record<uniqueValue, index of result>
   const t0mapper: Record<string, number> = {};
@@ -87,15 +103,32 @@ export const hydrate = (data: ResultRow[], info: QueryResolveInfo): unknown[] =>
   return result;
 };
 
-export const appendKeysToQuery = (query: Query, identifiableKeyMap: TableInfo): Query => {
-  const getTables = (table: QueryTable): QueryTable[] => [table, ...table.joins.flatMap(it => getTables(it.table))];
+export const appendKeysToQuery = (
+  query: Query,
+  identifiableKeyMap: TableInfo,
+): Query => {
+  const getTables = (table: QueryTable): QueryTable[] => [
+    table,
+    ...table.joins.flatMap(it => getTables(it.table)),
+  ];
   const tables = getTables(query.from);
   tables.forEach(table => {
     const keys = identifiableKeyMap[table.name].identifiableKeys;
     keys.forEach(key => {
-      if (!query.select.some(it => it.kind === QueryNodeKind.Field && it.table === table.alias && it.name === key)) {
+      if (
+        !query.select.some(
+          it =>
+            it.kind === QueryNodeKind.Field &&
+            it.table === table.alias &&
+            it.name === key,
+        )
+      ) {
         query.select.push(
-          QExpr.field(table.alias! || table.name, key, (table.alias || table.name) + SELECT_ALIAS_SEPARATOR + key),
+          QExpr.field(
+            table.alias! || table.name,
+            key,
+            (table.alias || table.name) + SELECT_ALIAS_SEPARATOR + key,
+          ),
         );
       }
     });

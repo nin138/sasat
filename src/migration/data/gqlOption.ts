@@ -38,7 +38,10 @@ export const getDefaultGqlOption = (): GqlOption => ({
   },
 });
 
-export const updateMutationOption = (option: GqlOption, mutation: Partial<GqlOption['mutation']>): GqlOption => {
+export const updateMutationOption = (
+  option: GqlOption,
+  mutation: Partial<GqlOption['mutation']>,
+): GqlOption => {
   return {
     ...option,
     mutation: {

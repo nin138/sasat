@@ -4,7 +4,10 @@ import { Fields } from '../../field.js';
 
 export type RelationInfo = {
   table: string;
-  on: (parentTableAlias: string, childTableAlias: string) => BooleanValueExpression;
+  on: (
+    parentTableAlias: string,
+    childTableAlias: string,
+  ) => BooleanValueExpression;
   relation: 'One' | 'OneOrZero' | 'Many';
 };
 
@@ -29,7 +32,9 @@ const joinToQueryResolveInfo = (
     keyAliases: tableInfo[info.table].identifiableKeys,
     joins: Object.entries(fields.relations || {})
       .filter(([, value]) => value)
-      .map(([key, value]) => joinToQueryResolveInfo(info.table, key, value!, map, tableInfo)),
+      .map(([key, value]) =>
+        joinToQueryResolveInfo(info.table, key, value!, map, tableInfo),
+      ),
     property,
   };
 };
@@ -59,7 +64,9 @@ export const createQueryResolveInfo = (
     keyAliases: tableInfo[tableName].identifiableKeys,
     joins: Object.entries(fields.relations || {})
       .filter(([, value]) => value)
-      .map(([key, value]) => joinToQueryResolveInfo(tableName, key, value!, map, tableInfo)),
+      .map(([key, value]) =>
+        joinToQueryResolveInfo(tableName, key, value!, map, tableInfo),
+      ),
     property: '',
   };
 };

@@ -1,13 +1,29 @@
-import { CommandResponse, DataStoreInfo, getDbClient, QExpr } from '../index.js';
+import {
+  CommandResponse,
+  DataStoreInfo,
+  getDbClient,
+  QExpr,
+} from '../index.js';
 import { Fields } from './field.js';
-import { appendKeysToQuery, hydrate, ResultRow } from './dsl/query/sql/hydrate.js';
+import {
+  appendKeysToQuery,
+  hydrate,
+  ResultRow,
+} from './dsl/query/sql/hydrate.js';
 import { SQLExecutor, SqlValueType } from '../db/connectors/dbClient.js';
 import { createQueryResolveInfo } from './dsl/query/createQueryResolveInfo.js';
 import { queryToSql } from './dsl/query/sql/queryToSql.js';
 import { fieldToQuery } from './dsl/query/fieldToQuery.js';
 import { BooleanValueExpression, Query, Sort } from './dsl/query/query.js';
 import { replaceAliases } from './dsl/replaceAliases.js';
-import { Create, createToSql, Delete, deleteToSql, Update, updateToSql } from './dsl/mutation/mutation.js';
+import {
+  Create,
+  createToSql,
+  Delete,
+  deleteToSql,
+  Update,
+  updateToSql,
+} from './dsl/mutation/mutation.js';
 
 export type EntityResult<Entity, Identifiable> = Identifiable & Partial<Entity>;
 interface Repository<Entity, Creatable, Identifiable> {
@@ -29,7 +45,9 @@ export abstract class SasatRepository<
   protected abstract readonly primaryKeys: string[];
   protected abstract readonly autoIncrementColumn?: string;
   constructor(protected client: SQLExecutor = getDbClient()) {}
-  protected abstract getDefaultValueString(): Partial<{ [P in keyof Entity]: Entity[P] | string | null }>;
+  protected abstract getDefaultValueString(): Partial<{
+    [P in keyof Entity]: Entity[P] | string | null;
+  }>;
 
   protected async query(query: Query): Promise<ResultRow[]> {
     const sql = queryToSql(replaceAliases(query, this.maps.tableInfo));
@@ -43,9 +61,14 @@ export abstract class SasatRepository<
     } as unknown as Entity;
     const dsl: Create = {
       table: this.tableName,
-      values: Object.entries(obj).map(([column, value]) => ({ field: column, value })),
+      values: Object.entries(obj).map(([column, value]) => ({
+        field: column,
+        value,
+      })),
     };
-    const response = await this.client.rawCommand(createToSql(dsl, this.maps.tableInfo));
+    const response = await this.client.rawCommand(
+      createToSql(dsl, this.maps.tableInfo),
+    );
     if (!this.autoIncrementColumn) return obj;
     return {
       ...obj,
@@ -56,7 +79,10 @@ export abstract class SasatRepository<
   update(entity: Identifiable & Partial<Entity>): Promise<CommandResponse> {
     const dsl: Update = {
       table: this.tableName,
-      values: Object.entries(entity).map(([column, value]) => ({ field: column, value: value as SqlValueType })),
+      values: Object.entries(entity).map(([column, value]) => ({
+        field: column,
+        value: value as SqlValueType,
+      })),
       where: this.createIdentifiableExpression(entity),
     };
     return this.client.rawCommand(updateToSql(dsl, this.maps.tableInfo));
@@ -99,8 +125,15 @@ export abstract class SasatRepository<
       limit: options?.limit,
       offset: options?.offset,
     };
-    const info = createQueryResolveInfo(this.tableName, field, this.maps.relationMap, this.maps.tableInfo);
-    const result = await this.query(appendKeysToQuery(query, this.maps.tableInfo));
+    const info = createQueryResolveInfo(
+      this.tableName,
+      field,
+      this.maps.relationMap,
+      this.maps.tableInfo,
+    );
+    const result = await this.query(
+      appendKeysToQuery(query, this.maps.tableInfo),
+    );
     return hydrate(result, info) as EntityResult<Entity, Identifiable>[];
   }
 
@@ -109,7 +142,10 @@ export abstract class SasatRepository<
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const value = (entity as any)[it];
       if (!value) throw new Error(`field ${it} is required`);
-      return QExpr.conditions.eq(QExpr.field(this.tableName, it), QExpr.value(value));
+      return QExpr.conditions.eq(
+        QExpr.field(this.tableName, it),
+        QExpr.value(value),
+      );
     });
     return QExpr.conditions.and(...expr);
   }

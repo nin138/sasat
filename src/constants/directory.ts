@@ -27,14 +27,18 @@ const paths = {
 
 class DirectoryResolver {
   readonly paths = paths;
-  generatedDBDataSourcePath = (fromPath: string, entityName: string | EntityName) =>
-    relative(fromPath, `${this.paths.generatedDataSource.db}${entityName}`);
+  generatedDBDataSourcePath = (
+    fromPath: string,
+    entityName: string | EntityName,
+  ) => relative(fromPath, `${this.paths.generatedDataSource.db}${entityName}`);
   dbDataSourcePath = (fromPath: string, entityName: string | EntityName) =>
     relative(fromPath, `${this.paths.dataSource.db}${entityName.toString()}`);
   entityPath = (fromPath: string, entityName: string | EntityName) =>
     relative(fromPath, `${this.paths.entity}${entityName.toString()}`);
-  generatedPath = (fromPath: string, fileName: string) => relative(fromPath, `${this.paths.generated}${fileName}`);
-  basePath = (fromPath: string, fileName: string) => relative(fromPath, `/${fileName}`);
+  generatedPath = (fromPath: string, fileName: string) =>
+    relative(fromPath, `${this.paths.generated}${fileName}`);
+  basePath = (fromPath: string, fileName: string) =>
+    relative(fromPath, `/${fileName}`);
 }
 
 export const Directory = new DirectoryResolver();

@@ -7,8 +7,15 @@ export class TsInterface extends ExportableDeclaration {
   constructor(private readonly name: string) {
     super();
   }
-  addProperty(propertyName: string, type: TsType, isOptional = false, isReadOnly = false): this {
-    this.properties.push(new PropertySignature(propertyName, type, isOptional, isReadOnly));
+  addProperty(
+    propertyName: string,
+    type: TsType,
+    isOptional = false,
+    isReadOnly = false,
+  ): this {
+    this.properties.push(
+      new PropertySignature(propertyName, type, isOptional, isReadOnly),
+    );
     return this;
   }
 
@@ -19,6 +26,8 @@ export class TsInterface extends ExportableDeclaration {
   }
 
   protected toTsString(): string {
-    return `interface ${this.name}{${this.properties.map(it => it.toString()).join(';')}}`;
+    return `interface ${this.name}{${this.properties
+      .map(it => it.toString())
+      .join(';')}}`;
   }
 }

@@ -25,7 +25,9 @@ export class RepositoryNode {
     this.entityName = table.getEntityName();
     this.primaryKeys = table.primaryKey.map(it => table.column(it).fieldName());
     this.entity = this.createEntity(table);
-    this.autoIncrementColumn = table.columns.find(it => it.serialize().autoIncrement)?.fieldName();
+    this.autoIncrementColumn = table.columns
+      .find(it => it.serialize().autoIncrement)
+      ?.fieldName();
     this.queries = new QueryNodeFactory().create(table);
     this.mutations = new MutationNodeFactory().create(table, this.entity);
   }
@@ -54,7 +56,11 @@ export class RepositoryNode {
         [
           new ParameterNode(
             relation.fromField,
-            new TypeNode(relation.parent.field(relation.fromField).dbType, false, false),
+            new TypeNode(
+              relation.parent.field(relation.fromField).dbType,
+              false,
+              false,
+            ),
           ),
         ],
         new TypeNode(
@@ -66,9 +72,20 @@ export class RepositoryNode {
       );
     };
     const referencedByMethod = (relation: RelationNode) => {
-      const to = relation.parent.repository.root.findRepository(relation.toEntityName);
+      const to = relation.parent.repository.root.findRepository(
+        relation.toEntityName,
+      );
       return new FindMethodNode(
-        [new ParameterNode(relation.toField, new TypeNode(to.entity.field(relation.toField).dbType, false, false))],
+        [
+          new ParameterNode(
+            relation.toField,
+            new TypeNode(
+              to.entity.field(relation.toField).dbType,
+              false,
+              false,
+            ),
+          ),
+        ],
         new TypeNode(relation.toEntityName, false, false),
         false,
       );
@@ -77,7 +94,10 @@ export class RepositoryNode {
       new FindMethodNode(
         node.primaryKeys.map(it => {
           const field = node.entity.field(it)!;
-          return new ParameterNode(it, new TypeNode(field.dbType, false, false));
+          return new ParameterNode(
+            it,
+            new TypeNode(field.dbType, false, false),
+          );
         }),
         new TypeNode(node.entityName, false, true),
         true,
