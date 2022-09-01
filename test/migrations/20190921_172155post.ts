@@ -12,11 +12,9 @@ class Post implements SasatMigration {
         relation: 'Many',
       });
       table.column('title').varchar(50).notNull();
-      table.setGqlOption({
-        mutation: {
-          fromContextColumns: [{ column: 'userId', contextName: 'userId' }],
-        },
-      });
+      table.setGqlCreate(true)
+        .setGqlUpdate(true)
+        .setGqlContextColumn([{ column: 'userId', contextName: 'userId' }])
     });
   };
   down: (store: MigrationStore) => void = store => {

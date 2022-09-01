@@ -3,10 +3,9 @@ import { SerializedTable } from '../../../migration/serialized/serializedStore.j
 import { camelize } from '../../../util/stringUtil.js';
 import { DBColumnTypes } from '../../../migration/column/columnTypes.js';
 import { Reference, SerializedNormalColumn } from '../../../migration/serialized/serializedColumn.js';
-import { Relation } from '../../../migration/data/relation.js';
 import { columnTypeToGqlPrimitive } from '../../../generator/gql/columnToGqlType.js';
 import { GqlPrimitive } from '../../../generator/gql/types.js';
-import {getDefaultGqlOption} from "../../../migration/data/gqlOption";
+import {getDefaultGqlOption} from "../../../migration/data/gqlOption.js";
 
 const splitArray = <T>(array: T[], callback: (item: T) => boolean): T[][] => {
   const indexes: number[] = [];

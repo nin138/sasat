@@ -14,9 +14,9 @@ export interface TableBuilder {
   createdAt(): TableBuilder;
   updatedAt(): TableBuilder;
   addIndex(...columns: string[]): TableBuilder;
-  setGqlCreate(enabled: boolean, options?: MutationOption): TableBuilder;
-  setGqlUpdate(enabled: boolean, options?: MutationOption): TableBuilder;
-  setGqlDelete(enabled: boolean, options?: Omit<MutationOption, 'noReFetch'>): TableBuilder;
+  setGqlCreate(enabled: boolean, options?: Partial<MutationOption>): TableBuilder;
+  setGqlUpdate(enabled: boolean, options?: Partial<MutationOption>): TableBuilder;
+  setGqlDelete(enabled: boolean, options?: Partial<Omit<MutationOption, 'noReFetch'>>): TableBuilder;
   setGqlContextColumn(columns: GqlFromContextParam[]): TableBuilder
 }
 
@@ -75,17 +75,17 @@ export class TableCreator implements TableBuilder {
     return this;
   }
 
-  setGqlCreate(enabled: boolean, options?: MutationOption): TableBuilder  {
+  setGqlCreate(enabled: boolean, options?: Partial<MutationOption>): TableBuilder  {
     this.table.setGqlCreate(enabled, options);
     return this;
   }
 
-  setGqlUpdate(enabled: boolean, options?: MutationOption): TableBuilder  {
+  setGqlUpdate(enabled: boolean, options?: Partial<MutationOption>): TableBuilder  {
     this.table.setGqlUpdate(enabled, options);
     return this;
   }
 
-  setGqlDelete(enabled: boolean, options?: Omit<MutationOption, 'noReFetch'>): TableBuilder  {
+  setGqlDelete(enabled: boolean, options?: Partial<Omit<MutationOption, 'noReFetch'>>): TableBuilder  {
     this.table.setGqlDelete(enabled, options);
     return this;
   }

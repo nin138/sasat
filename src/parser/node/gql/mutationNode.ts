@@ -63,7 +63,7 @@ export class CreateMutationNode extends MutationNode {
     contextParams: ContextParamNode[],
     subscribed: boolean,
     subscriptionFilters: SubscriptionFilterNode[],
-    refetch: boolean,
+    reFetch: boolean,
   ) {
     super(
       entity,
@@ -79,7 +79,7 @@ export class CreateMutationNode extends MutationNode {
       primaryFindQueryName,
       subscribed,
       subscriptionFilters,
-      refetch,
+      reFetch,
     );
   }
 
@@ -105,7 +105,9 @@ export class UpdateMutationNode extends MutationNode {
       'Updated',
       [...entity.identifiableFields().map(it => it.toParam()), ...entity.dataFields().map(it => it.toOptionalParam())],
       contextParams,
-      new TypeNode(DBColumnTypes.boolean, false, false),
+      reFetch
+        ? new TypeNode(entity.entityName, false, false)
+        : new TypeNode(DBColumnTypes.boolean, false, false),
       primaryKeys,
       primaryFindQueryName,
       subscribed,

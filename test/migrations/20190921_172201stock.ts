@@ -1,4 +1,4 @@
-import { MigrationStore, Relation, SasatMigration } from '../../src';
+import { MigrationStore, SasatMigration } from '../../src';
 
 class Stock implements SasatMigration {
   up: (store: MigrationStore) => void = store => {
@@ -24,13 +24,10 @@ class Stock implements SasatMigration {
       table.createdAt();
       table.updatedAt();
       table.addUniqueKey('user', 'post');
-      table.setGqlOption({
-        mutation: {
-          delete: true,
-          fromContextColumns: [{ column: 'user', contextName: 'userId' }],
-        },
-        subscription: { onDelete: true },
-      });
+      table.setGqlCreate(true, { noReFetch: false })
+      table.setGqlUpdate(true, { noReFetch: false })
+      table.setGqlDelete(true, {subscription: true})
+        .setGqlContextColumn([{ column: 'user', contextName: 'userId' }])
     });
   };
   down: (store: MigrationStore) => void = store => {

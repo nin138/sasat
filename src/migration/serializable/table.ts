@@ -172,21 +172,21 @@ export class TableHandler implements Table {
     return new EntityName(TableHandler.tableNameToEntityName(this.tableName));
   }
 
-  setGqlCreate(enabled: boolean, options?: MutationOption): void {
+  setGqlCreate(enabled: boolean, options?: Partial<MutationOption>): void {
     this._gqlOption = updateMutationOption(this._gqlOption, {
-      create: { enabled, ...(options || defaultMutationOption) },
+      create: { ...defaultMutationOption, ...(options || defaultMutationOption), enabled },
     });
   }
 
-  setGqlUpdate(enabled: boolean, options?: MutationOption) {
+  setGqlUpdate(enabled: boolean, options?: Partial<MutationOption>) {
     this._gqlOption = updateMutationOption(this._gqlOption, {
-      update: { enabled, ...(options || defaultMutationOption) },
+      update: { ...defaultMutationOption, ...(options || defaultMutationOption), enabled },
     });
   }
 
-  setGqlDelete(enabled: boolean, options?: Omit<MutationOption, 'noReFetch'>) {
+  setGqlDelete(enabled: boolean, options?: Partial<Omit<MutationOption, 'noReFetch'>>) {
     this._gqlOption = updateMutationOption(this._gqlOption, {
-      delete: { enabled, ...(options || defaultMutationOption) },
+      delete: { ...defaultMutationOption, ...(options || defaultMutationOption), enabled },
     });
   }
 

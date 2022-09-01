@@ -12,7 +12,7 @@ export const pubsub: PubSubEngine = new PubSub();
 const schemaFile = `\
 ${new ImportDeclaration(['assignDeep', 'createTypeDef'], 'sasat').toString()}
 ${new ImportDeclaration(['typeDef'], './__generated__/typeDefs').toString()}
-${new ImportDeclaration(['resolvers'], './__generated__/resolver.j').toString()}
+${new ImportDeclaration(['resolvers'], './__generated__/resolver').toString()}
 
 export const schema = {
   typeDefs: createTypeDef(assignDeep(typeDef, {})),

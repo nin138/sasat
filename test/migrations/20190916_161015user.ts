@@ -8,12 +8,8 @@ class CreateUser implements SasatMigration {
       table.column('name').varchar(20).default('no name').notNull().fieldName('NNN');
       table.column('nickName').varchar(20).nullable().unique().fieldName('nick');
       table.createdAt().updatedAt();
-      table.setGqlOption({
-        mutation: {
-          fromContextColumns: [],
-        },
-        subscription: { onCreate: true, onUpdate: true, filter: ['name'] },
-      });
+      table.setGqlCreate(true, { noReFetch: true, subscription: true });
+      table.setGqlUpdate(true, { noReFetch: true, subscription: true, subscriptionFilter: ['name']});
     });
   };
   down: (store: MigrationStore) => void = store => {
