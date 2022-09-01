@@ -28,7 +28,7 @@
     "server": "yarn env-cmd ts-node-esm --project testServer.tsconfig.json -r tsconfig-paths/register ./test/testServer.ts"
   },
   "dependencies": {
-    "cac": "6.7.12",
+    "cac": "6.7.14",
     "chalk": "5.0.1",
     "fs-extra": "^10.0.0",
     "graphql": "^16.3.0",
