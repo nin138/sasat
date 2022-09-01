@@ -16,7 +16,7 @@ interface Repository<Entity, Creatable, Identifiable> {
   delete(entity: Identifiable): Promise<CommandResponse>;
 }
 
-export abstract class SasatRepository<Entity, Creatable, Identifiable, EntityFields extends Fields>
+export abstract class SasatRepository<Entity extends Record<string, SqlValueType>, Creatable, Identifiable, EntityFields extends Fields>
   implements Repository<Entity, Creatable, Identifiable> {
   protected abstract maps: DataStoreInfo;
   abstract readonly tableName: string;
