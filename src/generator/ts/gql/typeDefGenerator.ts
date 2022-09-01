@@ -40,7 +40,7 @@ export class TypeDefGenerator {
     const subscriptions = nodes
       .filter(it => it.subscribed)
       .map(it => {
-        const returnType = MutationNode.isDeleteMutation(it) ? `${it.entityName}!` : `Deleted${it.entityName}!`;
+        const returnType = !MutationNode.isDeleteMutation(it) ? `${it.entityName}!` : `Deleted${it.entityName}!`;
         return `${it.entityName}${it.type}${createParam(it.subscriptionFilters)}: ${returnType}`;
       })
       .map(tsg.string);
