@@ -21,7 +21,7 @@ export class MySqlTransaction extends SQLTransaction {
 
   protected execSql(sql: string): Promise<QueryResponse | CommandResponse> {
     return promisify(this.connection.query).bind(this.connection)(
-      sql as any,
+      sql as never,
     ) as Promise<QueryResponse | CommandResponse>;
   }
 }

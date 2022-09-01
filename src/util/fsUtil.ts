@@ -20,10 +20,10 @@ export const writeFileIfNotExist = (
   return fs.writeFile(path, data);
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const writeYmlFile = (
   path: string,
   fileName: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   obj: Record<string, any>,
 ): void => {
   mkDirIfNotExist(path);
@@ -47,5 +47,5 @@ export const readInitialSchema = (): SerializedStore => {
   return readYmlFile(join(config().migration.dir, 'initialSchema.yml'));
 };
 export const writeCurrentSchema = (schema: SerializedStore): void => {
-  writeYmlFile(config().migration.dir, 'currentSchema.yml', schema);
+  writeYmlFile(config().migration.dir, 'currentSchema.yml', schema as never);
 };

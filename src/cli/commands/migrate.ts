@@ -21,8 +21,8 @@ export const migrate = async (options: {
       const ir = new Parser().parse(storeHandler);
       await new CodeGenerateController(ir).generate();
     }
-  } catch (e) {
-    Console.error((e as any).message);
+  } catch (e: unknown) {
+    Console.error((e as Error).message);
     throw e;
   } finally {
     await getDbClient().release();
