@@ -49,3 +49,17 @@ export const fieldToQuery = (
     from,
   };
 };
+
+export const createPagingMainQuery = (
+  tableName: string,
+  fields: Fields,
+  len: number,
+  offset: number,
+): Query => {
+  return {
+    select: fields.fields.map(it => QExpr.field(tableName, it, tableName + SELECT_ALIAS_SEPARATOR + it)),
+    from: QExpr.table(tableName, []),
+    limit: len,
+    offset,
+  };
+}

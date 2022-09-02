@@ -13,7 +13,7 @@ import {
 import { SQLExecutor, SqlValueType } from '../db/connectors/dbClient.js';
 import { createQueryResolveInfo } from './dsl/query/createQueryResolveInfo.js';
 import { queryToSql } from './dsl/query/sql/queryToSql.js';
-import { fieldToQuery } from './dsl/query/fieldToQuery.js';
+import {createPagingMainQuery, fieldToQuery} from './dsl/query/fieldToQuery.js';
 import { BooleanValueExpression, Query, Sort } from './dsl/query/query.js';
 import { replaceAliases } from './dsl/replaceAliases.js';
 import {
@@ -109,7 +109,33 @@ export abstract class SasatRepository<
   }
 
   async find(
-    fields?: EntityFields,
+    fields: EntityFields =  { fields: this.fields } as EntityFields,
+    options?: {
+      where?: BooleanValueExpression;
+      sort?: Sort[];
+      limit?: number;
+      offset?: number;
+
+    },
+  ): Promise<EntityResult<Entity, Identifiable>[]> {
+    const query = {
+      ...fieldToQuery(this.tableName, fields, this.maps.relationMap),
+      where: options?.where,
+      sort: options?.sort,
+      limit: options?.limit,
+      offset: options?.offset,
+    };
+    return this.executeQuery(query, fields);
+  }
+
+  async findPageable(
+    paging: {
+      len: number;
+      where?: BooleanValueExpression;
+      offset?: number; // TODO prev, next
+      sort?: Sort[];
+    },
+    fields: EntityFields =  { fields: this.fields } as EntityFields,
     options?: {
       where?: BooleanValueExpression;
       sort?: Sort[];
@@ -117,17 +143,25 @@ export abstract class SasatRepository<
       offset?: number;
     },
   ): Promise<EntityResult<Entity, Identifiable>[]> {
-    const field = fields || { fields: this.fields };
-    const query = {
-      ...fieldToQuery(this.tableName, field, this.maps.relationMap),
+    const partial = fieldToQuery(this.tableName, fields, this.maps.relationMap);
+    const query: Query = {
+      select: partial.select,
+      from: {
+        ...partial.from,
+        nameOrQuery: createPagingMainQuery(this.tableName, fields, paging.len, paging.offset || 0),
+      },
       where: options?.where,
       sort: options?.sort,
       limit: options?.limit,
       offset: options?.offset,
     };
+    return this.executeQuery(query, fields);
+  }
+
+  private async executeQuery(query: Query, fields: EntityFields): Promise<EntityResult<Entity, Identifiable>[]> {
     const info = createQueryResolveInfo(
       this.tableName,
-      field,
+      fields,
       this.maps.relationMap,
       this.maps.tableInfo,
     );
