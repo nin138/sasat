@@ -32,7 +32,7 @@ interface Repository<Entity, Creatable, Identifiable> {
   delete(entity: Identifiable): Promise<CommandResponse>;
 }
 export type ListQueryOption = {
-  number: number;
+  numberOfItem: number;
   offset?: number;
   order?: string;
   asc?: boolean;
@@ -136,7 +136,7 @@ export abstract class SasatRepository<
 
   async findPageable(
     paging: {
-      len: number;
+      numberOfItem: number;
       where?: BooleanValueExpression;
       offset?: number; // TODO prev, next
       sort?: Sort[];
@@ -154,7 +154,7 @@ export abstract class SasatRepository<
       select: partial.select,
       from: {
         ...partial.from,
-        nameOrQuery: createPagingMainQuery(this.tableName, fields, paging.len, paging.offset || 0),
+        nameOrQuery: createPagingMainQuery(this.tableName, fields, paging.numberOfItem, paging.offset || 0),
       },
       where: options?.where,
       sort: options?.sort,

@@ -10,7 +10,7 @@
     "declaration": true,                   /* Generates corresponding '.d.ts' file. */
     "sourceMap": false,                     /* Generates corresponding '.map' file. */
     // "outFile": "./",                       /* Concatenate and emit output to single file. */
-    "outDir": "./lib",                        /* Redirect output structure to the directory. */
+    "outDir": "lib",                        /* Redirect output structure to the directory. */
 //    "rootDir": "./src",                       /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */
     "removeComments": true,                /* Do not emit comments to output. */
     // "noEmit": true,                        /* Do not emit outputs. */
@@ -60,16 +60,13 @@
     // "experimentalDecorators": true,        /* Enables experimental support for ES7 decorators. */
     // "emitDecoratorMetadata": true,         /* Enables experimental support for emitting type metadata for decorators. */
   },
-  "exclude": [
-    "dist",
-    "build",
-    "webpack.config.dev.js",
-    "webpack.config.prod.js",
-    "node_modules",
-    "./**/*.test.ts",
-    "test"
-  ],
   "include": [
     "src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "./**/*.test.ts",
+    "test",
+    "lib/**/*"
   ]
 }
