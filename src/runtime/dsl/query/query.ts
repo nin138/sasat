@@ -45,7 +45,7 @@ export type SelectExpr = Field | Fn;
 export type QueryTable = {
   kind: QueryNodeKind.Table;
   nameOrQuery: string | Query;
-  alias?: string;
+  alias: string;
   joins: Join[];
 };
 

@@ -62,7 +62,10 @@ export class MutationGenerator {
       tsg
         .arrowFunc(
           MutationGenerator.functionParams(
-            node.entityName.getTypeReference(Directory.paths.generated),
+            tsg.intersectionType(
+              node.entityName.creatableTypeReference(Directory.paths.generated),
+              tsg.typeRef('Partial', [node.entityName.getTypeReference(Directory.paths.generated)])
+            ),
             node.useContextParams(),
             node.reFetch,
           ),

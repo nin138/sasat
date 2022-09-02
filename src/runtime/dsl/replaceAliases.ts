@@ -18,6 +18,7 @@ import {
   Sort,
 } from './query/query.js';
 import { TableInfo } from './query/createQueryResolveInfo.js';
+import {getQueryTableName} from "./query/sql/hydrate.js";
 
 export const createAliasReplacer = (
   tableInfo: TableInfo,
@@ -95,7 +96,7 @@ export const createAliasReplacer = (
 export const replaceAliases = (query: Query, tableInfo: TableInfo): Query => {
   const tableAliases: Record<string, string> = {};
   const addAlias = (table: QueryTable) => {
-    tableAliases[table.alias || table.name] = table.name;
+    tableAliases[table.alias] = getQueryTableName(table);
     table.joins.forEach(it => addAlias(it.table));
   };
   addAlias(query.from);

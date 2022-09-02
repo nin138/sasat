@@ -23,7 +23,7 @@ const join = (
       join(tableAlias, fields!, map[info.table][rel], map, selects),
     );
   return QExpr.join(
-    QExpr.table(info.table, joins, fields.tableAlias),
+    QExpr.table(info.table, joins, fields.tableAlias || info.table),
     info.on(parentTableAlias, tableAlias),
     'LEFT',
   );
@@ -43,7 +43,7 @@ export const fieldToQuery = (
     .map(([rel, fields]) =>
       join(tableAlias, fields!, map[tableName][rel], map, select),
     );
-  const from = QExpr.table(tableName, joins, fields.tableAlias);
+  const from = QExpr.table(tableName, joins, fields.tableAlias || tableName);
   return {
     select,
     from,
@@ -58,7 +58,7 @@ export const createPagingMainQuery = (
 ): Query => {
   return {
     select: fields.fields.map(it => QExpr.field(tableName, it, tableName + SELECT_ALIAS_SEPARATOR + it)),
-    from: QExpr.table(tableName, []),
+    from: QExpr.table(tableName, [], tableName),
     limit: len,
     offset,
   };
