@@ -1,9 +1,12 @@
 import { PropertySignature } from './propertySignature.js';
 import { ExportableDeclaration } from '../abstruct/exportableDeclaration.js';
 import { TsType } from './type/type.js';
+import {tsg} from "../factory";
+import {ExtendsClause} from "./extendsClause";
 
 export class TsInterface extends ExportableDeclaration {
   private properties: PropertySignature[] = [];
+  private _extends?: ExtendsClause;
   constructor(private readonly name: string) {
     super();
   }
@@ -25,8 +28,15 @@ export class TsInterface extends ExportableDeclaration {
     return this;
   }
 
+  extends(value: ExtendsClause): this {
+    this._extends = value;
+    this.mergeImport(value);
+    return this;
+  }
+
   protected toTsString(): string {
-    return `interface ${this.name}{${this.properties
+    const extend = this._extends ? this._extends.toString() + ' ' : '';
+    return `interface ${this.name} ${extend}{${this.properties
       .map(it => it.toString())
       .join(';')}}`;
   }

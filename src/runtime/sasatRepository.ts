@@ -24,7 +24,7 @@ import {
   Update,
   updateToSql,
 } from './dsl/mutation/mutation.js';
-
+export type EntityType = Record<string, SqlValueType>;
 export type EntityResult<Entity, Identifiable> = Identifiable & Partial<Entity>;
 interface Repository<Entity, Creatable, Identifiable> {
   create(entity: Creatable): Promise<Entity>;
@@ -33,7 +33,7 @@ interface Repository<Entity, Creatable, Identifiable> {
 }
 
 export abstract class SasatRepository<
-  Entity extends Record<string, SqlValueType>,
+  Entity extends EntityType,
   Creatable,
   Identifiable,
   EntityFields extends Fields,

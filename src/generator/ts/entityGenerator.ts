@@ -13,6 +13,7 @@ export class EntityGenerator {
   private entity(): TsStatement {
     return tsg
       .interface(this.node.entityName.name)
+      .extends(tsg.extends(tsg.typeRef('EntityType').importFrom('sasat')))
       .addProperties(this.node.fields.map(it => it.toPropertySignature()))
       .export();
   }

@@ -155,15 +155,23 @@ export class MutationGenerator {
       .new(this.getDatasourceIdentifier(node.entityName))
       .property('create')
       .call(this.toDatasourceParam(node.contextParams));
-
+    const resultIdentifier = new Identifier('result');
     if (!node.subscribed) {
       if (!node.reFetch) return createCallExpression;
+      const identVariable = 'identifiable';
       return tsg.block(
-        tsg.await(createCallExpression).toStatement(),
-        tsg.return(MutationGenerator.createReFetchResult(node)),
+        tsg.variable('const', resultIdentifier, tsg.await(createCallExpression)),
+        tsg.variable(
+          'const',
+          tsg.identifier(identVariable),
+          tsg.identifier('pick').importFrom('sasat')
+            .call(resultIdentifier,
+              tsg.array(node.primaryKeys.map(tsg.string))
+              ).as(tsg.typeRef('unknown')).as(node.entityName.identifiableTypeReference(Directory.paths.generated))
+        ),
+        tsg.return(MutationGenerator.createReFetchResult(node, identVariable)),
       );
     }
-    const resultIdentifier = new Identifier('result');
     return tsg.block(
       tsg.variable('const', resultIdentifier, tsg.await(createCallExpression)),
       tsg
@@ -298,7 +306,7 @@ export class MutationGenerator {
     );
   }
 
-  private static createReFetchResult(node: MutationNode) {
+  private static createReFetchResult(node: MutationNode, paramName = "params") {
     return tsg.await(
       tsg
         .identifier('query')
@@ -306,7 +314,7 @@ export class MutationGenerator {
         .property(node.entityName.lowerCase())
         .call(
           tsg.identifier('_'),
-          tsg.identifier('params'),
+          tsg.identifier(paramName),
           tsg.identifier('context'),
           tsg.identifier('info'),
         )
