@@ -21,7 +21,7 @@ class Post implements SasatMigration {
       table
         .setGqlCreate(true)
         .setGqlUpdate(true)
-        .setGqlContextColumn([{ column: 'userId', contextName: 'userId' }]);
+        .setGqlContextColumn([]);
     });
   };
   down: (store: MigrationStore) => void = store => {

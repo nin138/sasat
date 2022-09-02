@@ -28,7 +28,7 @@ export abstract class MutationNode {
   }
 
   useContextParams(): boolean {
-    return this.contextParams.length !== 0;
+    return this.contextParams.length !== 0 || this.reFetch;
   }
 
   toTypeDefString(): string {
