@@ -1,5 +1,5 @@
 import { ContextNode } from '../node/gql/contextNode.js';
-import { TypeNode } from '../node/typeNode.js';
+import {EntityTypeNode} from '../node/typeNode.js';
 import { TableHandler } from '../../migration/serializable/table.js';
 
 export class ContextNodeFactory {
@@ -10,7 +10,7 @@ export class ContextNodeFactory {
         const name = it.contextName || it.column;
         obj[name] = new ContextNode(
           name,
-          new TypeNode(table.column(it.column)!.dataType(), false, false),
+          new EntityTypeNode(table.column(it.column)!.dataType(), false, false),
         );
       }),
     );

@@ -7,6 +7,7 @@ export class QueryNode {
     readonly repoMethodName: string,
     readonly queryParams: ParameterNode[],
     readonly returnType: TypeNode,
+    readonly isList: boolean,
   ) {}
   toGqlString(): string {
     return `${this.queryName}${ParameterNode.parametersToGqlString(

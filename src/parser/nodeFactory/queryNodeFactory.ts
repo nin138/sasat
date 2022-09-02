@@ -1,9 +1,11 @@
 import { lowercaseFirstLetter, plural } from '../../util/stringUtil.js';
 import { QueryNode } from '../node/gql/queryNode.js';
-import { TypeNode } from '../node/typeNode.js';
+import {EntityTypeNode, ListQueryOptionTypeNode, TypeNode} from '../node/typeNode.js';
 import { ParameterNode } from '../node/parameterNode.js';
 import { TableHandler } from '../../migration/serializable/table.js';
 import { FindMethodNode } from '../node/findMethod.js';
+import {EntityName} from "../node/entityName.js";
+import {TypeDefGenerator} from "../../generator/ts/gql/typeDefGenerator.js";
 
 export class QueryNodeFactory {
   create(table: TableHandler): QueryNode[] {
@@ -14,8 +16,13 @@ export class QueryNodeFactory {
     return new QueryNode(
       lowercaseFirstLetter(plural(table.getEntityName().name)),
       'find',
-      [],
-      new TypeNode(table.getEntityName(), true, false),
+      [
+        new ParameterNode('option',
+          new ListQueryOptionTypeNode(),
+        )
+      ],
+      new EntityTypeNode(table.getEntityName(), true, false),
+      true,
     );
   }
 
@@ -30,10 +37,11 @@ export class QueryNodeFactory {
         it =>
           new ParameterNode(
             table.column(it).fieldName(),
-            new TypeNode(table.column(it)!.dataType(), false, false),
+            new EntityTypeNode(table.column(it)!.dataType(), false, false),
           ),
       ),
-      new TypeNode(table.getEntityName(), false, true),
+      new EntityTypeNode(table.getEntityName(), false, true),
+      false,
     );
   }
 }

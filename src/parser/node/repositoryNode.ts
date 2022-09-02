@@ -9,8 +9,7 @@ import { TableHandler } from '../../migration/serializable/table.js';
 import { EntityName } from './entityName.js';
 import { RelationNode } from './relationNode.js';
 import { ParameterNode } from './parameterNode.js';
-import { TypeNode } from './typeNode.js';
-import { Relation } from '../../migration/data/relation.js';
+import {EntityTypeNode} from './typeNode.js';
 
 export class RepositoryNode {
   readonly tableName: string;
@@ -56,14 +55,14 @@ export class RepositoryNode {
         [
           new ParameterNode(
             relation.fromField,
-            new TypeNode(
+            new EntityTypeNode(
               relation.parent.field(relation.fromField).dbType,
               false,
               false,
             ),
           ),
         ],
-        new TypeNode(
+        new EntityTypeNode(
           EntityName.fromTableName(relation.parent.repository.tableName),
           relation.relation === 'Many',
           false,
@@ -79,14 +78,14 @@ export class RepositoryNode {
         [
           new ParameterNode(
             relation.toField,
-            new TypeNode(
+            new EntityTypeNode(
               to.entity.field(relation.toField).dbType,
               false,
               false,
             ),
           ),
         ],
-        new TypeNode(relation.toEntityName, false, false),
+        new EntityTypeNode(relation.toEntityName, false, false),
         false,
       );
     };
@@ -96,10 +95,10 @@ export class RepositoryNode {
           const field = node.entity.field(it)!;
           return new ParameterNode(
             it,
-            new TypeNode(field.dbType, false, false),
+            new EntityTypeNode(field.dbType, false, false),
           );
         }),
-        new TypeNode(node.entityName, false, true),
+        new EntityTypeNode(node.entityName, false, true),
         true,
       ),
       ...node.entity.relations.map(refMethods),

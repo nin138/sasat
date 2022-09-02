@@ -26,6 +26,14 @@ export class QueryGenerator {
           tsg.parameter('_3', tsg.typeRef('unknown')),
           tsg.parameter('info', tsg.typeRef('GraphQLResolveInfo')),
         ];
+      if(query.isList) {
+        return [
+          tsg.parameter('_1', tsg.typeRef('unknown')),
+          tsg.parameter('params', query.queryParams[0].type.toTsType()),
+          tsg.parameter('_2', tsg.typeRef('unknown')),
+          tsg.parameter('info', tsg.typeRef('GraphQLResolveInfo')),
+        ];
+      }
       const paramNames = query.queryParams.map(it => it.name);
       return [
         tsg.parameter('_1', tsg.typeRef('unknown')),

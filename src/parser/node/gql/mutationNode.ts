@@ -2,7 +2,7 @@ import { ContextParamNode } from './contextParamNode.js';
 import { SubscriptionFilterNode } from './subscriptionFilterNode.js';
 import { EntityNode } from '../entityNode.js';
 import { ParameterNode } from '../parameterNode.js';
-import { TypeNode } from '../typeNode.js';
+import {EntityTypeNode, TypeNode} from '../typeNode.js';
 import { DBColumnTypes } from '../../../migration/column/columnTypes.js';
 import { EntityName } from '../entityName.js';
 
@@ -74,7 +74,7 @@ export class CreateMutationNode extends MutationNode {
         ...entity.onCreateOptionalFields().map(it => it.toOptionalParam()),
       ],
       contextParams,
-      new TypeNode(entity.entityName, false, false),
+      new EntityTypeNode(entity.entityName, false, false),
       primaryKeys,
       primaryFindQueryName,
       subscribed,
@@ -109,8 +109,8 @@ export class UpdateMutationNode extends MutationNode {
       ],
       contextParams,
       reFetch
-        ? new TypeNode(entity.entityName, false, false)
-        : new TypeNode(DBColumnTypes.boolean, false, false),
+        ? new EntityTypeNode(entity.entityName, false, false)
+        : new EntityTypeNode(DBColumnTypes.boolean, false, false),
       primaryKeys,
       primaryFindQueryName,
       subscribed,
@@ -139,7 +139,7 @@ export class DeleteMutationNode extends MutationNode {
       'Deleted',
       [...entity.identifiableFields().map(it => it.toParam())],
       contextParams,
-      new TypeNode(DBColumnTypes.boolean, false, false),
+      new EntityTypeNode(DBColumnTypes.boolean, false, false),
       primaryKeys,
       primaryFindQueryName,
       subscribed,

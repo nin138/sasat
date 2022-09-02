@@ -31,6 +31,12 @@ interface Repository<Entity, Creatable, Identifiable> {
   update(entity: Partial<Entity> & Identifiable): Promise<CommandResponse>;
   delete(entity: Identifiable): Promise<CommandResponse>;
 }
+export type ListQueryOption = {
+  number: number;
+  offset?: number;
+  order?: string;
+  asc?: boolean;
+}
 
 export abstract class SasatRepository<
   Entity extends EntityType,

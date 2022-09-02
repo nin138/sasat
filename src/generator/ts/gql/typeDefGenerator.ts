@@ -33,14 +33,28 @@ export class TypeDefGenerator {
     );
   }
 
+  static ListQueryOptionType = 'ListQueryOption';
   private createInputs(root: RootNode): PropertyAssignment[] {
-    return root.mutations().filter(MutationNode.isCreateMutation)
+    const listQueryOption = tsg.propertyAssign(
+      TypeDefGenerator.ListQueryOptionType,
+      tsg.array([
+        `number: Int!`,
+        `offset: Int`,
+        'order: String',
+        'asc: Boolean',
+      ].map(tsg.string)),
+    )
+
+    return [
+      listQueryOption,
+      ...root.mutations().filter(MutationNode.isCreateMutation)
       .map(node => {
         return tsg.propertyAssign(
           node.entityName.createInputName(),
           tsg.array(node.requestParams.map(it => tsg.string(it.toGqlString())))
         )
       })
+    ]
 
   }
 

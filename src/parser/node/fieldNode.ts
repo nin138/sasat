@@ -5,7 +5,7 @@ import {
 import { PropertySignature } from '../../generator/ts/code/node/propertySignature.js';
 import { tsg } from '../../generator/ts/code/factory.js';
 import { ParameterNode } from './parameterNode.js';
-import { TypeNode } from './typeNode.js';
+import {EntityTypeNode} from './typeNode.js';
 import { SqlValueType } from '../../db/connectors/dbClient.js';
 import { TableHandler } from '../../migration/serializable/table.js';
 import { Column } from '../../migration/serializable/column.js';
@@ -63,14 +63,14 @@ export class FieldNode {
   toParam(): ParameterNode {
     return new ParameterNode(
       this.fieldName,
-      new TypeNode(this.dbType, false, this.isNullable),
+      new EntityTypeNode(this.dbType, false, this.isNullable),
     );
   }
 
   toOptionalParam(): ParameterNode {
     return new ParameterNode(
       this.fieldName,
-      new TypeNode(this.dbType, false, true),
+      new EntityTypeNode(this.dbType, false, true),
     );
   }
 }
