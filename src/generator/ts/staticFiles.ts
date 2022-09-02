@@ -17,11 +17,14 @@ export const pubsub: PubSubEngine = new PubSub();
 `;
 const schemaFile = `\
 ${new ImportDeclaration(['assignDeep', 'createTypeDef'], 'sasat').toString()}
-${new ImportDeclaration(['typeDef'], './__generated__/typeDefs').toString()}
+${new ImportDeclaration(['typeDefs', 'inputs'], './__generated__/typeDefs').toString()}
 ${new ImportDeclaration(['resolvers'], './__generated__/resolver').toString()}
 
 export const schema = {
-  typeDefs: createTypeDef(assignDeep(typeDef, {})),
+  typeDefs: createTypeDef(
+    assignDeep(typeDefs, {}),
+    assignDeep(inputs, {}),
+  ),
   resolvers: assignDeep(resolvers, {}),
 };
 `;

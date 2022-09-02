@@ -84,4 +84,8 @@ export class EntityName {
       ])
       .importFrom('sasat');
   }
+
+  createInputName(): string {
+    return this.name + 'CreateInput';
+  }
 }

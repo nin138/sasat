@@ -18,7 +18,9 @@ export class TypeDefGenerator {
     ].filter(it => it !== undefined) as PropertyAssignment[];
     return new TsFile(
       tsg
-        .variable('const', tsg.identifier('typeDef'), tsg.object(...types))
+        .variable('const', tsg.identifier('typeDefs'), tsg.object(...types))
+        .export(),
+      tsg.variable('const', tsg.identifier('inputs'), tsg.object(...this.createInputs(root)))
         .export(),
     );
   }
@@ -29,6 +31,17 @@ export class TypeDefGenerator {
         tsg.array(type.params.map(it => tsg.string(it.toGqlString()))),
       ),
     );
+  }
+
+  private createInputs(root: RootNode): PropertyAssignment[] {
+    return root.mutations().filter(MutationNode.isCreateMutation)
+      .map(node => {
+        return tsg.propertyAssign(
+          node.entityName.createInputName(),
+          tsg.array(node.requestParams.map(it => tsg.string(it.toGqlString())))
+        )
+      })
+
   }
 
   private createQuery(nodes: QueryNode[]): PropertyAssignment {
