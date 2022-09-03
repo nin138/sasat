@@ -5,6 +5,7 @@ import { PropertyAssignment } from './propertyAssignment.js';
 import { Parameter } from './parameter.js';
 import { TsType } from './type/type.js';
 import { Block } from './block.js';
+import {tsValueString} from "../../tsValueString";
 
 export abstract class TsExpression extends TsCode {
   private readonly _codeType = 'expression';
@@ -61,8 +62,7 @@ export class StringLiteral extends Literal {
   }
 
   protected toTsString(): string {
-    return `'${this.value.replace("'", "\\'")}'`;
-  }
+    return tsValueString(this.value)};
 }
 
 export class NumericLiteral extends Literal {
