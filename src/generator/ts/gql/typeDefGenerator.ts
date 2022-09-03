@@ -38,7 +38,7 @@ export class TypeDefGenerator {
     const listQueryOption = tsg.propertyAssign(
       TypeDefGenerator.ListQueryOptionType,
       tsg.array([
-        `number: Int!`,
+        `numberOfItem: Int!`,
         `offset: Int`,
         'order: String',
         'asc: Boolean',

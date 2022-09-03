@@ -32,7 +32,11 @@ export class QueryGenerator {
     if (query.isList) {
       return [
         tsg.parameter('_1', tsg.typeRef('unknown')),
-        tsg.parameter('params', tsg.unionType([query.queryParams[0].type.toTsType(), tsg.typeRef('null')])),
+        tsg.parameter('params', tsg.typeLiteral([
+          tsg.propertySignature(
+            'option', query.queryParams[0].type.toTsType(), true, false,
+          ),
+        ])),
         tsg.parameter('_2', tsg.typeRef('unknown')),
         tsg.parameter('info', tsg.typeRef('GraphQLResolveInfo')),
       ];
@@ -95,7 +99,9 @@ export class QueryGenerator {
           ),
       );
     const params = tsg.identifier('params');
+    const option = tsg.identifier('option');
     const statements: TsStatement[] = [
+      tsg.variable('const', tsg.identifier('{ option }'), params),
       tsg.variable('const', fields,
         tsg
           .identifier('gqlResolveInfoToField')
@@ -104,17 +110,17 @@ export class QueryGenerator {
           .as(node.entityName.fieldTypeRef(Directory.paths.generated))
       ),
       tsg.if(
-        params,
+        option,
         tsg.return(
           ds
             .property('findPageable')
             .call(
               tsg.object(
                 tsg.propertyAssign(
-                  'numberOfItem', params.property('numberOfItem')
+                  'numberOfItem', option.property('numberOfItem')
                 ),
                 tsg.propertyAssign(
-                  'offset', params.property('offset'),
+                  'offset', option.property('offset'),
                 ),
               ),
               fields

@@ -1,4 +1,4 @@
-import { Join, Query, SelectExpr } from './query.js';
+import {Join, NO_ALIAS, Query, SelectExpr} from './query.js';
 import { RelationInfo, RelationMap } from './createQueryResolveInfo.js';
 import { SELECT_ALIAS_SEPARATOR } from './sql/nodeToSql.js';
 import { QExpr } from '../factory.js';
@@ -50,14 +50,14 @@ export const fieldToQuery = (
   };
 };
 
-export const createPagingMainQuery = (
+export const createPagingInnerQuery = (
   tableName: string,
   fields: Fields,
   len: number,
   offset: number,
 ): Query => {
   return {
-    select: fields.fields.map(it => QExpr.field(tableName, it, tableName + SELECT_ALIAS_SEPARATOR + it)),
+    select: fields.fields.map(it => QExpr.field(tableName, it, NO_ALIAS)),
     from: QExpr.table(tableName, [], tableName),
     limit: len,
     offset,

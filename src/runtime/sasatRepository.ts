@@ -13,7 +13,7 @@ import {
 import { SQLExecutor, SqlValueType } from '../db/connectors/dbClient.js';
 import { createQueryResolveInfo } from './dsl/query/createQueryResolveInfo.js';
 import { queryToSql } from './dsl/query/sql/queryToSql.js';
-import {createPagingMainQuery, fieldToQuery} from './dsl/query/fieldToQuery.js';
+import {createPagingInnerQuery, fieldToQuery} from './dsl/query/fieldToQuery.js';
 import { BooleanValueExpression, Query, Sort } from './dsl/query/query.js';
 import { replaceAliases } from './dsl/replaceAliases.js';
 import {
@@ -150,11 +150,12 @@ export abstract class SasatRepository<
     },
   ): Promise<EntityResult<Entity, Identifiable>[]> {
     const partial = fieldToQuery(this.tableName, fields, this.maps.relationMap);
+    const innerQuery: Query = createPagingInnerQuery(this.tableName, fields, paging.numberOfItem, paging.offset || 0);
     const query: Query = {
       select: partial.select,
       from: {
         ...partial.from,
-        nameOrQuery: createPagingMainQuery(this.tableName, fields, paging.numberOfItem, paging.offset || 0),
+        nameOrQuery: innerQuery,
       },
       where: options?.where,
       sort: options?.sort,

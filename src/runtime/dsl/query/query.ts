@@ -27,17 +27,20 @@ export type Query = {
 
 type Select = SelectExpr[];
 
+export const NO_ALIAS = '__SASAT_NO_ALIAS' as const;
+
 export type Field = {
   kind: QueryNodeKind.Field;
   table: string;
   name: string;
-  alias?: string;
+  alias?: string | typeof NO_ALIAS;
 };
 
 export type Fn = {
   kind: QueryNodeKind.Function;
   fnName: string;
   args: Value[];
+  alias?: string;
 };
 
 export type SelectExpr = Field | Fn;

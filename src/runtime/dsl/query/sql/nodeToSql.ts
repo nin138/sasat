@@ -32,7 +32,7 @@ export const Sql = {
     '.' +
     SqlString.escapeId(identifier.name),
   fieldInSelect: (identifier: Field): string => {
-    const alias = identifier.alias
+    const alias = identifier.alias && identifier.name !== identifier.alias
       ? ' AS ' + SqlString.escapeId(identifier.alias)
       : '';
     return (
@@ -84,7 +84,7 @@ export const Sql = {
         SqlString.escapeId(table.nameOrQuery) + ' AS ' + SqlString.escapeId(table.alias)
       );
     }
-    return queryToSql(table.nameOrQuery);
+    return `(${queryToSql(table.nameOrQuery)}) AS ${SqlString.escapeId(table.alias)}`;
   },
   join: (join: Join): string =>
     `${join.type ? join.type + ' ' : ''}JOIN ${Sql.table(join.table)} ON ` +
