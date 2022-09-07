@@ -24,7 +24,7 @@ import {
 } from '../../../parser/node/gql/mutationNode.js';
 import { ContextParamNode } from '../../../parser/node/gql/contextParamNode.js';
 import { EntityName } from '../../../parser/node/entityName.js';
-import { TsStatement } from '../code/abstruct/statement';
+import { TsStatement } from '../code/abstruct/statement.js';
 
 export class MutationGenerator {
   generate = (mutations: MutationNode[]): TsFile => {
