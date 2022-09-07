@@ -13,7 +13,7 @@ import { RelationMapGenerator } from './relationMapGenerator.js';
 import { FieldGenerator } from './fieldGenerator.js';
 import { EntityNode } from '../../parser/node/entityNode.js';
 import { RepositoryNode } from '../../parser/node/repositoryNode.js';
-import { RootNode } from '../../parser/node/rootNode';
+import { RootNode } from '../../parser/node/rootNode.js';
 
 export class TsCodeGenerator implements CodeGenerator {
   readonly fileExt = 'ts';

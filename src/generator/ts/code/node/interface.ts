@@ -1,7 +1,6 @@
 import { PropertySignature } from './propertySignature.js';
 import { ExportableDeclaration } from '../abstruct/exportableDeclaration.js';
 import { TsType } from './type/type.js';
-import {tsg} from "../factory";
 import {ExtendsClause} from "./extendsClause";
 
 export class TsInterface extends ExportableDeclaration {

@@ -3,19 +3,6 @@ import {
   Reference,
   SerializedNormalColumn,
 } from '../../migration/serialized/serializedColumn.js';
-import { ForeignKey } from '../../migration/data/foreignKey';
-
-// export const foreignKeyToSql = (foreignKey: ForeignKey): string => {
-//   const onUpdate = foreignKey.onUpdate ? ` ON UPDATE ${foreignKey.onUpdate}` : '';
-//   const onDelete = foreignKey.onDelete ? ` ON DELETE ${foreignKey.onDelete}` : '';
-//   return (
-//     `CONSTRAINT ${foreignKey.constraintName} ` +
-//     `FOREIGN KEY(${foreignKey.fieldName}) ` +
-//     `REFERENCES ${foreignKey.referenceTable}(${foreignKey.referenceColumn})` +
-//     onUpdate +
-//     onDelete
-//   );
-// };
 
 export const SqlCreator = {
   addColumn: (tableName: string, column: SerializedNormalColumn): string =>
