@@ -54,7 +54,7 @@
     "@typescript-eslint/parser": "5.36.2",
     "apollo-server": "3.10.2",
     "env-cmd": "10.1.0",
-    "eslint": "8.22.0",
+    "eslint": "8.23.0",
     "eslint-config-prettier": "8.5.0",
     "eslint-plugin-prettier": "4.2.1",
     "husky": "8.0.1",
