@@ -18,7 +18,7 @@ const getTsConfig = () => {
 };
 
 export const changeExtTsToJs = (fileName: string) =>
-  fileName.slice(0, -3) + '.js';
+  fileName.slice(0, -3) + '.mjs';
 
 export const compileMigrationFiles = () => {
   const tsFiles = getMigrationFileNames();
