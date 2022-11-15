@@ -1,11 +1,15 @@
 import { lowercaseFirstLetter, plural } from '../../util/stringUtil.js';
 import { QueryNode } from '../node/gql/queryNode.js';
-import {EntityTypeNode, ListQueryOptionTypeNode, TypeNode} from '../node/typeNode.js';
+import {
+  EntityTypeNode,
+  ListQueryOptionTypeNode,
+  TypeNode,
+} from '../node/typeNode.js';
 import { ParameterNode } from '../node/parameterNode.js';
 import { TableHandler } from '../../migration/serializable/table.js';
 import { FindMethodNode } from '../node/findMethod.js';
-import {EntityName} from "../node/entityName.js";
-import {TypeDefGenerator} from "../../generator/ts/gql/typeDefGenerator.js";
+import { EntityName } from '../node/entityName.js';
+import { TypeDefGenerator } from '../../generator/ts/gql/typeDefGenerator.js';
 
 export class QueryNodeFactory {
   create(table: TableHandler): QueryNode[] {
@@ -16,11 +20,7 @@ export class QueryNodeFactory {
     return new QueryNode(
       lowercaseFirstLetter(plural(table.getEntityName().name)),
       'find',
-      [
-        new ParameterNode('option',
-          new ListQueryOptionTypeNode(),
-        )
-      ],
+      [new ParameterNode('option', new ListQueryOptionTypeNode())],
       new EntityTypeNode(table.getEntityName(), true, false),
       true,
     );

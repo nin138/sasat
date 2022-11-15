@@ -2,11 +2,11 @@ import {
   columnTypeToTsType,
   DBColumnTypes,
 } from '../../migration/column/columnTypes.js';
-import {TsType} from '../../generator/ts/code/node/type/type.js';
-import {tsg} from '../../generator/ts/code/factory.js';
-import {columnTypeToGqlPrimitive} from '../../generator/gql/columnToGqlType.js';
-import {EntityName} from './entityName.js';
-import {TypeDefGenerator} from "../../generator/ts/gql/typeDefGenerator.js";
+import { TsType } from '../../generator/ts/code/node/type/type.js';
+import { tsg } from '../../generator/ts/code/factory.js';
+import { columnTypeToGqlPrimitive } from '../../generator/gql/columnToGqlType.js';
+import { EntityName } from './entityName.js';
+import { TypeDefGenerator } from '../../generator/ts/gql/typeDefGenerator.js';
 
 export abstract class TypeNode {
   constructor(
@@ -14,8 +14,7 @@ export abstract class TypeNode {
     readonly isArray: boolean,
     readonly isNullable: boolean,
     readonly isArrayNullable = false,
-  ) {
-  }
+  ) {}
 
   abstract toTsType(): TsType;
 
@@ -32,15 +31,13 @@ export abstract class TypeNode {
 
 export class ListQueryOptionTypeNode extends TypeNode {
   constructor() {
-    super(
-      new EntityName(TypeDefGenerator.ListQueryOptionType),
-      false,
-      true,
-    );
+    super(new EntityName(TypeDefGenerator.ListQueryOptionType), false, true);
   }
 
   toTsType(): TsType {
-    return tsg.typeRef(TypeDefGenerator.ListQueryOptionType).importFrom('sasat');
+    return tsg
+      .typeRef(TypeDefGenerator.ListQueryOptionType)
+      .importFrom('sasat');
   }
 }
 

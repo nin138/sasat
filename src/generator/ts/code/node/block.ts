@@ -2,7 +2,7 @@ import { TsStatement } from '../abstruct/statement.js';
 
 const notNull = <T>(v: T | null): v is T => {
   return v !== null;
-}
+};
 
 export class Block extends TsStatement {
   private readonly statements: TsStatement[];

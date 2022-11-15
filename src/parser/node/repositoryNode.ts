@@ -9,7 +9,7 @@ import { TableHandler } from '../../migration/serializable/table.js';
 import { EntityName } from './entityName.js';
 import { RelationNode } from './relationNode.js';
 import { ParameterNode } from './parameterNode.js';
-import {EntityTypeNode} from './typeNode.js';
+import { EntityTypeNode } from './typeNode.js';
 
 export class RepositoryNode {
   readonly tableName: string;

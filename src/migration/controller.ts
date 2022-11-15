@@ -1,14 +1,13 @@
-import {config} from '../config/config.js';
-import {SerializedStore} from './serialized/serializedStore.js';
-import {compileMigrationFiles} from "./exec/migrationFileCompiler.js";
-import {getCurrentMigration} from "./exec/getCurrentMigration.js";
-import {readMigration} from "./exec/readMigrationFile.js";
-import {runMigration} from "./exec/runMigration.js";
-import {getMigrationTargets} from "./exec/getMigrationTarget.js";
-import {createCurrentMigrationDataStore} from "./exec/createCurrentMigrationDataStore.js";
+import { config } from '../config/config.js';
+import { SerializedStore } from './serialized/serializedStore.js';
+import { compileMigrationFiles } from './exec/migrationFileCompiler.js';
+import { getCurrentMigration } from './exec/getCurrentMigration.js';
+import { readMigration } from './exec/readMigrationFile.js';
+import { runMigration } from './exec/runMigration.js';
+import { getMigrationTargets } from './exec/getMigrationTarget.js';
+import { createCurrentMigrationDataStore } from './exec/createCurrentMigrationDataStore.js';
 
 export class MigrationController {
-
   async migrate(): Promise<{
     store: SerializedStore;
     currentMigration: string;

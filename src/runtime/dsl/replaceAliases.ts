@@ -15,10 +15,11 @@ import {
   QueryNodeKind,
   SelectExpr,
   QueryTable,
-  Sort, NO_ALIAS,
+  Sort,
+  NO_ALIAS,
 } from './query/query.js';
 import { TableInfo } from './query/createQueryResolveInfo.js';
-import {getQueryTableName} from "./query/sql/hydrate.js";
+import { getQueryTableName } from './query/sql/hydrate.js';
 
 export const createAliasReplacer = (
   tableInfo: TableInfo,
@@ -43,14 +44,19 @@ export const createAliasReplacer = (
       [QueryNodeKind.Table]: (node: QueryTable) => {
         return {
           ...node,
-          nameOrQuery: typeof node.nameOrQuery === "string"
-            ? node.nameOrQuery
-            : replaceAliases({
-              ...node.nameOrQuery,
-              // select: node.nameOrQuery.select.map(it => ({...it, alia}))
-            }, tableInfo),
+          nameOrQuery:
+            typeof node.nameOrQuery === 'string'
+              ? node.nameOrQuery
+              : replaceAliases(
+                  {
+                    ...node.nameOrQuery,
+                    // select: node.nameOrQuery.select.map(it => ({...it, alia}))
+                  },
+                  tableInfo,
+                ),
           joins: node.joins.map(replaceAlias),
-      }},
+        };
+      },
       [QueryNodeKind.Join]: (node: Join) => ({
         ...node,
         table: replaceAlias(node.table),

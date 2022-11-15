@@ -104,9 +104,9 @@ export const hydrate = (
 };
 
 export const getQueryTableName = (table: QueryTable): string => {
-  if(typeof table.nameOrQuery === "string") return table.nameOrQuery;
+  if (typeof table.nameOrQuery === 'string') return table.nameOrQuery;
   return getQueryTableName(table.nameOrQuery.from);
-}
+};
 
 export const appendKeysToQuery = (
   query: Query,
@@ -118,7 +118,6 @@ export const appendKeysToQuery = (
   ];
   const tables = getTables(query.from);
   tables.forEach(table => {
-
     const keys = identifiableKeyMap[getQueryTableName(table)].identifiableKeys;
     keys.forEach(key => {
       if (
@@ -133,7 +132,7 @@ export const appendKeysToQuery = (
           QExpr.field(
             table.alias,
             key,
-            (table.alias) + SELECT_ALIAS_SEPARATOR + key,
+            table.alias + SELECT_ALIAS_SEPARATOR + key,
           ),
         );
       }

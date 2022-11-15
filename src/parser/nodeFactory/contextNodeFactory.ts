@@ -1,5 +1,5 @@
 import { ContextNode } from '../node/gql/contextNode.js';
-import {EntityTypeNode} from '../node/typeNode.js';
+import { EntityTypeNode } from '../node/typeNode.js';
 import { TableHandler } from '../../migration/serializable/table.js';
 
 export class ContextNodeFactory {

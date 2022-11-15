@@ -13,7 +13,10 @@ import {
 import { SQLExecutor, SqlValueType } from '../db/connectors/dbClient.js';
 import { createQueryResolveInfo } from './dsl/query/createQueryResolveInfo.js';
 import { queryToSql } from './dsl/query/sql/queryToSql.js';
-import {createPagingInnerQuery, fieldToQuery} from './dsl/query/fieldToQuery.js';
+import {
+  createPagingInnerQuery,
+  fieldToQuery,
+} from './dsl/query/fieldToQuery.js';
 import { BooleanValueExpression, Query, Sort } from './dsl/query/query.js';
 import { replaceAliases } from './dsl/replaceAliases.js';
 import {
@@ -36,7 +39,7 @@ export type ListQueryOption = {
   offset?: number;
   order?: string;
   asc?: boolean;
-}
+};
 
 export abstract class SasatRepository<
   Entity extends EntityType,
@@ -115,13 +118,12 @@ export abstract class SasatRepository<
   }
 
   async find(
-    fields: EntityFields =  { fields: this.fields } as EntityFields,
+    fields: EntityFields = { fields: this.fields } as EntityFields,
     options?: {
       where?: BooleanValueExpression;
       sort?: Sort[];
       limit?: number;
       offset?: number;
-
     },
   ): Promise<EntityResult<Entity, Identifiable>[]> {
     const query = {
@@ -141,7 +143,7 @@ export abstract class SasatRepository<
       offset?: number; // TODO prev, next
       sort?: Sort[];
     },
-    fields: EntityFields =  { fields: this.fields } as EntityFields,
+    fields: EntityFields = { fields: this.fields } as EntityFields,
     options?: {
       where?: BooleanValueExpression;
       sort?: Sort[];
@@ -150,7 +152,12 @@ export abstract class SasatRepository<
     },
   ): Promise<EntityResult<Entity, Identifiable>[]> {
     const partial = fieldToQuery(this.tableName, fields, this.maps.relationMap);
-    const innerQuery: Query = createPagingInnerQuery(this.tableName, fields, paging.numberOfItem, paging.offset || 0);
+    const innerQuery: Query = createPagingInnerQuery(
+      this.tableName,
+      fields,
+      paging.numberOfItem,
+      paging.offset || 0,
+    );
     const query: Query = {
       select: partial.select,
       from: {
@@ -165,7 +172,10 @@ export abstract class SasatRepository<
     return this.executeQuery(query, fields);
   }
 
-  private async executeQuery(query: Query, fields: EntityFields): Promise<EntityResult<Entity, Identifiable>[]> {
+  private async executeQuery(
+    query: Query,
+    fields: EntityFields,
+  ): Promise<EntityResult<Entity, Identifiable>[]> {
     const info = createQueryResolveInfo(
       this.tableName,
       fields,

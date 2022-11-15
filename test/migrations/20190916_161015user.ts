@@ -1,8 +1,8 @@
 import { SasatMigration } from '../../src';
 import { MigrationStore } from '../../src';
-import { SqlString } from "sasat/runtime/sql/sqlString.js";
+import { SqlString } from 'sasat/runtime/sql/sqlString.js';
 
-const a  = 'a';
+const a = 'a';
 
 console.log(SqlString.escape(a));
 

@@ -8,7 +8,12 @@ export { gqlResolveInfoToField } from './runtime/gqlResolveInfoToField.js';
 export { ComparisonOperators } from './db/sql/expression/comparison.js';
 export { MigrationStore } from './migration/front/storeMigrator.js';
 export { SasatMigration } from './migration/front/migration.js';
-export { SasatRepository, EntityResult, EntityType, ListQueryOption } from './runtime/sasatRepository.js';
+export {
+  SasatRepository,
+  EntityResult,
+  EntityType,
+  ListQueryOption,
+} from './runtime/sasatRepository.js';
 export { getCurrentDateTimeString } from './util/dateUtil.js';
 export { getDbClient } from './db/getDbClient.js';
 export { assignDeep } from './util/assignDeep.js';

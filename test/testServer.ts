@@ -1,6 +1,6 @@
 import { ApolloServer } from 'apollo-server';
 import { resolvers } from './out/__generated__/resolver.js';
-import {inputs, typeDefs} from './out/__generated__/typeDefs.js';
+import { inputs, typeDefs } from './out/__generated__/typeDefs.js';
 import { createTypeDef } from '../src/runtime/createTypeDef.js';
 
 const server = new ApolloServer({

@@ -18,10 +18,7 @@ export default class Post implements SasatMigration {
         relation: 'Many',
       });
       table.column('title').varchar(50).notNull();
-      table
-        .setGqlCreate(true)
-        .setGqlUpdate(true)
-        .setGqlContextColumn([]);
+      table.setGqlCreate(true).setGqlUpdate(true).setGqlContextColumn([]);
     });
   };
   down: (store: MigrationStore) => void = store => {

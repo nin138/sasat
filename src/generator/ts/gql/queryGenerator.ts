@@ -1,11 +1,11 @@
-import {TsFile} from '../file.js';
-import {PropertyAssignment} from '../code/node/propertyAssignment.js';
-import {Directory} from '../../../constants/directory.js';
-import {tsg} from '../code/factory.js';
-import {RepositoryNode} from '../../../parser/node/repositoryNode.js';
-import {QueryNode} from '../../../parser/node/gql/queryNode.js';
-import {Parameter} from "../code/node/parameter.js";
-import {TsStatement} from "../code/abstruct/statement.js";
+import { TsFile } from '../file.js';
+import { PropertyAssignment } from '../code/node/propertyAssignment.js';
+import { Directory } from '../../../constants/directory.js';
+import { tsg } from '../code/factory.js';
+import { RepositoryNode } from '../../../parser/node/repositoryNode.js';
+import { QueryNode } from '../../../parser/node/gql/queryNode.js';
+import { Parameter } from '../code/node/parameter.js';
+import { TsStatement } from '../code/abstruct/statement.js';
 
 export class QueryGenerator {
   generate(nodes: RepositoryNode[]): TsFile {
@@ -20,8 +20,10 @@ export class QueryGenerator {
     ).addImport(['GraphQLResolveInfo'], 'graphql');
   }
 
-  private static createParams(node: RepositoryNode, query: QueryNode): Parameter[] {
-
+  private static createParams(
+    node: RepositoryNode,
+    query: QueryNode,
+  ): Parameter[] {
     if (query.queryParams.length === 0)
       return [
         tsg.parameter('_1', tsg.typeRef('unknown')),
@@ -32,11 +34,17 @@ export class QueryGenerator {
     if (query.isList) {
       return [
         tsg.parameter('_1', tsg.typeRef('unknown')),
-        tsg.parameter('params', tsg.typeLiteral([
-          tsg.propertySignature(
-            'option', query.queryParams[0].type.toTsType(), true, false,
-          ),
-        ])),
+        tsg.parameter(
+          'params',
+          tsg.typeLiteral([
+            tsg.propertySignature(
+              'option',
+              query.queryParams[0].type.toTsType(),
+              true,
+              false,
+            ),
+          ]),
+        ),
         tsg.parameter('_2', tsg.typeRef('unknown')),
         tsg.parameter('info', tsg.typeRef('GraphQLResolveInfo')),
       ];
@@ -85,29 +93,33 @@ export class QueryGenerator {
     );
   }
 
-  private listQuery(node: RepositoryNode, query: QueryNode): PropertyAssignment {
+  private listQuery(
+    node: RepositoryNode,
+    query: QueryNode,
+  ): PropertyAssignment {
     const fields = tsg.identifier('fields');
-    const ds = tsg
-      .new(
-        tsg
-          .identifier(node.entityName.dataSourceName())
-          .importFrom(
-            Directory.dbDataSourcePath(
-              Directory.paths.generated,
-              node.entityName,
-            ),
+    const ds = tsg.new(
+      tsg
+        .identifier(node.entityName.dataSourceName())
+        .importFrom(
+          Directory.dbDataSourcePath(
+            Directory.paths.generated,
+            node.entityName,
           ),
-      );
+        ),
+    );
     const params = tsg.identifier('params');
     const option = tsg.identifier('option');
     const statements: TsStatement[] = [
       tsg.variable('const', tsg.identifier('{ option }'), params),
-      tsg.variable('const', fields,
+      tsg.variable(
+        'const',
+        fields,
         tsg
           .identifier('gqlResolveInfoToField')
           .importFrom('sasat')
           .call(tsg.identifier('info'))
-          .as(node.entityName.fieldTypeRef(Directory.paths.generated))
+          .as(node.entityName.fieldTypeRef(Directory.paths.generated)),
       ),
       tsg.if(
         option,
@@ -117,22 +129,17 @@ export class QueryGenerator {
             .call(
               tsg.object(
                 tsg.propertyAssign(
-                  'numberOfItem', option.property('numberOfItem')
+                  'numberOfItem',
+                  option.property('numberOfItem'),
                 ),
-                tsg.propertyAssign(
-                  'offset', option.property('offset'),
-                ),
+                tsg.propertyAssign('offset', option.property('offset')),
               ),
-              fields
-            )
-        )
+              fields,
+            ),
+        ),
       ),
-      tsg.return(
-        ds
-          .property(query.repoMethodName)
-          .call(fields)
-      )
-    ]
+      tsg.return(ds.property(query.repoMethodName).call(fields)),
+    ];
     return tsg.propertyAssign(
       query.queryName,
       tsg.arrowFunc(
@@ -144,6 +151,8 @@ export class QueryGenerator {
   }
 
   private entity(node: RepositoryNode): PropertyAssignment[] {
-    return node.queries.map(it => (it.isList ? this.listQuery : this.query)(node, it));
+    return node.queries.map(it =>
+      (it.isList ? this.listQuery : this.query)(node, it),
+    );
   }
 }

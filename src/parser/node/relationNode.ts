@@ -1,4 +1,4 @@
-import {EntityTypeNode, TypeNode} from './typeNode.js';
+import { EntityTypeNode, TypeNode } from './typeNode.js';
 import { EntityNode } from './entityNode.js';
 import { ReferenceColumn } from '../../migration/serializable/column.js';
 import { TableHandler } from '../../migration/serializable/table.js';
@@ -48,6 +48,10 @@ export class RelationNode {
   referenceByType(): TypeNode {
     if (this.relation === 'Many')
       return new EntityTypeNode(this.parent.entityName, true, false);
-    return new EntityTypeNode(this.parent.entityName, false, this.relation !== 'One');
+    return new EntityTypeNode(
+      this.parent.entityName,
+      false,
+      this.relation !== 'One',
+    );
   }
 }

@@ -1,5 +1,5 @@
-import {config} from "../../config/config.js";
-import {Direction} from "./getCurrentMigration.js";
+import { config } from '../../config/config.js';
+import { Direction } from './getCurrentMigration.js';
 
 export const getMigrationTargets = (
   files: string[],
@@ -19,4 +19,4 @@ export const getMigrationTargets = (
     direction: Direction.Down,
     files: files.slice(targetIndex, currentIndex).reverse(),
   };
-}
+};

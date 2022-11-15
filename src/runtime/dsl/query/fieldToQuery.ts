@@ -1,4 +1,4 @@
-import {Join, NO_ALIAS, Query, SelectExpr} from './query.js';
+import { Join, NO_ALIAS, Query, SelectExpr } from './query.js';
 import { RelationInfo, RelationMap } from './createQueryResolveInfo.js';
 import { SELECT_ALIAS_SEPARATOR } from './sql/nodeToSql.js';
 import { QExpr } from '../factory.js';
@@ -62,4 +62,4 @@ export const createPagingInnerQuery = (
     limit: len,
     offset,
   };
-}
+};

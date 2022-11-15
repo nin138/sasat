@@ -20,7 +20,12 @@ export class TypeDefGenerator {
       tsg
         .variable('const', tsg.identifier('typeDefs'), tsg.object(...types))
         .export(),
-      tsg.variable('const', tsg.identifier('inputs'), tsg.object(...this.createInputs(root)))
+      tsg
+        .variable(
+          'const',
+          tsg.identifier('inputs'),
+          tsg.object(...this.createInputs(root)),
+        )
         .export(),
     );
   }
@@ -37,25 +42,30 @@ export class TypeDefGenerator {
   private createInputs(root: RootNode): PropertyAssignment[] {
     const listQueryOption = tsg.propertyAssign(
       TypeDefGenerator.ListQueryOptionType,
-      tsg.array([
-        `numberOfItem: Int!`,
-        `offset: Int`,
-        'order: String',
-        'asc: Boolean',
-      ].map(tsg.string)),
-    )
+      tsg.array(
+        [
+          `numberOfItem: Int!`,
+          `offset: Int`,
+          'order: String',
+          'asc: Boolean',
+        ].map(tsg.string),
+      ),
+    );
 
     return [
       listQueryOption,
-      ...root.mutations().filter(MutationNode.isCreateMutation)
-      .map(node => {
-        return tsg.propertyAssign(
-          node.entityName.createInputName(),
-          tsg.array(node.requestParams.map(it => tsg.string(it.toGqlString())))
-        )
-      })
-    ]
-
+      ...root
+        .mutations()
+        .filter(MutationNode.isCreateMutation)
+        .map(node => {
+          return tsg.propertyAssign(
+            node.entityName.createInputName(),
+            tsg.array(
+              node.requestParams.map(it => tsg.string(it.toGqlString())),
+            ),
+          );
+        }),
+    ];
   }
 
   private createQuery(nodes: QueryNode[]): PropertyAssignment {

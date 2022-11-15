@@ -11,7 +11,8 @@ import {
   Join,
   JoinType,
   Literal,
-  ParenthesisExpression, Query,
+  ParenthesisExpression,
+  Query,
   QueryNodeKind,
   QueryTable,
   Sort,
@@ -125,7 +126,11 @@ const conditions = {
   isNotNull: isNull(true),
 };
 
-const table = (nameOrQuery: string | Query, joins: Join[], alias: string): QueryTable => ({
+const table = (
+  nameOrQuery: string | Query,
+  joins: Join[],
+  alias: string,
+): QueryTable => ({
   kind: QueryNodeKind.Table,
   nameOrQuery,
   alias,

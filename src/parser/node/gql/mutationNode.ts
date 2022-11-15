@@ -2,7 +2,7 @@ import { ContextParamNode } from './contextParamNode.js';
 import { SubscriptionFilterNode } from './subscriptionFilterNode.js';
 import { EntityNode } from '../entityNode.js';
 import { ParameterNode } from '../parameterNode.js';
-import {EntityTypeNode, TypeNode} from '../typeNode.js';
+import { EntityTypeNode, TypeNode } from '../typeNode.js';
 import { DBColumnTypes } from '../../../migration/column/columnTypes.js';
 import { EntityName } from '../entityName.js';
 

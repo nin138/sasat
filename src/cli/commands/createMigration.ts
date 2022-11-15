@@ -8,7 +8,9 @@ import { Console } from '../console.js';
 const getMigrationFile = (className: string) =>
   `import { SasatMigration, MigrationStore } from "sasat";
 
-export default class ${capitalizeFirstLetter(className)} implements SasatMigration {
+export default class ${capitalizeFirstLetter(
+    className,
+  )} implements SasatMigration {
 
   up: (store: MigrationStore) => void = store => {
 

@@ -17,7 +17,10 @@ export const pubsub: PubSubEngine = new PubSub();
 `;
 const schemaFile = `\
 ${new ImportDeclaration(['assignDeep', 'createTypeDef'], 'sasat').toString()}
-${new ImportDeclaration(['typeDefs', 'inputs'], './__generated__/typeDefs').toString()}
+${new ImportDeclaration(
+  ['typeDefs', 'inputs'],
+  './__generated__/typeDefs',
+).toString()}
 ${new ImportDeclaration(['resolvers'], './__generated__/resolver').toString()}
 
 export const schema = {
@@ -30,7 +33,10 @@ export const schema = {
 `;
 
 const baseDBDataSourceFile = `\
-${new ImportDeclaration(['Fields', 'SasatRepository', 'EntityType'], 'sasat').toString()}
+${new ImportDeclaration(
+  ['Fields', 'SasatRepository', 'EntityType'],
+  'sasat',
+).toString()}
 ${new ImportDeclaration(
   ['dataStoreInfo'],
   './__generated__/relationMap',

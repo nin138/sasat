@@ -1,6 +1,6 @@
-import {config} from '../../config/config.js';
-import {getDbClient} from '../../db/getDbClient.js';
-import {getMigrationFileNames} from "./getMigrationFiles.js";
+import { config } from '../../config/config.js';
+import { getDbClient } from '../../db/getDbClient.js';
+import { getMigrationFileNames } from './getMigrationFiles.js';
 
 export enum Direction {
   Up = 'up',
@@ -13,8 +13,8 @@ export const getCurrentMigration = async (): Promise<string | undefined> => {
   const client = getDbClient();
   await client.rawQuery(
     `CREATE TABLE IF NOT EXISTS ${migrationTable} ` +
-    '(id int auto_increment primary key , name varchar(100) not null,' +
-    "direction enum('up', 'down') not null, migrated_at timestamp default current_timestamp)",
+      '(id int auto_increment primary key , name varchar(100) not null,' +
+      "direction enum('up', 'down') not null, migrated_at timestamp default current_timestamp)",
   );
   const result = await client.rawQuery(
     `SELECT name, direction
@@ -26,4 +26,4 @@ export const getCurrentMigration = async (): Promise<string | undefined> => {
   const index = files.indexOf(result[0].name);
   if (index === -1) throw new Error(`${result[0].name} not found`);
   return files[index - 1];
-}
+};

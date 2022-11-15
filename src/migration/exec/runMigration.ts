@@ -1,8 +1,8 @@
-import {StoreMigrator} from "../front/storeMigrator.js";
-import {getDbClient} from "../../db/getDbClient.js";
-import {Console} from "../../cli/console.js";
-import {Direction} from "./getCurrentMigration.js";
-import {config} from "../../config/config.js";
+import { StoreMigrator } from '../front/storeMigrator.js';
+import { getDbClient } from '../../db/getDbClient.js';
+import { Console } from '../../cli/console.js';
+import { Direction } from './getCurrentMigration.js';
+import { config } from '../../config/config.js';
 
 export const runMigration = async (
   store: StoreMigrator,
@@ -21,7 +21,8 @@ export const runMigration = async (
         process.exit(1);
       });
     }
-    await transaction.query`insert into ${() => config().migration.table} (name, direction) values (${[
+    await transaction.query`insert into ${() =>
+      config().migration.table} (name, direction) values (${[
       migrationName,
       direction,
     ]})`;
@@ -30,4 +31,4 @@ export const runMigration = async (
     await transaction.rollback();
     throw e;
   }
-}
+};

@@ -3,10 +3,10 @@ import { DataStore } from '../dataStore.js';
 import { TableBuilder, TableCreator } from '../creators/tableCreator.js';
 import { SasatError } from '../../error.js';
 import { SerializedStore } from '../serialized/serializedStore.js';
-import fs from "fs";
-import path from "path";
-import {readInitialSchema} from "../../util/fsUtil.js";
-import {config} from "../../config/config.js";
+import fs from 'fs';
+import path from 'path';
+import { readInitialSchema } from '../../util/fsUtil.js';
+import { config } from '../../config/config.js';
 
 export interface MigrationStore extends DataStore {
   createTable(
@@ -26,7 +26,7 @@ export class StoreMigrator implements MigrationStore {
   private constructor() {}
 
   static new(): StoreMigrator {
-    if(fs.existsSync(path.join(config().migration.dir, 'initialSchema.yml'))) {
+    if (fs.existsSync(path.join(config().migration.dir, 'initialSchema.yml'))) {
       return StoreMigrator.deserialize(readInitialSchema());
     }
     return new StoreMigrator();

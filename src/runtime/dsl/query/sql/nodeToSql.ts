@@ -20,7 +20,7 @@ import {
 } from '../query.js';
 
 import { SqlString } from '../../../sql/sqlString.js';
-import {queryToSql} from "./queryToSql.js";
+import { queryToSql } from './queryToSql.js';
 
 export const SELECT_ALIAS_SEPARATOR = '__';
 export const Sql = {
@@ -32,9 +32,10 @@ export const Sql = {
     '.' +
     SqlString.escapeId(identifier.name),
   fieldInSelect: (identifier: Field): string => {
-    const alias = identifier.alias && identifier.name !== identifier.alias
-      ? ' AS ' + SqlString.escapeId(identifier.alias)
-      : '';
+    const alias =
+      identifier.alias && identifier.name !== identifier.alias
+        ? ' AS ' + SqlString.escapeId(identifier.alias)
+        : '';
     return (
       SqlString.escapeId(identifier.table) +
       '.' +
@@ -78,13 +79,18 @@ export const Sql = {
   paren: (expr: ParenthesisExpression): string =>
     '(' + Sql.booleanValue(expr) + ')',
   table: (table: QueryTable): string => {
-    if (table.alias === table.nameOrQuery) return SqlString.escapeId(table.nameOrQuery);
-    if(typeof table.nameOrQuery === "string") {
+    if (table.alias === table.nameOrQuery)
+      return SqlString.escapeId(table.nameOrQuery);
+    if (typeof table.nameOrQuery === 'string') {
       return (
-        SqlString.escapeId(table.nameOrQuery) + ' AS ' + SqlString.escapeId(table.alias)
+        SqlString.escapeId(table.nameOrQuery) +
+        ' AS ' +
+        SqlString.escapeId(table.alias)
       );
     }
-    return `(${queryToSql(table.nameOrQuery)}) AS ${SqlString.escapeId(table.alias)}`;
+    return `(${queryToSql(table.nameOrQuery)}) AS ${SqlString.escapeId(
+      table.alias,
+    )}`;
   },
   join: (join: Join): string =>
     `${join.type ? join.type + ' ' : ''}JOIN ${Sql.table(join.table)} ON ` +
