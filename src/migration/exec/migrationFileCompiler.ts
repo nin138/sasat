@@ -15,13 +15,15 @@ const getTsConfig = () => {
     .options;
 }
 
+export const changeExtTsToJs = (fileName: string) => fileName.slice(0, -3) + '.js';
+
 export const compileMigrationFiles = () => {
   const tsFiles = getMigrationFileNames();
   const compiles = tsFiles.map(async fileName => {
     const filePath = path.join(getMigrationFileDir(), fileName)
     const file = await fse.readFile(filePath);
     const src = ts.transpile(file.toString(), getTsConfig()).trim();
-    await fse.outputFile(filePath + '.js', src);
+    await fse.outputFile(changeExtTsToJs(filePath), src);
     return fileName;
   });
   return Promise.all(compiles);
