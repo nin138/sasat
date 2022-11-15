@@ -8,21 +8,16 @@ import { Console } from '../console.js';
 const getMigrationFile = (className: string) =>
   `import { SasatMigration, MigrationStore } from "sasat";
 
-class ${capitalizeFirstLetter(className)} implements SasatMigration {
-  
+export default class ${capitalizeFirstLetter(className)} implements SasatMigration {
+
   up: (store: MigrationStore) => void = store => {
 
   };
-  
+
   down: (store: MigrationStore) => void = store => {
     throw new Error('Down is not implemented on ${className}');
   };
 }
-
-
-// DO NOT EDIT (last line is used)
-new ${capitalizeFirstLetter(className)}()
-
 `;
 
 export const createMigrationFile = (migrationName: string): string => {
