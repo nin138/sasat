@@ -1,4 +1,5 @@
-const createTypeString = (key: string, values: string[], keyword: 'type'|'input') => `\
+const createTypeString = (key: string, values: string[], keyword: 'type'|'input') =>
+  values.length === 0 ? '' : `\
 ${keyword} ${key} {
 ${values.map(it => `  ${it}`).join('\n')}
 }
