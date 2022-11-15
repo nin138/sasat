@@ -3,6 +3,10 @@ import { DataStore } from '../dataStore.js';
 import { TableBuilder, TableCreator } from '../creators/tableCreator.js';
 import { SasatError } from '../../error.js';
 import { SerializedStore } from '../serialized/serializedStore.js';
+import fs from "fs";
+import path from "path";
+import {readInitialSchema} from "../../util/fsUtil.js";
+import {config} from "../../config/config.js";
 
 export interface MigrationStore extends DataStore {
   createTable(
@@ -18,9 +22,20 @@ export class StoreMigrator implements MigrationStore {
   protected tables: TableMigrator[] = [];
   protected migrationQueue: string[] = [];
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  private constructor() {}
+
+  static new(): StoreMigrator {
+    if(fs.existsSync(path.join(config().migration.dir, 'initialSchema.yml'))) {
+      return StoreMigrator.deserialize(readInitialSchema());
+    }
+    return new StoreMigrator();
+  }
+
   static deserialize(data: SerializedStore): StoreMigrator {
     const store = new StoreMigrator();
     store.tables = data.tables.map(it => TableMigrator.deserialize(it, store));
+    store.resetQueue();
     return store;
   }
 

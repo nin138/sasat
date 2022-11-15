@@ -26,6 +26,6 @@ export const migrate = async (options: {
     throw e;
   } finally {
     await getDbClient().release();
+    Console.success(`current migration is ${current}`);
   }
-  Console.success(`current migration is ${current}`);
 };

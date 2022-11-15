@@ -1,99 +1,32 @@
-import * as fs from 'fs';
-import * as path from 'path';
-import { config } from '../config/config.js';
-import { getDbClient } from '../index.js';
-import * as ts from 'typescript';
-import { StoreMigrator } from './front/storeMigrator.js';
-import {
-  Direction,
-  MigrationTargetResolver,
-} from './migrationTargetResolver.js';
-import { MigrationReader } from './migrationReader.js';
-import { Console } from '../cli/console.js';
-import { SerializedStore } from './serialized/serializedStore.js';
+import {config} from '../config/config.js';
+import {SerializedStore} from './serialized/serializedStore.js';
+import {compileMigrationFiles} from "./exec/migrationFileCompiler.js";
+import {getCurrentMigration} from "./exec/getCurrentMigration.js";
+import {readMigration} from "./exec/readMigrationFile.js";
+import {runMigration} from "./exec/runMigration.js";
+import {getMigrationTargets} from "./exec/getMigrationTarget.js";
+import {createCurrentMigrationDataStore} from "./exec/createCurrentMigrationDataStore.js";
 
-// TODO refactor
 export class MigrationController {
-  private migrationDir = path.join(process.cwd(), config().migration.dir);
-  private files = fs
-    .readdirSync(this.migrationDir)
-    .filter(it => it.split('.').pop() === 'ts');
 
   async migrate(): Promise<{
     store: SerializedStore;
     currentMigration: string;
   }> {
-    const currentMigration =
-      await new MigrationTargetResolver().getCurrentMigration();
-    const store = this.getCurrentDataStore(this.files, currentMigration);
-    const target = this.getTargets(this.files, currentMigration);
-    for (const fileName of target.files) {
-      MigrationReader.readMigration(store, fileName, target.direction);
-      await this.execMigration(store, fileName, target.direction);
+    const fileNames = await compileMigrationFiles();
+    const currentMigration = await getCurrentMigration();
+    let store = await createCurrentMigrationDataStore(currentMigration);
+    const target = getMigrationTargets(fileNames, currentMigration);
+
+    for (const tsFileName of target.files) {
+      store = await readMigration(store, tsFileName, target.direction);
+      await runMigration(store, tsFileName, target.direction);
       store.resetQueue();
     }
     return {
       store: store.serialize(),
       currentMigration:
-        config().migration.target || this.files[this.files.length - 1],
+        config().migration.target || fileNames[fileNames.length - 1],
     };
-  }
-
-  private getTargets(
-    files: string[],
-    current: string | undefined,
-  ): { direction: Direction; files: string[] } {
-    const currentIndex = current ? files.indexOf(current) + 1 : 0;
-    const targetIndex =
-      files.indexOf(config().migration.target || files[files.length - 1]) + 1;
-    if (currentIndex === -1 || targetIndex === -1)
-      throw new Error('migration target not found');
-    if (targetIndex >= currentIndex)
-      return {
-        direction: Direction.Up,
-        files: files.slice(currentIndex, targetIndex),
-      };
-    return {
-      direction: Direction.Down,
-      files: files.slice(targetIndex, currentIndex).reverse(),
-    };
-  }
-  private getCurrentDataStore(files: string[], current: string | undefined) {
-    const store = new StoreMigrator();
-    if (!current) return store;
-    files = files.slice(0, files.indexOf(current) + 1);
-    files.forEach(fileName =>
-      MigrationReader.readMigration(store, fileName, Direction.Up),
-    );
-    store.resetQueue();
-    return store;
-  }
-
-  private async execMigration(
-    store: StoreMigrator,
-    migrationName: string,
-    direction: Direction,
-  ) {
-    const sqls = store.getSql();
-    const transaction = await getDbClient().transaction();
-    try {
-      for (const sql of sqls) {
-        await transaction.rawQuery(sql).catch((e: Error) => {
-          Console.error(`ERROR ON ${migrationName}`);
-          Console.error(`SQL: ${sql}`);
-          Console.error(`MESSAGE: ${e.message}`);
-          process.exit(1);
-        });
-      }
-      await transaction.query`insert into ${() =>
-        MigrationTargetResolver.getMigrationTable()} (name, direction) values (${[
-        migrationName,
-        direction,
-      ]})`;
-      return await transaction.commit();
-    } catch (e) {
-      await transaction.rollback();
-      throw e;
-    }
   }
 }

@@ -1,6 +1,6 @@
 import { MigrationStore, SasatMigration } from '../../src';
 
-class Stock implements SasatMigration {
+export default class Stock implements SasatMigration {
   up: (store: MigrationStore) => void = store => {
     return store.createTable('stock', table => {
       table.column('id').int().unsigned();
@@ -35,5 +35,3 @@ class Stock implements SasatMigration {
     store.dropTable('stock');
   };
 }
-
-new Stock();

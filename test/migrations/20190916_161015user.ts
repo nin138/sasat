@@ -1,7 +1,12 @@
 import { SasatMigration } from '../../src';
 import { MigrationStore } from '../../src';
+import { SqlString } from "sasat/runtime/sql/sqlString.js";
 
-class CreateUser implements SasatMigration {
+const a  = 'a';
+
+console.log(SqlString.escape(a));
+
+export default class CreateUser implements SasatMigration {
   up: (store: MigrationStore) => void = store => {
     return store.createTable('user', table => {
       table
@@ -36,4 +41,3 @@ class CreateUser implements SasatMigration {
     store.dropTable('user');
   };
 }
-new CreateUser();
