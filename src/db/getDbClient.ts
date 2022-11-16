@@ -3,8 +3,10 @@ import { MysqlClient } from './connectors/mysql/client.js';
 
 let client: DBClient | undefined;
 
-export const getDbClient = (): DBClient => {
+export const getDbClient = (
+  ...config: ConstructorParameters<typeof MysqlClient>
+): DBClient => {
   if (client && !client.isReleased()) return client;
-  client = new MysqlClient();
+  client = new MysqlClient(...config);
   return client;
 };

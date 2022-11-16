@@ -9,17 +9,28 @@ import { MySqlTransaction } from './transaction.js';
 import { config } from '../../../config/config.js';
 import { promisify } from 'util';
 
-const connectionConfig = { ...config().db, dateStrings: true };
+const defaultConfig = { ...config().db, dateStrings: true };
+
 export class MysqlClient extends DBClient {
   private readonly pool: mysql.Pool;
-  constructor() {
+  constructor(
+    readonly connectionOption?: Partial<mysql.ConnectionOptions>,
+    poolOption?: Partial<mysql.PoolOptions>,
+  ) {
     super();
-    this.pool = mysql.createPool(connectionConfig);
+    this.pool = mysql.createPool({
+      ...defaultConfig,
+      ...connectionOption,
+      ...poolOption,
+    });
     this.release = this.release.bind(this);
   }
 
   async transaction(): Promise<SQLTransaction> {
-    const connection = mysql.createConnection(connectionConfig);
+    const connection = mysql.createConnection({
+      ...defaultConfig,
+      ...this.connectionOption,
+    });
     await promisify(connection.beginTransaction).bind(connection)();
     return new MySqlTransaction(connection);
   }
