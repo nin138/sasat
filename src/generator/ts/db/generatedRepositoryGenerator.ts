@@ -54,7 +54,7 @@ export class GeneratedRepositoryGenerator {
         )
         .addProperty(...this.properties(node))
         .addMethod(this.getDefaultValueMethod(node), ...this.findMethods(node)),
-    );
+    ).disableEsLint();
   }
 
   // TODO MOVE

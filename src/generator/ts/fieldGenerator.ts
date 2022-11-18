@@ -20,7 +20,7 @@ export class FieldGenerator {
             )
             .export(),
         ),
-    );
+    ).disableEsLint();
   }
   private typeLiteral(entity: EntityNode) {
     return tsg.typeLiteral([

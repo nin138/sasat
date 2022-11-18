@@ -17,7 +17,7 @@ export class QueryGenerator {
           tsg.object(...nodes.flatMap(node => this.entity(node))),
         )
         .export(),
-    ).addImport(['GraphQLResolveInfo'], 'graphql');
+    ).addImport(['GraphQLResolveInfo'], 'graphql').disableEsLint();
   }
 
   private static createParams(

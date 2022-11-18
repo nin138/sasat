@@ -23,7 +23,7 @@ export class RelationMapGenerator {
         )
         .export(),
       ...root.entities().flatMap(this.entityRelationType),
-    );
+    ).disableEsLint();
   }
 
   private relationMap(root: RootNode) {

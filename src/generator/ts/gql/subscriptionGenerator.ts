@@ -32,7 +32,7 @@ interface Subscription {
 export class SubscriptionGenerator {
   generate(nodes: MutationNode[]): TsFile {
     const data = this.createData(nodes);
-    return this.createFile(data);
+    return this.createFile(data).disableEsLint();
   }
 
   private createAsyncIteratorCall(event: string): ArrowFunction {

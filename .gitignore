@@ -7,7 +7,7 @@ build
 test/out
 test/migrations/currentSchema.yml
 test/migrations/initialSchema.yml
-test/migrations/*.js
+test/migrations/*.mjs
 
 # Created by .ignore support plugin (hsz.mobi)
 ### macOS template

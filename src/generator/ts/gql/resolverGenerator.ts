@@ -140,6 +140,6 @@ export class ResolverGenerator {
           ),
         ),
       ).export(),
-    );
+    ).disableEsLint();
   }
 }

@@ -92,7 +92,7 @@ export class TableHandler implements Table {
       uniqueKeys: this.uniqueKeys,
       indexes: this.indexes,
       tableName: this.tableName,
-      gqlOption: this.gqlOption,
+      gqlOption: JSON.parse(JSON.stringify(this.gqlOption)),
     };
   }
 

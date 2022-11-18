@@ -27,7 +27,7 @@ export class TypeDefGenerator {
           tsg.object(...this.createInputs(root)),
         )
         .export(),
-    );
+    ).disableEsLint();
   }
   private createTypes(types: TypeDefNode[]): PropertyAssignment[] {
     return types.map(type =>

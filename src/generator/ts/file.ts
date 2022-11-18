@@ -4,6 +4,7 @@ import { TsStatement } from './code/abstruct/statement.js';
 import { ImportDeclaration } from './code/importDeclaration.js';
 
 export class TsFile extends TsCode {
+  private esLintDisabled = false;
   private readonly statements: TsStatement[];
   constructor(...statements: TsStatement[]) {
     super();
@@ -17,7 +18,7 @@ export class TsFile extends TsCode {
     ]
       .map(it => it.toString())
       .join('\n');
-    return TsFile.prettier(string);
+    return (this.esLintDisabled ? "/* eslint-disable */\n" : '') + TsFile.prettier(string);
   }
 
   protected resolveImport(imports: ImportDeclaration[]): ImportDeclaration[] {
@@ -32,6 +33,15 @@ export class TsFile extends TsCode {
     return Object.entries(map).map(
       ([module, types]) => new ImportDeclaration([...new Set(types)], module),
     );
+  }
+  disableEsLint() {
+    this.esLintDisabled = true;
+    return this;
+  }
+
+  enableEsLint() {
+    this.esLintDisabled = false;
+    return this;
   }
 
   private static prettier(code: string) {

@@ -34,7 +34,7 @@ export class MutationGenerator {
         new Identifier('mutation'),
         new ObjectLiteral(...mutations.flatMap(this.mutationToProperty)),
       ).export(),
-    );
+    ).disableEsLint();
   };
 
   private static functionParams(

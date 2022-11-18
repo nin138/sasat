@@ -13,6 +13,6 @@ export class ContextGenerator {
           ),
         )
         .export(),
-    );
+    ).disableEsLint();
   }
 }
