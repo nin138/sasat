@@ -106,6 +106,7 @@ export class RelationMapGenerator {
           [
             tsg.parameter('parentTableAlias', KeywordTypeNode.string),
             tsg.parameter('childTableAlias', KeywordTypeNode.string),
+            tsg.parameter('context', KeywordTypeNode.any),
           ],
           tsg.typeRef('BooleanValueExpression').importFrom('sasat'),
           qExpr

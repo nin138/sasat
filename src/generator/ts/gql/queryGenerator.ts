@@ -24,12 +24,14 @@ export class QueryGenerator {
     node: RepositoryNode,
     query: QueryNode,
   ): Parameter[] {
+    const context = tsg.parameter('context', tsg.typeRef('GqlContext').importFrom('../context'));
+    const resolveInfo = tsg.parameter('info', tsg.typeRef('GraphQLResolveInfo'));
     if (query.queryParams.length === 0)
       return [
         tsg.parameter('_1', tsg.typeRef('unknown')),
         tsg.parameter('_2', tsg.typeRef('unknown')),
-        tsg.parameter('_3', tsg.typeRef('unknown')),
-        tsg.parameter('info', tsg.typeRef('GraphQLResolveInfo')),
+        context,
+        resolveInfo,
       ];
     if (query.isList) {
       return [
@@ -45,8 +47,8 @@ export class QueryGenerator {
             ),
           ]),
         ),
-        tsg.parameter('_2', tsg.typeRef('unknown')),
-        tsg.parameter('info', tsg.typeRef('GraphQLResolveInfo')),
+        context,
+        resolveInfo,
       ];
     }
     const paramNames = query.queryParams.map(it => it.name);
@@ -58,8 +60,8 @@ export class QueryGenerator {
           .getTypeReference(Directory.paths.generated)
           .pick(...paramNames),
       ),
-      tsg.parameter('_2', tsg.typeRef('unknown')),
-      tsg.parameter('info', tsg.typeRef('GraphQLResolveInfo')),
+      context,
+      resolveInfo,
     ];
   }
 
@@ -88,6 +90,7 @@ export class QueryGenerator {
               .importFrom('sasat')
               .call(tsg.identifier('info'))
               .as(node.entityName.fieldTypeRef(Directory.paths.generated)),
+            tsg.identifier('context'),
           ),
       ),
     );
@@ -135,6 +138,8 @@ export class QueryGenerator {
                 tsg.propertyAssign('offset', option.property('offset')),
               ),
               fields,
+              tsg.identifier('undefined'),
+              tsg.identifier('context'),
             ),
         ),
       ),

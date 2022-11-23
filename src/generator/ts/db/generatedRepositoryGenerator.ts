@@ -169,6 +169,7 @@ export class GeneratedRepositoryGenerator {
                         .call(...exps),
                 ),
               ),
+              tsg.identifier('context'),
             ),
         ),
       ];
@@ -193,6 +194,7 @@ export class GeneratedRepositoryGenerator {
                 ),
               ),
           ),
+          tsg.parameter('context?', tsg.typeRef('GqlContext').importFrom(Directory.basePath(Directory.paths.generatedDataSource.db, 'context'))),
         ],
         new TypeReference('Promise', [
           it.returnType.isArray

@@ -105,8 +105,9 @@ export abstract class SasatDBDatasource<
       where?: BooleanValueExpression;
       sort?: Sort[];
     },
+    context?: any,
   ): Promise<EntityResult<Entity, Identifiable> | null> {
-    const result = await this.find(fields, option);
+    const result = await this.find(fields, option, context);
     if (result.length !== 0) return result[0];
     return null;
   }
@@ -119,8 +120,9 @@ export abstract class SasatDBDatasource<
       limit?: number;
       offset?: number;
     },
+    context?: unknown,
   ): Promise<EntityResult<Entity, Identifiable>[]> {
-    const query = createQuery(this.tableName, fields, options, this.maps.tableInfo, this.maps.relationMap);
+    const query = createQuery(this.tableName, fields, options, this.maps.tableInfo, this.maps.relationMap, context);
     return this.executeQuery(query, fields);
   }
 
@@ -138,6 +140,7 @@ export abstract class SasatDBDatasource<
       limit?: number;
       offset?: number;
     },
+    context?: unknown,
   ): Promise<EntityResult<Entity, Identifiable>[]> {
     const query = createPagingFieldQuery({
       baseTableName: this.tableName,
@@ -146,6 +149,7 @@ export abstract class SasatDBDatasource<
       relationMap: this.maps.relationMap,
       pagingOption: paging,
       queryOption: options,
+      context,
     })
     return this.executeQuery(query, fields);
   }

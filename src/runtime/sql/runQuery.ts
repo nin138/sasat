@@ -21,7 +21,8 @@ export const createQuery = (
   fields: Fields,
   options: QueryOptions | undefined,
   tableInfo: TableInfo,
-  relationMap: RelationMap
+  relationMap: RelationMap,
+  context?: any,
 ): Query => {
   let tableCount = 0;
   const select: Field[] = [];
@@ -46,7 +47,7 @@ export const createQuery = (
           const rel = relationMap[tableName][relationName]
           return QExpr.join(
             resolveFields(rel.table, table!),
-            rel.on(tableAlias, table!.tableAlias || 't' + current),
+            rel.on(tableAlias, table!.tableAlias || 't' + current, context),
             "LEFT",
           );
         }),
@@ -73,7 +74,7 @@ export const createPagingInnerQuery = (
 ): Query => {
   const map = tableInfo[tableName].columnMap;
   return {
-    select: fields.fields.map(it => QExpr.field('', map[it])),
+    select: fields.fields.map(it => QExpr.field(tableAlias, map[it])),
     from: QExpr.table(tableName, [], tableAlias),
     limit: option.numberOfItem,
     offset: option.offset,
@@ -117,6 +118,7 @@ type CreatePagingFieldQueryArg = {
   relationMap: RelationMap,
   queryOption?: QueryOptions,
   pagingOption: ListQueryOption & { where?: BooleanValueExpression },
+  context?: any,
 };
 
 export const createPagingFieldQuery = ({
@@ -125,7 +127,8 @@ export const createPagingFieldQuery = ({
                                             queryOption,
                                             pagingOption,
                                             tableInfo,
-                                            relationMap
+                                            relationMap,
+  context,
                                           }: CreatePagingFieldQueryArg): Query => {
   const tableAlias = fields.tableAlias || 't0';
 
@@ -143,6 +146,7 @@ export const createPagingFieldQuery = ({
     queryOption,
     tableInfo,
     relationMap,
+    context,
   );
   return {
     select: main.select,

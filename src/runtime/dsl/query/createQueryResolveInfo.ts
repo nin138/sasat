@@ -7,6 +7,7 @@ export type RelationInfo = {
   on: (
     parentTableAlias: string,
     childTableAlias: string,
+    context?: any,
   ) => BooleanValueExpression;
   relation: 'One' | 'OneOrZero' | 'Many';
 };

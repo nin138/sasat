@@ -3899,6 +3899,7 @@ safe-buffer@~5.1.1:
 
 "sasat@link:./lib":
   version "0.0.0"
+  uid ""
 
 semver-compare@^1.0.0:
   version "1.0.0"
