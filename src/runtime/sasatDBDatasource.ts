@@ -5,18 +5,10 @@ import {
   QExpr,
 } from '../index.js';
 import { Fields } from './field.js';
-import {
-  appendKeysToQuery,
-  hydrate,
-  ResultRow,
-} from './dsl/query/sql/hydrate.js';
+import { ResultRow } from './dsl/query/sql/hydrate.js';
 import { SQLExecutor, SqlValueType } from '../db/connectors/dbClient.js';
 import { createQueryResolveInfo } from './dsl/query/createQueryResolveInfo.js';
 import { queryToSql } from './dsl/query/sql/queryToSql.js';
-import {
-  createPagingInnerQuery,
-  fieldToQuery,
-} from './dsl/query/fieldToQuery.js';
 import { BooleanValueExpression, Query, Sort } from './dsl/query/query.js';
 import { replaceAliases } from './dsl/replaceAliases.js';
 import {
@@ -27,6 +19,8 @@ import {
   Update,
   updateToSql,
 } from './dsl/mutation/mutation.js';
+import {createPagingFieldQuery, createQuery, runQuery} from "./sql/runQuery";
+
 export type EntityType = Record<string, SqlValueType>;
 export type EntityResult<Entity, Identifiable> = Identifiable & Partial<Entity>;
 interface Repository<Entity, Creatable, Identifiable> {
@@ -41,7 +35,7 @@ export type ListQueryOption = {
   asc?: boolean;
 };
 
-export abstract class SasatRepository<
+export abstract class SasatDBDatasource<
   Entity extends EntityType,
   Creatable,
   Identifiable,
@@ -126,13 +120,7 @@ export abstract class SasatRepository<
       offset?: number;
     },
   ): Promise<EntityResult<Entity, Identifiable>[]> {
-    const query = {
-      ...fieldToQuery(this.tableName, fields, this.maps.relationMap),
-      where: options?.where,
-      sort: options?.sort,
-      limit: options?.limit,
-      offset: options?.offset,
-    };
+    const query = createQuery(this.tableName, fields, options, this.maps.tableInfo, this.maps.relationMap);
     return this.executeQuery(query, fields);
   }
 
@@ -151,24 +139,14 @@ export abstract class SasatRepository<
       offset?: number;
     },
   ): Promise<EntityResult<Entity, Identifiable>[]> {
-    const partial = fieldToQuery(this.tableName, fields, this.maps.relationMap);
-    const innerQuery: Query = createPagingInnerQuery(
-      this.tableName,
+    const query = createPagingFieldQuery({
+      baseTableName: this.tableName,
       fields,
-      paging.numberOfItem,
-      paging.offset || 0,
-    );
-    const query: Query = {
-      select: partial.select,
-      from: {
-        ...partial.from,
-        nameOrQuery: innerQuery,
-      },
-      where: options?.where,
-      sort: options?.sort,
-      limit: options?.limit,
-      offset: options?.offset,
-    };
+      tableInfo: this.maps.tableInfo,
+      relationMap: this.maps.relationMap,
+      pagingOption: paging,
+      queryOption: options,
+    })
     return this.executeQuery(query, fields);
   }
 
@@ -182,10 +160,7 @@ export abstract class SasatRepository<
       this.maps.relationMap,
       this.maps.tableInfo,
     );
-    const result = await this.query(
-      appendKeysToQuery(query, this.maps.tableInfo),
-    );
-    return hydrate(result, info) as EntityResult<Entity, Identifiable>[];
+    return await runQuery(this.client, query, info) as EntityResult<Entity, Identifiable>[];
   }
 
   private createIdentifiableExpression(entity: Identifiable) {

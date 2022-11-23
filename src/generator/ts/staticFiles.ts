@@ -34,7 +34,7 @@ export const schema = {
 
 const baseDBDataSourceFile = `\
 ${new ImportDeclaration(
-  ['Fields', 'SasatRepository', 'EntityType'],
+  ['Fields', 'SasatDBDatasource', 'EntityType'],
   'sasat',
 ).toString()}
 ${new ImportDeclaration(
@@ -42,7 +42,7 @@ ${new ImportDeclaration(
   './__generated__/relationMap',
 ).toString()}
 
-export abstract class BaseDBDataSource<Entity extends EntityType, Creatable, Identifiable, EntityFields extends Fields> extends SasatRepository<
+export abstract class BaseDBDataSource<Entity extends EntityType, Creatable, Identifiable, EntityFields extends Fields> extends SasatDBDatasource<
   Entity,
   Creatable,
   Identifiable,

@@ -21,6 +21,8 @@ export class RelationNode {
         TableHandler.tableNameToEntityName(ref.data.reference.targetTable),
       ),
       ref.data.reference.relation,
+      ref.data.columnName,
+      ref.data.reference.targetColumn,
     );
   }
   private constructor(
@@ -31,6 +33,8 @@ export class RelationNode {
     readonly toTableName: string,
     readonly toEntityName: EntityName,
     readonly relation: Relation,
+    readonly fromColumnName: string,
+    readonly toColumnName: string,
   ) {}
 
   refPropertyName(): string {

@@ -65,7 +65,7 @@
     "tsconfig-paths": "4.1.0"
   },
   "peerDependencies": {
-    "apollo-server": "^2.0.0 || ^3.0.0",
+    "@apollo/server": "^4.0.0",
     "typescript": "^3.7.4 || ^4.0.0"
   },
   "lint-staged": {

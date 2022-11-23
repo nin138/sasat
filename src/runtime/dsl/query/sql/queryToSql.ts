@@ -8,19 +8,20 @@ const getJoin = (from: QueryTable): Join[] => {
 export const queryToSql = (query: Query): string => {
   const select = query.select.map(Sql.select).join(', ');
   const join = getJoin(query.from).map(Sql.join).join(' ');
-  const where = query.where ? 'WHERE ' + Sql.booleanValue(query.where) : '';
+  const where = query.where ? ' WHERE ' + Sql.booleanValue(query.where) : '';
   const sort =
     query.sort && query.sort.length !== 0
       ? ' ORDER BY ' + Sql.sorts(query.sort)
       : '';
-  const offset = query.offset ? 'OFFSET ' + query.offset : '';
   const limit = query.limit ? ' LIMIT ' + query.limit : '';
+  const offset = query.offset ? ' OFFSET ' + query.offset : '';
+  if(offset && !limit) throw new Error('LIMIT is required to use OFFSET.');
   return (
     `SELECT ${select} FROM ${Sql.table(query.from)}` +
     join +
     where +
     sort +
-    offset +
-    limit
+    limit +
+    offset
   );
 };

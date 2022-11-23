@@ -136,7 +136,7 @@ export class RelationMapGenerator {
             rel.refPropertyName(),
             tsg.object(
               tsg.propertyAssign('table', tsg.string(rel.toTableName)),
-              on(rel.fromField, rel.toField),
+              on(rel.fromColumnName, rel.toColumnName),
               tsg.propertyAssign('relation', tsg.string('One')),
             ),
           ),
@@ -151,7 +151,7 @@ export class RelationMapGenerator {
                   'table',
                   tsg.string(rel.parent.repository.tableName),
                 ),
-                on(rel.toField, rel.fromField),
+                on(rel.toColumnName, rel.fromColumnName),
                 tsg.propertyAssign('relation', tsg.string(rel.relation)),
               ),
             ),

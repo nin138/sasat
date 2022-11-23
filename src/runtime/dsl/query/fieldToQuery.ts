@@ -33,7 +33,7 @@ export const fieldToQuery = (
   tableName: string,
   fields: Fields,
   map: RelationMap,
-): Query => {
+): Pick<Query, 'select' | 'from'> => {
   const tableAlias = fields.tableAlias || tableName;
   const select: SelectExpr[] = fields.fields.map(it =>
     QExpr.field(tableAlias, it, tableAlias + SELECT_ALIAS_SEPARATOR + it),
