@@ -94,7 +94,7 @@ export class CodeGenerateController {
       ),
       writeFile(
         this.getFullPath(this.generateDir, 'context'),
-        this.codeGen.generateGqlContext(rootNode),
+        this.codeGen.generateGQLContext(rootNode),
       ),
     ];
   }

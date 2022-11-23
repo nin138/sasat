@@ -182,7 +182,7 @@ export class TableHandler implements Table {
     return new EntityName(TableHandler.tableNameToEntityName(this.tableName));
   }
 
-  setGqlCreate(enabled: boolean, options?: Partial<MutationOption>): void {
+  setGQLCreate(enabled: boolean, options?: Partial<MutationOption>): void {
     this._gqlOption = updateMutationOption(this._gqlOption, {
       create: {
         ...defaultMutationOption,
@@ -192,7 +192,7 @@ export class TableHandler implements Table {
     });
   }
 
-  setGqlUpdate(enabled: boolean, options?: Partial<MutationOption>) {
+  setGQLUpdate(enabled: boolean, options?: Partial<MutationOption>) {
     this._gqlOption = updateMutationOption(this._gqlOption, {
       update: {
         ...defaultMutationOption,
@@ -202,7 +202,7 @@ export class TableHandler implements Table {
     });
   }
 
-  setGqlDelete(
+  setGQLDelete(
     enabled: boolean,
     options?: Partial<Omit<MutationOption, 'noReFetch'>>,
   ) {
@@ -215,7 +215,7 @@ export class TableHandler implements Table {
     });
   }
 
-  setGqlContextColumn(columns: GqlFromContextParam[]) {
+  setGQLContextColumn(columns: GqlFromContextParam[]) {
     this._gqlOption = updateMutationOption(this._gqlOption, {
       fromContextColumns: columns,
     });

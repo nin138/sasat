@@ -47,7 +47,7 @@ export class MutationGenerator {
       tsg.parameter('params', paramType),
       tsg.parameter(
         useContext || reFetch ? 'context' : '_1',
-        tsg.typeRef('GqlContext').importFrom('../context'),
+        tsg.typeRef('GQLContext').importFrom('../context'),
       ),
       tsg.parameter(
         reFetch ? 'info' : '_2',

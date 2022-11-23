@@ -29,8 +29,8 @@ export default class CreateUser implements SasatMigration {
         .unique()
         .fieldName('nick');
       table.createdAt().updatedAt();
-      table.setGqlCreate(true, { noReFetch: true, subscription: true });
-      table.setGqlUpdate(true, {
+      table.setGQLCreate(true, { noReFetch: true, subscription: true });
+      table.setGQLUpdate(true, {
         noReFetch: true,
         subscription: true,
         subscriptionFilter: ['name'],

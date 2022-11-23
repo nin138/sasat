@@ -14,19 +14,19 @@ export interface TableBuilder {
   createdAt(): TableBuilder;
   updatedAt(): TableBuilder;
   addIndex(...columns: string[]): TableBuilder;
-  setGqlCreate(
+  setGQLCreate(
     enabled: boolean,
     options?: Partial<MutationOption>,
   ): TableBuilder;
-  setGqlUpdate(
+  setGQLUpdate(
     enabled: boolean,
     options?: Partial<MutationOption>,
   ): TableBuilder;
-  setGqlDelete(
+  setGQLDelete(
     enabled: boolean,
     options?: Partial<Omit<MutationOption, 'noReFetch'>>,
   ): TableBuilder;
-  setGqlContextColumn(columns: GqlFromContextParam[]): TableBuilder;
+  setGQLContextColumn(columns: GqlFromContextParam[]): TableBuilder;
 }
 
 export class TableCreator implements TableBuilder {
@@ -96,32 +96,32 @@ export class TableCreator implements TableBuilder {
     return this;
   }
 
-  setGqlCreate(
+  setGQLCreate(
     enabled: boolean,
     options?: Partial<MutationOption>,
   ): TableBuilder {
-    this.table.setGqlCreate(enabled, options);
+    this.table.setGQLCreate(enabled, options);
     return this;
   }
 
-  setGqlUpdate(
+  setGQLUpdate(
     enabled: boolean,
     options?: Partial<MutationOption>,
   ): TableBuilder {
-    this.table.setGqlUpdate(enabled, options);
+    this.table.setGQLUpdate(enabled, options);
     return this;
   }
 
-  setGqlDelete(
+  setGQLDelete(
     enabled: boolean,
     options?: Partial<Omit<MutationOption, 'noReFetch'>>,
   ): TableBuilder {
-    this.table.setGqlDelete(enabled, options);
+    this.table.setGQLDelete(enabled, options);
     return this;
   }
 
-  setGqlContextColumn(columns: GqlFromContextParam[]): TableBuilder {
-    this.table.setGqlContextColumn(columns);
+  setGQLContextColumn(columns: GqlFromContextParam[]): TableBuilder {
+    this.table.setGQLContextColumn(columns);
     return this;
   }
 }

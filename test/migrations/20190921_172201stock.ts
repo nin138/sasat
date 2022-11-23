@@ -24,11 +24,11 @@ export default class Stock implements SasatMigration {
       table.createdAt();
       table.updatedAt();
       table.addUniqueKey('user', 'post');
-      table.setGqlCreate(true, { noReFetch: false });
-      table.setGqlUpdate(true, { noReFetch: false });
+      table.setGQLCreate(true, { noReFetch: false });
+      table.setGQLUpdate(true, { noReFetch: false });
       table
-        .setGqlDelete(true, { subscription: true })
-        .setGqlContextColumn([{ column: 'user', contextName: 'userId' }]);
+        .setGQLDelete(true, { subscription: true })
+        .setGQLContextColumn([{ column: 'user', contextName: 'userId' }]);
     });
   };
   down: (store: MigrationStore) => void = store => {

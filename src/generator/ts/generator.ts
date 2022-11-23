@@ -50,7 +50,7 @@ export class TsCodeGenerator implements CodeGenerator {
     return new SubscriptionGenerator().generate(root.mutations()).toString();
   }
 
-  generateGqlContext(root: RootNode): string {
+  generateGQLContext(root: RootNode): string {
     return new ContextGenerator().generate(root.contexts).toString();
   }
 

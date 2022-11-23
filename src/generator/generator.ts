@@ -14,7 +14,7 @@ export interface CodeGenerator {
   generateGqlQuery(root: RootNode): string;
   generateGqlMutation(root: RootNode): string;
   generateGqlSubscription(root: RootNode): string;
-  generateGqlContext(root: RootNode): string;
+  generateGQLContext(root: RootNode): string;
   generateFiles(RootNode: RootNode): FileData;
   generateOnceFiles(RootNode: RootNode): FileData;
 }

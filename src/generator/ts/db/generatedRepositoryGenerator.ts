@@ -194,7 +194,7 @@ export class GeneratedRepositoryGenerator {
                 ),
               ),
           ),
-          tsg.parameter('context?', tsg.typeRef('GqlContext').importFrom(Directory.basePath(Directory.paths.generatedDataSource.db, 'context'))),
+          tsg.parameter('context?', tsg.typeRef('GQLContext').importFrom(Directory.basePath(Directory.paths.generatedDataSource.db, 'context'))),
         ],
         new TypeReference('Promise', [
           it.returnType.isArray

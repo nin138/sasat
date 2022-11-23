@@ -24,7 +24,7 @@ export class QueryGenerator {
     node: RepositoryNode,
     query: QueryNode,
   ): Parameter[] {
-    const context = tsg.parameter('context', tsg.typeRef('GqlContext').importFrom('../context'));
+    const context = tsg.parameter('context', tsg.typeRef('GQLContext').importFrom('../context'));
     const resolveInfo = tsg.parameter('info', tsg.typeRef('GraphQLResolveInfo'));
     if (query.queryParams.length === 0)
       return [

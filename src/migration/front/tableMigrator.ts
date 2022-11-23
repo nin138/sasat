@@ -25,19 +25,19 @@ export interface MigrationTable extends Table {
   addForeignKey(reference: Reference): MigrationTable;
   changeColumnType(columnName: string, type: DBType): MigrationTable;
   setDefault(columnName: string, value: string | number | null): MigrationTable;
-  setGqlCreate(
+  setGQLCreate(
     enabled: boolean,
     options?: Partial<MutationOption>,
   ): MigrationTable;
-  setGqlUpdate(
+  setGQLUpdate(
     enabled: boolean,
     options?: Partial<MutationOption>,
   ): MigrationTable;
-  setGqlDelete(
+  setGQLDelete(
     enabled: boolean,
     options?: Partial<Omit<MutationOption, 'noReFetch'>>,
   ): MigrationTable;
-  setGqlContextColumn(columns: GqlFromContextParam[]): MigrationTable;
+  setGQLContextColumn(columns: GqlFromContextParam[]): MigrationTable;
 }
 
 export class TableMigrator implements MigrationTable {
@@ -95,32 +95,32 @@ export class TableMigrator implements MigrationTable {
     return this;
   }
 
-  setGqlCreate(
+  setGQLCreate(
     enabled: boolean,
     options?: Partial<MutationOption>,
   ): MigrationTable {
-    this.table.setGqlCreate(enabled, options);
+    this.table.setGQLCreate(enabled, options);
     return this;
   }
 
-  setGqlUpdate(
+  setGQLUpdate(
     enabled: boolean,
     options?: Partial<MutationOption>,
   ): MigrationTable {
-    this.table.setGqlUpdate(enabled, options);
+    this.table.setGQLUpdate(enabled, options);
     return this;
   }
 
-  setGqlDelete(
+  setGQLDelete(
     enabled: boolean,
     options?: Partial<Omit<MutationOption, 'noReFetch'>>,
   ): MigrationTable {
-    this.table.setGqlDelete(enabled, options);
+    this.table.setGQLDelete(enabled, options);
     return this;
   }
 
-  setGqlContextColumn(columns: GqlFromContextParam[]): MigrationTable {
-    this.table.setGqlContextColumn(columns);
+  setGQLContextColumn(columns: GqlFromContextParam[]): MigrationTable {
+    this.table.setGQLContextColumn(columns);
     return this;
   }
 
