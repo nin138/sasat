@@ -7,7 +7,6 @@ import {
 } from '../dsl/query/query.js';
 import { SQLExecutor } from '../../db/connectors/dbClient.js';
 import {
-  createQueryResolveInfo,
   RelationMap,
   TableInfo,
 } from '../dsl/query/createQueryResolveInfo.js';
@@ -30,6 +29,8 @@ type QueryOptions = {
   offset?: number;
 };
 
+const notTypeName = (fieldName: string) => fieldName !== '__typename';
+
 export const createQuery = (
   baseTableName: string,
   fields: Fields,
@@ -48,8 +49,9 @@ export const createQuery = (
     const info = tableInfo[tableName];
 
     select.push(
-      ...unique([...table.fields, ...info.identifiableKeys]).map(it => {
-        const realName = info.columnMap[it];
+      ...unique([...table.fields.filter(notTypeName), ...info.identifiableKeys])
+        .map(it => {
+        const realName = info.columnMap[it] || it;
         return QExpr.field(
           tableAlias,
           realName,
@@ -91,7 +93,7 @@ export const createPagingInnerQuery = (
 ): Query => {
   const map = tableInfo[tableName].columnMap;
   return {
-    select: fields.fields.map(it => QExpr.field(tableAlias, map[it])),
+    select: fields.fields.filter(notTypeName).map(it => QExpr.field(tableAlias, map[it])),
     from: QExpr.table(tableName, [], tableAlias),
     limit: option.numberOfItem,
     offset: option.offset,
@@ -114,39 +116,6 @@ export const runQuery = async (
 ) => {
   const resultRows: ResultRow[] = await client.rawQuery(queryToSql(query));
   return hydrate(resultRows, resolveInfo);
-};
-
-type RunFieldQueryArg = {
-  client: SQLExecutor;
-  queryOptions: QueryOptions;
-  tableInfo: TableInfo;
-  relationMap: RelationMap;
-  baseTableName: string;
-  fields: Fields;
-};
-
-export const runFieldQuery = async ({
-  client,
-  tableInfo,
-  baseTableName,
-  fields,
-  relationMap,
-  queryOptions,
-}: RunFieldQueryArg) => {
-  const query = createQuery(
-    baseTableName,
-    fields,
-    queryOptions,
-    tableInfo,
-    relationMap,
-  );
-  const resolveInfo = createQueryResolveInfo(
-    baseTableName,
-    fields,
-    relationMap,
-    tableInfo,
-  );
-  return runQuery(client, query, resolveInfo);
 };
 
 type CreatePagingFieldQueryArg = {

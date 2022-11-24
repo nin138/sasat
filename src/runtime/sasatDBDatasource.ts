@@ -170,8 +170,8 @@ export abstract class SasatDBDatasource<
       this.tableInfo,
     );
     const sql = queryToSql(query);
-    const resultRows: ResultRow[] = await this.client.rawQuery(sql);
     this.queryLogger(sql);
+    const resultRows: ResultRow[] = await this.client.rawQuery(sql);
     return hydrate(resultRows, info) as EntityResult<Entity, Identifiable>[];
   }
 
