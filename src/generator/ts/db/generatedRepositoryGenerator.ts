@@ -168,6 +168,7 @@ export class GeneratedRepositoryGenerator {
                         .property('and')
                         .call(...exps),
                 ),
+                tsg.propertyAssign('lock'),
               ),
               tsg.identifier('context'),
             ),
@@ -194,6 +195,7 @@ export class GeneratedRepositoryGenerator {
                 ),
               ),
           ),
+          tsg.parameter('lock?', tsg.typeRef('LockMode').importFrom('sasat')),
           tsg.parameter(
             'context?',
             tsg

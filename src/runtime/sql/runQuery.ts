@@ -6,10 +6,7 @@ import {
   Sort,
 } from '../dsl/query/query.js';
 import { SQLExecutor } from '../../db/connectors/dbClient.js';
-import {
-  RelationMap,
-  TableInfo,
-} from '../dsl/query/createQueryResolveInfo.js';
+import { RelationMap, TableInfo } from '../dsl/query/createQueryResolveInfo.js';
 import { Fields } from '../field.js';
 import { QExpr } from '../dsl/factory.js';
 import { unique } from '../util.js';
@@ -20,14 +17,7 @@ import {
   ResultRow,
 } from '../dsl/query/sql/hydrate.js';
 import { SELECT_ALIAS_SEPARATOR } from '../dsl/query/sql/nodeToSql.js';
-import { ListQueryOption } from '../sasatDBDatasource.js';
-
-type QueryOptions = {
-  where?: BooleanValueExpression;
-  sort?: Sort[];
-  limit?: number;
-  offset?: number;
-};
+import { ListQueryOption, QueryOptions } from '../sasatDBDatasource.js';
 
 const notTypeName = (fieldName: string) => fieldName !== '__typename';
 
@@ -49,8 +39,10 @@ export const createQuery = (
     const info = tableInfo[tableName];
 
     select.push(
-      ...unique([...table.fields.filter(notTypeName), ...info.identifiableKeys])
-        .map(it => {
+      ...unique([
+        ...table.fields.filter(notTypeName),
+        ...info.identifiableKeys,
+      ]).map(it => {
         const realName = info.columnMap[it] || it;
         return QExpr.field(
           tableAlias,
@@ -93,7 +85,9 @@ export const createPagingInnerQuery = (
 ): Query => {
   const map = tableInfo[tableName].columnMap;
   return {
-    select: fields.fields.filter(notTypeName).map(it => QExpr.field(tableAlias, map[it])),
+    select: fields.fields
+      .filter(notTypeName)
+      .map(it => QExpr.field(tableAlias, map[it])),
     from: QExpr.table(tableName, [], tableAlias),
     limit: option.numberOfItem,
     offset: option.offset,

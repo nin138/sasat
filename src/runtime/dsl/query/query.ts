@@ -16,6 +16,8 @@ export enum QueryNodeKind {
   Sort,
 }
 
+export type LockMode = 'FOR UPDATE' | 'FOR SHARE';
+
 export type Query = {
   select: Select;
   from: QueryTable;
@@ -23,6 +25,7 @@ export type Query = {
   sort?: Sort[];
   limit?: number;
   offset?: number;
+  lock?: LockMode;
 };
 
 type Select = SelectExpr[];

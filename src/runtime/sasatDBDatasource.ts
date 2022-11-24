@@ -5,7 +5,12 @@ import {
   createQueryResolveInfo,
   TableInfo,
 } from './dsl/query/createQueryResolveInfo.js';
-import { BooleanValueExpression, Query, Sort } from './dsl/query/query.js';
+import {
+  BooleanValueExpression,
+  LockMode,
+  Query,
+  Sort,
+} from './dsl/query/query.js';
 import {
   Create,
   createToSql,
@@ -30,6 +35,14 @@ export type ListQueryOption = {
   offset?: number;
   order?: string;
   asc?: boolean;
+};
+
+export type QueryOptions = {
+  where?: BooleanValueExpression;
+  sort?: Sort[];
+  limit?: number;
+  offset?: number;
+  lock?: LockMode;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -99,10 +112,7 @@ export abstract class SasatDBDatasource<
 
   async first(
     fields?: EntityFields,
-    option?: {
-      where?: BooleanValueExpression;
-      sort?: Sort[];
-    },
+    option?: Omit<QueryOptions, 'limit' | 'offset'>,
     context?: any,
   ): Promise<EntityResult<Entity, Identifiable> | null> {
     const result = await this.find(fields, option, context);
@@ -112,12 +122,7 @@ export abstract class SasatDBDatasource<
 
   async find(
     fields: EntityFields = { fields: this.fields } as EntityFields,
-    options?: {
-      where?: BooleanValueExpression;
-      sort?: Sort[];
-      limit?: number;
-      offset?: number;
-    },
+    options?: QueryOptions,
     context?: unknown,
   ): Promise<EntityResult<Entity, Identifiable>[]> {
     const query = createQuery(
@@ -139,12 +144,7 @@ export abstract class SasatDBDatasource<
       sort?: Sort[];
     },
     fields: EntityFields = { fields: this.fields } as EntityFields,
-    options?: {
-      where?: BooleanValueExpression;
-      sort?: Sort[];
-      limit?: number;
-      offset?: number;
-    },
+    options?: QueryOptions,
     context?: unknown,
   ): Promise<EntityResult<Entity, Identifiable>[]> {
     const query = createPagingFieldQuery({

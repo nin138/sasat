@@ -1,4 +1,8 @@
-export { BooleanValueExpression } from './runtime/dsl/query/query.js';
+export {
+  BooleanValueExpression,
+  Query,
+  LockMode,
+} from './runtime/dsl/query/query.js';
 export { Relation } from './migration/data/relation.js';
 export { QExpr } from './runtime/dsl/factory.js';
 export { RelationMap } from './runtime/dsl/query/createQueryResolveInfo.js';
