@@ -17,15 +17,23 @@ export class QueryGenerator {
           tsg.object(...nodes.flatMap(node => this.entity(node))),
         )
         .export(),
-    ).addImport(['GraphQLResolveInfo'], 'graphql').disableEsLint();
+    )
+      .addImport(['GraphQLResolveInfo'], 'graphql')
+      .disableEsLint();
   }
 
   private static createParams(
     node: RepositoryNode,
     query: QueryNode,
   ): Parameter[] {
-    const context = tsg.parameter('context', tsg.typeRef('GQLContext').importFrom('../context'));
-    const resolveInfo = tsg.parameter('info', tsg.typeRef('GraphQLResolveInfo'));
+    const context = tsg.parameter(
+      'context',
+      tsg.typeRef('GQLContext').importFrom('../context'),
+    );
+    const resolveInfo = tsg.parameter(
+      'info',
+      tsg.typeRef('GraphQLResolveInfo'),
+    );
     if (query.queryParams.length === 0)
       return [
         tsg.parameter('_1', tsg.typeRef('unknown')),

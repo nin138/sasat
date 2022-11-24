@@ -18,7 +18,10 @@ export class TsFile extends TsCode {
     ]
       .map(it => it.toString())
       .join('\n');
-    return (this.esLintDisabled ? "/* eslint-disable */\n" : '') + TsFile.prettier(string);
+    return (
+      (this.esLintDisabled ? '/* eslint-disable */\n' : '') +
+      TsFile.prettier(string)
+    );
   }
 
   protected resolveImport(imports: ImportDeclaration[]): ImportDeclaration[] {

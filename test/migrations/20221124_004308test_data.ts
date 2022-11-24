@@ -1,14 +1,14 @@
-import { SasatMigration, MigrationStore } from "sasat";
-import {PostCreatable} from "../out/__generated__/entities/Post.js";
-import {StockCreatable} from "../out/__generated__/entities/Stock.js";
-import {SqlString} from "../../src/runtime/sql/sqlString.js";
+import { SasatMigration, MigrationStore } from 'sasat';
+import { PostCreatable } from '../out/__generated__/entities/Post.js';
+import { StockCreatable } from '../out/__generated__/entities/Stock.js';
+import { SqlString } from '../../src/runtime/sql/sqlString.js';
 
 const toSQL = (table: string, obj: any) => {
   const entries = Object.entries(obj);
   return `INSERT INTO ${table}(${entries
     .map(([key]) => key)
-    .join(", ")}) VALUES (${entries.map(([, value]) =>
-    SqlString.escape(value)
+    .join(', ')}) VALUES (${entries.map(([, value]) =>
+    SqlString.escape(value),
   )})`;
 };
 
@@ -40,7 +40,6 @@ const stocks: StockCreatable[] = [
 ];
 
 export default class Test_data implements SasatMigration {
-
   up: (store: MigrationStore) => void = store => {
     users.map(it => toSQL('user', it)).map(it => store.sql(it));
     posts.map(it => toSQL('post', it)).map(it => store.sql(it));

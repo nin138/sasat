@@ -8,5 +8,5 @@ export const unique = <T>(array: T[]): T[] => {
       result.push(array[i]);
     }
   }
-  return  result;
-}
+  return result;
+};

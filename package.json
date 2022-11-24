@@ -16,7 +16,7 @@
     "start": "env-cmd .env ts-node ./index.ts",
     "build": "yarn tsc",
     "lint": "eslint 'src/**/*.ts'",
-    "fmt": "yarn lint --fix && yarn prettier",
+    "format": "yarn lint --fix && yarn prettier",
     "prettier": "prettier --write './**/*.ts'",
     "pretest": "yarn resetdb && yarn sasat migrate",
     "test": "env-cmd jest --coverage --silent=false --verbose false",
@@ -70,7 +70,7 @@
   },
   "lint-staged": {
     "*.ts": [
-      "yarn fmt"
+      "yarn format"
     ]
   },
   "husky": {

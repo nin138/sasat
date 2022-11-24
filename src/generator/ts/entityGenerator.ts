@@ -7,7 +7,11 @@ export class EntityGenerator {
   constructor(private node: EntityNode) {}
 
   generate(): TsFile {
-    return new TsFile(this.entity(), this.creatable(), this.identifiable()).disableEsLint();
+    return new TsFile(
+      this.entity(),
+      this.creatable(),
+      this.identifiable(),
+    ).disableEsLint();
   }
 
   private entity(): TsStatement {

@@ -16,12 +16,14 @@ export class RelationMapGenerator {
   }
 
   private relationMap(root: RootNode) {
-    return tsg.variable(
-      'const',
-      tsg.identifier('relationMap'),
-      tsg.object(...root.entities().map(it => this.entityRelationMap(it))),
-      tsg.typeRef('RelationMap').importFrom('sasat'),
-    ).export();
+    return tsg
+      .variable(
+        'const',
+        tsg.identifier('relationMap'),
+        tsg.object(...root.entities().map(it => this.entityRelationMap(it))),
+        tsg.typeRef('RelationMap').importFrom('sasat'),
+      )
+      .export();
   }
 
   private entityRelationType(node: EntityNode) {
@@ -160,23 +162,25 @@ export class RelationMapGenerator {
           ),
         ),
       );
-    return tsg.variable(
-      'const',
-      'tableInfo',
-      tsg.object(
-        ...root.repositories.map(repo =>
-          tsg.propertyAssign(
-            repo.tableName,
-            tsg.object(
-              tsg.propertyAssign(
-                'identifiableKeys',
-                tsg.array(repo.primaryKeys.map(tsg.string)),
+    return tsg
+      .variable(
+        'const',
+        'tableInfo',
+        tsg.object(
+          ...root.repositories.map(repo =>
+            tsg.propertyAssign(
+              repo.tableName,
+              tsg.object(
+                tsg.propertyAssign(
+                  'identifiableKeys',
+                  tsg.array(repo.primaryKeys.map(tsg.string)),
+                ),
+                columnMap(repo.entity),
               ),
-              columnMap(repo.entity),
             ),
           ),
         ),
-      ),
-    ).export();
+      )
+      .export();
   }
 }

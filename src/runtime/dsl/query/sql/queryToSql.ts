@@ -15,7 +15,7 @@ export const queryToSql = (query: Query): string => {
       : '';
   const limit = query.limit ? ' LIMIT ' + query.limit : '';
   const offset = query.offset ? ' OFFSET ' + query.offset : '';
-  if(offset && !limit) throw new Error('LIMIT is required to use OFFSET.');
+  if (offset && !limit) throw new Error('LIMIT is required to use OFFSET.');
   return (
     `SELECT ${select} FROM ${Sql.table(query.from)}` +
     join +

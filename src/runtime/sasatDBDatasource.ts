@@ -1,15 +1,11 @@
-import {
-  CommandResponse,
-  getDbClient,
-  QExpr, RelationMap,
-} from '../index.js';
+import { CommandResponse, getDbClient, QExpr, RelationMap } from '../index.js';
 import { Fields } from './field.js';
-import { ResultRow } from './dsl/query/sql/hydrate.js';
 import { SQLExecutor, SqlValueType } from '../db/connectors/dbClient.js';
-import {createQueryResolveInfo, TableInfo} from './dsl/query/createQueryResolveInfo.js';
-import { queryToSql } from './dsl/query/sql/queryToSql.js';
+import {
+  createQueryResolveInfo,
+  TableInfo,
+} from './dsl/query/createQueryResolveInfo.js';
 import { BooleanValueExpression, Query, Sort } from './dsl/query/query.js';
-import { replaceAliases } from './dsl/replaceAliases.js';
 import {
   Create,
   createToSql,
@@ -18,7 +14,9 @@ import {
   Update,
   updateToSql,
 } from './dsl/mutation/mutation.js';
-import {createPagingFieldQuery, createQuery, runQuery} from "./sql/runQuery";
+import { createPagingFieldQuery, createQuery } from './sql/runQuery.js';
+import { hydrate, ResultRow } from './dsl/query/sql/hydrate.js';
+import { queryToSql } from './dsl/query/sql/queryToSql.js';
 
 export type EntityType = Record<string, SqlValueType>;
 export type EntityResult<Entity, Identifiable> = Identifiable & Partial<Entity>;
@@ -34,6 +32,9 @@ export type ListQueryOption = {
   asc?: boolean;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+const noop = () => {};
+
 export abstract class SasatDBDatasource<
   Entity extends EntityType,
   Creatable,
@@ -47,15 +48,12 @@ export abstract class SasatDBDatasource<
   abstract readonly fields: string[];
   protected abstract readonly primaryKeys: string[];
   protected abstract readonly autoIncrementColumn?: string;
+  protected queryLogger: (sql: string) => void = noop;
+
   constructor(protected client: SQLExecutor = getDbClient()) {}
   protected abstract getDefaultValueString(): Partial<{
     [P in keyof Entity]: Entity[P] | string | null;
   }>;
-
-  protected async query(query: Query): Promise<ResultRow[]> {
-    const sql = queryToSql(replaceAliases(query, this.tableInfo));
-    return this.client.rawQuery(sql);
-  }
 
   async create(entity: Creatable): Promise<Entity> {
     const obj: Entity = {
@@ -122,7 +120,14 @@ export abstract class SasatDBDatasource<
     },
     context?: unknown,
   ): Promise<EntityResult<Entity, Identifiable>[]> {
-    const query = createQuery(this.tableName, fields, options, this.tableInfo, this.relationMap, context);
+    const query = createQuery(
+      this.tableName,
+      fields,
+      options,
+      this.tableInfo,
+      this.relationMap,
+      context,
+    );
     return this.executeQuery(query, fields);
   }
 
@@ -150,7 +155,7 @@ export abstract class SasatDBDatasource<
       pagingOption: paging,
       queryOption: options,
       context,
-    })
+    });
     return this.executeQuery(query, fields);
   }
 
@@ -164,7 +169,10 @@ export abstract class SasatDBDatasource<
       this.relationMap,
       this.tableInfo,
     );
-    return await runQuery(this.client, query, info) as EntityResult<Entity, Identifiable>[];
+    const sql = queryToSql(query);
+    const resultRows: ResultRow[] = await this.client.rawQuery(sql);
+    this.queryLogger(sql);
+    return hydrate(resultRows, info) as EntityResult<Entity, Identifiable>[];
   }
 
   private createIdentifiableExpression(entity: Identifiable) {
