@@ -11,17 +11,6 @@ export class RelationMapGenerator {
     return new TsFile(
       this.relationMap(root),
       this.tableInfo(root),
-      tsg
-        .variable(
-          'const',
-          'dataStoreInfo',
-          tsg.object(
-            tsg.propertyAssign('tableInfo'),
-            tsg.propertyAssign('relationMap'),
-          ),
-          tsg.typeRef('DataStoreInfo').importFrom('sasat'),
-        )
-        .export(),
       ...root.entities().flatMap(this.entityRelationType),
     ).disableEsLint();
   }
@@ -32,7 +21,7 @@ export class RelationMapGenerator {
       tsg.identifier('relationMap'),
       tsg.object(...root.entities().map(it => this.entityRelationMap(it))),
       tsg.typeRef('RelationMap').importFrom('sasat'),
-    );
+    ).export();
   }
 
   private entityRelationType(node: EntityNode) {
@@ -106,7 +95,7 @@ export class RelationMapGenerator {
           [
             tsg.parameter('parentTableAlias', KeywordTypeNode.string),
             tsg.parameter('childTableAlias', KeywordTypeNode.string),
-            tsg.parameter('context', KeywordTypeNode.any),
+            // tsg.parameter('context?', KeywordTypeNode.any),
           ],
           tsg.typeRef('BooleanValueExpression').importFrom('sasat'),
           qExpr
@@ -188,6 +177,6 @@ export class RelationMapGenerator {
           ),
         ),
       ),
-    );
+    ).export();
   }
 }

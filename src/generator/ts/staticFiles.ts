@@ -5,7 +5,7 @@ ${new ImportDeclaration(
   ['BaseGQLContext'],
   './__generated__/context',
 ).toString()}
-export type GQLContext = BaseGQLContext & {};
+export type GQLContext = BaseGQLContext & Record<string, never>;
 `;
 const pubsubFile = `\
 ${new ImportDeclaration(
@@ -38,7 +38,7 @@ ${new ImportDeclaration(
   'sasat',
 ).toString()}
 ${new ImportDeclaration(
-  ['dataStoreInfo'],
+  ['relationMap', 'tableInfo'],
   './__generated__/relationMap',
 ).toString()}
 
@@ -48,7 +48,8 @@ export abstract class BaseDBDataSource<Entity extends EntityType, Creatable, Ide
   Identifiable,
   EntityFields
 > {
-  protected maps = dataStoreInfo;
+  protected relationMap = relationMap
+  protected tableInfo = tableInfo;
 }
 `;
 export const staticFiles: FileData = [

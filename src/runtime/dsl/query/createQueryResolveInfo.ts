@@ -47,11 +47,6 @@ export type TableInfo = {
   };
 };
 
-export type DataStoreInfo = {
-  tableInfo: TableInfo;
-  relationMap: RelationMap;
-};
-
 export const createQueryResolveInfo = (
   tableName: string,
   fields: Fields,

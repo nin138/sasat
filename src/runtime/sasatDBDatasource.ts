@@ -1,13 +1,12 @@
 import {
   CommandResponse,
-  DataStoreInfo,
   getDbClient,
-  QExpr,
+  QExpr, RelationMap,
 } from '../index.js';
 import { Fields } from './field.js';
 import { ResultRow } from './dsl/query/sql/hydrate.js';
 import { SQLExecutor, SqlValueType } from '../db/connectors/dbClient.js';
-import { createQueryResolveInfo } from './dsl/query/createQueryResolveInfo.js';
+import {createQueryResolveInfo, TableInfo} from './dsl/query/createQueryResolveInfo.js';
 import { queryToSql } from './dsl/query/sql/queryToSql.js';
 import { BooleanValueExpression, Query, Sort } from './dsl/query/query.js';
 import { replaceAliases } from './dsl/replaceAliases.js';
@@ -42,7 +41,8 @@ export abstract class SasatDBDatasource<
   EntityFields extends Fields,
 > implements Repository<Entity, Creatable, Identifiable>
 {
-  protected abstract maps: DataStoreInfo;
+  protected abstract relationMap: RelationMap;
+  protected abstract tableInfo: TableInfo;
   abstract readonly tableName: string;
   abstract readonly fields: string[];
   protected abstract readonly primaryKeys: string[];
@@ -53,7 +53,7 @@ export abstract class SasatDBDatasource<
   }>;
 
   protected async query(query: Query): Promise<ResultRow[]> {
-    const sql = queryToSql(replaceAliases(query, this.maps.tableInfo));
+    const sql = queryToSql(replaceAliases(query, this.tableInfo));
     return this.client.rawQuery(sql);
   }
 
@@ -70,7 +70,7 @@ export abstract class SasatDBDatasource<
       })),
     };
     const response = await this.client.rawCommand(
-      createToSql(dsl, this.maps.tableInfo),
+      createToSql(dsl, this.tableInfo),
     );
     if (!this.autoIncrementColumn) return obj;
     return {
@@ -88,7 +88,7 @@ export abstract class SasatDBDatasource<
       })),
       where: this.createIdentifiableExpression(entity),
     };
-    return this.client.rawCommand(updateToSql(dsl, this.maps.tableInfo));
+    return this.client.rawCommand(updateToSql(dsl, this.tableInfo));
   }
 
   async delete(entity: Identifiable): Promise<CommandResponse> {
@@ -96,7 +96,7 @@ export abstract class SasatDBDatasource<
       table: this.tableName,
       where: this.createIdentifiableExpression(entity),
     };
-    return this.client.rawCommand(deleteToSql(dsl, this.maps.tableInfo));
+    return this.client.rawCommand(deleteToSql(dsl, this.tableInfo));
   }
 
   async first(
@@ -122,7 +122,7 @@ export abstract class SasatDBDatasource<
     },
     context?: unknown,
   ): Promise<EntityResult<Entity, Identifiable>[]> {
-    const query = createQuery(this.tableName, fields, options, this.maps.tableInfo, this.maps.relationMap, context);
+    const query = createQuery(this.tableName, fields, options, this.tableInfo, this.relationMap, context);
     return this.executeQuery(query, fields);
   }
 
@@ -145,8 +145,8 @@ export abstract class SasatDBDatasource<
     const query = createPagingFieldQuery({
       baseTableName: this.tableName,
       fields,
-      tableInfo: this.maps.tableInfo,
-      relationMap: this.maps.relationMap,
+      tableInfo: this.tableInfo,
+      relationMap: this.relationMap,
       pagingOption: paging,
       queryOption: options,
       context,
@@ -161,8 +161,8 @@ export abstract class SasatDBDatasource<
     const info = createQueryResolveInfo(
       this.tableName,
       fields,
-      this.maps.relationMap,
-      this.maps.tableInfo,
+      this.relationMap,
+      this.tableInfo,
     );
     return await runQuery(this.client, query, info) as EntityResult<Entity, Identifiable>[];
   }
