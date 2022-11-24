@@ -151,7 +151,7 @@ export class GeneratedRepositoryGenerator {
         tsg.variable(
           'const',
           'tableName',
-          tsg.identifier('fields?.tableAlias || this.tableName'),
+          tsg.identifier('fields?.tableAlias || "t0"'),
         ),
         tsg.return(
           tsg
