@@ -151,7 +151,7 @@ export class QueryGenerator {
             ),
         ),
       ),
-      tsg.return(ds.property(query.repoMethodName).call(fields)),
+      tsg.return(ds.property(query.repoMethodName).call(fields, tsg.identifier('undefined'), tsg.identifier('context'))),
     ];
     return tsg.propertyAssign(
       query.queryName,
