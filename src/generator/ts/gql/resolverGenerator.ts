@@ -28,7 +28,11 @@ export class ResolverGenerator {
         undefined,
         tsg.block(
           tsg.if(
-            tsg.identifier(paramName).property(propertyName),
+            tsg.binary(
+              tsg.identifier(paramName).property(propertyName),
+              '!==',
+              tsg.identifier('undefined'),
+            ),
             tsg.return(tsg.identifier(paramName).property(propertyName)),
           ),
           tsg.return(
@@ -73,7 +77,11 @@ export class ResolverGenerator {
         undefined,
         tsg.block(
           tsg.if(
-            tsg.identifier(paramName).property(propertyName),
+            tsg.binary(
+              tsg.identifier(paramName).property(propertyName),
+              '!==',
+              tsg.identifier('undefined'),
+            ),
             tsg.return(tsg.identifier(paramName).property(propertyName)),
           ),
           tsg.return(
