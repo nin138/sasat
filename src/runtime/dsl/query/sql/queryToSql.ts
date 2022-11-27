@@ -1,9 +1,15 @@
-import { Join, Query, QueryTable } from '../query.js';
+import {Join, LockMode, Query, QueryTable} from '../query.js';
 import { Sql } from './nodeToSql.js';
 
 const getJoin = (from: QueryTable): Join[] => {
   return from.joins.flatMap(join => [join, ...getJoin(join.table)]);
 };
+
+const getLock = (lock?: LockMode): string => {
+  if(!lock) return '';
+  if(lock === 'FOR UPDATE') return ' FOR UPDATE'
+  return ' FOR SHARE';
+}
 
 export const queryToSql = (query: Query): string => {
   const select = query.select.map(Sql.select).join(', ');
@@ -15,7 +21,6 @@ export const queryToSql = (query: Query): string => {
       : '';
   const limit = query.limit ? ' LIMIT ' + query.limit : '';
   const offset = query.offset ? ' OFFSET ' + query.offset : '';
-  const lock = query.lock ? ' ' + query.lock : '';
   if (offset && !limit) throw new Error('LIMIT is required to use OFFSET.');
   return (
     `SELECT ${select} FROM ${Sql.table(query.from)}` +
@@ -24,6 +29,6 @@ export const queryToSql = (query: Query): string => {
     sort +
     limit +
     offset +
-    lock
+    getLock(query.lock)
   );
 };
