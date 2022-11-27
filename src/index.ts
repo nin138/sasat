@@ -16,6 +16,7 @@ export {
   EntityResult,
   EntityType,
   ListQueryOption,
+  QueryOptions,
 } from './runtime/sasatDBDatasource.js';
 export { getCurrentDateTimeString } from './util/dateUtil.js';
 export { getDbClient } from './db/getDbClient.js';

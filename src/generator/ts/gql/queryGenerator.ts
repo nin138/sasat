@@ -98,6 +98,7 @@ export class QueryGenerator {
               .importFrom('sasat')
               .call(tsg.identifier('info'))
               .as(node.entityName.fieldTypeRef(Directory.paths.generated)),
+            tsg.identifier('undefined'),
             tsg.identifier('context'),
           ),
       ),

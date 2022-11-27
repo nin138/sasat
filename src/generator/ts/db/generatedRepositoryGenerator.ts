@@ -159,16 +159,14 @@ export class GeneratedRepositoryGenerator {
             .call(
               tsg.identifier('fields'),
               tsg.object().addProperties(
+                tsg.spreadAssign(tsg.identifier('options')),
                 tsg.propertyAssign(
                   'where',
-                  exps.length === 1
-                    ? exps[0]
-                    : qExpr
-                        .property('conditions')
-                        .property('and')
-                        .call(...exps),
+                  qExpr
+                    .property('conditions')
+                    .property('and')
+                    .call(...exps, tsg.identifier('options?').property('where')),
                 ),
-                tsg.propertyAssign('lock'),
               ),
               tsg.identifier('context'),
             ),
@@ -195,7 +193,13 @@ export class GeneratedRepositoryGenerator {
                 ),
               ),
           ),
-          tsg.parameter('lock?', tsg.typeRef('LockMode').importFrom('sasat')),
+          tsg.parameter('options?',
+            it.returnType.isArray ? tsg.typeRef('QueryOptions').importFrom('sasat')
+              : tsg.typeRef('Omit', [
+                tsg.typeRef('QueryOptions').importFrom('sasat'),
+                tsg.typeRef('"offset" | "limit" | "sort"'),
+              ])
+          ),
           tsg.parameter(
             'context?',
             tsg

@@ -20,12 +20,14 @@ import {
   Value,
 } from './query/query.js';
 import { ComparisonOperators } from '../../db/sql/expression/comparison.js';
+import { nonNullable } from "../util.js";
+
 
 const compound = (
-  expr: BooleanValueExpression[],
+  expr: Array<BooleanValueExpression | undefined | null>,
   operator: CompoundOperator,
 ): BooleanValueExpression => {
-  return expr.reduce((acc, current) => ({
+  return expr.filter(nonNullable).reduce((acc, current) => ({
     kind: QueryNodeKind.CompoundExpr,
     left: acc,
     operator: operator,
@@ -52,9 +54,9 @@ const comparison =
     right,
   });
 
-const and = (...expr: BooleanValueExpression[]): BooleanValueExpression =>
+const and = (...expr: Array<BooleanValueExpression | undefined | null>): BooleanValueExpression =>
   compound(expr, 'AND');
-const or = (...expr: BooleanValueExpression[]): BooleanValueExpression =>
+const or = (...expr: Array<BooleanValueExpression | undefined | null>): BooleanValueExpression =>
   compound(expr, 'OR');
 
 const field = (table: string, name: string, alias?: string): Field => ({
