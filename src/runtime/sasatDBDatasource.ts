@@ -53,6 +53,7 @@ export abstract class SasatDBDatasource<
   Creatable,
   Identifiable,
   EntityFields extends Fields,
+  QueryResult extends Partial<Entity> & Identifiable,
 > implements Repository<Entity, Creatable, Identifiable>
 {
   protected abstract relationMap: RelationMap;
@@ -114,7 +115,7 @@ export abstract class SasatDBDatasource<
     fields?: EntityFields,
     option?: Omit<QueryOptions, 'limit' | 'offset'>,
     context?: any,
-  ): Promise<EntityResult<Entity, Identifiable> | null> {
+  ): Promise<QueryResult | null> {
     const result = await this.find(fields, option, context);
     if (result.length !== 0) return result[0];
     return null;
@@ -124,7 +125,7 @@ export abstract class SasatDBDatasource<
     fields: EntityFields = { fields: this.fields } as EntityFields,
     options?: QueryOptions,
     context?: unknown,
-  ): Promise<EntityResult<Entity, Identifiable>[]> {
+  ): Promise<QueryResult[]> {
     const query = createQuery(
       this.tableName,
       fields,
@@ -146,7 +147,7 @@ export abstract class SasatDBDatasource<
     fields: EntityFields = { fields: this.fields } as EntityFields,
     options?: QueryOptions,
     context?: unknown,
-  ): Promise<EntityResult<Entity, Identifiable>[]> {
+  ): Promise<QueryResult[]> {
     const query = createPagingFieldQuery({
       baseTableName: this.tableName,
       fields,
@@ -162,7 +163,7 @@ export abstract class SasatDBDatasource<
   private async executeQuery(
     query: Query,
     fields: EntityFields,
-  ): Promise<EntityResult<Entity, Identifiable>[]> {
+  ): Promise<QueryResult[]> {
     const info = createQueryResolveInfo(
       this.tableName,
       fields,
@@ -172,7 +173,7 @@ export abstract class SasatDBDatasource<
     const sql = queryToSql(query);
     this.queryLogger(sql);
     const resultRows: ResultRow[] = await this.client.rawQuery(sql);
-    return hydrate(resultRows, info) as EntityResult<Entity, Identifiable>[];
+    return hydrate(resultRows, info) as QueryResult[];
   }
 
   private createIdentifiableExpression(entity: Identifiable) {

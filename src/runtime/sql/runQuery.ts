@@ -40,7 +40,7 @@ export const createQuery = (
 
     select.push(
       ...unique([
-        ...table.fields.filter(notTypeName),
+        ...(table.fields as string[]).filter(notTypeName),
         ...info.identifiableKeys,
       ]).map(it => {
         const realName = info.columnMap[it] || it;
@@ -85,7 +85,7 @@ export const createPagingInnerQuery = (
 ): Query => {
   const map = tableInfo[tableName].columnMap;
   return {
-    select: fields.fields
+    select: (fields.fields as string[])
       .filter(notTypeName)
       .map(it => QExpr.field(tableAlias, map[it])),
     from: QExpr.table(tableName, [], tableAlias),

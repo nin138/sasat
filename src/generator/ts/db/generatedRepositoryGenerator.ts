@@ -27,6 +27,10 @@ export class GeneratedRepositoryGenerator {
       node.entityName,
     );
     return new TsFile(
+      tsg.typeAlias('QueryResult', tsg.intersectionType(
+        tsg.typeRef('Partial', [tsg.typeRef(node.entityName.entityWithRelationTypeName()).importFrom(Directory.generatedPath(Directory.paths.generatedDataSource.db, 'relationMap'))]),
+        node.entityName.identifiableTypeReference(Directory.paths.generatedDataSource.db),
+      )),
       new Class(node.entityName.generatedDataSourceName())
         .export()
         .abstract()
@@ -43,6 +47,7 @@ export class GeneratedRepositoryGenerator {
               node.entityName.fieldTypeRef(
                 Directory.paths.generatedDataSource.db,
               ),
+              tsg.typeRef('QueryResult')
             ]),
           ).addImport(
             ['BaseDBDataSource'],
@@ -172,12 +177,7 @@ export class GeneratedRepositoryGenerator {
             ),
         ),
       ];
-      const returnType = tsg
-        .typeRef('EntityResult', [
-          tsg.typeRef(node.entityName.name),
-          tsg.typeRef(node.entityName.identifiableInterfaceName()),
-        ])
-        .importFrom('sasat');
+      const returnType = tsg.typeRef('QueryResult');
       return new MethodDeclaration(
         it.name,
         [

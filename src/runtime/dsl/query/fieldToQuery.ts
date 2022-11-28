@@ -13,7 +13,7 @@ const join = (
 ): Join => {
   const tableAlias = fields.tableAlias || info.table;
   selects.push(
-    ...fields.fields.map(it =>
+    ...(fields.fields as string[]).map(it =>
       QExpr.field(tableAlias, it, tableAlias + SELECT_ALIAS_SEPARATOR + it),
     ),
   );
@@ -35,7 +35,7 @@ export const fieldToQuery = (
   map: RelationMap,
 ): Pick<Query, 'select' | 'from'> => {
   const tableAlias = fields.tableAlias || tableName;
-  const select: SelectExpr[] = fields.fields.map(it =>
+  const select: SelectExpr[] = (fields.fields as string[]).map(it =>
     QExpr.field(tableAlias, it, tableAlias + SELECT_ALIAS_SEPARATOR + it),
   );
   const joins: Join[] = Object.entries(fields.relations || {})
@@ -57,7 +57,7 @@ export const createPagingInnerQuery = (
   offset: number,
 ): Query => {
   return {
-    select: fields.fields.map(it => QExpr.field(tableName, it, NO_ALIAS)),
+    select: (fields.fields as string[]).map(it => QExpr.field(tableName, it, NO_ALIAS)),
     from: QExpr.table(tableName, [], tableName),
     limit: len,
     offset,

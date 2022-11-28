@@ -42,13 +42,14 @@ ${new ImportDeclaration(
   './__generated__/relationMap',
 ).toString()}
 
-export abstract class BaseDBDataSource<Entity extends EntityType, Creatable, Identifiable, EntityFields extends Fields> extends SasatDBDatasource<
-  Entity,
+export abstract class BaseDBDataSource<
+  Entity extends EntityType,
   Creatable,
   Identifiable,
-  EntityFields
-> {
-  protected relationMap = relationMap
+  EntityFields extends Fields,
+  QueryResult extends Partial<Entity> & Identifiable,
+> extends SasatDBDatasource<Entity, Creatable, Identifiable, EntityFields, QueryResult> {
+  protected relationMap = relationMap;
   protected tableInfo = tableInfo;
 }
 `;
