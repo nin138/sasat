@@ -110,9 +110,10 @@ export class ResolverGenerator {
     return tsg.propertyAssign(
       node.entityName.name,
       tsg.object(
-        ...node.relations.map(relation => this.relationProperty(relation)),
+        ...node.relations.filter(it => it.to.gqlOption.enabled).map(relation => this.relationProperty(relation)),
         ...node
           .findReferencedRelations()
+          .filter(it => it.from.gqlOption.enabled)
           .map(relation => this.referencedByProperty(relation)),
       ),
     );
@@ -144,7 +145,7 @@ export class ResolverGenerator {
         new ObjectLiteral(
           ...properties,
           new SpreadAssignment(
-            new ObjectLiteral(...root.entities().map(this.entityResolver)),
+            new ObjectLiteral(...root.entities().filter(it => it.gqlEnabled()).map(this.entityResolver)),
           ),
         ),
       ).export(),
