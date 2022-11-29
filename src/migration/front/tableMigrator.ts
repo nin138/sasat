@@ -5,7 +5,7 @@ import {
   SerializedColumn,
   SerializedNormalColumn,
 } from '../serialized/serializedColumn.js';
-import { GqlFromContextParam, MutationOption } from '../data/gqlOption.js';
+import { GqlFromContextParam, GQLOption, MutationOption} from '../data/GQLOption.js';
 import {
   Column,
   NormalColumn,
@@ -38,6 +38,10 @@ export interface MigrationTable extends Table {
     options?: Partial<Omit<MutationOption, 'noReFetch'>>,
   ): MigrationTable;
   setGQLContextColumn(columns: GqlFromContextParam[]): MigrationTable;
+
+  enableGQL(): MigrationTable;
+
+  setGQLOption(option: GQLOption): MigrationTable;
 }
 
 export class TableMigrator implements MigrationTable {
@@ -108,6 +112,19 @@ export class TableMigrator implements MigrationTable {
     options?: Partial<MutationOption>,
   ): MigrationTable {
     this.table.setGQLUpdate(enabled, options);
+    return this;
+  }
+
+  enableGQL(): MigrationTable {
+    this.table.setGQLOption({
+      ...this.table.gqlOption,
+      enabled: true,
+    });
+    return this;
+  }
+
+  setGQLOption(option: GQLOption): MigrationTable {
+    this.table.setGQLOption(option);
     return this;
   }
 

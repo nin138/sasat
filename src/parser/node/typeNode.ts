@@ -9,7 +9,7 @@ import { EntityName } from './entityName.js';
 import { TypeDefGenerator } from '../../generator/ts/gql/typeDefGenerator.js';
 
 export abstract class TypeNode {
-  constructor(
+  protected constructor(
     readonly typeName: DBColumnTypes | EntityName,
     readonly isArray: boolean,
     readonly isNullable: boolean,

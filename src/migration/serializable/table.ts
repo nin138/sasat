@@ -16,10 +16,10 @@ import {
   defaultMutationOption,
   getDefaultGqlOption,
   GqlFromContextParam,
-  GqlOption,
+  GQLOption,
   MutationOption,
   updateMutationOption,
-} from '../data/gqlOption.js';
+} from '../data/GQLOption.js';
 import { assembleColumn } from '../functions/assembleColumn.js';
 import { EntityName } from '../../parser/node/entityName.js';
 import { DataStore } from '../dataStore.js';
@@ -27,8 +27,8 @@ import { DBColumnTypes } from '../column/columnTypes.js';
 
 export interface Table extends Serializable<SerializedTable> {
   column(columnName: string): Column;
-
   tableName: string;
+  gqlOption: GQLOption;
 }
 
 export class TableHandler implements Table {
@@ -50,8 +50,8 @@ export class TableHandler implements Table {
   primaryKey: string[];
   readonly uniqueKeys: string[][];
   readonly tableName: string;
-  private _gqlOption: GqlOption = getDefaultGqlOption();
-  get gqlOption(): GqlOption {
+  private _gqlOption: GQLOption = getDefaultGqlOption();
+  get gqlOption(): GQLOption {
     return this._gqlOption;
   }
 
@@ -200,6 +200,10 @@ export class TableHandler implements Table {
         enabled,
       },
     });
+  }
+
+  setGQLOption(option: GQLOption) {
+    this._gqlOption = option;
   }
 
   setGQLDelete(

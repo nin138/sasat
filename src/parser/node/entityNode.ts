@@ -16,16 +16,18 @@ export class EntityNode {
     );
     this.relations = table
       .getReferenceColumns()
-      .map(it =>
-        RelationNode.fromReference(
+      .map(it => {
+        const targetTable = table.store
+          .table(it.data.reference.targetTable);
+        return RelationNode.fromReference(
           this,
           it,
-          table.store
-            .table(it.data.reference.targetTable)
+          targetTable
             .column(it.data.reference.targetColumn)
             .fieldName(),
-        ),
-      );
+          targetTable.gqlOption,
+        );
+      });
   }
 
   field(fieldName: string): FieldNode {
@@ -65,5 +67,9 @@ export class EntityNode {
 
   public findReferencedRelations(): RelationNode[] {
     return this.repository.root.findReferencedRelations(this.entityName);
+  }
+
+  public gqlEnabled(): boolean {
+    return this.repository.gqlOption.enabled;
   }
 }

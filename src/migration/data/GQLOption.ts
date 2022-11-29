@@ -13,7 +13,12 @@ export type MutationOption = {
   subscriptionFilter: string[];
 };
 
-export interface GqlOption {
+export interface GQLOption {
+  enabled: boolean,
+  query: {
+    find: boolean,
+    list: false | 'all' | 'paging',
+  },
   mutation: {
     create: MutationOption & Enabled;
     update: MutationOption & Enabled;
@@ -29,7 +34,12 @@ export const defaultMutationOption = {
   subscriptionFilter: [],
 };
 
-export const getDefaultGqlOption = (): GqlOption => ({
+export const getDefaultGqlOption = (): GQLOption => ({
+  enabled: false,
+  query: {
+    find: true,
+    list: 'all',
+  },
   mutation: {
     create: defaultMutationOption,
     update: defaultMutationOption,
@@ -39,9 +49,9 @@ export const getDefaultGqlOption = (): GqlOption => ({
 });
 
 export const updateMutationOption = (
-  option: GqlOption,
-  mutation: Partial<GqlOption['mutation']>,
-): GqlOption => {
+  option: GQLOption,
+  mutation: Partial<GQLOption['mutation']>,
+): GQLOption => {
   return {
     ...option,
     mutation: {

@@ -3,30 +3,44 @@ import { ColumnBuilder } from './columnBuilder.js';
 import { NormalColumn } from '../serializable/column.js';
 import { Reference } from '../serialized/serializedColumn.js';
 import { TableHandler } from '../serializable/table.js';
-import { GqlFromContextParam, MutationOption } from '../data/gqlOption.js';
+import {GqlFromContextParam, GQLOption, MutationOption} from '../data/GQLOption.js';
 import { DataStore } from '../dataStore.js';
 
 export interface TableBuilder {
   column(columnName: string): ColumnCreator;
+
   references(reference: Reference, notNull?: boolean): TableBuilder;
+
   setPrimaryKey(...columnNames: string[]): TableBuilder;
+
   addUniqueKey(...columnNames: string[]): TableBuilder;
+
   createdAt(): TableBuilder;
+
   updatedAt(): TableBuilder;
+
   addIndex(...columns: string[]): TableBuilder;
+
   setGQLCreate(
     enabled: boolean,
     options?: Partial<MutationOption>,
   ): TableBuilder;
+
   setGQLUpdate(
     enabled: boolean,
     options?: Partial<MutationOption>,
   ): TableBuilder;
+
   setGQLDelete(
     enabled: boolean,
     options?: Partial<Omit<MutationOption, 'noReFetch'>>,
   ): TableBuilder;
+
   setGQLContextColumn(columns: GqlFromContextParam[]): TableBuilder;
+
+  enableGQL(): TableBuilder;
+
+  setGQLOption(option: GQLOption): TableBuilder;
 }
 
 export class TableCreator implements TableBuilder {
@@ -93,6 +107,20 @@ export class TableCreator implements TableBuilder {
       `index_${this.tableName}__${columns.join('_')}`,
       ...columns,
     );
+    return this;
+  }
+
+
+  enableGQL(): TableBuilder {
+    this.table.setGQLOption({
+      ...this.table.gqlOption,
+      enabled: true,
+    });
+    return this;
+  }
+
+  setGQLOption(option: GQLOption): TableBuilder {
+    this.table.setGQLOption(option);
     return this;
   }
 

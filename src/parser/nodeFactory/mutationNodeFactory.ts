@@ -12,6 +12,7 @@ import { FindMethodNode } from '../node/findMethod.js';
 
 export class MutationNodeFactory {
   create = (table: TableHandler, entity: EntityNode): MutationNode[] => {
+    if (!table.gqlOption.enabled) return [];
     const result: MutationNode[] = [];
     const options = table.gqlOption.mutation;
 

@@ -4,41 +4,61 @@ import { ReferenceColumn } from '../../migration/serializable/column.js';
 import { TableHandler } from '../../migration/serializable/table.js';
 import { EntityName } from './entityName.js';
 import { Relation } from '../../migration/data/relation.js';
+import {GQLOption} from "../../migration/data/GQLOption.js";
+
+type From = {
+  field: string
+  columnName: string
+  gqlOption: GQLOption
+}
+
+type To = {
+  field: string
+  columnName: string
+  tableName: string
+  entityName: EntityName
+  gqlOption: GQLOption
+}
 
 export class RelationNode {
   static fromReference(
     entity: EntityNode,
     ref: ReferenceColumn,
     targetFieldName: string,
+    targetTableGqlOption: GQLOption,
   ): RelationNode {
     return new RelationNode(
       entity,
       ref.data.reference.relationName,
-      ref.data.fieldName,
-      targetFieldName,
-      ref.data.reference.targetTable,
-      new EntityName(
-        TableHandler.tableNameToEntityName(ref.data.reference.targetTable),
-      ),
       ref.data.reference.relation,
-      ref.data.columnName,
-      ref.data.reference.targetColumn,
+      {
+        field: ref.data.fieldName,
+        columnName: ref.data.columnName,
+        gqlOption: ref.table.gqlOption,
+      },
+      {
+        field: targetFieldName,
+        tableName: ref.data.reference.targetTable,
+        entityName: new EntityName(
+          TableHandler.tableNameToEntityName(ref.data.reference.targetTable),
+        ),
+        columnName: ref.data.reference.targetColumn,
+        gqlOption: targetTableGqlOption,
+      },
     );
   }
+
   private constructor(
     readonly parent: EntityNode,
     readonly relationName: string | undefined,
-    readonly fromField: string,
-    readonly toField: string,
-    readonly toTableName: string,
-    readonly toEntityName: EntityName,
     readonly relation: Relation,
-    readonly fromColumnName: string,
-    readonly toColumnName: string,
-  ) {}
+    readonly from: From,
+    readonly to: To,
+  ) {
+  }
 
   refPropertyName(): string {
-    return this.relationName || this.fromField + this.toEntityName.name;
+    return this.relationName || this.from.field + this.to.entityName.name;
   }
 
   referencedByPropertyName(): string {
@@ -46,7 +66,7 @@ export class RelationNode {
   }
 
   refType(): TypeNode {
-    return new EntityTypeNode(this.toEntityName, false, false);
+    return new EntityTypeNode(this.to.entityName, false, false);
   }
 
   referenceByType(): TypeNode {

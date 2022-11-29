@@ -10,6 +10,7 @@ import { EntityName } from './entityName.js';
 import { RelationNode } from './relationNode.js';
 import { ParameterNode } from './parameterNode.js';
 import { EntityTypeNode } from './typeNode.js';
+import {GQLOption} from "../../migration/data/GQLOption.js";
 
 export class RepositoryNode {
   readonly tableName: string;
@@ -19,6 +20,7 @@ export class RepositoryNode {
   readonly autoIncrementColumn?: string;
   readonly queries: QueryNode[];
   readonly mutations: MutationNode[];
+  readonly gqlOption: GQLOption;
   constructor(readonly root: RootNode, table: TableHandler) {
     this.tableName = table.tableName;
     this.entityName = table.getEntityName();
@@ -27,8 +29,9 @@ export class RepositoryNode {
     this.autoIncrementColumn = table.columns
       .find(it => it.serialize().autoIncrement)
       ?.fieldName();
-    this.queries = new QueryNodeFactory().create(table);
+    this.queries = new QueryNodeFactory().create(table, table.gqlOption);
     this.mutations = new MutationNodeFactory().create(table, this.entity);
+    this.gqlOption = table.gqlOption;
   }
   private createEntity(table: TableHandler) {
     return new EntityNode(this, table);
