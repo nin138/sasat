@@ -203,4 +203,8 @@ export class TableMigrator implements MigrationTable {
     );
     return this;
   }
+
+  get gqlOption(): GQLOption {
+    return this.table.gqlOption;
+  }
 }

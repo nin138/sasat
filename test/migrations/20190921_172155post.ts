@@ -17,6 +17,7 @@ export default class Post implements SasatMigration {
         targetTable: 'user',
         relation: 'Many',
       });
+      table.enableGQL();
       table.column('title').varchar(50).notNull();
       table.setGQLCreate(true).setGQLUpdate(true).setGQLContextColumn([]);
     });

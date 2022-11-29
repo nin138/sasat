@@ -44,7 +44,7 @@ export class FieldGenerator {
           ...entity.relations.map(it =>
             tsg.propertySignature(
               `${it.refPropertyName()}?`,
-              tsg.typeRef(`${it.toEntityName}Fields`),
+              tsg.typeRef(`${it.to.entityName}Fields`),
             ),
           ),
           ...entity

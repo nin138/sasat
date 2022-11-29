@@ -21,7 +21,7 @@ export class RootNode {
 
   findReferencedRelations(entity: EntityName): RelationNode[] {
     return this.entities()
-      .map(it => it.relations.find(it => it.toEntityName.name === entity.name))
+      .map(it => it.relations.find(it => it.to.entityName.name === entity.name))
       .filter(it => it !== undefined) as RelationNode[];
   }
 

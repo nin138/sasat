@@ -57,9 +57,9 @@ export class RepositoryNode {
       return new FindMethodNode(
         [
           new ParameterNode(
-            relation.fromField,
+            relation.from.field,
             new EntityTypeNode(
-              relation.parent.field(relation.fromField).dbType,
+              relation.parent.field(relation.from.field).dbType,
               false,
               false,
             ),
@@ -75,20 +75,20 @@ export class RepositoryNode {
     };
     const referencedByMethod = (relation: RelationNode) => {
       const to = relation.parent.repository.root.findRepository(
-        relation.toEntityName,
+        relation.to.entityName,
       );
       return new FindMethodNode(
         [
           new ParameterNode(
-            relation.toField,
+            relation.to.field,
             new EntityTypeNode(
-              to.entity.field(relation.toField).dbType,
+              to.entity.field(relation.to.field).dbType,
               false,
               false,
             ),
           ),
         ],
-        new EntityTypeNode(relation.toEntityName, false, false),
+        new EntityTypeNode(relation.to.entityName, false, false),
         false,
       );
     };

@@ -3,12 +3,12 @@ import { EntityNode } from '../entityNode.js';
 
 export class TypeDefNode {
   static new(entity: EntityNode): TypeDefNode {
-    const reference = entity.relations.filter(it => it.from.gqlOption.enabled).map(
+    const reference = entity.relations.filter(it => it.to.gqlOption.enabled).map(
       rel => new ParameterNode(rel.refPropertyName(), rel.refType()),
     );
     const referencedBy = entity
       .findReferencedRelations()
-      .filter(it => it.to.gqlOption.enabled)
+      .filter(it => it.from.gqlOption.enabled)
       .map(
         rel =>
           new ParameterNode(

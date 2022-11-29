@@ -39,19 +39,19 @@ export class ResolverGenerator {
             tsg
               .new(
                 tsg
-                  .identifier(relation.toEntityName.dataSourceName())
+                  .identifier(relation.to.entityName.dataSourceName())
                   .importFrom(
                     Directory.dbDataSourcePath(
                       Directory.paths.generated,
-                      relation.toEntityName,
+                      relation.to.entityName,
                     ),
                   ),
               )
-              .property(FindMethodNode.paramsToName(relation.toField))
+              .property(FindMethodNode.paramsToName(relation.to.field))
               .call(
                 tsg
                   .identifier(paramName)
-                  .property(relation.fromField)
+                  .property(relation.from.field)
                   .nonNull(),
               ),
           ),
@@ -61,7 +61,7 @@ export class ResolverGenerator {
   }
 
   private referencedByProperty(relation: RelationNode) {
-    const paramName = relation.toEntityName.lowerCase();
+    const paramName = relation.to.entityName.lowerCase();
     const propertyName = relation.referencedByPropertyName();
     return tsg.propertyAssign(
       propertyName,
@@ -70,7 +70,7 @@ export class ResolverGenerator {
           tsg.parameter(
             paramName,
             tsg
-              .typeRef(relation.toEntityName.resultType())
+              .typeRef(relation.to.entityName.resultType())
               .importFrom('./relationMap'),
           ),
         ],
@@ -96,9 +96,9 @@ export class ResolverGenerator {
                     ),
                   ),
               )
-              .property(FindMethodNode.paramsToName(relation.fromField))
+              .property(FindMethodNode.paramsToName(relation.from.field))
               .call(
-                tsg.identifier(paramName).property(relation.toField).nonNull(),
+                tsg.identifier(paramName).property(relation.to.field).nonNull(),
               ),
           ),
         ),

@@ -36,7 +36,7 @@ export class RelationMapGenerator {
           it
             .refType()
             .toTsType()
-            .addImport([it.toEntityName.name], importEntity(it.toEntityName)),
+            .addImport([it.to.entityName.name], importEntity(it.to.entityName)),
         ),
       ),
       ...node
@@ -127,8 +127,8 @@ export class RelationMapGenerator {
           tsg.propertyAssign(
             rel.refPropertyName(),
             tsg.object(
-              tsg.propertyAssign('table', tsg.string(rel.toTableName)),
-              on(rel.fromColumnName, rel.toColumnName),
+              tsg.propertyAssign('table', tsg.string(rel.to.tableName)),
+              on(rel.from.columnName, rel.to.columnName),
               tsg.propertyAssign('relation', tsg.string('One')),
             ),
           ),
@@ -143,7 +143,7 @@ export class RelationMapGenerator {
                   'table',
                   tsg.string(rel.parent.repository.tableName),
                 ),
-                on(rel.toColumnName, rel.fromColumnName),
+                on(rel.to.columnName, rel.from.columnName),
                 tsg.propertyAssign('relation', tsg.string(rel.relation)),
               ),
             ),
