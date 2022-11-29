@@ -5,6 +5,7 @@ import { TableHandler } from '../../migration/serializable/table.js';
 import { EntityName } from './entityName.js';
 import { Relation } from '../../migration/data/relation.js';
 import {GQLOption} from "../../migration/data/GQLOption.js";
+import {TsType} from "../../generator/ts/code/node/type/type.js";
 
 type From = {
   field: string

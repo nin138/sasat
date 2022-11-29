@@ -1,10 +1,9 @@
 import { TsCode } from '../../abstruct/tsCode.js';
-import { TypeLiteral } from './typeLiteral.js';
-import { TypeReference } from './typeReference.js';
+import { TsType } from "./type.js";
 
 export class IntersectionType extends TsCode {
-  private readonly types: Array<TypeLiteral | TypeReference>;
-  constructor(...types: Array<TypeLiteral | TypeReference>) {
+  private readonly types: Array<TsType>;
+  constructor(...types: Array<TsType>) {
     super();
     this.types = types;
     this.mergeImport(...types);

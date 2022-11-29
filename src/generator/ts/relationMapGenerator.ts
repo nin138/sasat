@@ -5,13 +5,15 @@ import { RootNode } from '../../parser/node/rootNode.js';
 import { EntityNode } from '../../parser/node/entityNode.js';
 import { KeywordTypeNode } from './code/node/type/typeKeyword.js';
 import { EntityName } from '../../parser/node/entityName.js';
+import {RelationNode} from "../../parser/node/relationNode.js";
+import {PropertySignature} from "./code/node/propertySignature.js";
 
 export class RelationMapGenerator {
   generate(root: RootNode): TsFile {
     return new TsFile(
       this.relationMap(root),
       this.tableInfo(root),
-      ...root.entities().flatMap(this.entityRelationType),
+      ...root.entities().flatMap(it => this.entityRelationType(it)),
     ).disableEsLint();
   }
 
@@ -26,6 +28,18 @@ export class RelationMapGenerator {
       .export();
   }
 
+  private referencedRelationType(node: RelationNode): PropertySignature {
+    const type = tsg.intersectionType(
+      tsg.typeRef('Partial', [node.parent.entityName.getTypeReference(Directory.paths.generated)]),
+      node.parent.entityName.identifiableTypeReference(Directory.paths.generated)
+    );
+
+    return tsg.propertySignature(
+      node.referencedByPropertyName(),
+      node.relation === 'Many' ? tsg.arrayType(type) : type,
+    );
+  }
+
   private entityRelationType(node: EntityNode) {
     const importEntity = (entity: EntityName) =>
       Directory.entityPath(Directory.paths.generated, entity);
@@ -33,26 +47,23 @@ export class RelationMapGenerator {
       ...node.relations.map(it =>
         tsg.propertySignature(
           it.refPropertyName(),
-          it
-            .refType()
-            .toTsType()
-            .addImport([it.to.entityName.name], importEntity(it.to.entityName)),
+          tsg.intersectionType(
+            tsg.typeRef('Partial', [
+              tsg.intersectionType(
+                it
+                  .refType()
+                  .toTsType()
+                  .addImport([it.to.entityName.name], importEntity(it.to.entityName)),
+                tsg.typeRef(it.to.entityName.relationTypeName()),
+              ),
+            ]),
+            it.to.entityName.identifiableTypeReference(Directory.paths.generated),
+          )
         ),
       ),
       ...node
         .findReferencedRelations()
-        .map(it =>
-          tsg.propertySignature(
-            it.referencedByPropertyName(),
-            it
-              .referenceByType()
-              .toTsType()
-              .addImport(
-                [it.parent.entityName.name],
-                importEntity(it.parent.entityName),
-              ),
-          ),
-        ),
+        .map(it => this.referencedRelationType(it)),
     ];
     return [
       tsg
