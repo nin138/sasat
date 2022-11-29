@@ -30,6 +30,12 @@ export default class CreateUser implements SasatMigration {
         .fieldName('nick');
       table.createdAt().updatedAt();
       table.enableGQL();
+      table.setGQLOption({
+        query: {
+          list: 'paging',
+          find: true,
+        }
+      })
       table.setGQLCreate(true, { noReFetch: true, subscription: true });
       table.setGQLUpdate(true, {
         noReFetch: true,

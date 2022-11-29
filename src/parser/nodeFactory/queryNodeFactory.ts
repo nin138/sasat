@@ -26,7 +26,7 @@ export class QueryNodeFactory {
     return new QueryNode(
       lowercaseFirstLetter(plural(table.getEntityName().name)),
       'find',
-      [new ParameterNode('option', new ListQueryOptionTypeNode())],
+      listQueryType === 'paging' ? [new ParameterNode('option', new ListQueryOptionTypeNode())] : [],
       new EntityTypeNode(table.getEntityName(), true, false),
       true,
       listQueryType,

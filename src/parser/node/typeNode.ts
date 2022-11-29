@@ -31,7 +31,7 @@ export abstract class TypeNode {
 
 export class ListQueryOptionTypeNode extends TypeNode {
   constructor() {
-    super(new EntityName(TypeDefGenerator.ListQueryOptionType), false, true);
+    super(new EntityName(TypeDefGenerator.ListQueryOptionType), false, false);
   }
 
   toTsType(): TsType {

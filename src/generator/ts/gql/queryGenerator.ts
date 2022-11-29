@@ -34,7 +34,7 @@ export class QueryGenerator {
       'info',
       tsg.typeRef('GraphQLResolveInfo'),
     );
-    if (query.queryParams.length === 0)
+    if (query.queryParams.length === 0 || query.listType === 'all')
       return [
         tsg.parameter('_1', tsg.typeRef('unknown')),
         tsg.parameter('_2', tsg.typeRef('unknown')),
@@ -50,7 +50,7 @@ export class QueryGenerator {
             tsg.propertySignature(
               'option',
               query.queryParams[0].type.toTsType(),
-              true,
+              false,
               false,
             ),
           ]),
@@ -110,6 +110,7 @@ export class QueryGenerator {
     query: QueryNode,
   ): PropertyAssignment {
     const fields = tsg.identifier('fields');
+    const option = tsg.identifier('option');
     const ds = tsg.new(
       tsg
         .identifier(node.entityName.dataSourceName())
@@ -120,10 +121,7 @@ export class QueryGenerator {
           ),
         ),
     );
-    const params = tsg.identifier('params');
-    const option = tsg.identifier('option');
-    const statements: TsStatement[] = [
-      tsg.variable('const', tsg.identifier('{ option }'), params),
+    const constInfo: TsStatement =
       tsg.variable(
         'const',
         fields,
@@ -131,10 +129,22 @@ export class QueryGenerator {
           .identifier('gqlResolveInfoToField')
           .importFrom('sasat')
           .call(tsg.identifier('info'))
-          .as(node.entityName.fieldTypeRef(Directory.paths.generated)),
-      ),
-      tsg.if(
-        option,
+          .as(node.entityName.fieldTypeRef(Directory.paths.generated))
+      );
+    const all = () => {
+      return [
+        constInfo,
+        tsg.return(
+          ds
+            .property(query.repoMethodName)
+            .call(fields, tsg.identifier('undefined'), tsg.identifier('context')),
+        ),
+      ];
+    };
+    const pageable = () => {
+      return [
+        constInfo,
+        tsg.variable('const', tsg.identifier('{ option }'), tsg.identifier('params')),
         tsg.return(
           ds
             .property('findPageable')
@@ -151,19 +161,15 @@ export class QueryGenerator {
               tsg.identifier('context'),
             ),
         ),
-      ),
-      tsg.return(
-        ds
-          .property(query.repoMethodName)
-          .call(fields, tsg.identifier('undefined'), tsg.identifier('context')),
-      ),
-    ];
+      ]
+    };
+
     return tsg.propertyAssign(
       query.queryName,
       tsg.arrowFunc(
         QueryGenerator.createParams(node, query),
         undefined,
-        tsg.block(...statements),
+        tsg.block(...(query.listType === 'paging' ? pageable() : all())),
       ),
     );
   }

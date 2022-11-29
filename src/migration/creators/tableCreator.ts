@@ -40,7 +40,7 @@ export interface TableBuilder {
 
   enableGQL(): TableBuilder;
 
-  setGQLOption(option: GQLOption): TableBuilder;
+  setGQLOption(option: Partial<GQLOption>): TableBuilder;
 }
 
 export class TableCreator implements TableBuilder {
@@ -119,7 +119,7 @@ export class TableCreator implements TableBuilder {
     return this;
   }
 
-  setGQLOption(option: GQLOption): TableBuilder {
+  setGQLOption(option: Partial<GQLOption>): TableBuilder {
     this.table.setGQLOption(option);
     return this;
   }
