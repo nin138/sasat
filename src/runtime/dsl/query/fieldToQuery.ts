@@ -20,7 +20,13 @@ const join = (
   const joins: Join[] = Object.entries(fields.relations || {})
     .filter(([, fields]) => fields)
     .map(([rel, fields]) =>
-      join(tableAlias, fields as any, map[info.table][rel], map, selects),
+      join(
+        tableAlias,
+        fields as Fields<unknown>,
+        map[info.table][rel],
+        map,
+        selects,
+      ),
     );
   return QExpr.join(
     QExpr.table(info.table, joins, fields.tableAlias || info.table),
@@ -41,7 +47,13 @@ export const fieldToQuery = (
   const joins: Join[] = Object.entries(fields.relations || {})
     .filter(([, fields]) => fields)
     .map(([rel, fields]) =>
-      join(tableAlias, fields as any, map[tableName][rel], map, select),
+      join(
+        tableAlias,
+        fields as Fields<unknown>,
+        map[tableName][rel],
+        map,
+        select,
+      ),
     );
   const from = QExpr.table(tableName, joins, fields.tableAlias || tableName);
   return {

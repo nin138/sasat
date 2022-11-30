@@ -26,7 +26,7 @@ export const createQuery = (
   options: QueryOptions | undefined,
   tableInfo: TableInfo,
   relationMap: RelationMap,
-  context?: any,
+  context?: unknown,
 ): Query => {
   let tableCount = 0;
   const select: Field[] = [];
@@ -127,7 +127,7 @@ type CreatePagingFieldQueryArg = {
   relationMap: RelationMap;
   queryOption?: QueryOptions;
   pagingOption: ListQueryOption & { where?: BooleanValueExpression };
-  context?: any;
+  context?: unknown;
 };
 
 export const createPagingFieldQuery = ({

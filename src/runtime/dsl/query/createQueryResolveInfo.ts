@@ -7,7 +7,7 @@ export type RelationInfo = {
   on: (
     parentTableAlias: string,
     childTableAlias: string,
-    context?: any,
+    context?: unknown,
   ) => BooleanValueExpression;
   relation: 'One' | 'OneOrZero' | 'Many';
 };
@@ -34,7 +34,13 @@ const joinToQueryResolveInfo = (
     joins: Object.entries(fields.relations || {})
       .filter(([, value]) => value)
       .map(([key, value]) =>
-        joinToQueryResolveInfo(info.table, key, value as any, map, tableInfo),
+        joinToQueryResolveInfo(
+          info.table,
+          key,
+          value as Fields<unknown>,
+          map,
+          tableInfo,
+        ),
       ),
     property,
   };
@@ -61,7 +67,13 @@ export const createQueryResolveInfo = (
     joins: Object.entries(fields.relations || {})
       .filter(([, value]) => value)
       .map(([key, value]) =>
-        joinToQueryResolveInfo(tableName, key, value as any, map, tableInfo),
+        joinToQueryResolveInfo(
+          tableName,
+          key,
+          value as Fields<unknown>,
+          map,
+          tableInfo,
+        ),
       ),
     property: '',
   };

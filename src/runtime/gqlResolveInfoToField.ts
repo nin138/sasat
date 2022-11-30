@@ -5,7 +5,7 @@ const selectionSetToField = (
   selections: readonly SelectionNode[],
   number: number,
 ): [Fields<unknown>, number] => {
-  const result: Fields<any> = {
+  const result: Fields<Record<string, unknown>> = {
     fields: [],
     relations: {},
     tableAlias: 't' + number,
@@ -23,7 +23,7 @@ const selectionSetToField = (
       result.fields.push(it.name.value);
     }
   });
-  return [result, num];
+  return [result as Fields<unknown>, num];
 };
 
 export const gqlResolveInfoToField = (
