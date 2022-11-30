@@ -1,5 +1,5 @@
-export type Fields = {
-  fields: string[];
-  relations?: Record<string, Fields | undefined>;
+export type Fields<Entity, Relation = Record<string, unknown>> = {
+  fields: Array<keyof Entity & string>;
+  relations?: Relation;
   tableAlias?: string;
 };

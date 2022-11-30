@@ -46,7 +46,7 @@ export abstract class BaseDBDataSource<
   Entity extends EntityType,
   Creatable,
   Identifiable,
-  EntityFields extends Fields,
+  EntityFields extends Fields<Entity>,
   QueryResult extends Partial<Entity> & Identifiable,
 > extends SasatDBDatasource<Entity, Creatable, Identifiable, EntityFields, QueryResult> {
   protected relationMap = relationMap;

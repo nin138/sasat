@@ -3,7 +3,11 @@ import { ColumnBuilder } from './columnBuilder.js';
 import { NormalColumn } from '../serializable/column.js';
 import { Reference } from '../serialized/serializedColumn.js';
 import { TableHandler } from '../serializable/table.js';
-import {GqlFromContextParam, GQLOption, MutationOption} from '../data/GQLOption.js';
+import {
+  GqlFromContextParam,
+  GQLOption,
+  MutationOption,
+} from '../data/GQLOption.js';
 import { DataStore } from '../dataStore.js';
 
 export interface TableBuilder {
@@ -109,7 +113,6 @@ export class TableCreator implements TableBuilder {
     );
     return this;
   }
-
 
   enableGQL(): TableBuilder {
     this.table.setGQLOption({

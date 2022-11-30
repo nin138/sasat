@@ -11,4 +11,5 @@ export const unique = <T>(array: T[]): T[] => {
   return result;
 };
 
-export const nonNullable = <T>(value: T): value is NonNullable<T> => value != null;
+export const nonNullable = <T>(value: T): value is NonNullable<T> =>
+  value != null;

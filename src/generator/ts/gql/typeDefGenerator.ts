@@ -9,7 +9,10 @@ import { QueryNode } from '../../../parser/node/gql/queryNode.js';
 
 export class TypeDefGenerator {
   generate(root: RootNode): TsFile {
-    const typeDefs = root.entities().filter(it => it.gqlEnabled()).flatMap(it => it.allTypeDefs());
+    const typeDefs = root
+      .entities()
+      .filter(it => it.gqlEnabled())
+      .flatMap(it => it.allTypeDefs());
     const types = [
       ...this.createTypes(typeDefs),
       this.createQuery(root.queries()),

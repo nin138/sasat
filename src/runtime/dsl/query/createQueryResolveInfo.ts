@@ -21,7 +21,7 @@ export type RelationMap = {
 const joinToQueryResolveInfo = (
   parentTableAlias: string,
   property: string,
-  fields: Fields,
+  fields: Fields<unknown>,
   map: RelationMap,
   tableInfo: TableInfo,
 ): QueryResolveInfo => {
@@ -34,7 +34,7 @@ const joinToQueryResolveInfo = (
     joins: Object.entries(fields.relations || {})
       .filter(([, value]) => value)
       .map(([key, value]) =>
-        joinToQueryResolveInfo(info.table, key, value!, map, tableInfo),
+        joinToQueryResolveInfo(info.table, key, value as any, map, tableInfo),
       ),
     property,
   };
@@ -49,7 +49,7 @@ export type TableInfo = {
 
 export const createQueryResolveInfo = (
   tableName: string,
-  fields: Fields,
+  fields: Fields<unknown>,
   map: RelationMap,
   tableInfo: TableInfo,
 ): QueryResolveInfo => {
@@ -61,7 +61,7 @@ export const createQueryResolveInfo = (
     joins: Object.entries(fields.relations || {})
       .filter(([, value]) => value)
       .map(([key, value]) =>
-        joinToQueryResolveInfo(tableName, key, value!, map, tableInfo),
+        joinToQueryResolveInfo(tableName, key, value as any, map, tableInfo),
       ),
     property: '',
   };

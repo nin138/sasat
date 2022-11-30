@@ -1,5 +1,5 @@
 import { TsCode } from '../../abstruct/tsCode.js';
-import { TsType } from "./type.js";
+import { TsType } from './type.js';
 
 export class IntersectionType extends TsCode {
   private readonly types: Array<TsType>;

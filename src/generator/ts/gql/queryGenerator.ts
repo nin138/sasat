@@ -121,30 +121,37 @@ export class QueryGenerator {
           ),
         ),
     );
-    const constInfo: TsStatement =
-      tsg.variable(
-        'const',
-        fields,
-        tsg
-          .identifier('gqlResolveInfoToField')
-          .importFrom('sasat')
-          .call(tsg.identifier('info'))
-          .as(node.entityName.fieldTypeRef(Directory.paths.generated))
-      );
+    const constInfo: TsStatement = tsg.variable(
+      'const',
+      fields,
+      tsg
+        .identifier('gqlResolveInfoToField')
+        .importFrom('sasat')
+        .call(tsg.identifier('info'))
+        .as(node.entityName.fieldTypeRef(Directory.paths.generated)),
+    );
     const all = () => {
       return [
         constInfo,
         tsg.return(
           ds
             .property(query.repoMethodName)
-            .call(fields, tsg.identifier('undefined'), tsg.identifier('context')),
+            .call(
+              fields,
+              tsg.identifier('undefined'),
+              tsg.identifier('context'),
+            ),
         ),
       ];
     };
     const pageable = () => {
       return [
         constInfo,
-        tsg.variable('const', tsg.identifier('{ option }'), tsg.identifier('params')),
+        tsg.variable(
+          'const',
+          tsg.identifier('{ option }'),
+          tsg.identifier('params'),
+        ),
         tsg.return(
           ds
             .property('findPageable')
@@ -161,7 +168,7 @@ export class QueryGenerator {
               tsg.identifier('context'),
             ),
         ),
-      ]
+      ];
     };
 
     return tsg.propertyAssign(

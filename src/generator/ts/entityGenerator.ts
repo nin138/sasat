@@ -16,31 +16,37 @@ export class EntityGenerator {
 
   private entity(): TsStatement {
     return tsg
-      .interface(this.node.entityName.name)
-      .extends(tsg.extends(tsg.typeRef('EntityType').importFrom('sasat')))
-      .addProperties(this.node.fields.map(it => it.toPropertySignature()))
+      .typeAlias(
+        this.node.entityName.name,
+        tsg.typeLiteral(this.node.fields.map(it => it.toPropertySignature())),
+      )
       .export();
   }
   private creatable(): TsStatement {
+    const onCreateRequiredFields = this.node.onCreateRequiredFields();
     return tsg
       .typeAlias(
         this.node.entityName.creatableInterface(),
-        tsg.intersectionType(
-          tsg.typeLiteral(
-            this.node
-              .onCreateRequiredFields()
-              .map(it => it.toPropertySignature()),
-          ),
-          tsg.typeRef(this.node.entityName.name).partial(),
-        ),
+        onCreateRequiredFields.length === 0
+          ? tsg.typeRef(this.node.entityName.name).partial()
+          : tsg.intersectionType(
+              tsg.typeLiteral(
+                this.node
+                  .onCreateRequiredFields()
+                  .map(it => it.toPropertySignature()),
+              ),
+              tsg.typeRef(this.node.entityName.name).partial(),
+            ),
       )
       .export();
   }
   private identifiable(): TsStatement {
     return tsg
-      .interface(this.node.entityName.identifiableInterfaceName())
-      .addProperties(
-        this.node.identifiableFields().map(it => it.toPropertySignature()),
+      .typeAlias(
+        this.node.entityName.identifiableInterfaceName(),
+        tsg.typeLiteral(
+          this.node.identifiableFields().map(it => it.toPropertySignature()),
+        ),
       )
       .export();
   }

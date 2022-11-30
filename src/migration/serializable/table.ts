@@ -203,7 +203,7 @@ export class TableHandler implements Table {
   }
 
   setGQLOption(option: Partial<GQLOption>) {
-    this._gqlOption = {...this.gqlOption, ...option};
+    this._gqlOption = { ...this.gqlOption, ...option };
   }
 
   setGQLDelete(

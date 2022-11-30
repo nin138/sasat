@@ -4,22 +4,22 @@ import { ReferenceColumn } from '../../migration/serializable/column.js';
 import { TableHandler } from '../../migration/serializable/table.js';
 import { EntityName } from './entityName.js';
 import { Relation } from '../../migration/data/relation.js';
-import {GQLOption} from "../../migration/data/GQLOption.js";
-import {TsType} from "../../generator/ts/code/node/type/type.js";
+import { GQLOption } from '../../migration/data/GQLOption.js';
+import { TsType } from '../../generator/ts/code/node/type/type.js';
 
 type From = {
-  field: string
-  columnName: string
-  gqlOption: GQLOption
-}
+  field: string;
+  columnName: string;
+  gqlOption: GQLOption;
+};
 
 type To = {
-  field: string
-  columnName: string
-  tableName: string
-  entityName: EntityName
-  gqlOption: GQLOption
-}
+  field: string;
+  columnName: string;
+  tableName: string;
+  entityName: EntityName;
+  gqlOption: GQLOption;
+};
 
 export class RelationNode {
   static fromReference(
@@ -55,8 +55,7 @@ export class RelationNode {
     readonly relation: Relation,
     readonly from: From,
     readonly to: To,
-  ) {
-  }
+  ) {}
 
   refPropertyName(): string {
     return this.relationName || this.from.field + this.to.entityName.name;

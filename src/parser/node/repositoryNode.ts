@@ -10,7 +10,7 @@ import { EntityName } from './entityName.js';
 import { RelationNode } from './relationNode.js';
 import { ParameterNode } from './parameterNode.js';
 import { EntityTypeNode } from './typeNode.js';
-import {GQLOption} from "../../migration/data/GQLOption.js";
+import { GQLOption } from '../../migration/data/GQLOption.js';
 
 export class RepositoryNode {
   readonly tableName: string;

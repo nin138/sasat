@@ -1,32 +1,31 @@
 import { lowercaseFirstLetter, plural } from '../../util/stringUtil.js';
-import {ListQueryType, QueryNode} from '../node/gql/queryNode.js';
-import {
-  EntityTypeNode,
-  ListQueryOptionTypeNode,
-} from '../node/typeNode.js';
+import { ListQueryType, QueryNode } from '../node/gql/queryNode.js';
+import { EntityTypeNode, ListQueryOptionTypeNode } from '../node/typeNode.js';
 import { ParameterNode } from '../node/parameterNode.js';
 import { TableHandler } from '../../migration/serializable/table.js';
 import { FindMethodNode } from '../node/findMethod.js';
-import {GQLOption} from "../../migration/data/GQLOption.js";
+import { GQLOption } from '../../migration/data/GQLOption.js';
 
 export class QueryNodeFactory {
   create(table: TableHandler, gqlOption: GQLOption): QueryNode[] {
-    if(!gqlOption.enabled) return [];
+    if (!gqlOption.enabled) return [];
     const result = [];
-    if(gqlOption.query.find) {
-      result.push(this.primaryQuery(table))
+    if (gqlOption.query.find) {
+      result.push(this.primaryQuery(table));
     }
-    if(gqlOption.query.list !== false) {
+    if (gqlOption.query.list !== false) {
       result.push(this.listQuery(table, gqlOption.query.list));
     }
-    return  result;
+    return result;
   }
 
   private listQuery(table: TableHandler, listQueryType: ListQueryType) {
     return new QueryNode(
       lowercaseFirstLetter(plural(table.getEntityName().name)),
       'find',
-      listQueryType === 'paging' ? [new ParameterNode('option', new ListQueryOptionTypeNode())] : [],
+      listQueryType === 'paging'
+        ? [new ParameterNode('option', new ListQueryOptionTypeNode())]
+        : [],
       new EntityTypeNode(table.getEntityName(), true, false),
       true,
       listQueryType,

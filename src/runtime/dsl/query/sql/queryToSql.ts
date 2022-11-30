@@ -1,4 +1,4 @@
-import {Join, LockMode, Query, QueryTable} from '../query.js';
+import { Join, LockMode, Query, QueryTable } from '../query.js';
 import { Sql } from './nodeToSql.js';
 
 const getJoin = (from: QueryTable): Join[] => {
@@ -6,10 +6,10 @@ const getJoin = (from: QueryTable): Join[] => {
 };
 
 const getLock = (lock?: LockMode): string => {
-  if(!lock) return '';
-  if(lock === 'FOR UPDATE') return ' FOR UPDATE'
+  if (!lock) return '';
+  if (lock === 'FOR UPDATE') return ' FOR UPDATE';
   return ' FOR SHARE';
-}
+};
 
 export const queryToSql = (query: Query): string => {
   const select = query.select.map(Sql.select).join(', ');

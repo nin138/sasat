@@ -14,20 +14,15 @@ export class EntityNode {
     this.fields = table.columns.map(column =>
       FieldNode.fromColumn(column, table),
     );
-    this.relations = table
-      .getReferenceColumns()
-      .map(it => {
-        const targetTable = table.store
-          .table(it.data.reference.targetTable);
-        return RelationNode.fromReference(
-          this,
-          it,
-          targetTable
-            .column(it.data.reference.targetColumn)
-            .fieldName(),
-          targetTable.gqlOption,
-        );
-      });
+    this.relations = table.getReferenceColumns().map(it => {
+      const targetTable = table.store.table(it.data.reference.targetTable);
+      return RelationNode.fromReference(
+        this,
+        it,
+        targetTable.column(it.data.reference.targetColumn).fieldName(),
+        targetTable.gqlOption,
+      );
+    });
   }
 
   field(fieldName: string): FieldNode {

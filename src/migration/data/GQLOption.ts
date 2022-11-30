@@ -14,11 +14,11 @@ export type MutationOption = {
 };
 
 export interface GQLOption {
-  enabled: boolean,
+  enabled: boolean;
   query: {
-    find: boolean,
-    list: false | 'all' | 'paging',
-  },
+    find: boolean;
+    list: false | 'all' | 'paging';
+  };
   mutation: {
     create: MutationOption & Enabled;
     update: MutationOption & Enabled;

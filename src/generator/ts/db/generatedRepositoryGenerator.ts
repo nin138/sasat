@@ -27,10 +27,24 @@ export class GeneratedRepositoryGenerator {
       node.entityName,
     );
     return new TsFile(
-      tsg.typeAlias('QueryResult', tsg.intersectionType(
-        tsg.typeRef('Partial', [tsg.typeRef(node.entityName.entityWithRelationTypeName()).importFrom(Directory.generatedPath(Directory.paths.generatedDataSource.db, 'relationMap'))]),
-        node.entityName.identifiableTypeReference(Directory.paths.generatedDataSource.db),
-      )),
+      tsg.typeAlias(
+        'QueryResult',
+        tsg.intersectionType(
+          tsg.typeRef('Partial', [
+            tsg
+              .typeRef(node.entityName.entityWithRelationTypeName())
+              .importFrom(
+                Directory.generatedPath(
+                  Directory.paths.generatedDataSource.db,
+                  'relationMap',
+                ),
+              ),
+          ]),
+          node.entityName.identifiableTypeReference(
+            Directory.paths.generatedDataSource.db,
+          ),
+        ),
+      ),
       new Class(node.entityName.generatedDataSourceName())
         .export()
         .abstract()
@@ -47,7 +61,7 @@ export class GeneratedRepositoryGenerator {
               node.entityName.fieldTypeRef(
                 Directory.paths.generatedDataSource.db,
               ),
-              tsg.typeRef('QueryResult')
+              tsg.typeRef('QueryResult'),
             ]),
           ).addImport(
             ['BaseDBDataSource'],
@@ -170,7 +184,10 @@ export class GeneratedRepositoryGenerator {
                   qExpr
                     .property('conditions')
                     .property('and')
-                    .call(...exps, tsg.identifier('options?').property('where')),
+                    .call(
+                      ...exps,
+                      tsg.identifier('options?').property('where'),
+                    ),
                 ),
               ),
               tsg.identifier('context'),
@@ -193,12 +210,14 @@ export class GeneratedRepositoryGenerator {
                 ),
               ),
           ),
-          tsg.parameter('options?',
-            it.returnType.isArray ? tsg.typeRef('QueryOptions').importFrom('sasat')
+          tsg.parameter(
+            'options?',
+            it.returnType.isArray
+              ? tsg.typeRef('QueryOptions').importFrom('sasat')
               : tsg.typeRef('Omit', [
-                tsg.typeRef('QueryOptions').importFrom('sasat'),
-                tsg.typeRef('"offset" | "limit" | "sort"'),
-              ])
+                  tsg.typeRef('QueryOptions').importFrom('sasat'),
+                  tsg.typeRef('"offset" | "limit" | "sort"'),
+                ]),
           ),
           tsg.parameter(
             'context?',

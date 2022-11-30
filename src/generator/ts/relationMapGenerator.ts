@@ -5,8 +5,8 @@ import { RootNode } from '../../parser/node/rootNode.js';
 import { EntityNode } from '../../parser/node/entityNode.js';
 import { KeywordTypeNode } from './code/node/type/typeKeyword.js';
 import { EntityName } from '../../parser/node/entityName.js';
-import {RelationNode} from "../../parser/node/relationNode.js";
-import {PropertySignature} from "./code/node/propertySignature.js";
+import { RelationNode } from '../../parser/node/relationNode.js';
+import { PropertySignature } from './code/node/propertySignature.js';
 
 export class RelationMapGenerator {
   generate(root: RootNode): TsFile {
@@ -30,8 +30,12 @@ export class RelationMapGenerator {
 
   private referencedRelationType(node: RelationNode): PropertySignature {
     const type = tsg.intersectionType(
-      tsg.typeRef('Partial', [node.parent.entityName.getTypeReference(Directory.paths.generated)]),
-      node.parent.entityName.identifiableTypeReference(Directory.paths.generated)
+      tsg.typeRef('Partial', [
+        node.parent.entityName.getTypeReference(Directory.paths.generated),
+      ]),
+      node.parent.entityName.identifiableTypeReference(
+        Directory.paths.generated,
+      ),
     );
 
     return tsg.propertySignature(
@@ -53,12 +57,17 @@ export class RelationMapGenerator {
                 it
                   .refType()
                   .toTsType()
-                  .addImport([it.to.entityName.name], importEntity(it.to.entityName)),
+                  .addImport(
+                    [it.to.entityName.name],
+                    importEntity(it.to.entityName),
+                  ),
                 tsg.typeRef(it.to.entityName.relationTypeName()),
               ),
             ]),
-            it.to.entityName.identifiableTypeReference(Directory.paths.generated),
-          )
+            it.to.entityName.identifiableTypeReference(
+              Directory.paths.generated,
+            ),
+          ),
         ),
       ),
       ...node

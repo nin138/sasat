@@ -34,8 +34,8 @@ export default class CreateUser implements SasatMigration {
         query: {
           list: 'paging',
           find: true,
-        }
-      })
+        },
+      });
       table.setGQLCreate(true, { noReFetch: true, subscription: true });
       table.setGQLUpdate(true, {
         noReFetch: true,

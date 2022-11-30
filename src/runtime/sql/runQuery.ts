@@ -3,7 +3,6 @@ import {
   Field,
   Query,
   QueryTable,
-  Sort,
 } from '../dsl/query/query.js';
 import { SQLExecutor } from '../../db/connectors/dbClient.js';
 import { RelationMap, TableInfo } from '../dsl/query/createQueryResolveInfo.js';
@@ -23,7 +22,7 @@ const notTypeName = (fieldName: string) => fieldName !== '__typename';
 
 export const createQuery = (
   baseTableName: string,
-  fields: Fields,
+  fields: Fields<unknown>,
   options: QueryOptions | undefined,
   tableInfo: TableInfo,
   relationMap: RelationMap,
@@ -32,7 +31,10 @@ export const createQuery = (
   let tableCount = 0;
   const select: Field[] = [];
 
-  const resolveFields = (tableName: string, table: Fields): QueryTable => {
+  const resolveFields = (
+    tableName: string,
+    table: Fields<unknown>,
+  ): QueryTable => {
     const tableAlias = table.tableAlias || 't' + tableCount;
     table.tableAlias = tableAlias;
     tableCount++;
@@ -53,15 +55,21 @@ export const createQuery = (
     );
     return QExpr.table(
       tableName,
-      Object.entries(table.relations || {}).map(([relationName, table]) => {
-        const current = tableCount;
-        const rel = relationMap[tableName][relationName];
-        return QExpr.join(
-          resolveFields(rel.table, table!),
-          rel.on(tableAlias, table!.tableAlias || 't' + current, context),
-          'LEFT',
-        );
-      }),
+      Object.entries(table.relations || {}).map(
+        ([relationName, table]: [string, Fields<unknown> | unknown]) => {
+          const current = tableCount;
+          const rel = relationMap[tableName][relationName];
+          return QExpr.join(
+            resolveFields(rel.table, table as Fields<unknown>),
+            rel.on(
+              tableAlias,
+              (table as Fields<unknown>).tableAlias || 't' + current,
+              context,
+            ),
+            'LEFT',
+          );
+        },
+      ),
       tableAlias,
     );
   };
@@ -79,7 +87,7 @@ type PagingOption = ListQueryOption & { where?: BooleanValueExpression };
 export const createPagingInnerQuery = (
   tableName: string,
   tableAlias: string,
-  fields: Fields,
+  fields: Fields<unknown>,
   option: PagingOption,
   tableInfo: TableInfo,
 ): Query => {
@@ -114,7 +122,7 @@ export const runQuery = async (
 
 type CreatePagingFieldQueryArg = {
   baseTableName: string;
-  fields: Fields;
+  fields: Fields<unknown>;
   tableInfo: TableInfo;
   relationMap: RelationMap;
   queryOption?: QueryOptions;

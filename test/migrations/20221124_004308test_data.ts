@@ -18,7 +18,7 @@ const users = [
   { userId: 3, nickName: 'u3' },
 ];
 
-const posts: PostCreatable[] = [
+const posts = [
   { postId: 1, userId: 1, title: 't1' },
   { postId: 2, userId: 1, title: 't2' },
   { postId: 3, userId: 1, title: 't3' },

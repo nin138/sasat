@@ -5,7 +5,11 @@ import {
   SerializedColumn,
   SerializedNormalColumn,
 } from '../serialized/serializedColumn.js';
-import { GqlFromContextParam, GQLOption, MutationOption} from '../data/GQLOption.js';
+import {
+  GqlFromContextParam,
+  GQLOption,
+  MutationOption,
+} from '../data/GQLOption.js';
 import {
   Column,
   NormalColumn,

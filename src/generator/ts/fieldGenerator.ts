@@ -13,10 +13,12 @@ export class FieldGenerator {
           tsg
             .typeAlias(
               `${it.entityName}Fields`,
-              tsg.intersectionType(
-                tsg.typeRef('Fields').importFrom('sasat'),
-                this.typeLiteral(it),
-              ),
+              tsg
+                .typeRef('Fields', [
+                  it.entityName.getTypeReference(Directory.paths.generated),
+                  this.typeLiteral(it),
+                ])
+                .importFrom('sasat'),
             )
             .export(),
         ),
@@ -24,39 +26,20 @@ export class FieldGenerator {
   }
   private typeLiteral(entity: EntityNode) {
     return tsg.typeLiteral([
-      tsg.propertySignature(
-        'fields',
-        tsg.arrayType(
-          tsg
-            .typeRef(`keyof ${entity.entityName}`)
-            .addImport(
-              [entity.entityName.name],
-              Directory.entityPath(
-                Directory.paths.generated,
-                entity.entityName,
-              ),
-            ),
+      ...entity.relations.map(it =>
+        tsg.propertySignature(
+          `${it.refPropertyName()}?`,
+          tsg.typeRef(`${it.to.entityName}Fields`),
         ),
       ),
-      tsg.propertySignature(
-        'relations?',
-        tsg.typeLiteral([
-          ...entity.relations.map(it =>
-            tsg.propertySignature(
-              `${it.refPropertyName()}?`,
-              tsg.typeRef(`${it.to.entityName}Fields`),
-            ),
+      ...entity
+        .findReferencedRelations()
+        .map(it =>
+          tsg.propertySignature(
+            `${it.referencedByPropertyName()}?`,
+            tsg.typeRef(`${it.parent.entityName}Fields`),
           ),
-          ...entity
-            .findReferencedRelations()
-            .map(it =>
-              tsg.propertySignature(
-                `${it.referencedByPropertyName()}?`,
-                tsg.typeRef(`${it.parent.entityName}Fields`),
-              ),
-            ),
-        ]),
-      ),
+        ),
     ]);
   }
 }

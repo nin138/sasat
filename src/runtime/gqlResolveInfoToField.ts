@@ -4,8 +4,8 @@ import { Fields } from './field.js';
 const selectionSetToField = (
   selections: readonly SelectionNode[],
   number: number,
-): [Fields, number] => {
-  const result: Fields = {
+): [Fields<unknown>, number] => {
+  const result: Fields<any> = {
     fields: [],
     relations: {},
     tableAlias: 't' + number,
@@ -26,6 +26,8 @@ const selectionSetToField = (
   return [result, num];
 };
 
-export const gqlResolveInfoToField = (info: GraphQLResolveInfo): Fields => {
+export const gqlResolveInfoToField = (
+  info: GraphQLResolveInfo,
+): Fields<unknown> => {
   return selectionSetToField(info.fieldNodes[0].selectionSet!.selections, 0)[0];
 };

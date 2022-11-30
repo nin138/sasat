@@ -52,7 +52,7 @@ export abstract class SasatDBDatasource<
   Entity extends EntityType,
   Creatable,
   Identifiable,
-  EntityFields extends Fields,
+  EntityFields extends Fields<unknown>,
   QueryResult extends Partial<Entity> & Identifiable,
 > implements Repository<Entity, Creatable, Identifiable>
 {
