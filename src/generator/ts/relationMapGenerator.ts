@@ -4,7 +4,6 @@ import { Directory } from '../../constants/directory.js';
 import { RootNode } from '../../parser/node/rootNode.js';
 import { EntityNode } from '../../parser/node/entityNode.js';
 import { KeywordTypeNode } from './code/node/type/typeKeyword.js';
-import { EntityName } from '../../parser/node/entityName.js';
 import { RelationNode } from '../../parser/node/relationNode.js';
 import { PropertySignature } from './code/node/propertySignature.js';
 
@@ -29,14 +28,12 @@ export class RelationMapGenerator {
   }
 
   private referencedRelationType(node: RelationNode): PropertySignature {
-    const type = tsg.intersectionType(
-      tsg.typeRef('Partial', [
-        node.parent.entityName.getTypeReference(Directory.paths.generated),
-      ]),
+    const type = tsg.typeRef('EntityResult', [
+      tsg.typeRef(node.parent.entityName.entityWithRelationTypeName()),
       node.parent.entityName.identifiableTypeReference(
         Directory.paths.generated,
       ),
-    );
+    ]).importFrom('sasat');
 
     return tsg.propertySignature(
       node.referencedByPropertyName(),
@@ -45,31 +42,18 @@ export class RelationMapGenerator {
   }
 
   private entityRelationType(node: EntityNode) {
-    const importEntity = (entity: EntityName) =>
-      Directory.entityPath(Directory.paths.generated, entity);
     const typeProperties = [
-      ...node.relations.map(it =>
-        tsg.propertySignature(
-          it.refPropertyName(),
-          tsg.intersectionType(
-            tsg.typeRef('Partial', [
-              tsg.intersectionType(
-                it
-                  .refType()
-                  .toTsType()
-                  .addImport(
-                    [it.to.entityName.name],
-                    importEntity(it.to.entityName),
-                  ),
-                tsg.typeRef(it.to.entityName.relationTypeName()),
-              ),
-            ]),
-            it.to.entityName.identifiableTypeReference(
-              Directory.paths.generated,
-            ),
-          ),
-        ),
-      ),
+      ...node.relations.map(it => {
+        const type = tsg.typeRef('EntityResult', [
+          tsg.typeRef(it.to.entityName.entityWithRelationTypeName()),
+          tsg.typeRef(it.to.entityName.relationTypeName()),
+        ])
+          .importFrom('sasat');
+         return tsg.propertySignature(
+           it.refPropertyName(),
+           type,
+         );
+      }),
       ...node
         .findReferencedRelations()
         .map(it => this.referencedRelationType(it)),
@@ -200,6 +184,7 @@ export class RelationMapGenerator {
             ),
           ),
         ),
+        tsg.typeRef('TableInfo').importFrom('sasat')
       )
       .export();
   }
