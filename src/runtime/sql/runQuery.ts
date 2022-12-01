@@ -30,7 +30,6 @@ export const createQuery = (
 ): Query => {
   let tableCount = 0;
   const select: Field[] = [];
-  const where: Array<BooleanValueExpression | undefined> = [options?.where];
 
   const resolveFields = (
     tableName: string,
@@ -54,7 +53,6 @@ export const createQuery = (
         );
       }),
     );
-    where.push(table.where);
     return QExpr.table(
       tableName,
       Object.entries(table.relations || {}).map(
@@ -63,10 +61,13 @@ export const createQuery = (
           const rel = relationMap[tableName][relationName];
           return QExpr.join(
             resolveFields(rel.table, table as Fields<unknown>),
-            rel.on(
-              tableAlias,
-              (table as Fields<unknown>).tableAlias || 't' + current,
-              context,
+            QExpr.conditions.and(
+              rel.on(
+                tableAlias,
+                (table as Fields<unknown>).tableAlias || 't' + current,
+                context,
+              ),
+              (table as Fields<unknown>).joinOn,
             ),
             'LEFT',
           );
@@ -76,11 +77,11 @@ export const createQuery = (
     );
   };
   const from = resolveFields(baseTableName, fields);
+
   return {
     select,
     from,
     ...options,
-    where: where.filter(it => !it).length !== 0 ? QExpr.conditions.and(...where) : undefined,
   };
 };
 
