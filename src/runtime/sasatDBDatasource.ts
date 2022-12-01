@@ -52,7 +52,7 @@ export abstract class SasatDBDatasource<
   Entity extends EntityType,
   Creatable,
   Identifiable,
-  EntityFields extends Fields<unknown>,
+  EntityFields extends Fields<Entity>,
   QueryResult extends Partial<Entity> & Identifiable,
 > implements Repository<Entity, Creatable, Identifiable>
 {
@@ -128,7 +128,7 @@ export abstract class SasatDBDatasource<
   ): Promise<QueryResult[]> {
     const query = createQuery(
       this.tableName,
-      fields,
+      fields as Fields<unknown>,
       options,
       this.tableInfo,
       this.relationMap,
@@ -150,7 +150,7 @@ export abstract class SasatDBDatasource<
   ): Promise<QueryResult[]> {
     const query = createPagingFieldQuery({
       baseTableName: this.tableName,
-      fields,
+      fields: fields as Fields<unknown>,
       tableInfo: this.tableInfo,
       relationMap: this.relationMap,
       pagingOption: paging,
@@ -166,7 +166,7 @@ export abstract class SasatDBDatasource<
   ): Promise<QueryResult[]> {
     const info = createQueryResolveInfo(
       this.tableName,
-      fields,
+      fields as Fields<unknown>,
       this.relationMap,
       this.tableInfo,
     );
