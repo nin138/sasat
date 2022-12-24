@@ -1,5 +1,5 @@
 import { ContextNodeFactory } from './contextNodeFactory.js';
-import { createCurrentMigrationDataStore } from '../../migration/exec/createCurrentMigrationDataStore';
+import { createCurrentMigrationDataStore } from '../../migration/exec/createCurrentMigrationDataStore.js';
 
 /* eslint-disable */
 describe('Parser', async () => {

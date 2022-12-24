@@ -5,6 +5,7 @@ extends:
   - plugin:prettier/recommended
 plugins:
   - "@typescript-eslint"
+  - import
 env:
   node: true
   es6: true
@@ -22,3 +23,6 @@ rules:
   "@typescript-eslint/no-unused-vars": off
   "@typescript-eslint/no-namespace": off
   "@typescript-eslint/ban-ts-comment": off
+  "import/extensions":
+    - 2
+    - "ignorePackages"
