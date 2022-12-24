@@ -28,12 +28,14 @@ export class RelationMapGenerator {
   }
 
   private referencedRelationType(node: RelationNode): PropertySignature {
-    const type = tsg.typeRef('EntityResult', [
-      tsg.typeRef(node.parent.entityName.entityWithRelationTypeName()),
-      node.parent.entityName.identifiableTypeReference(
-        Directory.paths.generated,
-      ),
-    ]).importFrom('sasat');
+    const type = tsg
+      .typeRef('EntityResult', [
+        tsg.typeRef(node.parent.entityName.entityWithRelationTypeName()),
+        node.parent.entityName.identifiableTypeReference(
+          Directory.paths.generated,
+        ),
+      ])
+      .importFrom('sasat');
 
     return tsg.propertySignature(
       node.referencedByPropertyName(),
@@ -44,15 +46,13 @@ export class RelationMapGenerator {
   private entityRelationType(node: EntityNode) {
     const typeProperties = [
       ...node.relations.map(it => {
-        const type = tsg.typeRef('EntityResult', [
-          tsg.typeRef(it.to.entityName.entityWithRelationTypeName()),
-          tsg.typeRef(it.to.entityName.relationTypeName()),
-        ])
+        const type = tsg
+          .typeRef('EntityResult', [
+            tsg.typeRef(it.to.entityName.entityWithRelationTypeName()),
+            tsg.typeRef(it.to.entityName.relationTypeName()),
+          ])
           .importFrom('sasat');
-         return tsg.propertySignature(
-           it.refPropertyName(),
-           type,
-         );
+        return tsg.propertySignature(it.refPropertyName(), type);
       }),
       ...node
         .findReferencedRelations()
@@ -184,7 +184,7 @@ export class RelationMapGenerator {
             ),
           ),
         ),
-        tsg.typeRef('TableInfo').importFrom('sasat')
+        tsg.typeRef('TableInfo').importFrom('sasat'),
       )
       .export();
   }

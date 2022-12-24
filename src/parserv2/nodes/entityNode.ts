@@ -1,7 +1,7 @@
-import { DBColumnTypes } from '../../../migration/column/columnTypes.js';
-import { GqlPrimitive } from '../../../generator/gql/types.js';
+import { DBColumnTypes } from '../../migration/column/columnTypes.js';
+import { GqlPrimitive } from '../../generator/gql/types.js';
 
-export type TypeNode = {
+export type EntityNode = {
   gqlEnabled: boolean;
   fields: FieldNode[];
   references: ReferenceTypeNode[];

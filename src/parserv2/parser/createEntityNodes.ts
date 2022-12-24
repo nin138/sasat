@@ -1,20 +1,24 @@
-import { DataStoreHandler } from '../../../migration/dataStore.js';
-import { TableHandler } from '../../../migration/serializable/table.js';
-import { TypeNode, FieldNode, ReferenceTypeNode } from '../nodes/TypeNode.js';
+import { DataStoreHandler } from '../../migration/dataStore.js';
+import { TableHandler } from '../../migration/serializable/table.js';
+import {
+  EntityNode,
+  FieldNode,
+  ReferenceTypeNode,
+} from '../nodes/entityNode.js';
 import {
   BaseColumn,
   ReferenceColumn,
-} from '../../../migration/serializable/column.js';
-import { tableNameToEntityName } from '../../nodeFactory/utils.js';
+} from '../../migration/serializable/column.js';
+import { tableNameToEntityName } from '../utils.js';
 
-export const createTypeNodes = (store: DataStoreHandler) => {
-  const create = createTypeNode(store);
+export const createEntityNodes = (store: DataStoreHandler) => {
+  const create = createEntityNode(store);
   return store.tables.map(create);
 };
 
-const createTypeNode =
+const createEntityNode =
   (store: DataStoreHandler) =>
-  (table: TableHandler): TypeNode => {
+  (table: TableHandler): EntityNode => {
     const createReference = createReferenceFieldNode(store);
     const createReferenced = createReferencedFieldNode(store);
     return {
