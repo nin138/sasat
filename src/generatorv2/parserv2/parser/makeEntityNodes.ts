@@ -1,5 +1,5 @@
-import { DataStoreHandler } from '../../migration/dataStore.js';
-import { TableHandler } from '../../migration/serializable/table.js';
+import { DataStoreHandler } from '../../../migration/dataStore.js';
+import { TableHandler } from '../../../migration/serializable/table.js';
 import {
   EntityNode,
   FieldNode,
@@ -8,8 +8,9 @@ import {
 import {
   BaseColumn,
   ReferenceColumn,
-} from '../../migration/serializable/column.js';
+} from '../../../migration/serializable/column.js';
 import { nonNullableFilter, tableNameToEntityName } from '../utils.js';
+import { EntityName } from '../../../parser/node/entityName.js';
 
 export const makeEntityNodes = (store: DataStoreHandler) => {
   const make = makeEntityNode(store);
@@ -23,6 +24,7 @@ const makeEntityNode =
     const makeReferenced = makeReferencedFieldNode(store);
     const fields = table.columns.map(makeFieldNode);
     return {
+      name: EntityName.fromTableName(table.tableName),
       gqlEnabled: table.gqlOption.enabled,
       fields,
       references: table.getReferenceColumns().map(makeReference),
