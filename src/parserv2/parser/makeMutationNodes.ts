@@ -4,11 +4,11 @@ import { MutationNode } from '../nodes/mutationNode.js';
 import { GqlPrimitive } from '../../generator/gql/types.js';
 import { DBColumnTypes } from '../../migration/column/columnTypes.js';
 
-export const createMutationNodes = (store: DataStoreHandler) => {
-  return store.tables.flatMap(createTableMutationNodes);
+export const makeMutationNodes = (store: DataStoreHandler) => {
+  return store.tables.flatMap(makeTableMutationNodes);
 };
 
-const createTableMutationNodes = (table: TableHandler): MutationNode[] => {
+const makeTableMutationNodes = (table: TableHandler): MutationNode[] => {
   const result: MutationNode[] = [];
   if (!table.gqlOption.enabled) return [];
   if (table.gqlOption.mutation.create.enabled)

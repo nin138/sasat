@@ -4,21 +4,21 @@ import { TableHandler } from '../../migration/serializable/table.js';
 import { lowercaseFirstLetter, plural } from '../../util/stringUtil.js';
 import { ArgNode } from '../nodes/typeNode.js';
 
-export const createQueryNodes = (store: DataStoreHandler): QueryNode[] => {
+export const makeQueryNodes = (store: DataStoreHandler): QueryNode[] => {
   return store.tables.flatMap(it => {
-    return createTableQueryNodes(it);
+    return makeTableQueryNodes(it);
   });
 };
 
-const createTableQueryNodes = (table: TableHandler): QueryNode[] => {
+const makeTableQueryNodes = (table: TableHandler): QueryNode[] => {
   const result: QueryNode[] = [];
   if (!table.gqlOption.enabled) return result;
-  if (table.gqlOption.query.find) result.push(createPrimaryFindQuery(table));
-  if (table.gqlOption.query.list) result.push(createListQuery(table));
+  if (table.gqlOption.query.find) result.push(makePrimaryFindQuery(table));
+  if (table.gqlOption.query.list) result.push(makeListQuery(table));
   return result;
 };
 
-const createPrimaryFindQuery = (table: TableHandler): QueryNode => {
+const makePrimaryFindQuery = (table: TableHandler): QueryNode => {
   return {
     queryName: lowercaseFirstLetter(table.getEntityName().name),
     pageable: false,
@@ -41,7 +41,7 @@ const createPrimaryFindQuery = (table: TableHandler): QueryNode => {
   };
 };
 
-const createListQuery = (table: TableHandler): QueryNode => {
+const makeListQuery = (table: TableHandler): QueryNode => {
   const pageable = table.gqlOption.query.list === 'paging';
   return {
     queryName: lowercaseFirstLetter(plural(table.getEntityName().name)),
