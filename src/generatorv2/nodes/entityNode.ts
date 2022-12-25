@@ -1,6 +1,6 @@
-import { EntityName } from '../../../parser/node/entityName.js';
-import { DBColumnTypes } from '../../../migration/column/columnTypes.js';
-import { GqlPrimitive } from '../../../generator/gql/types.js';
+import { EntityName } from '../../parser/node/entityName.js';
+import { DBColumnTypes } from '../../migration/column/columnTypes.js';
+import { GqlPrimitive } from '../../generator/gql/types.js';
 
 export type EntityNode = {
   name: EntityName;
@@ -18,15 +18,18 @@ export type SubTypeNode = {
 };
 
 export type FieldNode = {
+  name: string;
   gqlType: GqlPrimitive | string;
-  dbType?: DBColumnTypes;
+  dbType: DBColumnTypes;
   isNullable: boolean;
   isArray: boolean;
   isPrimary: boolean;
 };
 
 export type ReferenceTypeNode = {
-  entity: string;
+  entity: EntityName;
   gqlEnabled: boolean;
-  field: FieldNode;
+  isNullable: boolean;
+  isArray: boolean;
+  isPrimary: boolean;
 };

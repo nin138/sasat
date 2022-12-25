@@ -1,7 +1,7 @@
-import { DataStoreHandler } from '../../../migration/dataStore.js';
-import { TableHandler } from '../../../migration/serializable/table.js';
-import { GqlPrimitive } from '../../../generator/gql/types.js';
-import { DBColumnTypes } from '../../../migration/column/columnTypes.js';
+import { DataStoreHandler } from '../../migration/dataStore.js';
+import { TableHandler } from '../../migration/serializable/table.js';
+import { GqlPrimitive } from '../../generator/gql/types.js';
+import { DBColumnTypes } from '../../migration/column/columnTypes.js';
 import { MutationNode } from '../nodes/mutationNode.js';
 
 export const makeMutationNodes = (store: DataStoreHandler) => {

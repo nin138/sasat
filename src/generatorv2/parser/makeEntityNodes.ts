@@ -1,5 +1,5 @@
-import { DataStoreHandler } from '../../../migration/dataStore.js';
-import { TableHandler } from '../../../migration/serializable/table.js';
+import { DataStoreHandler } from '../../migration/dataStore.js';
+import { TableHandler } from '../../migration/serializable/table.js';
 import {
   EntityNode,
   FieldNode,
@@ -8,9 +8,9 @@ import {
 import {
   BaseColumn,
   ReferenceColumn,
-} from '../../../migration/serializable/column.js';
-import { nonNullableFilter, tableNameToEntityName } from '../utils.js';
-import { EntityName } from '../../../parser/node/entityName.js';
+} from '../../migration/serializable/column.js';
+import { nonNullableFilter } from '../utils.js';
+import { EntityName } from '../../parser/node/entityName.js';
 
 export const makeEntityNodes = (store: DataStoreHandler) => {
   const make = makeEntityNode(store);
@@ -50,6 +50,7 @@ const makeEntityNode =
   };
 
 const makeFieldNode = (column: BaseColumn): FieldNode => ({
+  name: column.fieldName(),
   gqlType: column.gqlType(),
   dbType: column.dataType(),
   isArray: false,
@@ -60,16 +61,12 @@ const makeFieldNode = (column: BaseColumn): FieldNode => ({
 const makeReferenceFieldNode =
   (_: DataStoreHandler) =>
   (column: ReferenceColumn): ReferenceTypeNode => {
-    const ref = column.data.reference;
     return {
-      entity: tableNameToEntityName(column.table.tableName),
+      entity: EntityName.fromTableName(column.table.tableName),
       gqlEnabled: column.table.gqlOption.enabled,
-      field: {
-        gqlType: tableNameToEntityName(ref.targetTable),
-        isPrimary: column.isPrimary(),
-        isArray: false,
-        isNullable: false,
-      },
+      isPrimary: column.isPrimary(),
+      isArray: false,
+      isNullable: false,
     };
   };
 
@@ -78,15 +75,12 @@ const makeReferencedFieldNode =
   (column: ReferenceColumn): ReferenceTypeNode => {
     const ref = column.data.reference;
     return {
-      entity: tableNameToEntityName(ref.targetTable),
+      entity: EntityName.fromTableName(ref.targetTable),
       gqlEnabled: store.table(ref.targetTable).gqlOption.enabled,
-      field: {
-        gqlType: tableNameToEntityName(ref.targetTable),
-        isPrimary: column.isPrimary(),
-        isArray: ref.relation === 'Many',
-        isNullable: ref.relation === 'OneOrZero',
-        // requiredOnCreate: ref.relation === 'OneOrZero', TODO add to creatable
-      },
+      isPrimary: column.isPrimary(),
+      isArray: ref.relation === 'Many',
+      isNullable: ref.relation === 'OneOrZero',
+      // requiredOnCreate: ref.relation === 'OneOrZero', TODO add to creatable
     };
   };
 
@@ -94,6 +88,7 @@ const makeCreatableFieldNode = (column: BaseColumn): FieldNode | null => {
   if (column.data.autoIncrement || column.data.defaultCurrentTimeStamp)
     return null;
   return {
+    name: column.fieldName(),
     gqlType: column.gqlType(),
     dbType: column.dataType(),
     isArray: false,
@@ -105,6 +100,7 @@ const makeCreatableFieldNode = (column: BaseColumn): FieldNode | null => {
 const makeUpdatableFieldNode = (column: BaseColumn): FieldNode | null => {
   if (column.isPrimary() || column.data.onUpdateCurrentTimeStamp) return null;
   return {
+    name: column.fieldName(),
     gqlType: column.gqlType(),
     dbType: column.dataType(),
     isArray: false,
