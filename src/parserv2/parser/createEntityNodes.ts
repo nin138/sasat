@@ -1,5 +1,5 @@
 import { DataStoreHandler } from '../../migration/dataStore.js';
-import { Table, TableHandler } from '../../migration/serializable/table.js';
+import { TableHandler } from '../../migration/serializable/table.js';
 import {
   EntityNode,
   FieldNode,
@@ -9,40 +9,53 @@ import {
   BaseColumn,
   ReferenceColumn,
 } from '../../migration/serializable/column.js';
-import { tableNameToEntityName } from '../utils.js';
+import { nonNullableFilter, tableNameToEntityName } from '../utils.js';
 
-export const createEntityNodes = (store: DataStoreHandler) => {
-  const create = createEntityNode(store);
-  return store.tables.map(create);
+export const makeEntityNodes = (store: DataStoreHandler) => {
+  const make = makeEntityNode(store);
+  return store.tables.map(make);
 };
 
-const createEntityNode =
+const makeEntityNode =
   (store: DataStoreHandler) =>
   (table: TableHandler): EntityNode => {
-    const createReference = createReferenceFieldNode(store);
-    const createReferenced = createReferencedFieldNode(store);
+    const makeReference = makeReferenceFieldNode(store);
+    const makeReferenced = makeReferencedFieldNode(store);
+    const fields = table.columns.map(makeFieldNode);
     return {
       gqlEnabled: table.gqlOption.enabled,
-      fields: table.columns.map(createFieldNode),
-      references: table.getReferenceColumns().map(createReference),
-      referencedBy: store.referencedBy(table.tableName).map(createReferenced),
+      fields,
+      references: table.getReferenceColumns().map(makeReference),
+      referencedBy: store.referencedBy(table.tableName).map(makeReferenced),
+      creatable: {
+        gqlEnabled:
+          table.gqlOption.enabled && table.gqlOption.mutation.create.enabled,
+        fields: table.columns
+          .map(makeCreatableFieldNode)
+          .filter(nonNullableFilter),
+      },
+      updateInput: {
+        gqlEnabled:
+          table.gqlOption.enabled && table.gqlOption.mutation.update.enabled,
+        fields: [
+          ...fields.filter(it => it.isPrimary),
+          ...table.columns
+            .map(makeUpdatableFieldNode)
+            .filter(nonNullableFilter),
+        ],
+      },
     };
   };
 
-const createFieldNode = (column: BaseColumn): FieldNode => ({
+const makeFieldNode = (column: BaseColumn): FieldNode => ({
   gqlType: column.gqlType(),
   dbType: column.dataType(),
   isArray: false,
   isPrimary: column.isPrimary(),
   isNullable: column.isNullable(),
-  requiredOnCreate:
-    !column.isNullable() &&
-    !column.data.default &&
-    !column.data.autoIncrement &&
-    !column.data.defaultCurrentTimeStamp,
 });
 
-const createReferenceFieldNode =
+const makeReferenceFieldNode =
   (_: DataStoreHandler) =>
   (column: ReferenceColumn): ReferenceTypeNode => {
     const ref = column.data.reference;
@@ -54,12 +67,11 @@ const createReferenceFieldNode =
         isPrimary: column.isPrimary(),
         isArray: false,
         isNullable: false,
-        requiredOnCreate: false,
       },
     };
   };
 
-const createReferencedFieldNode =
+const makeReferencedFieldNode =
   (store: DataStoreHandler) =>
   (column: ReferenceColumn): ReferenceTypeNode => {
     const ref = column.data.reference;
@@ -71,7 +83,30 @@ const createReferencedFieldNode =
         isPrimary: column.isPrimary(),
         isArray: ref.relation === 'Many',
         isNullable: ref.relation === 'OneOrZero',
-        requiredOnCreate: ref.relation === 'OneOrZero',
+        // requiredOnCreate: ref.relation === 'OneOrZero', TODO add to creatable
       },
     };
   };
+
+const makeCreatableFieldNode = (column: BaseColumn): FieldNode | null => {
+  if (column.data.autoIncrement || column.data.defaultCurrentTimeStamp)
+    return null;
+  return {
+    gqlType: column.gqlType(),
+    dbType: column.dataType(),
+    isArray: false,
+    isPrimary: column.isPrimary(),
+    isNullable: column.isNullableOnCreate(),
+  };
+};
+
+const makeUpdatableFieldNode = (column: BaseColumn): FieldNode | null => {
+  if (column.isPrimary() || column.data.onUpdateCurrentTimeStamp) return null;
+  return {
+    gqlType: column.gqlType(),
+    dbType: column.dataType(),
+    isArray: false,
+    isNullable: true,
+    isPrimary: false,
+  };
+};

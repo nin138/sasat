@@ -6,6 +6,13 @@ export type EntityNode = {
   fields: FieldNode[];
   references: ReferenceTypeNode[];
   referencedBy: ReferenceTypeNode[];
+  creatable: SubTypeNode;
+  updateInput: SubTypeNode;
+};
+
+export type SubTypeNode = {
+  gqlEnabled: boolean;
+  fields: FieldNode[];
 };
 
 export type FieldNode = {
@@ -13,7 +20,6 @@ export type FieldNode = {
   dbType?: DBColumnTypes;
   isNullable: boolean;
   isArray: boolean;
-  requiredOnCreate: boolean;
   isPrimary: boolean;
 };
 
