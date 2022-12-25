@@ -67,6 +67,9 @@ export class BaseColumn implements Column {
   toSql(): string {
     return columnToSql(this.data);
   }
+  isPrimary(): boolean {
+    return this.table.primaryKey.includes(this.columnName());
+  }
 }
 
 export class NormalColumn extends BaseColumn {

@@ -14,6 +14,7 @@ export type FieldNode = {
   isNullable: boolean;
   isArray: boolean;
   requiredOnCreate: boolean;
+  isPrimary: boolean;
 };
 
 export type ReferenceTypeNode = {

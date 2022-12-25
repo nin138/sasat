@@ -29,6 +29,7 @@ export interface Table extends Serializable<SerializedTable> {
   column(columnName: string): Column;
   tableName: string;
   gqlOption: GQLOption;
+  primaryKey: string[];
 }
 
 export class TableHandler implements Table {

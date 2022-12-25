@@ -1,4 +1,4 @@
-import { DBColumnTypes } from '../../migration/column/columnTypes.js';
+import { ArgNode, TypeNode } from './typeNode.js';
 
 export type QueryNode = {
   queryName: string;
@@ -6,22 +6,3 @@ export type QueryNode = {
   args: ArgNode[];
   pageable: boolean;
 };
-
-export type ArgNode = {
-  name: string;
-  type: TypeNode;
-};
-
-export type TypeNode = {
-  typeName: string;
-  nullable: boolean;
-  array: boolean;
-} & (
-  | {
-      isEntity: false;
-      dbType: DBColumnTypes;
-    }
-  | {
-      isEntity: true;
-    }
-);

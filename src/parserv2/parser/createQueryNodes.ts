@@ -1,7 +1,8 @@
 import { DataStoreHandler } from '../../migration/dataStore.js';
-import { ArgNode, QueryNode } from '../nodes/queryNode.js';
+import { QueryNode } from '../nodes/queryNode.js';
 import { TableHandler } from '../../migration/serializable/table.js';
 import { lowercaseFirstLetter, plural } from '../../util/stringUtil.js';
+import { ArgNode } from '../nodes/typeNode.js';
 
 export const createQueryNodes = (store: DataStoreHandler): QueryNode[] => {
   return store.tables.flatMap(it => {
@@ -25,7 +26,7 @@ const createPrimaryFindQuery = (table: TableHandler): QueryNode => {
       typeName: table.getEntityName().name,
       nullable: true,
       array: false,
-      isEntity: true,
+      entity: true,
     },
     args: table.primaryKey.map(it => ({
       name: it,
@@ -33,7 +34,7 @@ const createPrimaryFindQuery = (table: TableHandler): QueryNode => {
         typeName: table.column(it).dataType() as string,
         nullable: false,
         array: false,
-        isEntity: false,
+        entity: false,
         dbType: table.column(it).dataType(),
       },
     })),
@@ -49,7 +50,7 @@ const createListQuery = (table: TableHandler): QueryNode => {
       typeName: table.getEntityName().name,
       nullable: false,
       array: true,
-      isEntity: true,
+      entity: true,
     },
     args: pageable ? [pagingArg] : [],
   };
@@ -61,6 +62,6 @@ const pagingArg: ArgNode = {
     typeName: 'PagingOption',
     nullable: true,
     array: false,
-    isEntity: true,
+    entity: true,
   },
 };

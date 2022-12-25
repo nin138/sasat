@@ -88,4 +88,7 @@ export class EntityName {
   createInputName(): string {
     return this.name + 'CreateInput';
   }
+  updateInputName(): string {
+    return this.name + 'UpdateInput';
+  }
 }

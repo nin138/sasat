@@ -1,5 +1,5 @@
 import { DataStoreHandler } from '../../migration/dataStore.js';
-import { TableHandler } from '../../migration/serializable/table.js';
+import { Table, TableHandler } from '../../migration/serializable/table.js';
 import {
   EntityNode,
   FieldNode,
@@ -33,6 +33,7 @@ const createFieldNode = (column: BaseColumn): FieldNode => ({
   gqlType: column.gqlType(),
   dbType: column.dataType(),
   isArray: false,
+  isPrimary: column.isPrimary(),
   isNullable: column.isNullable(),
   requiredOnCreate:
     !column.isNullable() &&
@@ -50,6 +51,7 @@ const createReferenceFieldNode =
       gqlEnabled: column.table.gqlOption.enabled,
       field: {
         gqlType: tableNameToEntityName(ref.targetTable),
+        isPrimary: column.isPrimary(),
         isArray: false,
         isNullable: false,
         requiredOnCreate: false,
@@ -66,6 +68,7 @@ const createReferencedFieldNode =
       gqlEnabled: store.table(ref.targetTable).gqlOption.enabled,
       field: {
         gqlType: tableNameToEntityName(ref.targetTable),
+        isPrimary: column.isPrimary(),
         isArray: ref.relation === 'Many',
         isNullable: ref.relation === 'OneOrZero',
         requiredOnCreate: ref.relation === 'OneOrZero',
