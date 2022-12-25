@@ -1,7 +1,7 @@
-import { tsg } from '../../generator/ts/code/factory.js';
+import { tsg } from '../../../generator/ts/code/factory.js';
 import { fieldToPropertySignature } from './scripts/fieldToProperty.js';
-import { EntityNode } from '../nodes/entityNode.js';
-import { TsFile } from '../../generator/ts/file.js';
+import { EntityNode } from '../../nodes/entityNode.js';
+import { TsFile } from '../../../generator/ts/file.js';
 
 export const generateEntityFile = (node: EntityNode): string => {
   return new TsFile(
