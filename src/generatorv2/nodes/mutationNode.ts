@@ -1,6 +1,6 @@
 import { ArgNode, TypeNode } from './typeNode.js';
 
-type MutationType = 'create' | 'delete' | 'update';
+export type MutationType = 'create' | 'delete' | 'update';
 
 export type MutationNode = {
   mutationName: string;
