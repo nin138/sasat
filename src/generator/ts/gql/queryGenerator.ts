@@ -1,11 +1,13 @@
-import { TsFile } from '../file.js';
-import { PropertyAssignment } from '../code/node/propertyAssignment.js';
 import { Directory } from '../../../constants/directory.js';
-import { tsg } from '../code/factory.js';
+import {
+  tsg,
+  PropertyAssignment,
+  Parameter,
+  TsStatement,
+  TsFile,
+} from '../../../tsg/index.js';
 import { RepositoryNode } from '../../../parser/node/repositoryNode.js';
 import { QueryNode } from '../../../parser/node/gql/queryNode.js';
-import { Parameter } from '../code/node/parameter.js';
-import { TsStatement } from '../code/abstruct/statement.js';
 
 export class QueryGenerator {
   generate(nodes: RepositoryNode[]): TsFile {

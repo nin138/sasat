@@ -1,5 +1,5 @@
-import { TsFile } from './file.js';
-import { tsg } from './code/factory.js';
+import { TsFile } from '../../tsg/file.js';
+import { tsg } from '../../tsg/index.js';
 import { Directory } from '../../constants/directory.js';
 import { RootNode } from '../../parser/node/rootNode.js';
 import { EntityNode } from '../../parser/node/entityNode.js';

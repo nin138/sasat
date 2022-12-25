@@ -1,21 +1,22 @@
-import { TsFile } from '../file.js';
-import { VariableDeclaration } from '../code/node/variableDeclaration.js';
-import { PropertyAssignment } from '../code/node/propertyAssignment.js';
-import { TypeReference } from '../code/node/type/typeReference.js';
-import { Parameter } from '../code/node/parameter.js';
-import { SpreadAssignment } from '../code/node/spreadAssignment.js';
-import { TsType } from '../code/node/type/type.js';
-import { KeywordTypeNode } from '../code/node/type/typeKeyword.js';
 import {
+  TsFile,
+  VariableDeclaration,
+  PropertyAssignment,
+  TypeReference,
+  Parameter,
+  SpreadAssignment,
+  TsType,
+  KeywordTypeNode,
   ArrowFunction,
   AsyncExpression,
   Identifier,
   NumericLiteral,
   ObjectLiteral,
-} from '../code/node/expressions.js';
+  tsg,
+  TsStatement,
+} from '../../../tsg/index.js';
 import { Directory } from '../../../constants/directory.js';
 import { SasatError } from '../../../error.js';
-import { tsg } from '../code/factory.js';
 import {
   CreateMutationNode,
   DeleteMutationNode,
@@ -24,7 +25,6 @@ import {
 } from '../../../parser/node/gql/mutationNode.js';
 import { ContextParamNode } from '../../../parser/node/gql/contextParamNode.js';
 import { EntityName } from '../../../parser/node/entityName.js';
-import { TsStatement } from '../code/abstruct/statement.js';
 
 export class MutationGenerator {
   generate = (mutations: MutationNode[]): TsFile => {

@@ -50,6 +50,9 @@ export interface MigrationTable extends Table {
 
 export class TableMigrator implements MigrationTable {
   constructor(private table: TableHandler, private store: StoreMigrator) {}
+  get primaryKey(): string[] {
+    return this.table.primaryKey;
+  }
   static deserialize(
     data: SerializedTable,
     store: StoreMigrator,

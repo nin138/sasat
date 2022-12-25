@@ -1,11 +1,10 @@
-import { TsFile } from './file.js';
-import { tsg } from './code/factory.js';
 import { Directory } from '../../constants/directory.js';
 import { RootNode } from '../../parser/node/rootNode.js';
 import { EntityNode } from '../../parser/node/entityNode.js';
-import { KeywordTypeNode } from './code/node/type/typeKeyword.js';
 import { RelationNode } from '../../parser/node/relationNode.js';
-import { PropertySignature } from './code/node/propertySignature.js';
+import { TsFile, tsg } from '../../tsg/index.js';
+import { PropertySignature } from '../../tsg/node/propertySignature.js';
+import { KeywordTypeNode } from '../../tsg/node/type/typeKeyword.js';
 
 export class RelationMapGenerator {
   generate(root: RootNode): TsFile {

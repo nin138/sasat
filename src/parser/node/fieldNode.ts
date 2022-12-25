@@ -2,8 +2,8 @@ import {
   columnTypeToTsType,
   DBColumnTypes,
 } from '../../migration/column/columnTypes.js';
-import { PropertySignature } from '../../generator/ts/code/node/propertySignature.js';
-import { tsg } from '../../generator/ts/code/factory.js';
+import { PropertySignature } from '../../tsg/node/propertySignature.js';
+import { tsg } from '../../tsg/index.js';
 import { ParameterNode } from './parameterNode.js';
 import { EntityTypeNode } from './typeNode.js';
 import { SqlValueType } from '../../db/connectors/dbClient.js';

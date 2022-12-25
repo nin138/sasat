@@ -1,6 +1,5 @@
-import { PropertyAssignment } from '../code/node/propertyAssignment.js';
-import { TsFile } from '../file.js';
-import { tsg } from '../code/factory.js';
+import { PropertyAssignment } from '../../../tsg/node/propertyAssignment.js';
+import { TsFile, tsg } from '../../../tsg/index.js';
 import { RootNode } from '../../../parser/node/rootNode.js';
 import { TypeDefNode } from '../../../parser/node/gql/typeDefNode.js';
 import { MutationNode } from '../../../parser/node/gql/mutationNode.js';

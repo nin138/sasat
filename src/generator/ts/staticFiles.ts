@@ -1,5 +1,5 @@
 import { FileData } from '../generator.js';
-import { ImportDeclaration } from './code/importDeclaration.js';
+import { ImportDeclaration } from '../../tsg/importDeclaration.js';
 const contextFile = `\
 ${new ImportDeclaration(
   ['BaseGQLContext'],

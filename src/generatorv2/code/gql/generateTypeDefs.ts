@@ -1,6 +1,4 @@
-import { TsFile } from '../../../generator/ts/file.js';
-import { PropertyAssignment } from '../../../generator/ts/code/node/propertyAssignment.js';
-import { tsg } from '../../../generator/ts/code/factory.js';
+import { TsFile, PropertyAssignment, tsg } from '../../../tsg/index.js';
 import { nonNullableFilter } from '../../utils.js';
 import { EntityNode } from '../../nodes/entityNode.js';
 import { RootNode } from '../../nodes/rootNode.js';

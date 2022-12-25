@@ -1,9 +1,12 @@
-import { TsFile } from '../file.js';
-import { VariableDeclaration } from '../code/node/variableDeclaration.js';
-import { PropertyAssignment } from '../code/node/propertyAssignment.js';
-import { SpreadAssignment } from '../code/node/spreadAssignment.js';
-import { Identifier, ObjectLiteral } from '../code/node/expressions.js';
-import { tsg } from '../code/factory.js';
+import {
+  TsFile,
+  VariableDeclaration,
+  PropertyAssignment,
+  SpreadAssignment,
+  Identifier,
+  ObjectLiteral,
+  tsg,
+} from '../../../tsg/index.js';
 import { Directory } from '../../../constants/directory.js';
 import { RelationNode } from '../../../parser/node/relationNode.js';
 import { EntityNode } from '../../../parser/node/entityNode.js';

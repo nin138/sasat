@@ -1,5 +1,3 @@
-import { SasatError } from '../../error.js';
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types
 export const tsValueString = (value: any): string => {
   if (value === null) return 'null';
@@ -17,5 +15,5 @@ export const tsValueString = (value: any): string => {
       .join(',');
     return `{${keyValues}}`;
   }
-  throw new SasatError(`tsValueString::unsupported data type ${typeof value}`);
+  throw new TypeError(`tsValueString::unsupported data type ${typeof value}`);
 };

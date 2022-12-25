@@ -1,6 +1,5 @@
 import { Directory } from '../../../constants/directory.js';
-import { TsFile } from '../file.js';
-import { tsg } from '../code/factory.js';
+import { TsFile, tsg } from '../../../tsg/index.js';
 import { RepositoryNode } from '../../../parser/node/repositoryNode.js';
 
 export class RepositoryGenerator {

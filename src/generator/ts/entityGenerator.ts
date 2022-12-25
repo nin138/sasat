@@ -1,6 +1,4 @@
-import { TsFile } from './file.js';
-import { TsStatement } from './code/abstruct/statement.js';
-import { tsg } from './code/factory.js';
+import { TsFile, TsStatement, tsg } from '../../tsg/index.js';
 import { EntityNode } from '../../parser/node/entityNode.js';
 
 export class EntityGenerator {

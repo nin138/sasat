@@ -1,14 +1,13 @@
-import { TsFile } from '../file.js';
-import { VariableDeclaration } from '../code/node/variableDeclaration.js';
-import { EnumDeclaration } from '../code/node/enumDeclaration.js';
-import { EnumMember } from '../code/node/enumMember.js';
-import { PropertyAssignment } from '../code/node/propertyAssignment.js';
-import { Parameter } from '../code/node/parameter.js';
-import { TypeReference } from '../code/node/type/typeReference.js';
-import { KeywordTypeNode } from '../code/node/type/typeKeyword.js';
-import { Block } from '../code/node/block.js';
-import { ReturnStatement } from '../code/node/returnStatement.js';
 import {
+  VariableDeclaration,
+  EnumDeclaration,
+  EnumMember,
+  PropertyAssignment,
+  Parameter,
+  ReturnStatement,
+  Block,
+  TypeReference,
+  TsFile,
   ArrayLiteral,
   ArrowFunction,
   AwaitExpression,
@@ -17,11 +16,12 @@ import {
   ObjectLiteral,
   PropertyAccessExpression,
   StringLiteral,
-} from '../code/node/expressions.js';
-import { tsg } from '../code/factory.js';
+  tsg,
+} from '../../../tsg/index.js';
 import { Directory } from '../../../constants/directory.js';
 import { MutationNode } from '../../../parser/node/gql/mutationNode.js';
 import { EntityName } from '../../../parser/node/entityName.js';
+import { KeywordTypeNode } from '../../../tsg/index.js';
 
 interface Subscription {
   entity: EntityName;

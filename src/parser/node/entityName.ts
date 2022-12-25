@@ -5,11 +5,11 @@ import {
   identifiableInterfaceName,
 } from '../../constants/interfaceConstants.js';
 import { lowercaseFirstLetter } from '../../util/stringUtil.js';
-import { Identifier } from '../../generator/ts/code/node/expressions.js';
-import { TypeReference } from '../../generator/ts/code/node/type/typeReference.js';
+import { Identifier } from '../../tsg/node/expressions.js';
+import { TypeReference } from '../../tsg/node/type/typeReference.js';
 import { TableHandler } from '../../migration/serializable/table.js';
 import { Directory } from '../../constants/directory.js';
-import { tsg } from '../../generator/ts/code/factory.js';
+import { tsg } from '../../tsg/index.js';
 
 export class EntityName {
   static fromTableName(tableName: string): EntityName {

@@ -1,7 +1,7 @@
 import * as prettier from 'prettier';
-import { TsCode } from './code/abstruct/tsCode.js';
-import { TsStatement } from './code/abstruct/statement.js';
-import { ImportDeclaration } from './code/importDeclaration.js';
+import { TsStatement } from './abstruct/statement.js';
+import { TsCode } from './abstruct/tsCode.js';
+import { ImportDeclaration } from './importDeclaration.js';
 
 export class TsFile extends TsCode {
   private esLintDisabled = false;

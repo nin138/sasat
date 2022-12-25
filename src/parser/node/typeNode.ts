@@ -2,8 +2,8 @@ import {
   columnTypeToTsType,
   DBColumnTypes,
 } from '../../migration/column/columnTypes.js';
-import { TsType } from '../../generator/ts/code/node/type/type.js';
-import { tsg } from '../../generator/ts/code/factory.js';
+import { TsType } from '../../tsg/index.js';
+import { tsg } from '../../tsg/index.js';
 import { columnTypeToGqlPrimitive } from '../../generator/gql/columnToGqlType.js';
 import { EntityName } from './entityName.js';
 import { TypeDefGenerator } from '../../generator/ts/gql/typeDefGenerator.js';

@@ -1,5 +1,4 @@
-import { PropertySignature } from '../../../../generator/ts/code/node/propertySignature.js';
-import { tsg } from '../../../../generator/ts/code/factory.js';
+import { PropertySignature, tsg } from '../../../../tsg/index.js';
 import { columnTypeToTsType } from '../../../../migration/column/columnTypes.js';
 import { FieldNode } from '../../../nodes/entityNode.js';
 

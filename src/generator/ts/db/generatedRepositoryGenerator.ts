@@ -1,19 +1,21 @@
-import { TsFile } from '../file.js';
+import {
+  TsFile,
+  Class,
+  ExtendsClause,
+  TypeReference,
+  PropertyModifiers,
+  KeywordTypeNode,
+  ArrayType,
+  UnionType,
+  PropertyAssignment,
+  ReturnStatement,
+  MethodDeclaration,
+  MethodModifiers,
+  Parameter,
+  TsExpression,
+  tsg,
+} from '../../../tsg/index.js';
 import { Directory } from '../../../constants/directory.js';
-import { Class } from '../code/node/class.js';
-import { ExtendsClause } from '../code/node/extendsClause.js';
-import { TypeReference } from '../code/node/type/typeReference.js';
-import { PropertyModifiers } from '../code/node/modifier/propertyModifiers.js';
-import { KeywordTypeNode } from '../code/node/type/typeKeyword.js';
-import { ArrayType } from '../code/node/type/arrayType.js';
-import { UnionType } from '../code/node/type/unionType.js';
-import { PropertyAssignment } from '../code/node/propertyAssignment.js';
-import { ReturnStatement } from '../code/node/returnStatement.js';
-import { MethodDeclaration } from '../code/node/methodDeclaration.js';
-import { MethodModifiers } from '../code/node/modifier/methodModifiers.js';
-import { Parameter } from '../code/node/parameter.js';
-import { TsExpression } from '../code/node/expressions.js';
-import { tsg } from '../code/factory.js';
 import { RepositoryNode } from '../../../parser/node/repositoryNode.js';
 import { SqlValueType } from '../../../db/connectors/dbClient.js';
 
