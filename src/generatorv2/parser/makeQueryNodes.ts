@@ -3,7 +3,7 @@ import { QueryNode } from '../nodes/queryNode.js';
 import { TableHandler } from '../../migration/serializable/table.js';
 import { lowercaseFirstLetter, plural } from '../../util/stringUtil.js';
 import { ArgNode } from '../nodes/typeNode.js';
-import { capitalizeFirstLetter } from '../../../lib/util/stringUtil.js';
+import { makePrimaryFindQueryName } from '../codegen/names.js';
 
 export const makeQueryNodes = (store: DataStoreHandler): QueryNode[] => {
   return store.tables.flatMap(it => {
@@ -19,14 +19,12 @@ const makeTableQueryNodes = (table: TableHandler): QueryNode[] => {
   return result;
 };
 
-const makeFindQueryName = (keys: string[]) =>
-  'findBy' + keys.map(capitalizeFirstLetter).join('And');
-
 const makePrimaryFindQuery = (table: TableHandler): QueryNode => {
   return {
+    type: 'primary',
     queryName: lowercaseFirstLetter(table.getEntityName().name),
     entityName: table.getEntityName(),
-    dsMethodName: makeFindQueryName(table.primaryKey),
+    dsMethodName: makePrimaryFindQueryName(table.primaryKey),
     pageable: false,
     returnType: {
       typeName: table.getEntityName().name,
@@ -50,6 +48,7 @@ const makePrimaryFindQuery = (table: TableHandler): QueryNode => {
 const makeListQuery = (table: TableHandler): QueryNode => {
   const pageable = table.gqlOption.query.list === 'paging';
   return {
+    type: 'list',
     queryName: lowercaseFirstLetter(plural(table.getEntityName().name)),
     entityName: table.getEntityName(),
     dsMethodName: 'find',
