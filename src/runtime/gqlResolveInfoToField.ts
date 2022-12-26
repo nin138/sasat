@@ -1,10 +1,10 @@
 import { GraphQLResolveInfo, SelectionNode } from 'graphql';
 import { Fields } from './field.js';
 
-const selectionSetToField = (
+const selectionSetToField = <T extends Fields<unknown>>(
   selections: readonly SelectionNode[],
   number: number,
-): [Fields<unknown>, number] => {
+): [T, number] => {
   const result: Fields<Record<string, unknown>> = {
     fields: [],
     relations: {},
@@ -23,11 +23,16 @@ const selectionSetToField = (
       result.fields.push(it.name.value);
     }
   });
-  return [result as Fields<unknown>, num];
+  return [result as T, num];
 };
 
-export const gqlResolveInfoToField = (
+export const gqlResolveInfoToField = <
+  T extends Fields<unknown> = Fields<unknown>,
+>(
   info: GraphQLResolveInfo,
-): Fields<unknown> => {
-  return selectionSetToField(info.fieldNodes[0].selectionSet!.selections, 0)[0];
+): T => {
+  return selectionSetToField<T>(
+    info.fieldNodes[0].selectionSet!.selections,
+    0,
+  )[0];
 };

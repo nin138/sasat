@@ -37,6 +37,7 @@ export abstract class TsExpression extends TsCode {
 
 export class CallExpression extends TsExpression {
   private readonly args: TsExpression[];
+  private _typeArgs: TsType[] = [];
   constructor(
     private readonly identifier: TsExpression,
     ...args: TsExpression[]
@@ -46,9 +47,18 @@ export class CallExpression extends TsExpression {
     this.args = args;
   }
 
+  typeArgs(...typeArgs: TsType[]): CallExpression {
+    this._typeArgs = typeArgs;
+    this.mergeImport(...typeArgs);
+    return this;
+  }
+
   protected toTsString(): string {
     return (
       this.identifier.toString() +
+      (this._typeArgs.length !== 0
+        ? `${this._typeArgs.map(it => it.toString()).join(',')}`
+        : '') +
       `(${this.args.map(it => it.toString()).join(',')})`
     );
   }

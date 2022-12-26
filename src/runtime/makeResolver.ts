@@ -15,7 +15,7 @@ export type Resolver<Context, Params> = (
   info: GraphQLResolveInfo,
 ) => unknown;
 
-export const createResolver = <Context, Params>(
+export const makeResolver = <Context, Params>(
   resolver: Resolver<Context, Params>,
   middlewares: ResolverMiddleware<Context, Params>[] = [],
 ): Resolver<Context, Params> => {

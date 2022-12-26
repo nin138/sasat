@@ -9,7 +9,7 @@ import {
   BaseColumn,
   ReferenceColumn,
 } from '../../migration/serializable/column.js';
-import { nonNullableFilter } from '../utils.js';
+import { nonNullableFilter } from '../../util/type.js';
 import { EntityName } from '../../parser/node/entityName.js';
 
 export const makeEntityNodes = (store: DataStoreHandler) => {

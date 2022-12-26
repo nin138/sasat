@@ -1,5 +1,5 @@
 import { TsFile, PropertyAssignment, tsg } from '../../../tsg/index.js';
-import { nonNullableFilter } from '../../utils.js';
+import { nonNullableFilter } from '../../../util/type.js';
 import { EntityNode } from '../../nodes/entityNode.js';
 import { RootNode } from '../../nodes/rootNode.js';
 import { QueryNode } from '../../nodes/queryNode.js';
