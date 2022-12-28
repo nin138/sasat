@@ -24,6 +24,7 @@ export type FieldNode = {
   isNullable: boolean;
   isArray: boolean;
   isPrimary: boolean;
+  isUpdatable: boolean;
 };
 
 export type ReferenceTypeNode = {

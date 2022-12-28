@@ -1,5 +1,4 @@
 import {
-  creatableInterfaceName,
   dbDataSourceName,
   generatedDBDataSourceName,
   identifiableInterfaceName,
@@ -25,7 +24,10 @@ export class EntityName {
     );
   }
   creatableInterface(): string {
-    return creatableInterfaceName(this.name);
+    return `${this.name}Creatable`;
+  }
+  updatable(): string {
+    return `${this.name}Updatable`;
   }
   creatableTypeReference(fromPath: string): TypeReference {
     return new TypeReference(this.creatableInterface()).importFrom(

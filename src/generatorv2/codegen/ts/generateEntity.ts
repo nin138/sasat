@@ -6,6 +6,7 @@ export const generateEntityFile = (node: EntityNode): string => {
   return new TsFile(
     generateEntity(node),
     generateCreatable(node),
+    generateUpdatable(node),
     generateIdentifiable(node),
   )
     .disableEsLint()
@@ -30,6 +31,15 @@ const generateCreatable = (node: EntityNode) => {
         : tsg.typeLiteral(node.creatable.fields.map(fieldToPropertySignature)),
     )
     .export();
+};
+
+const generateUpdatable = (node: EntityNode) => {
+  return tsg.typeAlias(
+    node.name.updatable(),
+    node.updateInput.fields.length === 0
+      ? tsg.typeRef('Record<string, never>')
+      : tsg.typeLiteral(node.updateInput.fields.map(fieldToPropertySignature)),
+  );
 };
 
 const generateIdentifiable = (node: EntityNode) => {

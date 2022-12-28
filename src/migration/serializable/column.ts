@@ -70,6 +70,10 @@ export class BaseColumn implements Column {
   isPrimary(): boolean {
     return this.table.primaryKey.includes(this.columnName());
   }
+
+  isUpdatable(): boolean {
+    return !(this.isPrimary() || this.data.onUpdateCurrentTimeStamp);
+  }
 }
 
 export class NormalColumn extends BaseColumn {

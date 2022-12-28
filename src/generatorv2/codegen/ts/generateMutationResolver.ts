@@ -1,11 +1,16 @@
 import { RootNode } from '../../nodes/rootNode.js';
 import {
+  Block,
   Identifier,
+  KeywordTypeNode,
+  NumericLiteral,
   PropertyAssignment,
   TsFile,
   tsg,
+  TsStatement,
+  TsType,
 } from '../../../tsg/index.js';
-import { MutationNode } from '../../nodes/mutationNode.js';
+import { ContextField, MutationNode } from '../../nodes/mutationNode.js';
 import { Directory } from '../../directory.js';
 import { makeTypeRef } from './scripts/getEntityTypeRefs.js';
 import { makeDatasource } from './scripts/makeDatasource.js';
@@ -21,8 +26,35 @@ export const generateMutationResolver = (root: RootNode) => {
   ).disableEsLint();
 };
 
+const result = tsg.identifier('result');
+const refetched = tsg.identifier('refetch');
+const ds = tsg.identifier('ds');
+const ident = tsg.identifier('identifiable');
+
 const makeMutation = (node: MutationNode): PropertyAssignment => {
-  if (node.mutationType === 'create') return makeCreateMutation(node);
+  return tsg.propertyAssign(
+    node.mutationName,
+    makeResolver
+      .call(tsg.arrowFunc(makeResolverArgs, undefined, makeMutationBody(node)))
+      .typeArgs(context, makeParamType(node)),
+  );
+};
+
+const makeParamType = (node: MutationNode): TsType => {
+  if (node.mutationType === 'create')
+    return makeTypeRef(node.entityName, 'creatable', 'GENERATED');
+  if (node.mutationType === 'update')
+    return tsg.intersectionType(
+      makeTypeRef(node.entityName, 'identifiable', 'GENERATED'),
+      makeTypeRef(node.entityName, 'updatable', 'GENERATED'),
+    );
+  return makeTypeRef(node.entityName, 'identifiable', 'GENERATED');
+};
+
+const makeMutationBody = (node: MutationNode) => {
+  if (node.mutationType === 'create') return makeCreateMutationBody(node);
+  if (node.mutationType === 'update') return makeUpdateMutationBody(node);
+  return makeDeleteMutationBody(node);
 };
 
 const makeResolver = tsg.identifier('makeResolver').importFrom('sasat');
@@ -36,58 +68,36 @@ const makeResolverArgs = [
   tsg.parameter('info'),
 ];
 
-const makeCreateMutation = (node: MutationNode) => {
-  return tsg.propertyAssign(
-    node.mutationName,
-    makeResolver
-      .call(
-        tsg.arrowFunc(
-          makeResolverArgs,
-          undefined,
-          makeCreateMutationBody(node),
-        ),
-      )
-      .typeArgs(
-        context,
-        makeTypeRef(node.entityName, 'creatable', 'GENERATED'),
-      ),
-  );
-};
-
 const makeCreateMutationBody = (node: MutationNode) => {
-  const ds = tsg.identifier('ds');
   const dsVariable = tsg.variable(
     'const',
     ds,
     makeDatasource(node.entityName, 'GENERATED'),
   );
   const createCall = ds.property('create').call(tsg.identifier('params'));
-  if (!node.enableSubscription && !node.refetch)
+  if (!node.subscription && !node.refetch)
     return tsg.block(dsVariable, tsg.return(createCall));
-  const result = tsg.identifier('result');
-  const ident = tsg.identifier('identifiable');
-  const publishEvent = (ident: Identifier) =>
-    tsg
-      .await(
-        tsg
-          .identifier(publishFunctionName(node.entityName, node.mutationType))
-          .importFrom('./subscription')
-          .call(ident),
-      )
-      .toStatement();
+
   if (!node.refetch) {
     return tsg.block(
       dsVariable,
       tsg.variable('const', result, tsg.await(createCall)),
-      node.enableSubscription ? publishEvent(result) : null,
+      node.subscription ? makePublishCall(node, result) : null,
       tsg.return(result),
     );
   }
 
-  const refetched = tsg.identifier('refetched');
   return tsg.block(
     dsVariable,
     tsg.variable('const', result, tsg.await(createCall)),
+    ...makeRefetched(node),
+    node.subscription ? makePublishCall(node, refetched) : null,
+    tsg.return(refetched),
+  );
+};
+
+const makeRefetched = (node: MutationNode) => {
+  return [
     tsg.variable(
       'const',
       ident,
@@ -107,7 +117,107 @@ const makeCreateMutationBody = (node: MutationNode) => {
           .call(...node.identifyKeys.map(it => ident.property(it))),
       ),
     ),
-    node.enableSubscription ? publishEvent(refetched) : null,
+  ];
+};
+
+const makePublishCall = (node: MutationNode, identifier: Identifier) => {
+  return tsg
+    .await(
+      tsg
+        .identifier(publishFunctionName(node.entityName, node.mutationType))
+        .importFrom('./subscription')
+        .call(identifier.as(tsg.typeRef(node.entityName.name))),
+    )
+    .toStatement();
+};
+
+const makeDatasourceParam = (contextParams: ContextField[]) => {
+  const params = tsg.identifier('params');
+  if (contextParams.length === 0) return params;
+  return tsg.object(
+    tsg.spreadAssign(params),
+    ...contextParams.map(it =>
+      tsg.propertyAssign(
+        it.fieldName,
+        tsg.identifier(`context.${it.contextName}`),
+      ),
+    ),
+  );
+};
+
+const makeUpdateMutationBody = (node: MutationNode): Block => {
+  const dsV = tsg.variable(
+    'const',
+    ds,
+    makeDatasource(node.entityName, 'GENERATED'),
+  );
+  const resultV = tsg.variable(
+    'const',
+    result,
+    tsg.await(
+      ds
+        .property('update')
+        .call(makeDatasourceParam(node.contextFields))
+        .property('then')
+        .call(
+          tsg.arrowFunc(
+            [
+              tsg.parameter(
+                'it',
+                tsg.typeRef('CommandResponse').importFrom('sasat'),
+              ),
+            ],
+            KeywordTypeNode.boolean,
+            tsg.binary(tsg.identifier('it.changedRows'), '===', tsg.number(1)),
+          ),
+        ),
+    ),
+  );
+  const statements: TsStatement[] = [dsV, resultV];
+  if (!node.refetch && !node.subscription) {
+    return tsg.block(...statements, tsg.return(result));
+  }
+  return tsg.block(
+    ...statements,
+    ...makeRefetched(node),
+    node.subscription ? makePublishCall(node, refetched) : null,
     tsg.return(refetched),
+  );
+};
+
+const makeDeleteMutationBody = (node: MutationNode): Block => {
+  const dsV = tsg.variable(
+    'const',
+    ds,
+    makeDatasource(node.entityName, 'GENERATED'),
+  );
+  const params = tsg.identifier('params');
+  const deleteCall = ds
+    .property('delete')
+    .call(params)
+    .property('then')
+    .call(
+      tsg.arrowFunc(
+        [
+          tsg.parameter(
+            'it',
+            tsg.typeRef('CommandResponse').importFrom('sasat'),
+          ),
+        ],
+        KeywordTypeNode.boolean,
+        tsg.binary(
+          tsg.identifier('it.affectedRows'),
+          '===',
+          new NumericLiteral(1),
+        ),
+      ),
+    );
+  return tsg.block(
+    dsV,
+    tsg.variable('const', result, tsg.await(deleteCall)),
+    node.subscription
+      ? tsg.if(result, tsg.block(makePublishCall(node, params)))
+      : null,
+    tsg.return(result),
   );
 };

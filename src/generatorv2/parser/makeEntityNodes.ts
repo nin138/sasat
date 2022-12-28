@@ -40,7 +40,7 @@ const makeEntityNode =
         gqlEnabled:
           table.gqlOption.enabled && table.gqlOption.mutation.update.enabled,
         fields: [
-          ...fields.filter(it => it.isPrimary),
+          ...fields.filter(it => !it.isUpdatable),
           ...table.columns
             .map(makeUpdatableFieldNode)
             .filter(nonNullableFilter),
@@ -56,6 +56,7 @@ const makeFieldNode = (column: BaseColumn): FieldNode => ({
   isArray: false,
   isPrimary: column.isPrimary(),
   isNullable: column.isNullable(),
+  isUpdatable: !(column.data.onUpdateCurrentTimeStamp || column.isPrimary()), // TODO impl non updatable column
 });
 
 const makeReferenceFieldNode =
@@ -94,11 +95,12 @@ const makeCreatableFieldNode = (column: BaseColumn): FieldNode | null => {
     isArray: false,
     isPrimary: column.isPrimary(),
     isNullable: column.isNullableOnCreate(),
+    isUpdatable: column.isUpdatable(),
   };
 };
 
 const makeUpdatableFieldNode = (column: BaseColumn): FieldNode | null => {
-  if (column.isPrimary() || column.data.onUpdateCurrentTimeStamp) return null;
+  if (!column.isUpdatable()) return null;
   return {
     name: column.fieldName(),
     gqlType: column.gqlType(),
@@ -106,5 +108,6 @@ const makeUpdatableFieldNode = (column: BaseColumn): FieldNode | null => {
     isArray: false,
     isNullable: true,
     isPrimary: false,
+    isUpdatable: true,
   };
 };

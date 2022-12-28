@@ -42,7 +42,7 @@ const makeCreateMutationNode = (table: TableHandler): MutationNode => {
       },
     ],
     mutationType: 'create',
-    enableSubscription: table.gqlOption.mutation.create.subscription,
+    subscription: table.gqlOption.mutation.create.subscription,
   };
 };
 
@@ -70,7 +70,7 @@ const makeUpdateMutationNode = (table: TableHandler): MutationNode => {
       },
     ],
     mutationType: 'update',
-    enableSubscription: table.gqlOption.mutation.update.subscription,
+    subscription: table.gqlOption.mutation.update.subscription,
   };
 };
 
@@ -97,6 +97,6 @@ const makeDeleteMutationNode = (table: TableHandler): MutationNode => {
       },
     ],
     mutationType: 'update',
-    enableSubscription: table.gqlOption.mutation.update.subscription,
+    subscription: table.gqlOption.mutation.update.subscription,
   };
 };

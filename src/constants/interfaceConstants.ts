@@ -1,7 +1,5 @@
 // TODO refactor
 export const DataSourceName = 'DataSource';
-export const creatableInterfaceName = (entityName: string): string =>
-  `${entityName}Creatable`;
 export const identifiableInterfaceName = (entityName: string): string =>
   `${entityName}Identifiable`;
 

@@ -11,7 +11,12 @@ export const getFieldTypeRef = (
     .importFrom(Directory.resolve(importFrom, 'GENERATED', 'field.ts'));
 };
 
-type TypeRefs = 'creatable' | 'fields' | 'identifiable' | 'entity';
+type TypeRefs =
+  | 'creatable'
+  | 'fields'
+  | 'identifiable'
+  | 'entity'
+  | 'updatable';
 type TypeRefInfo = {
   name: (entity: EntityName) => string;
   file: (entity: EntityName) => string;
@@ -26,6 +31,11 @@ const typeRefs: Record<TypeRefs, TypeRefInfo> = {
   },
   creatable: {
     name: entity => entity.creatableInterface(),
+    dir: 'ENTITIES',
+    file: entity => entity.name + '.ts',
+  },
+  updatable: {
+    name: entity => entity.updatable(),
     dir: 'ENTITIES',
     file: entity => entity.name + '.ts',
   },
