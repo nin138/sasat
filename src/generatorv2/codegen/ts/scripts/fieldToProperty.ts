@@ -6,7 +6,7 @@ export const fieldToPropertySignature = (
   field: FieldNode,
 ): PropertySignature => {
   return tsg.propertySignature(
-    field.name,
+    field.fieldName,
     tsg.typeRef(columnTypeToTsType(field.dbType)),
     false,
     true,

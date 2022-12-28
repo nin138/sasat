@@ -12,7 +12,7 @@ export const GQLString = {
       .join(',')})`;
   },
   field: (field: FieldNode): string => {
-    return `${field.name}: ${fieldGqlType(field)}`;
+    return `${field.fieldName}: ${fieldGqlType(field)}`;
   },
   query: (node: QueryNode) => {
     return `${node.queryName}${GQLString.args(node.args)}: ${GQLString.type(
@@ -37,7 +37,7 @@ export const GQLString = {
 };
 
 const fieldGqlType = (field: FieldNode): string => {
-  const type = field.name ? field.gqlType : field.gqlType + '!';
+  const type = field.fieldName ? field.gqlType : field.gqlType + '!';
   if (field.isArray) return `[${type}]`;
   return type;
 };
