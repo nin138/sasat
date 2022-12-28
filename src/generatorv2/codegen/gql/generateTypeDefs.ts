@@ -34,7 +34,12 @@ const makeEntityType = (node: EntityNode): PropertyAssignment | null => {
   if (!node.gqlEnabled) return null;
   return tsg.propertyAssign(
     node.name.name,
-    tsg.array(node.fields.map(GQLString.field).map(tsg.string)),
+    tsg.array(
+      node.fields
+        .filter(it => it.isGQLOpen)
+        .map(GQLString.field)
+        .map(tsg.string),
+    ),
   );
 };
 
@@ -42,7 +47,12 @@ const makeCreateInput = (node: EntityNode) => {
   if (!node.gqlEnabled || !node.creatable.gqlEnabled) return null;
   return tsg.propertyAssign(
     node.name.createInputName(),
-    tsg.array(node.creatable.fields.map(GQLString.field).map(tsg.string)),
+    tsg.array(
+      node.creatable.fields
+        .filter(it => it.isGQLOpen)
+        .map(GQLString.field)
+        .map(tsg.string),
+    ),
   );
 };
 
@@ -50,7 +60,12 @@ const makeUpdateInput = (node: EntityNode) => {
   if (!node.gqlEnabled || !node.updateInput.gqlEnabled) return null;
   return tsg.propertyAssign(
     node.name.updateInputName(),
-    tsg.array(node.updateInput.fields.map(GQLString.field).map(tsg.string)),
+    tsg.array(
+      node.updateInput.fields
+        .filter(it => it.isGQLOpen)
+        .map(GQLString.field)
+        .map(tsg.string),
+    ),
   );
 };
 

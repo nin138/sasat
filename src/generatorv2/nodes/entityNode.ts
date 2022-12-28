@@ -25,11 +25,12 @@ export type FieldNode = {
   isArray: boolean;
   isPrimary: boolean;
   isUpdatable: boolean;
+  isGQLOpen: boolean;
 };
 
 export type ReferenceTypeNode = {
   entity: EntityName;
-  gqlEnabled: boolean;
+  isGQLOpen: boolean;
   isNullable: boolean;
   isArray: boolean;
   isPrimary: boolean;

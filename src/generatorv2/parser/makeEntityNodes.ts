@@ -57,6 +57,9 @@ const makeFieldNode = (column: BaseColumn): FieldNode => ({
   isPrimary: column.isPrimary(),
   isNullable: column.isNullable(),
   isUpdatable: !(column.data.onUpdateCurrentTimeStamp || column.isPrimary()), // TODO impl non updatable column
+  isGQLOpen: !column.table.gqlOption.mutation.fromContextColumns.some(
+    it => it.column === column.columnName(),
+  ),
 });
 
 const makeReferenceFieldNode =
@@ -64,7 +67,7 @@ const makeReferenceFieldNode =
   (column: ReferenceColumn): ReferenceTypeNode => {
     return {
       entity: EntityName.fromTableName(column.table.tableName),
-      gqlEnabled: column.table.gqlOption.enabled,
+      isGQLOpen: column.table.gqlOption.enabled,
       isPrimary: column.isPrimary(),
       isArray: false,
       isNullable: false,
@@ -77,7 +80,7 @@ const makeReferencedFieldNode =
     const ref = column.data.reference;
     return {
       entity: EntityName.fromTableName(ref.targetTable),
-      gqlEnabled: store.table(ref.targetTable).gqlOption.enabled,
+      isGQLOpen: store.table(ref.targetTable).gqlOption.enabled,
       isPrimary: column.isPrimary(),
       isArray: ref.relation === 'Many',
       isNullable: ref.relation === 'OneOrZero',
@@ -96,6 +99,9 @@ const makeCreatableFieldNode = (column: BaseColumn): FieldNode | null => {
     isPrimary: column.isPrimary(),
     isNullable: column.isNullableOnCreate(),
     isUpdatable: column.isUpdatable(),
+    isGQLOpen: !column.table.gqlOption.mutation.fromContextColumns.some(
+      it => it.column === column.columnName(),
+    ),
   };
 };
 
@@ -109,5 +115,8 @@ const makeUpdatableFieldNode = (column: BaseColumn): FieldNode | null => {
     isNullable: true,
     isPrimary: false,
     isUpdatable: true,
+    isGQLOpen: column.table.gqlOption.mutation.fromContextColumns.some(
+      it => it.column === column.columnName(),
+    ),
   };
 };
