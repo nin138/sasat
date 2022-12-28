@@ -180,7 +180,7 @@ export class TableHandler implements Table {
   }
 
   getEntityName(): EntityName {
-    return new EntityName(TableHandler.tableNameToEntityName(this.tableName));
+    return EntityName.fromTableName(this.tableName);
   }
 
   setGQLCreate(enabled: boolean, options?: Partial<MutationOption>): void {

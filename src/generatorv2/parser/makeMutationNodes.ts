@@ -2,7 +2,8 @@ import { DataStoreHandler } from '../../migration/dataStore.js';
 import { TableHandler } from '../../migration/serializable/table.js';
 import { GqlPrimitive } from '../../generator/gql/types.js';
 import { DBColumnTypes } from '../../migration/column/columnTypes.js';
-import { MutationNode } from '../nodes/mutationNode.js';
+import { ContextField, MutationNode } from '../nodes/mutationNode.js';
+import { GqlFromContextParam } from '../../migration/data/GQLOption.js';
 
 export const makeMutationNodes = (store: DataStoreHandler) => {
   return store.tables.flatMap(makeTableMutationNodes);
@@ -20,8 +21,17 @@ const makeTableMutationNodes = (table: TableHandler): MutationNode[] => {
   return result;
 };
 
+const makeContextField = (params: GqlFromContextParam): ContextField => ({
+  fieldName: params.column,
+  contextName: params.contextName || params.column,
+});
+
 const makeCreateMutationNode = (table: TableHandler): MutationNode => {
   return {
+    contextFields:
+      table.gqlOption.mutation.fromContextColumns.map(makeContextField),
+    entityName: table.getEntityName(),
+    identifyKeys: table.primaryKey,
     mutationName: `create${table.getEntityName().name}`,
     refetch: !table.gqlOption.mutation.create.noReFetch,
     returnType: {
@@ -48,12 +58,18 @@ const makeCreateMutationNode = (table: TableHandler): MutationNode => {
 
 const makeUpdateMutationNode = (table: TableHandler): MutationNode => {
   const noRefetch = table.gqlOption.mutation.update.noReFetch;
-  return <MutationNode>{
+  return {
+    contextFields:
+      table.gqlOption.mutation.fromContextColumns.map(makeContextField),
+    entityName: table.getEntityName(),
+    identifyKeys: table.primaryKey,
     mutationName: `update${table.getEntityName().name}`,
     refetch: !table.gqlOption.mutation.update.noReFetch,
     returnType: {
       typeName: noRefetch ? GqlPrimitive.Boolean : table.getEntityName().name,
-      dbType: noRefetch ? DBColumnTypes.boolean : undefined,
+      dbType: noRefetch
+        ? DBColumnTypes.boolean
+        : (undefined as unknown as DBColumnTypes),
       nullable: false,
       array: false,
       entity: !noRefetch,
@@ -77,6 +93,10 @@ const makeUpdateMutationNode = (table: TableHandler): MutationNode => {
 const makeDeleteMutationNode = (table: TableHandler): MutationNode => {
   return {
     mutationName: `delete${table.getEntityName().name}`,
+    contextFields:
+      table.gqlOption.mutation.fromContextColumns.map(makeContextField),
+    entityName: table.getEntityName(),
+    identifyKeys: table.primaryKey,
     refetch: false,
     returnType: {
       typeName: GqlPrimitive.Boolean,
