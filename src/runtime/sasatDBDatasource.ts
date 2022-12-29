@@ -25,9 +25,9 @@ import { queryToSql } from './dsl/query/sql/queryToSql.js';
 
 export type EntityType = Record<string, SqlValueType>;
 export type EntityResult<Entity, Identifiable> = Identifiable & Partial<Entity>;
-interface Repository<Entity, Creatable, Identifiable> {
+interface Repository<Entity, Identifiable, Creatable, Updatable> {
   create(entity: Creatable): Promise<Entity>;
-  update(entity: Partial<Entity> & Identifiable): Promise<CommandResponse>;
+  update(entity: Updatable): Promise<CommandResponse>;
   delete(entity: Identifiable): Promise<CommandResponse>;
 }
 export type ListQueryOption = {
@@ -46,15 +46,14 @@ export type QueryOptions = {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
-const noop = () => {};
-
 export abstract class SasatDBDatasource<
   Entity extends EntityType,
+  Identifiable extends object,
   Creatable,
-  Identifiable,
+  Updatable extends Identifiable,
   EntityFields extends Fields<Entity>,
   QueryResult extends Partial<Entity> & Identifiable,
-> implements Repository<Entity, Creatable, Identifiable>
+> implements Repository<Entity, Identifiable, Creatable, Updatable>
 {
   protected abstract relationMap: RelationMap;
   protected abstract tableInfo: TableInfo;
@@ -91,7 +90,7 @@ export abstract class SasatDBDatasource<
     } as unknown as Entity;
   }
 
-  update(entity: Identifiable & Partial<Entity>): Promise<CommandResponse> {
+  update(entity: Updatable): Promise<CommandResponse> {
     const dsl: Update = {
       table: this.tableName,
       values: Object.entries(entity).map(([column, value]) => ({
@@ -189,3 +188,6 @@ export abstract class SasatDBDatasource<
     return QExpr.conditions.and(...expr);
   }
 }
+
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+const noop = () => {};

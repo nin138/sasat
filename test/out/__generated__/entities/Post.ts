@@ -5,7 +5,7 @@ export type Post = {
   readonly title: string;
 };
 export type PostCreatable = { readonly userId: number; readonly title: string };
-type PostUpdatable = {
+export type PostUpdatable = {
   readonly pid: number;
   readonly userId: number | null;
   readonly title: string | null;

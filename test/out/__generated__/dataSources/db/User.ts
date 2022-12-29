@@ -1,7 +1,12 @@
 /* eslint-disable */
 import { UserWithRelations } from "../../relationMap.js";
-import { UserIdentifiable, User, UserCreatable } from "../../entities/User.js";
-import { UserFields } from "../../field.js";
+import {
+  UserIdentifiable,
+  User,
+  UserCreatable,
+  UserUpdatable,
+} from "../../entities/User.js";
+import { UserFields } from "../../fields.js";
 import { BaseDBDataSource } from "../../../baseDBDataSource.js";
 import { getCurrentDateTimeString, QueryOptions, QExpr } from "sasat";
 import { GQLContext } from "../../../context.js";
@@ -10,8 +15,9 @@ import { StockIdentifiable } from "../../entities/Stock.js";
 type QueryResult = Partial<UserWithRelations> & UserIdentifiable;
 export abstract class GeneratedUserDBDataSource extends BaseDBDataSource<
   User,
-  UserCreatable,
   UserIdentifiable,
+  UserCreatable,
+  UserUpdatable,
   UserFields,
   QueryResult
 > {

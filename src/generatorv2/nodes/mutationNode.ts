@@ -10,7 +10,7 @@ export type ContextField = {
 
 export type MutationNode = {
   mutationName: string;
-  identifyKeys: string[];
+  identifyFields: string[];
   entityName: EntityName;
   returnType: TypeNode;
   args: ArgNode[];

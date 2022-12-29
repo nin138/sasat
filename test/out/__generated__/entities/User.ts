@@ -10,7 +10,7 @@ export type UserCreatable = {
   readonly NNN: string | null;
   readonly nick: string | null;
 };
-type UserUpdatable = {
+export type UserUpdatable = {
   readonly uid: number;
   readonly NNN: string | null;
   readonly nick: string | null;

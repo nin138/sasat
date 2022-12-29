@@ -32,12 +32,16 @@ const generateCreatable = (node: EntityNode) => {
 };
 
 const generateUpdatable = (node: EntityNode) => {
-  return tsg.typeAlias(
-    node.name.updatable(),
-    node.updateInput.fields.length === 0
-      ? tsg.typeRef('Record<string, never>')
-      : tsg.typeLiteral(node.updateInput.fields.map(fieldToPropertySignature)),
-  );
+  return tsg
+    .typeAlias(
+      node.name.updatable(),
+      node.updateInput.fields.length === 0
+        ? tsg.typeRef('Record<string, never>')
+        : tsg.typeLiteral(
+            node.updateInput.fields.map(fieldToPropertySignature),
+          ),
+    )
+    .export();
 };
 
 const generateIdentifiable = (node: EntityNode) => {

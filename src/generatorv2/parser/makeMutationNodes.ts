@@ -31,7 +31,7 @@ const makeCreateMutationNode = (table: TableHandler): MutationNode => {
     contextFields:
       table.gqlOption.mutation.fromContextColumns.map(makeContextField),
     entityName: table.getEntityName(),
-    identifyKeys: table.primaryKey,
+    identifyFields: table.getPrimaryKeyColumns().map(it => it.fieldName()),
     mutationName: `create${table.getEntityName().name}`,
     refetch: !table.gqlOption.mutation.create.noReFetch,
     returnType: {
@@ -62,7 +62,7 @@ const makeUpdateMutationNode = (table: TableHandler): MutationNode => {
     contextFields:
       table.gqlOption.mutation.fromContextColumns.map(makeContextField),
     entityName: table.getEntityName(),
-    identifyKeys: table.primaryKey,
+    identifyFields: table.getPrimaryKeyColumns().map(it => it.fieldName()),
     mutationName: `update${table.getEntityName().name}`,
     refetch: !table.gqlOption.mutation.update.noReFetch,
     returnType: {
@@ -96,7 +96,7 @@ const makeDeleteMutationNode = (table: TableHandler): MutationNode => {
     contextFields:
       table.gqlOption.mutation.fromContextColumns.map(makeContextField),
     entityName: table.getEntityName(),
-    identifyKeys: table.primaryKey,
+    identifyFields: table.getPrimaryKeyColumns().map(it => it.fieldName()),
     refetch: false,
     returnType: {
       typeName: GqlPrimitive.Boolean,

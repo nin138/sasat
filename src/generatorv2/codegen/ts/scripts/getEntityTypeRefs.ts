@@ -39,7 +39,7 @@ const typeRefs: Record<TypeRefs, TypeRefInfo> = {
   fields: {
     name: entity => entity.fieldsTypeName(),
     dir: 'GENERATED',
-    file: () => 'field',
+    file: () => 'fields',
   },
   withRelation: {
     name: entity => entity.entityWithRelationTypeName(),

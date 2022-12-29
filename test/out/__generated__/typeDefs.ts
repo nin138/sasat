@@ -21,7 +21,7 @@ export const typeDefs = {
     "createPost(Post: PostCreateInput!): Post!",
     "updatePost(Post: PostUpdateInput!): Post!",
   ],
-  Subscription: ["userCreated: User!", "userUpdated(name: String!): User!"],
+  Subscription: ["UserCreated: User!", "UserUpdated(name: String!): User!"],
 };
 export const inputs = {
   PagingOption: [

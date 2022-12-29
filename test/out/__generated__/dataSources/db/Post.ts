@@ -1,7 +1,12 @@
 /* eslint-disable */
 import { PostWithRelations } from "../../relationMap.js";
-import { PostIdentifiable, Post, PostCreatable } from "../../entities/Post.js";
-import { PostFields } from "../../field.js";
+import {
+  PostIdentifiable,
+  Post,
+  PostCreatable,
+  PostUpdatable,
+} from "../../entities/Post.js";
+import { PostFields } from "../../fields.js";
 import { BaseDBDataSource } from "../../../baseDBDataSource.js";
 import { QueryOptions, QExpr } from "sasat";
 import { GQLContext } from "../../../context.js";
@@ -10,8 +15,9 @@ import { StockIdentifiable } from "../../entities/Stock.js";
 type QueryResult = Partial<PostWithRelations> & PostIdentifiable;
 export abstract class GeneratedPostDBDataSource extends BaseDBDataSource<
   Post,
-  PostCreatable,
   PostIdentifiable,
+  PostCreatable,
+  PostUpdatable,
   PostFields,
   QueryResult
 > {

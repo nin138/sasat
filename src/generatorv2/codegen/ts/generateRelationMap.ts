@@ -7,11 +7,9 @@ import {
 } from '../../../tsg/index.js';
 import { Directory } from '../../../constants/directory.js';
 import { EntityNode, ReferencedNode } from '../../nodes/entityNode.js';
-// TODO refactor
-
-import { tableInfo } from '../../../../test/outv1/__generated__/relationMap.js';
 import { EntityName } from '../../../parser/node/entityName.js';
 
+// TODO refactor
 const qExpr = tsg.identifier('QExpr').importFrom('sasat');
 
 export const generateRelationMap = (root: RootNode) => {

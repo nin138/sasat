@@ -11,7 +11,7 @@ export type StockCreatable = {
   readonly post: number;
   readonly id: number;
 };
-type StockUpdatable = {
+export type StockUpdatable = {
   readonly id: number;
   readonly user: number | null;
   readonly post: number | null;

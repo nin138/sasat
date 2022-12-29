@@ -2,12 +2,13 @@
 import { makeResolver, CommandResponse, pick } from "sasat";
 import { UserDBDataSource } from "../dataSources/db/User.js";
 import { publishUserCreated, publishUserUpdated } from "./subscription.js";
-import { GQLContext } from "../context.js";
 import {
+  User,
   UserCreatable,
   UserIdentifiable,
   UserUpdatable,
 } from "./entities/User.js";
+import { GQLContext } from "../context.js";
 import { PostDBDataSource } from "../dataSources/db/Post.js";
 import {
   PostIdentifiable,
@@ -15,50 +16,40 @@ import {
   PostUpdatable,
 } from "./entities/Post.js";
 const mutation = {
-  createUser: makeResolver<GQLContext, UserCreatable>(
-    (_, params, context, info) => {
-      const ds = new UserDBDataSource();
-      const result = await ds.create(params);
-      await publishUserCreated(result as User);
-      return result;
-    }
-  ),
+  createUser: makeResolver<GQLContext, UserCreatable>(async (_, params) => {
+    const ds = new UserDBDataSource();
+    const result = await ds.create(params);
+    await publishUserCreated(result as User);
+    return result;
+  }),
   updateUser: makeResolver<GQLContext, UserIdentifiable & UserUpdatable>(
-    (_, params, context, info) => {
+    async (_, params) => {
       const ds = new UserDBDataSource();
       const result = await ds
         .update(params)
         .then((it: CommandResponse): boolean => it.changedRows === 1);
-      const identifiable = pick(result, [
-        "userId",
-      ]) as unknown as UserIdentifiable;
-      const refetch = await ds.findByUserId(identifiable.userId);
-      await publishUserUpdated(refetch as User);
-      return refetch;
+      const identifiable = pick(params, ["uid"]) as unknown as UserIdentifiable;
+      const refetched = await ds.findByUid(identifiable.uid);
+      await publishUserUpdated(refetched as User);
+      return refetched;
     }
   ),
-  createPost: makeResolver<GQLContext, PostCreatable>(
-    (_, params, context, info) => {
-      const ds = new PostDBDataSource();
-      const result = await ds.create(params);
-      const identifiable = pick(result, [
-        "postId",
-      ]) as unknown as PostIdentifiable;
-      const refetch = await ds.findByPostId(identifiable.postId);
-      return refetch;
-    }
-  ),
+  createPost: makeResolver<GQLContext, PostCreatable>(async (_, params) => {
+    const ds = new PostDBDataSource();
+    const result = await ds.create(params);
+    const identifiable = pick(result, ["pid"]) as unknown as PostIdentifiable;
+    const refetched = await ds.findByPid(identifiable.pid);
+    return refetched;
+  }),
   updatePost: makeResolver<GQLContext, PostIdentifiable & PostUpdatable>(
-    (_, params, context, info) => {
+    async (_, params) => {
       const ds = new PostDBDataSource();
       const result = await ds
         .update(params)
         .then((it: CommandResponse): boolean => it.changedRows === 1);
-      const identifiable = pick(result, [
-        "postId",
-      ]) as unknown as PostIdentifiable;
-      const refetch = await ds.findByPostId(identifiable.postId);
-      return refetch;
+      const identifiable = pick(params, ["pid"]) as unknown as PostIdentifiable;
+      const refetched = await ds.findByPid(identifiable.pid);
+      return refetched;
     }
   ),
 };

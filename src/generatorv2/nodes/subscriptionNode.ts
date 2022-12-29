@@ -4,6 +4,7 @@ import { EntityName } from '../../parser/node/entityName.js';
 
 type MutationType = 'create' | 'delete' | 'update';
 
+// TODO remove duplicate args, filters
 export type SubscriptionNode = {
   gqlEnabled: boolean;
   subscriptionName: string;

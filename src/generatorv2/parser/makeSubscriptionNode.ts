@@ -35,9 +35,13 @@ const makeSubscriptionNode = (
   mutationType: MutationType,
   table: TableHandler,
 ): SubscriptionNode => {
+  const subscriptionName =
+    table.getEntityName().name + subscriptionNamePostfix[mutationType];
+  const option = table.gqlOption.mutation[mutationType];
   return {
-    subscriptionName:
-      table.getEntityName().lowerCase() + subscriptionNamePostfix[mutationType],
+    subscriptionName,
+    entity: table.getEntityName(),
+    publishFunctionName: 'publish' + subscriptionName,
     returnType: {
       typeName: table.getEntityName().name,
       nullable: false,
@@ -57,8 +61,14 @@ const makeSubscriptionNode = (
         },
       };
     }),
+    filters: option.subscriptionFilter.map(it => {
+      const column = table.column(it);
+      return {
+        field: column.fieldName(),
+        gqlType: column.gqlType(),
+      };
+    }),
     mutationType,
-    gqlEnabled:
-      table.gqlOption.enabled && table.gqlOption.mutation[mutationType].enabled,
+    gqlEnabled: table.gqlOption.enabled && option.enabled,
   };
 };

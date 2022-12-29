@@ -4,8 +4,9 @@ import {
   StockIdentifiable,
   Stock,
   StockCreatable,
+  StockUpdatable,
 } from "../../entities/Stock.js";
-import { StockFields } from "../../field.js";
+import { StockFields } from "../../fields.js";
 import { BaseDBDataSource } from "../../../baseDBDataSource.js";
 import { getCurrentDateTimeString, QueryOptions, QExpr } from "sasat";
 import { GQLContext } from "../../../context.js";
@@ -14,8 +15,9 @@ import { PostIdentifiable } from "../../entities/Post.js";
 type QueryResult = Partial<StockWithRelations> & StockIdentifiable;
 export abstract class GeneratedStockDBDataSource extends BaseDBDataSource<
   Stock,
-  StockCreatable,
   StockIdentifiable,
+  StockCreatable,
+  StockUpdatable,
   StockFields,
   QueryResult
 > {
