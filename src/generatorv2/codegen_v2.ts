@@ -27,7 +27,7 @@ export class CodeGen_v2 {
   async generate(): Promise<void> {
     await this.prepareDirs();
     await Promise.all([
-      // ...this.root.entities.map(it => this.generateEntity(it)),
+      ...this.root.entities.map(it => this.generateEntity(it)),
       // ...this.root.repositories.map(it => this.generateRepository(it)),
       // ...this.root.repositories.map(it => this.generateGeneratedRepository(it)),
       ...this.generateGql(this.root),

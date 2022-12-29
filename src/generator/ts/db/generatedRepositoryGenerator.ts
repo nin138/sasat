@@ -116,7 +116,7 @@ export class GeneratedRepositoryGenerator {
       tsg
         .propertyDeclaration(
           'autoIncrementColumn',
-          new UnionType([KeywordTypeNode.string, KeywordTypeNode.undefined]),
+          new UnionType(KeywordTypeNode.string, KeywordTypeNode.undefined),
           true,
         )
         .modifiers(new PropertyModifiers().readonly().protected())
@@ -236,7 +236,7 @@ export class GeneratedRepositoryGenerator {
         new TypeReference('Promise', [
           it.returnType.isArray
             ? tsg.arrayType(returnType)
-            : tsg.unionType([returnType, tsg.typeRef('null')]),
+            : tsg.unionType(returnType, tsg.typeRef('null')),
         ]),
         body,
       );

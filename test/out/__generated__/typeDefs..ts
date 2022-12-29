@@ -32,6 +32,6 @@ export const inputs = {
   ],
   UserCreateInput: ["NNN: String", "nick: String"],
   PostCreateInput: ["userId: Int!", "title: String!"],
-  UserUpdateInput: ["uid: Int!", "updatedAt: String!"],
+  UserUpdateInput: ["uid: Int!"],
   PostUpdateInput: ["pid: Int!"],
 };

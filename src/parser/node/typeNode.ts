@@ -57,7 +57,7 @@ export class EntityTypeNode extends TypeNode {
         ? this.typeName.toString()
         : columnTypeToTsType(this.typeName),
     );
-    if (this.isNullable) type = tsg.unionType([type, tsg.typeRef('null')]);
+    if (this.isNullable) type = tsg.unionType(type, tsg.typeRef('null'));
     if (this.isArray) return tsg.arrayType(type);
     return type;
   }

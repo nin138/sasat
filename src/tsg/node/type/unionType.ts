@@ -2,8 +2,10 @@ import { TsCode } from '../../abstruct/tsCode.js';
 import { isCode, TsType } from './type.js';
 
 export class UnionType extends TsCode {
-  constructor(private readonly types: TsType[]) {
+  private readonly types: Array<TsType>;
+  constructor(...types: TsType[]) {
     super();
+    this.types = types;
     const codeTypes = types.filter(it => isCode(it));
     this.mergeImport(...(codeTypes as TsCode[]));
   }

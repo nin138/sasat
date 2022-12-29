@@ -86,7 +86,7 @@ export class EntityNode {
       gqlEnabled:
         table.gqlOption.enabled && table.gqlOption.mutation.update.enabled,
       fields: [
-        ...this.fields.filter(it => !it.isUpdatable),
+        ...this.fields.filter(it => it.isPrimary),
         ...table.columns.map(makeUpdatableFieldNode).filter(nonNullableFilter),
       ],
     };
