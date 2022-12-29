@@ -27,11 +27,11 @@ export class CodeGen_v2 {
     await this.prepareDirs();
     await Promise.all([
       ...this.root.entities.map(it => this.generateEntity(it)),
-      // ...this.root.repositories.map(it => this.generateRepository(it)),
+      ...this.root.entities.map(it => this.generateDatasource(it)),
       ...this.root.entities.map(it => this.generateGeneratedDatasource(it)),
       ...this.generateGql(this.root),
-      // ...this.generateFiles(this.root),
-      // ...this.generateOnceFiles(this.root),
+      ...this.generateFiles(this.root),
+      ...this.generateOnceFiles(),
     ]);
   }
 
@@ -54,12 +54,12 @@ export class CodeGen_v2 {
     );
   }
 
-  // private generateRepository(ir: RepositoryNode) {
-  //   return writeFileIfNotExist(
-  //     this.getFullPath(this.dbDataSourceDir, ir.entityName.name),
-  //     this.codeGen.generateRepository(ir),
-  //   );
-  // }
+  private generateDatasource(node: EntityNode) {
+    return writeFileIfNotExist(
+      this.getFullPath(this.dbDataSourceDir, node.name.name),
+      this.codeGen.generateDatasource(node),
+    );
+  }
 
   private generateGeneratedDatasource(node: EntityNode) {
     return writeFile(
@@ -107,12 +107,12 @@ export class CodeGen_v2 {
         ),
       );
   }
-  //
-  // private generateOnceFiles(rootNode: RootNode) {
-  //   return this.codeGen
-  //     .generateOnceFiles(rootNode)
-  //     .map(it =>
-  //       writeFileIfNotExist(this.getFullPath(this.outDir, it.name), it.body),
-  //     );
-  // }
+
+  private generateOnceFiles() {
+    return this.codeGen
+      .generateOnceFiles()
+      .map(it =>
+        writeFileIfNotExist(this.getFullPath(this.outDir, it.name), it.body),
+      );
+  }
 }
