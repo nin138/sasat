@@ -74,10 +74,10 @@ export class CodeGen_v2 {
         this.getFullPath(this.generateDir, 'typeDefs'),
         this.codeGen.generateGqlTypeDefs(rootNode),
       ),
-      // writeFile(
-      //   this.getFullPath(this.generateDir, 'resolver'),
-      //   this.codeGen.generateGqlResolver(rootNode),
-      // ),
+      writeFile(
+        this.getFullPath(this.generateDir, 'resolver'),
+        this.codeGen.generateGqlResolver(rootNode),
+      ),
       writeFile(
         this.getFullPath(this.generateDir, 'query'),
         this.codeGen.generateGqlQuery(rootNode),
@@ -86,14 +86,14 @@ export class CodeGen_v2 {
         this.getFullPath(this.generateDir, 'mutation'),
         this.codeGen.generateGqlMutation(rootNode),
       ),
-      // writeFile(
-      //   this.getFullPath(this.generateDir, 'subscription'),
-      //   this.codeGen.generateGqlSubscription(rootNode),
-      // ),
-      // writeFile(
-      //   this.getFullPath(this.generateDir, 'context'),
-      //   this.codeGen.generateGQLContext(rootNode),
-      // ),
+      writeFile(
+        this.getFullPath(this.generateDir, 'subscription'),
+        this.codeGen.generateGqlSubscription(rootNode),
+      ),
+      writeFile(
+        this.getFullPath(this.generateDir, 'context'),
+        this.codeGen.generateGQLContext(rootNode),
+      ),
     ];
   }
 

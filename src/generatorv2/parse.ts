@@ -4,6 +4,7 @@ import { makeMutationNodes } from './parser/makeMutationNodes.js';
 import { makeEntityNodes } from './parser/makeEntityNodes.js';
 import { makeQueryNodes } from './parser/makeQueryNodes.js';
 import { makeSubscriptionNodes } from './parser/makeSubscriptionNode.js';
+import { makeContextNodes } from './parser/makeContextNodes.js';
 
 export const parse = (store: DataStoreHandler): RootNode => {
   return {
@@ -11,5 +12,6 @@ export const parse = (store: DataStoreHandler): RootNode => {
     queries: makeQueryNodes(store),
     mutations: makeMutationNodes(store),
     subscriptions: makeSubscriptionNodes(store),
+    contexts: makeContextNodes(store),
   };
 };
