@@ -11,7 +11,7 @@ export class DataStoreHandler implements DataStore {
   constructor(store: SerializedStore) {
     this.tables = store.tables.map(it => new TableHandler(it, this));
   }
-  table(tableName: string): Table {
+  table(tableName: string): TableHandler {
     const table = this.tables.find(it => it.tableName === tableName);
     if (!table) throw new Error(`Table: ${tableName} is Not Found`);
     return table;

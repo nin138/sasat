@@ -14,7 +14,7 @@ import { ContextField, MutationNode } from '../../nodes/mutationNode.js';
 import { Directory } from '../../directory.js';
 import { makeTypeRef } from './scripts/getEntityTypeRefs.js';
 import { makeDatasource } from './scripts/makeDatasource.js';
-import { makePrimaryFindQueryName, publishFunctionName } from '../names.js';
+import { makeFindQueryName, publishFunctionName } from '../names.js';
 
 export const generateMutationResolver = (root: RootNode) => {
   return new TsFile(
@@ -113,7 +113,7 @@ const makeRefetched = (node: MutationNode) => {
       refetched,
       tsg.await(
         ds
-          .property(makePrimaryFindQueryName(node.identifyKeys))
+          .property(makeFindQueryName(node.identifyKeys))
           .call(...node.identifyKeys.map(it => ident.property(it))),
       ),
     ),

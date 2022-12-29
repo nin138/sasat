@@ -277,4 +277,7 @@ export class TableHandler implements Table {
       it.columnName() === columnName ? update(it) : it,
     );
   }
+  getPrimaryKeyColumns(): BaseColumn[] {
+    return this.columns.filter(it => this.primaryKey.includes(it.columnName()));
+  }
 }

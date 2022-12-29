@@ -9,12 +9,16 @@ import {
 } from '../../migration/serializable/column.js';
 import { nonNullableFilter } from '../../util/type.js';
 import { Relation } from '../../migration/data/relation.js';
+import { SerializedColumn } from '../../migration/serialized/serializedColumn.js';
+import { makeFindQueryName } from '../codegen/names.js';
+import { columnTypeToGqlPrimitive } from '../../generator/gql/columnToGqlType.js';
 
 const makeFieldNode = (column: BaseColumn): FieldNode => ({
   fieldName: column.fieldName(),
   columnName: column.columnName(),
   gqlType: column.gqlType(),
   dbType: column.dataType(),
+  isAutoIncrement: column.data.autoIncrement,
   isArray: false,
   isPrimary: column.isPrimary(),
   isNullable: column.isNullable(),
@@ -22,6 +26,7 @@ const makeFieldNode = (column: BaseColumn): FieldNode => ({
   isGQLOpen: !column.table.gqlOption.mutation.fromContextColumns.some(
     it => it.column === column.columnName(),
   ),
+  column: column.data,
 });
 
 const makeCreatableFieldNode = (column: BaseColumn): FieldNode | null => {
@@ -32,6 +37,7 @@ const makeCreatableFieldNode = (column: BaseColumn): FieldNode | null => {
     columnName: column.columnName(),
     gqlType: column.gqlType(),
     dbType: column.dataType(),
+    isAutoIncrement: column.data.autoIncrement,
     isArray: false,
     isPrimary: column.isPrimary(),
     isNullable: column.isNullableOnCreate(),
@@ -39,6 +45,7 @@ const makeCreatableFieldNode = (column: BaseColumn): FieldNode | null => {
     isGQLOpen: !column.table.gqlOption.mutation.fromContextColumns.some(
       it => it.column === column.columnName(),
     ),
+    column: column.data,
   };
 };
 
@@ -49,6 +56,7 @@ const makeUpdatableFieldNode = (column: BaseColumn): FieldNode | null => {
     columnName: column.columnName(),
     gqlType: column.gqlType(),
     dbType: column.dataType(),
+    isAutoIncrement: column.data.autoIncrement,
     isArray: false,
     isNullable: true,
     isPrimary: false,
@@ -56,6 +64,7 @@ const makeUpdatableFieldNode = (column: BaseColumn): FieldNode | null => {
     isGQLOpen: column.table.gqlOption.mutation.fromContextColumns.some(
       it => it.column === column.columnName(),
     ),
+    column: column.data,
   };
 };
 
@@ -69,6 +78,7 @@ export class EntityNode {
   readonly identifyKeys: string[];
   readonly references: ReferenceNode[];
   readonly referencedBy: ReferencedNode[];
+  readonly findMethods: FindMethodNode[];
   constructor(store: DataStoreHandler, table: TableHandler) {
     this.fields = table.columns.map(makeFieldNode);
     this.name = EntityName.fromTableName(table.tableName);
@@ -103,6 +113,52 @@ export class EntityNode {
     this.referencedBy = store
       .referencedBy(table.tableName)
       .map(column => new ReferencedNode(this, table, column));
+
+    const makeFindMethodNode = (
+      columns: string[],
+      isArray: boolean,
+    ): FindMethodNode => {
+      const fields = columns.map(
+        column => this.fields.find(it => it.columnName === column)!,
+      );
+      return {
+        name: makeFindQueryName(fields.map(it => it.fieldName)),
+        params: fields.map(it =>
+          makePrimitiveParameterNode(it.fieldName, it.dbType),
+        ),
+        isArray,
+      };
+    };
+
+    this.findMethods = [
+      makeFindMethodNode(table.primaryKey, false),
+      ...this.references.map(ref => {
+        const parent = store.table(ref.parentTableName);
+        return {
+          name: makeFindQueryName([parent.getEntityName().name]),
+          params: [
+            makeEntityParameterNode(
+              parent.getEntityName(),
+              parent.getPrimaryKeyColumns().map(it => it.fieldName()),
+            ),
+          ],
+          isArray: false,
+        };
+      }),
+      ...this.referencedBy.map(ref => {
+        const child = store.table(ref.childTable);
+        return {
+          name: makeFindQueryName([child.getEntityName().name]),
+          params: [
+            makeEntityParameterNode(
+              child.getEntityName(),
+              child.getPrimaryKeyColumns().map(it => it.fieldName()),
+            ),
+          ],
+          isArray: ref.relation === 'Many',
+        };
+      }),
+    ];
   }
 }
 
@@ -186,4 +242,48 @@ export type FieldNode = {
   isPrimary: boolean;
   isUpdatable: boolean;
   isGQLOpen: boolean;
+  isAutoIncrement: boolean;
+  column: SerializedColumn;
 };
+
+export type FindMethodNode = {
+  name: string;
+  params: ParameterNode[];
+  isArray: boolean;
+};
+
+type ParameterNode = EntityParameterNode | PrimitiveParameterNode;
+
+type EntityParameterNode = {
+  entity: true;
+  name: string;
+  entityName: EntityName;
+  fields: string[];
+};
+
+const makeEntityParameterNode = (
+  entityName: EntityName,
+  fields: string[],
+): EntityParameterNode => ({
+  entity: true,
+  name: entityName.lowerCase(),
+  entityName,
+  fields,
+});
+
+type PrimitiveParameterNode = {
+  entity: false;
+  name: string;
+  dbtype: DBColumnTypes;
+  gqltype: GqlPrimitive;
+};
+
+const makePrimitiveParameterNode = (
+  name: string,
+  dbtype: DBColumnTypes,
+): PrimitiveParameterNode => ({
+  entity: false,
+  name,
+  dbtype,
+  gqltype: columnTypeToGqlPrimitive(dbtype),
+});

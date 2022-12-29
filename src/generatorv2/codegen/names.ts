@@ -15,5 +15,5 @@ export const publishFunctionName = (
   return `publish${entityName}${map[type]}`;
 };
 
-export const makePrimaryFindQueryName = (keys: string[]) =>
+export const makeFindQueryName = (keys: string[]) =>
   'findBy' + keys.map(capitalizeFirstLetter).join('And');

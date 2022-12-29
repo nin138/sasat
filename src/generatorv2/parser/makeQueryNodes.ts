@@ -3,7 +3,7 @@ import { QueryNode } from '../nodes/queryNode.js';
 import { TableHandler } from '../../migration/serializable/table.js';
 import { lowercaseFirstLetter, plural } from '../../util/stringUtil.js';
 import { ArgNode } from '../nodes/typeNode.js';
-import { makePrimaryFindQueryName } from '../codegen/names.js';
+import { makeFindQueryName } from '../codegen/names.js';
 
 export const makeQueryNodes = (store: DataStoreHandler): QueryNode[] => {
   return store.tables.flatMap(it => {
@@ -24,7 +24,7 @@ const makePrimaryFindQuery = (table: TableHandler): QueryNode => {
     type: 'primary',
     queryName: lowercaseFirstLetter(table.getEntityName().name),
     entityName: table.getEntityName(),
-    dsMethodName: makePrimaryFindQueryName(table.primaryKey),
+    dsMethodName: makeFindQueryName(table.primaryKey),
     pageable: false,
     returnType: {
       typeName: table.getEntityName().name,

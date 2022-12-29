@@ -3,7 +3,6 @@ import * as path from 'path';
 import fs from 'fs-extra';
 import { mkDirIfNotExist, writeFileIfNotExist } from '../util/fsUtil.js';
 import { Directory } from '../constants/directory.js';
-import { RepositoryNode } from '../parser/node/repositoryNode.js';
 import { RootNode } from './nodes/rootNode.js';
 import { EntityNode } from './nodes/entityNode.js';
 import { TsCodegen_v2 } from './codegen/tscodegen_v2.js';
@@ -29,7 +28,7 @@ export class CodeGen_v2 {
     await Promise.all([
       ...this.root.entities.map(it => this.generateEntity(it)),
       // ...this.root.repositories.map(it => this.generateRepository(it)),
-      // ...this.root.repositories.map(it => this.generateGeneratedRepository(it)),
+      ...this.root.entities.map(it => this.generateGeneratedDatasource(it)),
       ...this.generateGql(this.root),
       // ...this.generateFiles(this.root),
       // ...this.generateOnceFiles(this.root),
@@ -62,12 +61,12 @@ export class CodeGen_v2 {
   //   );
   // }
 
-  // private generateGeneratedRepository(ir: RepositoryNode) {
-  //   return writeFile(
-  //     this.getFullPath(this.generateDbDataSourceDir, ir.entityName.name),
-  //     this.codeGen.generateGeneratedRepository(ir),
-  //   );
-  // }
+  private generateGeneratedDatasource(node: EntityNode) {
+    return writeFile(
+      this.getFullPath(this.generateDbDataSourceDir, node.name.name),
+      this.codeGen.generateGeneratedDatasource(node),
+    );
+  }
 
   private generateGql(rootNode: RootNode) {
     return [
