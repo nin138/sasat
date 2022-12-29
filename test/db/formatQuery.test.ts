@@ -1,7 +1,7 @@
 import { formatQuery } from '../../src/db/formatQuery';
 import * as SQLString from 'sqlstring';
 // @ts-ignore
-import { User } from '../out/__generated__/entity/User';
+import { User } from '../outv1/__generated__/entity/User';
 
 test('mysql DBClient', () => {
   expect(formatQuery`select ${'a'},${'b'} from test`).toBe(

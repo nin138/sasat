@@ -1,6 +1,6 @@
 import { SasatMigration, MigrationStore } from 'sasat';
-import { PostCreatable } from '../out/__generated__/entities/Post.js';
-import { StockCreatable } from '../out/__generated__/entities/Stock.js';
+import { PostCreatable } from '../outv1/__generated__/entities/Post.js';
+import { StockCreatable } from '../outv1/__generated__/entities/Stock.js';
 import { SqlString } from '../../src/runtime/sql/sqlString.js';
 
 const toSQL = (table: string, obj: any) => {

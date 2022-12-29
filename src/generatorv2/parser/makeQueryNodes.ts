@@ -35,7 +35,7 @@ const makePrimaryFindQuery = (table: TableHandler): QueryNode => {
     args: table.primaryKey.map(it => ({
       name: it,
       type: {
-        typeName: table.column(it).dataType() as string,
+        typeName: table.column(it).gqlType(),
         nullable: false,
         array: false,
         entity: false,

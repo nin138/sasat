@@ -2,7 +2,7 @@ import { EntityName } from '../../parser/node/entityName.js';
 import { DBColumnTypes } from '../../migration/column/columnTypes.js';
 import { GqlPrimitive } from '../../generator/gql/types.js';
 import { DataStoreHandler } from '../../migration/dataStore.js';
-import { TableHandler } from '../../migration/serializable/table.js';
+import { Table, TableHandler } from '../../migration/serializable/table.js';
 import {
   BaseColumn,
   ReferenceColumn,
@@ -92,7 +92,14 @@ export class EntityNode {
     };
     this.references = table
       .getReferenceColumns()
-      .map(column => new ReferenceNode(this, column));
+      .map(
+        column =>
+          new ReferenceNode(
+            this,
+            column,
+            store.table(column.data.reference.targetTable),
+          ),
+      );
     this.referencedBy = store
       .referencedBy(table.tableName)
       .map(column => new ReferencedNode(this, table, column));
@@ -110,9 +117,14 @@ export class ReferenceNode {
   readonly isPrimary: boolean;
   readonly fieldName: string;
 
-  constructor(readonly entity: EntityNode, column: ReferenceColumn) {
+  constructor(
+    readonly entity: EntityNode,
+    column: ReferenceColumn,
+    parentTable: Table,
+  ) {
     const ref = column.data.reference;
-    this.isGQLOpen = column.table.gqlOption.enabled;
+    this.isGQLOpen =
+      column.table.gqlOption.enabled && parentTable.gqlOption.enabled;
     this.isPrimary = column.isPrimary();
     this.isArray = false;
     this.isNullable = false;
@@ -147,8 +159,10 @@ export class ReferencedNode {
     this.childColumn = column.columnName();
     this.columnName = column.data.reference.targetColumn;
     this.fieldName =
-      (ref.relationName || '') + parentTable.getEntityName().name;
-    this.isGQLOpen = parentTable.gqlOption.enabled;
+      (ref.relationName || '') +
+      EntityName.fromTableName(column.table.tableName).name;
+    this.isGQLOpen =
+      parentTable.gqlOption.enabled && column.table.gqlOption.enabled;
     this.isPrimary = column.isPrimary();
     this.isArray = ref.relation === 'Many';
     this.isNullable = ref.relation === 'OneOrZero';

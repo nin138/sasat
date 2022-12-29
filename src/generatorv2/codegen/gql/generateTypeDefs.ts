@@ -12,10 +12,21 @@ export const generateTypeDefs = (root: RootNode) => {
     ...root.entities.map(makeEntityType),
     makeQuery(root.queries),
     makeMutation(root.mutations),
-    makeSubscription(root.subscriptions),
+    makeSubscription(root.subscriptions.filter(it => it.gqlEnabled)),
   ].filter(nonNullableFilter);
 
   const inputs = [
+    tsg.propertyAssign(
+      'PagingOption',
+      tsg.array(
+        [
+          'numberOfItem: Int!',
+          'offset: Int',
+          'order: String',
+          'asc: Boolean',
+        ].map(tsg.string),
+      ),
+    ),
     ...root.entities.map(makeCreateInput),
     ...root.entities.map(makeUpdateInput),
   ].filter(nonNullableFilter);
@@ -34,12 +45,20 @@ const makeEntityType = (node: EntityNode): PropertyAssignment | null => {
   if (!node.gqlEnabled) return null;
   return tsg.propertyAssign(
     node.name.name,
-    tsg.array(
-      node.fields
+    tsg.array([
+      ...node.fields
         .filter(it => it.isGQLOpen)
         .map(GQLString.field)
         .map(tsg.string),
-    ),
+      ...node.references
+        .filter(it => it.isGQLOpen)
+        .map(GQLString.referenceField)
+        .map(tsg.string),
+      ...node.referencedBy
+        .filter(it => it.isGQLOpen)
+        .map(GQLString.referencedField)
+        .map(tsg.string),
+    ]),
   );
 };
 

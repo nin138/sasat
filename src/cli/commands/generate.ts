@@ -7,6 +7,8 @@ import { createCurrentMigrationDataStore } from '../../migration/exec/createCurr
 import { compileMigrationFiles } from '../../migration/exec/migrationFileCompiler.js';
 import { config } from '../../config/config.js';
 import { getMigrationFileNames } from '../../migration/exec/getMigrationFiles.js';
+import { CodeGen_v2 } from '../../generatorv2/codegen_v2.js';
+import { parse } from '../../generatorv2/parse.js';
 
 export const generate = async (): Promise<void> => {
   try {
@@ -21,7 +23,8 @@ export const generate = async (): Promise<void> => {
     const storeHandler = new DataStoreHandler(store);
     writeCurrentSchema(store);
     const ir = new Parser().parse(storeHandler);
-    await new CodeGenerateController(ir).generate();
+    // await new CodeGenerateController(ir).generate();
+    await new CodeGen_v2(parse(storeHandler)).generate();
     Console.success(
       `code generated. DIR: ${
         config().migration.out

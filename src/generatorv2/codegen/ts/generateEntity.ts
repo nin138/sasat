@@ -2,15 +2,13 @@ import { tsg, TsFile } from '../../../tsg/index.js';
 import { fieldToPropertySignature } from './scripts/fieldToProperty.js';
 import { EntityNode } from '../../nodes/entityNode.js';
 
-export const generateEntityFile = (node: EntityNode): string => {
+export const generateEntityFile = (node: EntityNode): TsFile => {
   return new TsFile(
     generateEntity(node),
     generateCreatable(node),
     generateUpdatable(node),
     generateIdentifiable(node),
-  )
-    .disableEsLint()
-    .toString();
+  ).disableEsLint();
 };
 
 const generateEntity = (node: EntityNode) => {

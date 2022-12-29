@@ -15,9 +15,7 @@ export const generateQueryResolver = (root: RootNode) => {
     tsg
       .variable('const', 'query', tsg.object(...root.queries.map(makeQuery)))
       .export(),
-  )
-    .disableEsLint()
-    .toString();
+  ).disableEsLint();
 };
 
 const makeResolver = () => tsg.identifier('makeResolver').importFrom('sasat');

@@ -1,8 +1,13 @@
 import { ArgNode, TypeNode } from '../../nodes/typeNode.js';
-import { FieldNode } from '../../nodes/entityNode.js';
+import {
+  FieldNode,
+  ReferencedNode,
+  ReferenceNode,
+} from '../../nodes/entityNode.js';
 import { MutationNode } from '../../nodes/mutationNode.js';
 import { SubscriptionNode } from '../../nodes/subscriptionNode.js';
 import { QueryNode } from '../../nodes/queryNode.js';
+import { EntityName } from '../../../parser/node/entityName.js';
 
 export const GQLString = {
   args: (args: ArgNode[]): string => {
@@ -13,6 +18,20 @@ export const GQLString = {
   },
   field: (field: FieldNode): string => {
     return `${field.fieldName}: ${fieldGqlType(field)}`;
+  },
+  referenceField: (ref: ReferenceNode): string => {
+    return `${ref.fieldName}: ${makeGQLType(
+      EntityName.fromTableName(ref.parentTableName).name,
+      ref.isNullable,
+      ref.isArray,
+    )}`;
+  },
+  referencedField: (ref: ReferencedNode): string => {
+    return `${ref.fieldName}: ${makeGQLType(
+      EntityName.fromTableName(ref.childTable).name,
+      ref.isNullable,
+      ref.isArray,
+    )}`;
   },
   query: (node: QueryNode) => {
     return `${node.queryName}${GQLString.args(node.args)}: ${GQLString.type(
@@ -37,7 +56,15 @@ export const GQLString = {
 };
 
 const fieldGqlType = (field: FieldNode): string => {
-  const type = field.fieldName ? field.gqlType : field.gqlType + '!';
-  if (field.isArray) return `[${type}]`;
+  return makeGQLType(field.gqlType, field.isNullable, field.isArray);
+};
+
+const makeGQLType = (
+  typeName: string,
+  isNullable: boolean,
+  isArray: boolean,
+) => {
+  const type = isNullable ? typeName : typeName + '!';
+  if (isArray) return `[${type}]!`;
   return type;
 };

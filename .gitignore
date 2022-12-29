@@ -4,7 +4,7 @@ generated
 coverage
 build
 /lib/
-test/out
+test/outv1
 test/migrations/currentSchema.yml
 test/migrations/initialSchema.yml
 test/migrations/*.mjs
