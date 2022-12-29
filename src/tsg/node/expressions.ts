@@ -57,7 +57,7 @@ export class CallExpression extends TsExpression {
     return (
       this.identifier.toString() +
       (this._typeArgs.length !== 0
-        ? `${this._typeArgs.map(it => it.toString()).join(',')}`
+        ? `<${this._typeArgs.map(it => it.toString()).join(',')}>`
         : '') +
       `(${this.args.map(it => it.toString()).join(',')})`
     );

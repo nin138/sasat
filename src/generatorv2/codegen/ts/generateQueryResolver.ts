@@ -19,6 +19,7 @@ export const generateQueryResolver = (root: RootNode) => {
 };
 
 const makeResolver = () => tsg.identifier('makeResolver').importFrom('sasat');
+const fields = tsg.identifier('fields');
 
 const makeQuery = (node: QueryNode): PropertyAssignment => {
   return tsg.propertyAssign(
@@ -96,7 +97,7 @@ const makeListQuery = (node: QueryNode) => {
 const makeListQueryField = (node: QueryNode) => {
   return tsg.variable(
     'const',
-    'fields',
+    fields,
     tsg
       .identifier('gqlResolveInfoToField')
       .call(tsg.identifier('info'))
@@ -120,11 +121,7 @@ const makeListAllQuery = (node: QueryNode) => {
     tsg.return(
       makeListQueryDataSource(node)
         .property(node.dsMethodName)
-        .call(
-          tsg.identifier('field'),
-          tsg.identifier('undefined'),
-          tsg.identifier('context'),
-        ),
+        .call(fields, tsg.identifier('undefined'), tsg.identifier('context')),
     ),
   ];
 };
@@ -133,11 +130,9 @@ const makeListPagingQuery = (node: QueryNode) => {
   const option = tsg.identifier('option');
   return [
     makeListQueryField(node),
-    tsg.variable(
-      'const',
-      tsg.identifier('{ option }'),
-      tsg.identifier('params'),
-    ),
+    tsg
+      .variable('const', tsg.identifier('{ option }'), tsg.identifier('params'))
+      .addImport(['PagingOption'], 'sasat'),
     tsg.return(
       makeListQueryDataSource(node)
         .property('findPageable') // todo move
@@ -146,7 +141,7 @@ const makeListPagingQuery = (node: QueryNode) => {
             tsg.propertyAssign('numberOfItem', option.property('numberOfItem')),
             tsg.propertyAssign('offset', option.property('offset')),
           ),
-          tsg.identifier('fields'),
+          fields,
           tsg.identifier('undefined'),
           tsg.identifier('context'),
         ),
