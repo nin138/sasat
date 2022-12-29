@@ -10,9 +10,7 @@ export const makeDatasource = (
   return tsg.new(
     tsg
       .identifier(entity.dataSourceName())
-      .importFrom(
-        Directory.resolve(importFrom, 'DATA_SOURCES', entity.name + '.ts'),
-      ),
+      .importFrom(Directory.resolve(importFrom, 'DATA_SOURCES', entity.name)),
     ...(args || []),
   );
 };

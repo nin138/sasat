@@ -2,15 +2,6 @@ import { EntityName } from '../../../../parser/node/entityName.js';
 import { Directories, Directory } from '../../../directory.js';
 import { tsg, TypeReference } from '../../../../tsg/index.js';
 
-export const getFieldTypeRef = (
-  entity: EntityName,
-  importFrom: Directories,
-) => {
-  return tsg
-    .typeRef(entity.fieldsTypeName())
-    .importFrom(Directory.resolve(importFrom, 'GENERATED', 'field.ts'));
-};
-
 type TypeRefs =
   | 'creatable'
   | 'fields'
@@ -27,27 +18,27 @@ const typeRefs: Record<TypeRefs, TypeRefInfo> = {
   entity: {
     name: entity => entity.name,
     dir: 'ENTITIES',
-    file: entity => entity.name + '.ts',
+    file: entity => entity.name,
   },
   creatable: {
     name: entity => entity.creatableInterface(),
     dir: 'ENTITIES',
-    file: entity => entity.name + '.ts',
+    file: entity => entity.name,
   },
   updatable: {
     name: entity => entity.updatable(),
     dir: 'ENTITIES',
-    file: entity => entity.name + '.ts',
+    file: entity => entity.name,
   },
   identifiable: {
     name: entity => entity.identifiableInterfaceName(),
     dir: 'ENTITIES',
-    file: entity => entity.name + '.ts',
+    file: entity => entity.name,
   },
   fields: {
     name: entity => entity.fieldsTypeName(),
     dir: 'GENERATED',
-    file: () => 'field.ts',
+    file: () => 'field',
   },
 };
 

@@ -3,7 +3,7 @@ import { makeResolver, gqlResolveInfoToField, PagingOption } from "sasat";
 import { UserDBDataSource } from "../dataSources/db/User.js";
 import { UserFields, PostFields } from "./fields.js";
 import { GQLContext } from "../context.js";
-import { UserFields, PostFields } from "./field.ts.js";
+import { UserFields, PostFields } from "./field.js";
 import { PostDBDataSource } from "../dataSources/db/Post.js";
 export const query = {
   user: makeResolver<GQLContext, { userId: number }>(

@@ -8,7 +8,7 @@ import {
 import { QueryNode } from '../../nodes/queryNode.js';
 import { Directory } from '../../../constants/directory.js';
 import { columnTypeToTsType } from '../../../migration/column/columnTypes.js';
-import { getFieldTypeRef } from './scripts/getEntityTypeRefs.js';
+import { makeTypeRef } from './scripts/getEntityTypeRefs.js';
 
 export const generateQueryResolver = (root: RootNode) => {
   return new TsFile(
@@ -101,7 +101,7 @@ const makeListQueryField = (node: QueryNode) => {
     tsg
       .identifier('gqlResolveInfoToField')
       .call(tsg.identifier('info'))
-      .typeArgs(getFieldTypeRef(node.entityName, 'GENERATED')),
+      .typeArgs(makeTypeRef(node.entityName, 'fields', 'GENERATED')),
   );
 };
 

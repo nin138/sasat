@@ -83,10 +83,10 @@ export class CodeGen_v2 {
         this.getFullPath(this.generateDir, 'query'),
         this.codeGen.generateGqlQuery(rootNode),
       ),
-      // writeFile(
-      //   this.getFullPath(this.generateDir, 'mutation'),
-      //   this.codeGen.generateGqlMutation(rootNode),
-      // ),
+      writeFile(
+        this.getFullPath(this.generateDir, 'mutation'),
+        this.codeGen.generateGqlMutation(rootNode),
+      ),
       // writeFile(
       //   this.getFullPath(this.generateDir, 'subscription'),
       //   this.codeGen.generateGqlSubscription(rootNode),
@@ -98,16 +98,16 @@ export class CodeGen_v2 {
     ];
   }
 
-  // private generateFiles(rootNode: RootNode) {
-  //   return this.codeGen
-  //     .generateFiles(rootNode)
-  //     .map(it =>
-  //       writeFileIfNotExist(
-  //         this.getFullPath(this.generateDir, it.name),
-  //         it.body,
-  //       ),
-  //     );
-  // }
+  private generateFiles(rootNode: RootNode) {
+    return this.codeGen
+      .generateFiles(rootNode)
+      .map(it =>
+        writeFileIfNotExist(
+          this.getFullPath(this.generateDir, it.name),
+          it.body,
+        ),
+      );
+  }
   //
   // private generateOnceFiles(rootNode: RootNode) {
   //   return this.codeGen
