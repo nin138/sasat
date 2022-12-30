@@ -6,6 +6,8 @@ import { Directory } from '../constants/directory.js';
 import { RootNode } from './nodes/rootNode.js';
 import { EntityNode } from './nodes/entityNode.js';
 import { TsCodegen_v2 } from './codegen/tscodegen_v2.js';
+import { DataStoreHandler } from '../migration/dataStore.js';
+import { parse } from './parse.js';
 
 const { emptyDir, writeFile } = fs;
 
@@ -22,7 +24,10 @@ export class CodeGen_v2 {
     this.outDir,
     Directory.paths.generatedDataSource.db,
   );
-  constructor(private readonly root: RootNode) {}
+  private readonly root: RootNode;
+  constructor(store: DataStoreHandler) {
+    this.root = parse(store);
+  }
   async generate(): Promise<void> {
     await this.prepareDirs();
     await Promise.all([

@@ -1,5 +1,3 @@
-import { Parser } from '../../parser/parser.js';
-import { CodeGenerateController } from '../../generator/controller.js';
 import { Console } from '../console.js';
 import { DataStoreHandler } from '../../migration/dataStore.js';
 import { writeCurrentSchema } from '../../util/fsUtil.js';
@@ -8,7 +6,6 @@ import { compileMigrationFiles } from '../../migration/exec/migrationFileCompile
 import { config } from '../../config/config.js';
 import { getMigrationFileNames } from '../../migration/exec/getMigrationFiles.js';
 import { CodeGen_v2 } from '../../generatorv2/codegen_v2.js';
-import { parse } from '../../generatorv2/parse.js';
 
 export const generate = async (): Promise<void> => {
   try {
@@ -22,9 +19,7 @@ export const generate = async (): Promise<void> => {
     ).serialize();
     const storeHandler = new DataStoreHandler(store);
     writeCurrentSchema(store);
-    const ir = new Parser().parse(storeHandler);
-    // await new CodeGenerateController(ir).generate();
-    await new CodeGen_v2(parse(storeHandler)).generate();
+    await new CodeGen_v2(storeHandler).generate();
     Console.success(
       `code generated. DIR: ${
         config().migration.out
