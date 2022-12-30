@@ -42,18 +42,20 @@ export const createAliasReplacer = (
         args: node.args.map(replaceAlias),
       }),
       [QueryNodeKind.Table]: (node: QueryTable) => {
+        if (!node.subquery)
+          return {
+            ...node,
+            joins: node.joins.map(replaceAlias),
+          };
         return {
           ...node,
-          nameOrQuery:
-            typeof node.nameOrQuery === 'string'
-              ? node.nameOrQuery
-              : replaceAliases(
-                  {
-                    ...node.nameOrQuery,
-                    // select: node.nameOrQuery.select.map(it => ({...it, alia}))
-                  },
-                  tableInfo,
-                ),
+          query: replaceAliases(
+            {
+              ...node.query,
+              // select: node.query.select.map(it => ({...it, alias}))
+            },
+            tableInfo,
+          ),
           joins: node.joins.map(replaceAlias),
         };
       },

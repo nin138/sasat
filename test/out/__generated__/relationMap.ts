@@ -12,7 +12,7 @@ import { Stock, StockIdentifiable } from "./entities/Stock.js";
 export const relationMap: RelationMap = {
   user: {
     hogePost: {
-      table: "user",
+      table: "post",
       on: (
         parentTableAlias: string,
         childTableAlias: string
@@ -24,7 +24,7 @@ export const relationMap: RelationMap = {
       relation: "Many",
     },
     stock_userStock: {
-      table: "user",
+      table: "stock",
       on: (
         parentTableAlias: string,
         childTableAlias: string
@@ -38,7 +38,7 @@ export const relationMap: RelationMap = {
   },
   post: {
     hoge: {
-      table: "post",
+      table: "user",
       on: (
         parentTableAlias: string,
         childTableAlias: string
@@ -50,7 +50,7 @@ export const relationMap: RelationMap = {
       relation: "One",
     },
     Stock: {
-      table: "post",
+      table: "stock",
       on: (
         parentTableAlias: string,
         childTableAlias: string
@@ -64,7 +64,7 @@ export const relationMap: RelationMap = {
   },
   stock: {
     stock_user: {
-      table: "stock",
+      table: "user",
       on: (
         parentTableAlias: string,
         childTableAlias: string
@@ -76,7 +76,7 @@ export const relationMap: RelationMap = {
       relation: "One",
     },
     postPost: {
-      table: "stock",
+      table: "post",
       on: (
         parentTableAlias: string,
         childTableAlias: string

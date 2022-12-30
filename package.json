@@ -25,7 +25,7 @@
     "resetdb": "docker-compose exec db sh -c \"mysql -u root < /docker-entrypoint-initdb.d/temp.sql\"",
     "prepare": "yarn build",
     "sasat": "yarn env-cmd ts-node-esm ./src/cli/cli.ts",
-    "server": "yarn env-cmd ts-node-esm --project testServer.tsconfig.json -r tsconfig-paths/register ./test/testServer.ts",
+    "server": "yarn env-cmd ts-node-esm -r tsconfig-paths/register ./test/testServer.ts",
     "postinstall": "husky install"
   },
   "dependencies": {

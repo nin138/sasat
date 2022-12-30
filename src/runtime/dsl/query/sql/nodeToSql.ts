@@ -79,18 +79,15 @@ export const Sql = {
   paren: (expr: ParenthesisExpression): string =>
     '(' + Sql.booleanValue(expr) + ')',
   table: (table: QueryTable): string => {
-    if (table.alias === table.nameOrQuery)
-      return SqlString.escapeId(table.nameOrQuery);
-    if (typeof table.nameOrQuery === 'string') {
+    if (!table.subquery) {
+      if (table.alias === table.name) return SqlString.escapeId(table.name);
       return (
-        SqlString.escapeId(table.nameOrQuery) +
+        SqlString.escapeId(table.name) +
         ' AS ' +
         SqlString.escapeId(table.alias)
       );
     }
-    return `(${queryToSql(table.nameOrQuery)}) AS ${SqlString.escapeId(
-      table.alias,
-    )}`;
+    return `(${queryToSql(table.query)}) AS ${SqlString.escapeId(table.alias)}`;
   },
   join: (join: Join): string =>
     `${join.type ? join.type + ' ' : ''}JOIN ${Sql.table(join.table)} ON ` +

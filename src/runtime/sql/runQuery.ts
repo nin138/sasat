@@ -164,7 +164,8 @@ export const createPagingFieldQuery = ({
     select: main.select,
     from: {
       ...main.from,
-      nameOrQuery: innerQuery,
+      subquery: true,
+      query: innerQuery,
     },
   };
 };

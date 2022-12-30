@@ -104,8 +104,8 @@ export const hydrate = (
 };
 
 export const getQueryTableName = (table: QueryTable): string => {
-  if (typeof table.nameOrQuery === 'string') return table.nameOrQuery;
-  return getQueryTableName(table.nameOrQuery.from);
+  if (!table.subquery) return table.name;
+  return getQueryTableName(table.query.from);
 };
 
 export const appendKeysToQuery = (

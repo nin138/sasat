@@ -156,6 +156,7 @@ export abstract class SasatDBDatasource<
       queryOption: options,
       context,
     });
+    console.log(query);
     return this.executeQuery(query, fields);
   }
 

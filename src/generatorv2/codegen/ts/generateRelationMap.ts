@@ -66,7 +66,7 @@ const makeEntityRelationMap = (node: EntityNode) => {
         tsg.propertyAssign(
           ref.fieldName,
           tsg.object(
-            tsg.propertyAssign('table', tsg.string(ref.tableName)),
+            tsg.propertyAssign('table', tsg.string(ref.parentTableName)),
             on(ref.columnName, ref.columnName),
             tsg.propertyAssign('relation', tsg.string('One')),
           ),
@@ -76,7 +76,7 @@ const makeEntityRelationMap = (node: EntityNode) => {
         tsg.propertyAssign(
           rel.fieldName,
           tsg.object(
-            tsg.propertyAssign('table', tsg.string(rel.entity.tableName)),
+            tsg.propertyAssign('table', tsg.string(rel.childTable)),
             on(rel.columnName, rel.childColumn),
             tsg.propertyAssign('relation', tsg.string(rel.relation)),
           ),

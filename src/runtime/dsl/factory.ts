@@ -129,13 +129,22 @@ const conditions = {
   isNotNull: isNull(true),
 };
 
-const table = (
-  nameOrQuery: string | Query,
+const table = (name: string, joins: Join[], alias: string): QueryTable => ({
+  kind: QueryNodeKind.Table,
+  subquery: false,
+  name,
+  alias,
+  joins,
+});
+
+const subQueryTable = (
+  query: Query,
   joins: Join[],
   alias: string,
 ): QueryTable => ({
   kind: QueryNodeKind.Table,
-  nameOrQuery,
+  subquery: true,
+  query,
   alias,
   joins,
 });
@@ -168,6 +177,7 @@ export const QExpr = {
   fn,
   paren,
   table,
+  subQueryTable,
   join,
   value: literal,
   sort,

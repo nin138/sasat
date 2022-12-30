@@ -50,10 +50,18 @@ export type SelectExpr = Field | Fn;
 
 export type QueryTable = {
   kind: QueryNodeKind.Table;
-  nameOrQuery: string | Query;
   alias: string;
   joins: Join[];
-};
+} & (
+  | {
+      subquery: false;
+      name: string;
+    }
+  | {
+      subquery: true;
+      query: Query;
+    }
+);
 
 export type JoinType = 'INNER' | 'LEFT' | 'RIGHT' | 'OUTER';
 export type Join = {
