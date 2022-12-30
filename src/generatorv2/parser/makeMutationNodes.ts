@@ -42,7 +42,7 @@ const makeCreateMutationNode = (table: TableHandler): MutationNode => {
     },
     args: [
       {
-        name: table.getEntityName().name,
+        name: table.getEntityName().lowerCase(),
         type: {
           typeName: table.getEntityName().createInputName(),
           nullable: false,

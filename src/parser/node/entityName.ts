@@ -1,9 +1,4 @@
 import {
-  dbDataSourceName,
-  generatedDBDataSourceName,
-  identifiableInterfaceName,
-} from '../../constants/interfaceConstants.js';
-import {
   camelize,
   capitalizeFirstLetter,
   lowercaseFirstLetter,
@@ -37,7 +32,7 @@ export class EntityName {
     );
   }
   identifiableInterfaceName(): string {
-    return identifiableInterfaceName(this.name);
+    return `${this.name}Identifiable`;
   }
   identifiableTypeReference(fromPath: string): TypeReference {
     return new TypeReference(this.identifiableInterfaceName()).importFrom(
@@ -67,10 +62,10 @@ export class EntityName {
   }
 
   dataSourceName(): string {
-    return dbDataSourceName(this.name);
+    return `${this.name}DBDataSource`;
   }
   generatedDataSourceName(): string {
-    return generatedDBDataSourceName(this.name);
+    return `Generated${this.name}DBDataSource`;
   }
   lowerCase(): string {
     return lowercaseFirstLetter(this.name);

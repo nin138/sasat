@@ -43,7 +43,15 @@ const makeMutation = (node: MutationNode): PropertyAssignment => {
           .arrowFunc(makeResolverArgs(node), undefined, makeMutationBody(node))
           .toAsync(),
       )
-      .typeArgs(context, makeParamType(node)),
+      .typeArgs(
+        context,
+        tsg.typeLiteral([
+          tsg.propertySignature(
+            node.entityName.lowerCase(),
+            makeParamType(node),
+          ),
+        ]),
+      ),
   );
 };
 
@@ -71,17 +79,18 @@ const context = tsg
 const makeResolverArgs = (node: MutationNode) =>
   [
     tsg.parameter('_'),
-    tsg.parameter('params'),
+    tsg.parameter(`{${node.entityName.lowerCase()}}`),
     node.contextFields.length === 0 ? null : tsg.parameter('context'),
   ].filter(nonNullableFilter);
 
 const makeCreateMutationBody = (node: MutationNode) => {
+  const entity = tsg.identifier(node.entityName.lowerCase());
   const dsVariable = tsg.variable(
     'const',
     ds,
     makeDatasource(node.entityName, 'GENERATED'),
   );
-  const createCall = ds.property('create').call(tsg.identifier('params'));
+  const createCall = ds.property('create').call(entity);
   if (!node.subscription && !node.refetch)
     return tsg.block(dsVariable, tsg.return(createCall));
 
@@ -112,7 +121,9 @@ const makeRefetched = (node: MutationNode) => {
         .identifier('pick')
         .importFrom('sasat')
         .call(
-          node.mutationType === 'create' ? result : tsg.identifier('params'),
+          node.mutationType === 'create'
+            ? result
+            : tsg.identifier(node.entityName.lowerCase()),
           tsg.array(node.identifyFields.map(tsg.string)),
         )
         .as(tsg.typeRef('unknown'))
@@ -143,11 +154,13 @@ const makePublishCall = (node: MutationNode, identifier: Identifier) => {
     .toStatement();
 };
 
-const makeDatasourceParam = (contextParams: ContextField[]) => {
-  const params = tsg.identifier('params');
-  if (contextParams.length === 0) return params;
+const makeDatasourceParam = (
+  entity: Identifier,
+  contextParams: ContextField[],
+) => {
+  if (contextParams.length === 0) return entity;
   return tsg.object(
-    tsg.spreadAssign(params),
+    tsg.spreadAssign(entity),
     ...contextParams.map(it =>
       tsg.propertyAssign(
         it.fieldName,
@@ -158,6 +171,7 @@ const makeDatasourceParam = (contextParams: ContextField[]) => {
 };
 
 const makeUpdateMutationBody = (node: MutationNode): Block => {
+  const entity = tsg.identifier(node.entityName.lowerCase());
   const dsV = tsg.variable(
     'const',
     ds,
@@ -169,7 +183,7 @@ const makeUpdateMutationBody = (node: MutationNode): Block => {
     tsg.await(
       ds
         .property('update')
-        .call(makeDatasourceParam(node.contextFields))
+        .call(makeDatasourceParam(entity, node.contextFields))
         .property('then')
         .call(
           tsg.arrowFunc(
@@ -198,15 +212,15 @@ const makeUpdateMutationBody = (node: MutationNode): Block => {
 };
 
 const makeDeleteMutationBody = (node: MutationNode): Block => {
+  const entity = tsg.identifier(node.entityName.lowerCase());
   const dsV = tsg.variable(
     'const',
     ds,
     makeDatasource(node.entityName, 'GENERATED'),
   );
-  const params = tsg.identifier('params');
   const deleteCall = ds
     .property('delete')
-    .call(params)
+    .call(entity)
     .property('then')
     .call(
       tsg.arrowFunc(
@@ -228,7 +242,7 @@ const makeDeleteMutationBody = (node: MutationNode): Block => {
     dsV,
     tsg.variable('const', result, tsg.await(deleteCall)),
     node.subscription
-      ? tsg.if(result, tsg.block(makePublishCall(node, params)))
+      ? tsg.if(result, tsg.block(makePublishCall(node, entity)))
       : null,
     tsg.return(result),
   );
