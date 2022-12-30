@@ -6,9 +6,9 @@ import {
   Reference,
   SerializedNormalColumn,
 } from '../../../migration/serialized/serializedColumn.js';
-import { columnTypeToGqlPrimitive } from '../../../generator/gql/columnToGqlType.js';
-import { GqlPrimitive } from '../../../generator/gql/types.js';
 import { getDefaultGqlOption } from '../../../migration/data/GQLOption.js';
+import { columnTypeToGqlPrimitive } from '../../../generatorv2/scripts/columnToGqlType.js';
+import { GqlPrimitive } from '../../../generatorv2/scripts/gqlTypes.js';
 
 const splitArray = <T>(array: T[], callback: (item: T) => boolean): T[][] => {
   const indexes: number[] = [];

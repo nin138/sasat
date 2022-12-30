@@ -1,4 +1,4 @@
-import { EntityName } from '../../../../parser/node/entityName.js';
+import { EntityName } from '../../../nodes/entityName.js';
 import { TsExpression, tsg } from '../../../../tsg/index.js';
 import { Directories, Directory } from '../../../directory.js';
 

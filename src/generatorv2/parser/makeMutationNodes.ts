@@ -1,9 +1,9 @@
 import { DataStoreHandler } from '../../migration/dataStore.js';
 import { TableHandler } from '../../migration/serializable/table.js';
-import { GqlPrimitive } from '../../generator/gql/types.js';
 import { DBColumnTypes } from '../../migration/column/columnTypes.js';
 import { ContextField, MutationNode } from '../nodes/mutationNode.js';
 import { GqlFromContextParam } from '../../migration/data/GQLOption.js';
+import { GqlPrimitive } from '../scripts/gqlTypes.js';
 
 export const makeMutationNodes = (store: DataStoreHandler) => {
   return store.tables.flatMap(makeTableMutationNodes);

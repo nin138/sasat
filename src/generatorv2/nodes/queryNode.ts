@@ -1,5 +1,5 @@
 import { ArgNode, TypeNode } from './typeNode.js';
-import { EntityName } from '../../parser/node/entityName.js';
+import { EntityName } from '../../generatorv2/nodes/entityName.js';
 
 type QueryType = 'primary' | 'list';
 

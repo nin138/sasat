@@ -7,7 +7,7 @@ import {
 import { MutationNode } from '../../nodes/mutationNode.js';
 import { SubscriptionNode } from '../../nodes/subscriptionNode.js';
 import { QueryNode } from '../../nodes/queryNode.js';
-import { EntityName } from '../../../parser/node/entityName.js';
+import { EntityName } from '../../nodes/entityName.js';
 
 export const GQLString = {
   args: (args: ArgNode[]): string => {

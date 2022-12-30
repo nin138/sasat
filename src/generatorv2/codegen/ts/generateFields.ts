@@ -2,7 +2,7 @@ import { RootNode } from '../../nodes/rootNode.js';
 import { TsFile, tsg } from '../../../tsg/index.js';
 import { makeTypeRef } from './scripts/getEntityTypeRefs.js';
 import { EntityNode } from '../../nodes/entityNode.js';
-import { EntityName } from '../../../parser/node/entityName.js';
+import { EntityName } from '../../nodes/entityName.js';
 
 export const generateFields = (root: RootNode) => {
   return new TsFile(

@@ -1,6 +1,6 @@
 import { ArgNode, TypeNode } from './typeNode.js';
-import { GqlPrimitive } from '../../generator/gql/types.js';
-import { EntityName } from '../../parser/node/entityName.js';
+import { EntityName } from './entityName.js';
+import { GqlPrimitive } from '../scripts/gqlTypes.js';
 
 type MutationType = 'create' | 'delete' | 'update';
 

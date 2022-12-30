@@ -1,6 +1,4 @@
 import { columnTypeToTsType, DBColumnTypes } from '../column/columnTypes.js';
-import { GqlPrimitive } from '../../generator/gql/types.js';
-import { columnTypeToGqlPrimitive } from '../../generator/gql/columnToGqlType.js';
 import { columnToSql } from '../../db/sql/columnToSql.js';
 import { Serializable } from './serializable.js';
 import {
@@ -10,6 +8,8 @@ import {
   SerializedReferenceColumn,
 } from '../serialized/serializedColumn.js';
 import { Table } from './table.js';
+import { GqlPrimitive } from '../../generatorv2/scripts/gqlTypes.js';
+import { columnTypeToGqlPrimitive } from '../../generatorv2/scripts/columnToGqlType.js';
 
 export interface Column extends Serializable<SerializedColumn> {
   fieldName(): string;

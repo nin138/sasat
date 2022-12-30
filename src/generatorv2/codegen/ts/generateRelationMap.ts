@@ -5,9 +5,9 @@ import {
   TsFile,
   tsg,
 } from '../../../tsg/index.js';
-import { Directory } from '../../../constants/directory.js';
 import { EntityNode, ReferencedNode } from '../../nodes/entityNode.js';
-import { EntityName } from '../../../parser/node/entityName.js';
+import { EntityName } from '../../nodes/entityName.js';
+import { makeTypeRef } from './scripts/getEntityTypeRefs.js';
 
 // TODO refactor
 const qExpr = tsg.identifier('QExpr').importFrom('sasat');
@@ -123,7 +123,7 @@ const referencedRelationType = (node: ReferencedNode): PropertySignature => {
   const type = tsg
     .typeRef('EntityResult', [
       tsg.typeRef(node.entity.name.entityWithRelationTypeName()),
-      node.entity.name.identifiableTypeReference(Directory.paths.generated),
+      makeTypeRef(node.entity.name, 'identifiable', 'GENERATED'),
     ])
     .importFrom('sasat');
 
@@ -160,7 +160,7 @@ const entityRelationType = (node: EntityNode) => {
       .typeAlias(
         node.name.entityWithRelationTypeName(),
         tsg.intersectionType(
-          node.name.getTypeReference(Directory.paths.generated),
+          makeTypeRef(node.name, 'entity', 'GENERATED'),
           tsg.typeRef(node.name.relationTypeName()),
         ),
       )
@@ -171,7 +171,7 @@ const entityRelationType = (node: EntityNode) => {
         tsg
           .typeRef('EntityResult', [
             tsg.typeRef(node.name.entityWithRelationTypeName()),
-            node.name.identifiableTypeReference(Directory.paths.generated),
+            makeTypeRef(node.name, 'identifiable', 'GENERATED'),
           ])
           .importFrom('sasat'),
       )

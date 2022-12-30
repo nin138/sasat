@@ -21,7 +21,7 @@ import {
   updateMutationOption,
 } from '../data/GQLOption.js';
 import { assembleColumn } from '../functions/assembleColumn.js';
-import { EntityName } from '../../parser/node/entityName.js';
+import { EntityName } from '../../generatorv2/nodes/entityName.js';
 import { DataStore } from '../dataStore.js';
 import { DBColumnTypes } from '../column/columnTypes.js';
 

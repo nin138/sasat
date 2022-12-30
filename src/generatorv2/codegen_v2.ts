@@ -2,12 +2,12 @@ import { config } from '../config/config.js';
 import * as path from 'path';
 import fs from 'fs-extra';
 import { mkDirIfNotExist, writeFileIfNotExist } from '../util/fsUtil.js';
-import { Directory } from '../constants/directory.js';
 import { RootNode } from './nodes/rootNode.js';
 import { EntityNode } from './nodes/entityNode.js';
 import { TsCodegen_v2 } from './codegen/tscodegen_v2.js';
 import { DataStoreHandler } from '../migration/dataStore.js';
 import { parse } from './parse.js';
+import { Directory } from './directory.js';
 
 const { emptyDir, writeFile } = fs;
 
@@ -16,13 +16,13 @@ export class CodeGen_v2 {
   private outDir = config().migration.out;
   private dbDataSourceDir = path.join(
     this.outDir,
-    Directory.paths.dataSource.db,
+    Directory.paths.DATA_SOURCES,
   );
-  private generateDir = path.join(this.outDir, Directory.paths.generated);
-  private generateEntityDir = path.join(this.outDir, Directory.paths.entity);
+  private generateDir = path.join(this.outDir, Directory.paths.GENERATED);
+  private generateEntityDir = path.join(this.outDir, Directory.paths.ENTITIES);
   private generateDbDataSourceDir = path.join(
     this.outDir,
-    Directory.paths.generatedDataSource.db,
+    Directory.paths.GENERATED_DS,
   );
   private readonly root: RootNode;
   constructor(store: DataStoreHandler) {

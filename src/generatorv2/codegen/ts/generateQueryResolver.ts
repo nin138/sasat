@@ -6,10 +6,10 @@ import {
   tsg,
 } from '../../../tsg/index.js';
 import { QueryNode } from '../../nodes/queryNode.js';
-import { Directory } from '../../../constants/directory.js';
 import { columnTypeToTsType } from '../../../migration/column/columnTypes.js';
 import { makeTypeRef } from './scripts/getEntityTypeRefs.js';
 import { makeDatasource } from './scripts/makeDatasource.js';
+import { Directory } from '../../directory.js';
 
 export const generateQueryResolver = (root: RootNode) => {
   return new TsFile(
@@ -43,7 +43,7 @@ const makeQuery = (node: QueryNode): PropertyAssignment => {
       .typeArgs(
         tsg
           .typeRef('GQLContext')
-          .importFrom(Directory.basePath(Directory.paths.generated, 'context')),
+          .importFrom(Directory.resolve('GENERATED', 'BASE', 'context')),
         tsg.typeLiteral(
           node.args.map(it =>
             tsg.propertySignature(
@@ -74,7 +74,7 @@ const makePrimaryQuery = (node: QueryNode): TsExpression => {
         .identifier('gqlResolveInfoToField')
         .importFrom('sasat')
         .call(tsg.identifier('info'))
-        .as(node.entityName.fieldTypeRef(Directory.paths.generated)),
+        .as(makeTypeRef(node.entityName, 'fields', 'GENERATED')),
       tsg.identifier('undefined'),
       tsg.identifier('context'),
     );
@@ -97,13 +97,7 @@ const makeListQueryField = (node: QueryNode) => {
 };
 
 const makeListQueryDataSource = (node: QueryNode) => {
-  return tsg.new(
-    tsg
-      .identifier(node.entityName.dataSourceName())
-      .importFrom(
-        Directory.dbDataSourcePath(Directory.paths.generated, node.entityName),
-      ),
-  );
+  return makeDatasource(node.entityName, 'GENERATED');
 };
 
 const makeListAllQuery = (node: QueryNode) => {

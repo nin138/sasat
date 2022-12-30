@@ -1,6 +1,4 @@
-import { EntityName } from '../../parser/node/entityName.js';
 import { DBColumnTypes } from '../../migration/column/columnTypes.js';
-import { GqlPrimitive } from '../../generator/gql/types.js';
 import { DataStoreHandler } from '../../migration/dataStore.js';
 import { Table, TableHandler } from '../../migration/serializable/table.js';
 import {
@@ -11,7 +9,9 @@ import { nonNullableFilter } from '../../util/type.js';
 import { Relation } from '../../migration/data/relation.js';
 import { SerializedColumn } from '../../migration/serialized/serializedColumn.js';
 import { makeFindQueryName } from '../codegen/names.js';
-import { columnTypeToGqlPrimitive } from '../../generator/gql/columnToGqlType.js';
+import { EntityName } from './entityName.js';
+import { columnTypeToGqlPrimitive } from '../scripts/columnToGqlType.js';
+import { GqlPrimitive } from '../scripts/gqlTypes.js';
 
 const makeFieldNode = (column: BaseColumn): FieldNode => ({
   fieldName: column.fieldName(),

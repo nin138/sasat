@@ -1,4 +1,4 @@
-import { EntityName } from '../../parser/node/entityName.js';
+import { EntityName } from '../nodes/entityName.js';
 import { MutationType } from '../nodes/mutationNode.js';
 import { capitalizeFirstLetter } from '../../util/stringUtil.js';
 

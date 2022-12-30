@@ -5,7 +5,7 @@ import {
   ReferencedNode,
   ReferenceNode,
 } from '../../nodes/entityNode.js';
-import { EntityName } from '../../../parser/node/entityName.js';
+import { EntityName } from '../../../generatorv2/nodes/entityName.js';
 import { makeDatasource } from './scripts/makeDatasource.js';
 import { makeFindQueryName } from '../names.js';
 import { makeTypeRef } from './scripts/getEntityTypeRefs.js';
