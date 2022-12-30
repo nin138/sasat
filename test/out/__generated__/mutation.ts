@@ -35,7 +35,7 @@ export const mutation = {
     const identifiable = pick(user, ["uid"]) as unknown as UserIdentifiable;
     const refetched = await ds.findByUid(identifiable.uid);
     await publishUserUpdated(refetched as User);
-    return refetched;
+    return result;
   }),
   createPost: makeResolver<GQLContext, { post: PostCreatable }>(
     async (_, { post }) => {

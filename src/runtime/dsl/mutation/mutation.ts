@@ -1,7 +1,6 @@
 import { SqlValueType } from '../../../db/connectors/dbClient.js';
 import { SqlString } from '../../sql/sqlString.js';
 import { TableInfo } from '../query/createQueryResolveInfo.js';
-import { createAliasReplacer } from '../replaceAliases.js';
 import { Sql } from '../query/sql/nodeToSql.js';
 import { BooleanValueExpression } from '../query/query.js';
 
@@ -38,17 +37,14 @@ export const createToSql = (dsl: Create, tableInfo: TableInfo): string => {
 
 export const updateToSql = (dsl: Update, tableInfo: TableInfo): string => {
   const map = tableInfo[dsl.table].columnMap;
-  const replaceAlias = createAliasReplacer(tableInfo);
 
   return `UPDATE ${escapeId(dsl.table)} SET ${dsl.values
     .map(it => escapeId(map[it.field]) + ' = ' + escape(it.value))
-    .join(', ')} WHERE ${Sql.booleanValue(replaceAlias(dsl.where))}`;
+    .join(', ')} WHERE ${Sql.booleanValue(dsl.where)}`;
 };
 
-export const deleteToSql = (dsl: Delete, tableInfo: TableInfo): string => {
-  const replaceAlias = createAliasReplacer(tableInfo);
-
+export const deleteToSql = (dsl: Delete): string => {
   return `DELETE FROM ${escapeId(dsl.table)} WHERE ${Sql.booleanValue(
-    replaceAlias(dsl.where),
+    dsl.where,
   )}`;
 };

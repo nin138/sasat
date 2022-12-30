@@ -24,6 +24,7 @@ export abstract class GeneratedPostDBDataSource extends BaseDBDataSource<
   readonly tableName: string = "post";
   readonly fields: Array<string> = ["userId", "pid", "title"];
   protected readonly primaryKeys: Array<string> = ["postId"];
+  protected readonly identifyFields: Array<string> = ["pid"];
   protected readonly autoIncrementColumn?: string | undefined = "pid";
   protected getDefaultValueString(): Record<string, never> {
     return {};
@@ -40,7 +41,10 @@ export abstract class GeneratedPostDBDataSource extends BaseDBDataSource<
       {
         ...options,
         where: QExpr.conditions.and(
-          QExpr.conditions.eq(QExpr.field(tableName, "pid"), QExpr.value(pid)),
+          QExpr.conditions.eq(
+            QExpr.field(tableName, "postId"),
+            QExpr.value(pid)
+          ),
           options?.where
         ),
       },
@@ -60,7 +64,7 @@ export abstract class GeneratedPostDBDataSource extends BaseDBDataSource<
         ...options,
         where: QExpr.conditions.and(
           QExpr.conditions.eq(
-            QExpr.field(tableName, "user"),
+            QExpr.field(tableName, "userId"),
             QExpr.value(user.uid)
           ),
           options?.where
@@ -82,7 +86,7 @@ export abstract class GeneratedPostDBDataSource extends BaseDBDataSource<
         ...options,
         where: QExpr.conditions.and(
           QExpr.conditions.eq(
-            QExpr.field(tableName, "stock"),
+            QExpr.field(tableName, "id"),
             QExpr.value(stock.id)
           ),
           options?.where

@@ -30,6 +30,7 @@ export abstract class GeneratedUserDBDataSource extends BaseDBDataSource<
     "updatedAt",
   ];
   protected readonly primaryKeys: Array<string> = ["userId"];
+  protected readonly identifyFields: Array<string> = ["uid"];
   protected readonly autoIncrementColumn?: string | undefined = "uid";
   protected getDefaultValueString(): Pick<
     User,
@@ -53,7 +54,10 @@ export abstract class GeneratedUserDBDataSource extends BaseDBDataSource<
       {
         ...options,
         where: QExpr.conditions.and(
-          QExpr.conditions.eq(QExpr.field(tableName, "uid"), QExpr.value(uid)),
+          QExpr.conditions.eq(
+            QExpr.field(tableName, "userId"),
+            QExpr.value(uid)
+          ),
           options?.where
         ),
       },
@@ -73,7 +77,7 @@ export abstract class GeneratedUserDBDataSource extends BaseDBDataSource<
         ...options,
         where: QExpr.conditions.and(
           QExpr.conditions.eq(
-            QExpr.field(tableName, "post"),
+            QExpr.field(tableName, "postId"),
             QExpr.value(post.pid)
           ),
           options?.where
@@ -95,7 +99,7 @@ export abstract class GeneratedUserDBDataSource extends BaseDBDataSource<
         ...options,
         where: QExpr.conditions.and(
           QExpr.conditions.eq(
-            QExpr.field(tableName, "stock"),
+            QExpr.field(tableName, "id"),
             QExpr.value(stock.id)
           ),
           options?.where

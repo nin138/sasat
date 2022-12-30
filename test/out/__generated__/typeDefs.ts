@@ -17,9 +17,9 @@ export const typeDefs = {
   ],
   Mutation: [
     "createUser(user: UserCreateInput!): User!",
-    "updateUser(User: UserUpdateInput!): Boolean!",
+    "updateUser(user: UserUpdateInput!): Boolean!",
     "createPost(post: PostCreateInput!): Post!",
-    "updatePost(Post: PostUpdateInput!): Post!",
+    "updatePost(post: PostUpdateInput!): Post!",
   ],
   Subscription: ["UserCreated: User!", "UserUpdated(name: String!): User!"],
 };
@@ -32,6 +32,11 @@ export const inputs = {
   ],
   UserCreateInput: ["NNN: String", "nick: String"],
   PostCreateInput: ["userId: Int!", "title: String!"],
-  UserUpdateInput: ["uid: Int!"],
-  PostUpdateInput: ["pid: Int!"],
+  UserUpdateInput: [
+    "uid: Int!",
+    "NNN: String",
+    "nick: String",
+    "createdAt: String",
+  ],
+  PostUpdateInput: ["pid: Int!", "userId: Int", "title: String"],
 };

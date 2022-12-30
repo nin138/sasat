@@ -70,6 +70,20 @@ export const makeClassProperties = (node: EntityNode) => {
       .initializer(tsg.array(node.identifyKeys.map(it => tsg.string(it)))),
     tsg
       .propertyDeclaration(
+        'identifyFields',
+        tsg.arrayType(KeywordTypeNode.string),
+        false,
+      )
+      .modifiers(tsg.propertyModifiers().readonly().protected())
+      .initializer(
+        tsg.array(
+          node.identifyKeys
+            .map(it => node.fields.find(f => it === f.columnName)!.fieldName)
+            .map(tsg.string),
+        ),
+      ),
+    tsg
+      .propertyDeclaration(
         'autoIncrementColumn',
         tsg.unionType(KeywordTypeNode.string, KeywordTypeNode.undefined),
         true,
@@ -123,9 +137,11 @@ const makeFindMethods = (node: EntityNode) => {
               .property('field')
               .call(
                 tsg.identifier('tableName'),
-                tsg.string(it.name.toString()),
+                tsg.string(it.columnName.toString()),
               ),
-            qExpr.property('value').call(tsg.identifier(it.name.toString())),
+            qExpr
+              .property('value')
+              .call(tsg.identifier(it.fieldName.toString())),
           );
       return it.fields.map(field => {
         return qExpr
@@ -134,13 +150,10 @@ const makeFindMethods = (node: EntityNode) => {
           .call(
             qExpr
               .property('field')
-              .call(
-                tsg.identifier('tableName'),
-                tsg.string(it.name.toString()),
-              ),
+              .call(tsg.identifier('tableName'), tsg.string(field.columnName)),
             qExpr
               .property('value')
-              .call(tsg.identifier(it.name).property(field)),
+              .call(tsg.identifier(it.name).property(field.fieldName)),
           );
       });
     });
@@ -173,7 +186,7 @@ const makeFindMethods = (node: EntityNode) => {
       [
         ...it.params.map(it =>
           tsg.parameter(
-            it.name.toString(),
+            it.entity ? it.name.toString() : it.fieldName,
             it.entity
               ? makeTypeRef(it.entityName, 'identifiable', 'GENERATED_DS')
               : tsg.typeRef(columnTypeToTsType(it.dbtype)),

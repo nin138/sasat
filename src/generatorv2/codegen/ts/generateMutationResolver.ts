@@ -207,7 +207,7 @@ const makeUpdateMutationBody = (node: MutationNode): Block => {
     ...statements,
     ...makeRefetched(node),
     node.subscription ? makePublishCall(node, refetched) : null,
-    tsg.return(refetched),
+    tsg.return(node.refetch ? refetched : result),
   );
 };
 

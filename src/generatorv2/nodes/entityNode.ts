@@ -61,7 +61,7 @@ const makeUpdatableFieldNode = (column: BaseColumn): FieldNode | null => {
     isNullable: true,
     isPrimary: false,
     isUpdatable: true,
-    isGQLOpen: column.table.gqlOption.mutation.fromContextColumns.some(
+    isGQLOpen: !column.table.gqlOption.mutation.fromContextColumns.some(
       it => it.column === column.columnName(),
     ),
     column: column.data,
@@ -124,7 +124,7 @@ export class EntityNode {
       return {
         name: makeFindQueryName(fields.map(it => it.fieldName)),
         params: fields.map(it =>
-          makePrimitiveParameterNode(it.fieldName, it.dbType),
+          makePrimitiveParameterNode(it.fieldName, it.columnName, it.dbType),
         ),
         isArray,
       };
@@ -139,7 +139,13 @@ export class EntityNode {
           params: [
             makeEntityParameterNode(
               parent.getEntityName(),
-              parent.getPrimaryKeyColumns().map(it => it.fieldName()),
+              parent.getPrimaryKeyColumns().map(it => ({
+                entity: false,
+                fieldName: it.fieldName(),
+                columnName: it.columnName(),
+                dbtype: it.dataType(),
+                gqltype: it.gqlType(),
+              })),
             ),
           ],
           isArray: false,
@@ -152,7 +158,13 @@ export class EntityNode {
           params: [
             makeEntityParameterNode(
               child.getEntityName(),
-              child.getPrimaryKeyColumns().map(it => it.fieldName()),
+              child.getPrimaryKeyColumns().map(it => ({
+                entity: false,
+                fieldName: it.fieldName(),
+                columnName: it.columnName(),
+                dbtype: it.dataType(),
+                gqltype: it.gqlType(),
+              })),
             ),
           ],
           isArray: ref.relation === 'Many',
@@ -272,12 +284,12 @@ type EntityParameterNode = {
   entity: true;
   name: string;
   entityName: EntityName;
-  fields: string[];
+  fields: PrimitiveParameterNode[];
 };
 
 const makeEntityParameterNode = (
   entityName: EntityName,
-  fields: string[],
+  fields: PrimitiveParameterNode[],
 ): EntityParameterNode => ({
   entity: true,
   name: entityName.lowerCase(),
@@ -287,17 +299,20 @@ const makeEntityParameterNode = (
 
 type PrimitiveParameterNode = {
   entity: false;
-  name: string;
+  fieldName: string;
+  columnName: string;
   dbtype: DBColumnTypes;
   gqltype: GqlPrimitive;
 };
 
 const makePrimitiveParameterNode = (
-  name: string,
+  fieldName: string,
+  columnName: string,
   dbtype: DBColumnTypes,
 ): PrimitiveParameterNode => ({
   entity: false,
-  name,
+  fieldName,
+  columnName,
   dbtype,
   gqltype: columnTypeToGqlPrimitive(dbtype),
 });

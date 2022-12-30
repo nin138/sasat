@@ -76,7 +76,7 @@ const makeUpdateMutationNode = (table: TableHandler): MutationNode => {
     },
     args: [
       {
-        name: table.getEntityName().name,
+        name: table.getEntityName().lowerCase(),
         type: {
           typeName: table.getEntityName().updateInputName(),
           nullable: false,
@@ -107,7 +107,7 @@ const makeDeleteMutationNode = (table: TableHandler): MutationNode => {
     },
     args: [
       {
-        name: table.getEntityName().name,
+        name: table.getEntityName().lowerCase(),
         type: {
           typeName: table.getEntityName().updateInputName(),
           nullable: false,

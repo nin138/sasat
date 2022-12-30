@@ -60,6 +60,7 @@ export abstract class SasatDBDatasource<
   abstract readonly tableName: string;
   abstract readonly fields: string[];
   protected abstract readonly primaryKeys: string[];
+  protected abstract readonly identifyFields: string[];
   protected abstract readonly autoIncrementColumn?: string;
   protected queryLogger: (sql: string) => void = noop;
 
@@ -107,7 +108,7 @@ export abstract class SasatDBDatasource<
       table: this.tableName,
       where: this.createIdentifiableExpression(entity),
     };
-    return this.client.rawCommand(deleteToSql(dsl, this.tableInfo));
+    return this.client.rawCommand(deleteToSql(dsl));
   }
 
   async first(
@@ -176,12 +177,15 @@ export abstract class SasatDBDatasource<
   }
 
   private createIdentifiableExpression(entity: Identifiable) {
-    const expr = this.primaryKeys.map(it => {
+    const expr = this.identifyFields.map(it => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const value = (entity as any)[it];
       if (!value) throw new Error(`field ${it} is required`);
       return QExpr.conditions.eq(
-        QExpr.field(this.tableName, it),
+        QExpr.field(
+          this.tableName,
+          this.tableInfo[this.tableName].columnMap[it],
+        ),
         QExpr.value(value),
       );
     });
