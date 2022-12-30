@@ -23,16 +23,18 @@ export const generateSubscription = (root: RootNode) => {
         tsg.string(it.subscriptionName),
       ),
     );
-    const fn =
-      it.filters.length === 0
-        ? makeAsyncIteratorCall(it.subscriptionName)
-        : makeWithFilter(it.subscriptionName, it.filters);
-    subscriptions.addProperties(
-      tsg.propertyAssign(
-        it.subscriptionName,
-        tsg.object(tsg.propertyAssign('subscribe', fn)),
-      ),
-    );
+    if (it.gqlEnabled) {
+      const fn =
+        it.filters.length === 0
+          ? makeAsyncIteratorCall(it.subscriptionName)
+          : makeWithFilter(it.subscriptionName, it.filters);
+      subscriptions.addProperties(
+        tsg.propertyAssign(
+          it.subscriptionName,
+          tsg.object(tsg.propertyAssign('subscribe', fn)),
+        ),
+      );
+    }
     publishFunctions.push(
       tsg
         .variable(

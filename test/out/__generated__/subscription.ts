@@ -21,9 +21,6 @@ export const subscription = {
       }
     ),
   },
-  StockDeleted: {
-    subscribe: () => pubsub.asyncIterator([SubscriptionName.StockDeleted]),
-  },
 };
 export const publishUserCreated = (entity: User): Promise<void> =>
   pubsub.publish(SubscriptionName.UserCreated, { UserCreated: entity });

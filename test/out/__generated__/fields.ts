@@ -5,13 +5,13 @@ import { Post } from "./entities/Post.js";
 import { Stock } from "./entities/Stock.js";
 export type UserFields = Fields<
   User,
-  { hogePost?: UserFields; stock_userStock?: UserFields }
+  { hogePost?: PostFields; stock_userStock?: StockFields }
 >;
 export type PostFields = Fields<
   Post,
-  { hoge?: PostFields; Stock?: PostFields }
+  { hoge?: UserFields; Stock?: StockFields }
 >;
 export type StockFields = Fields<
   Stock,
-  { stock_user?: StockFields; postPost?: StockFields }
+  { stock_user?: UserFields; postPost?: PostFields }
 >;

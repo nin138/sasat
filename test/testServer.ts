@@ -1,6 +1,6 @@
 import { ApolloServer } from '@apollo/server';
-import { resolvers } from './outv1/__generated__/resolver.js';
-import { inputs, typeDefs } from './outv1/__generated__/typeDefs.js';
+import { resolvers } from './out/__generated__/resolver.js';
+import { inputs, typeDefs } from './out/__generated__/typeDefs.js';
 import { createTypeDef } from '../src/index.js';
 import { startStandaloneServer } from '@apollo/server/standalone';
 

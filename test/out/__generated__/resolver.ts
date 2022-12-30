@@ -2,7 +2,8 @@
 import { query } from "./query.js";
 import { mutation } from "./mutation.js";
 import { subscription } from "./subscription.js";
-import { PostResult, UserResult } from "./relationMap.js";
+import { UserResult, PostResult } from "./relationMap.js";
+import { PostDBDataSource } from "../dataSources/db/Post.js";
 import { UserDBDataSource } from "../dataSources/db/User.js";
 export const resolvers = {
   Query: query,
@@ -10,15 +11,15 @@ export const resolvers = {
   Subscription: subscription,
   ...{
     User: {
-      hogePost: (post: PostResult) => {
-        if (post.hogePost !== undefined) return post.hogePost;
-        return new UserDBDataSource().findByPost(post);
+      hogePost: (user: UserResult) => {
+        if (user.hogePost !== undefined) return user.hogePost;
+        return new PostDBDataSource().findByUser(user);
       },
     },
     Post: {
-      hoge: (user: UserResult) => {
-        if (user.hoge !== undefined) return user.hoge;
-        return new UserDBDataSource().findByUser(user);
+      hoge: (post: PostResult) => {
+        if (post.hoge !== undefined) return post.hoge;
+        return new UserDBDataSource().findByPost(post);
       },
     },
   },

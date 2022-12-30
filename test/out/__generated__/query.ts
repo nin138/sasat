@@ -7,7 +7,7 @@ import { PostDBDataSource } from "../dataSources/db/Post.js";
 export const query = {
   user: makeResolver<GQLContext, { userId: number }>(
     async (_, { userId }, context, info) =>
-      new UserDBDataSource().findByUserId(
+      new UserDBDataSource().findByUid(
         userId,
         gqlResolveInfoToField(info) as UserFields,
         undefined,
@@ -17,7 +17,6 @@ export const query = {
   users: makeResolver<GQLContext, { option: PagingOption }>(
     async (_, { option }, context, info) => {
       const fields = gqlResolveInfoToField<UserFields>(info);
-      const { option } = params;
       return new UserDBDataSource().findPageable(
         { numberOfItem: option.numberOfItem, offset: option.offset },
         fields,
@@ -28,7 +27,7 @@ export const query = {
   ),
   post: makeResolver<GQLContext, { postId: number }>(
     async (_, { postId }, context, info) =>
-      new PostDBDataSource().findByPostId(
+      new PostDBDataSource().findByPid(
         postId,
         gqlResolveInfoToField(info) as PostFields,
         undefined,

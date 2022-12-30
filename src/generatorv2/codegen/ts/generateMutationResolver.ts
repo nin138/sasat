@@ -19,11 +19,13 @@ import { nonNullableFilter } from '../../../util/type.js';
 
 export const generateMutationResolver = (root: RootNode) => {
   return new TsFile(
-    tsg.variable(
-      'const',
-      'mutation',
-      tsg.object(...root.mutations.map(makeMutation)),
-    ),
+    tsg
+      .variable(
+        'const',
+        'mutation',
+        tsg.object(...root.mutations.map(makeMutation)),
+      )
+      .export(),
   ).disableEsLint();
 };
 

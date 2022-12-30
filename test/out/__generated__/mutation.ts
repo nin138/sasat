@@ -15,7 +15,7 @@ import {
   PostCreatable,
   PostUpdatable,
 } from "./entities/Post.js";
-const mutation = {
+export const mutation = {
   createUser: makeResolver<GQLContext, UserCreatable>(async (_, params) => {
     const ds = new UserDBDataSource();
     const result = await ds.create(params);

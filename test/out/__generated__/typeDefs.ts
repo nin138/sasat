@@ -11,7 +11,7 @@ export const typeDefs = {
   Post: ["userId: Int!", "pid: Int!", "title: String!", "hoge: User!"],
   Query: [
     "user(userId: Int!): User",
-    "users(option: PagingOption): [User!]!",
+    "users(option: PagingOption!): [User!]!",
     "post(postId: Int!): Post",
     "posts: [Post!]!",
   ],

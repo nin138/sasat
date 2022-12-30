@@ -24,7 +24,9 @@ const makePrimaryFindQuery = (table: TableHandler): QueryNode => {
     type: 'primary',
     queryName: lowercaseFirstLetter(table.getEntityName().name),
     entityName: table.getEntityName(),
-    dsMethodName: makeFindQueryName(table.primaryKey),
+    dsMethodName: makeFindQueryName(
+      table.getPrimaryKeyColumns().map(it => it.fieldName()),
+    ),
     pageable: false,
     returnType: {
       typeName: table.getEntityName().name,
@@ -67,7 +69,7 @@ const pagingArg: ArgNode = {
   name: 'option',
   type: {
     typeName: 'PagingOption',
-    nullable: true,
+    nullable: false,
     array: false,
     entity: true,
   },

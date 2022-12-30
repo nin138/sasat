@@ -8,6 +8,7 @@ import {
 import { EntityName } from '../../../parser/node/entityName.js';
 import { makeDatasource } from './scripts/makeDatasource.js';
 import { makeFindQueryName } from '../names.js';
+import { makeTypeRef } from './scripts/getEntityTypeRefs.js';
 
 export const generateResolver = (root: RootNode): TsFile => {
   const hasSubscription = root.subscriptions.some(it => it.gqlEnabled);
@@ -61,14 +62,14 @@ const makeEntityResolver = (node: EntityNode): PropertyAssignment => {
 
 const makeRelationProperty = (ref: ReferenceNode) => {
   const parentEntity = EntityName.fromTableName(ref.parentTableName);
-  const paramName = parentEntity.lowerCase();
+  const paramName = ref.entity.name.lowerCase();
   return tsg.propertyAssign(
     ref.fieldName,
     tsg.arrowFunc(
       [
         tsg.parameter(
           paramName,
-          tsg.typeRef(parentEntity.resultType()).importFrom('./relationMap'),
+          makeTypeRef(ref.entity.name, 'result', 'GENERATED'),
         ),
       ],
       undefined,
@@ -83,7 +84,7 @@ const makeRelationProperty = (ref: ReferenceNode) => {
         ),
         tsg.return(
           makeDatasource(parentEntity, 'GENERATED')
-            .property(makeFindQueryName([parentEntity.name]))
+            .property(makeFindQueryName([ref.entity.name.name]))
             .call(tsg.identifier(paramName)),
         ),
       ),
@@ -93,7 +94,7 @@ const makeRelationProperty = (ref: ReferenceNode) => {
 
 const makeReferencedByProperty = (ref: ReferencedNode) => {
   const child = EntityName.fromTableName(ref.childTable);
-  const paramName = child.lowerCase();
+  const paramName = ref.entity.name.lowerCase();
   const propertyName = ref.fieldName;
   return tsg.propertyAssign(
     propertyName,
@@ -101,7 +102,7 @@ const makeReferencedByProperty = (ref: ReferencedNode) => {
       [
         tsg.parameter(
           paramName,
-          tsg.typeRef(child.resultType()).importFrom('./relationMap'),
+          makeTypeRef(ref.entity.name, 'result', 'GENERATED'),
         ),
       ],
       undefined,
@@ -115,8 +116,8 @@ const makeReferencedByProperty = (ref: ReferencedNode) => {
           tsg.return(tsg.identifier(paramName).property(propertyName)),
         ),
         tsg.return(
-          makeDatasource(ref.entity.name, 'GENERATED')
-            .property(makeFindQueryName([child.name]))
+          makeDatasource(child, 'GENERATED')
+            .property(makeFindQueryName([ref.entity.name.name]))
             .call(tsg.identifier(paramName)),
         ),
       ),

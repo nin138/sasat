@@ -8,6 +8,7 @@ type TypeRefs =
   | 'identifiable'
   | 'entity'
   | 'updatable'
+  | 'result'
   | 'withRelation';
 type TypeRefInfo = {
   name: (entity: EntityName) => string;
@@ -43,6 +44,11 @@ const typeRefs: Record<TypeRefs, TypeRefInfo> = {
   },
   withRelation: {
     name: entity => entity.entityWithRelationTypeName(),
+    dir: 'GENERATED',
+    file: () => 'relationMap',
+  },
+  result: {
+    name: entity => entity.resultType(),
     dir: 'GENERATED',
     file: () => 'relationMap',
   },

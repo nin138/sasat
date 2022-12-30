@@ -162,9 +162,24 @@ export class EntityNode {
   }
 }
 
+const makeParentFieldName = (column: ReferenceColumn) => {
+  return (
+    (column.data.reference.relationName || '') +
+    EntityName.fromTableName(column.table.tableName).name
+  );
+};
+const makeChildFieldName = (column: ReferenceColumn) => {
+  return (
+    column.data.reference.relationName ||
+    column.fieldName() +
+      EntityName.fromTableName(column.data.reference.targetTable).name
+  );
+};
+
 export class ReferenceNode {
   readonly parentTableName: string;
   readonly parentColumnName: string;
+  readonly parentFieldName: string;
   readonly tableName: string;
   readonly columnName: string;
   readonly isArray: boolean;
@@ -188,15 +203,15 @@ export class ReferenceNode {
     this.parentColumnName = ref.targetColumn;
     this.tableName = column.table.tableName;
     this.columnName = column.columnName();
-    this.fieldName =
-      ref.relationName ||
-      column.fieldName() + EntityName.fromTableName(ref.targetTable).name;
+    this.fieldName = makeChildFieldName(column);
+    this.parentFieldName = makeParentFieldName(column);
   }
 }
 
 export class ReferencedNode {
   readonly childTable: string;
   readonly childColumn: string;
+  readonly childFieldName: string;
   readonly columnName: string;
   readonly fieldName: string;
   readonly isGQLOpen: boolean;
@@ -214,9 +229,8 @@ export class ReferencedNode {
     this.childTable = column.table.tableName;
     this.childColumn = column.columnName();
     this.columnName = column.data.reference.targetColumn;
-    this.fieldName =
-      (ref.relationName || '') +
-      EntityName.fromTableName(column.table.tableName).name;
+    this.childFieldName = makeChildFieldName(column);
+    this.fieldName = makeParentFieldName(column);
     this.isGQLOpen =
       parentTable.gqlOption.enabled && column.table.gqlOption.enabled;
     this.isPrimary = column.isPrimary();
