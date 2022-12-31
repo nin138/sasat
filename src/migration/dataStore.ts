@@ -23,7 +23,7 @@ export class DataStoreHandler implements DataStore {
         it =>
           it.columns.find(
             it =>
-              it.isReference() && it.data.reference.targetTable === tableName,
+              it.isReference() && it.data.reference.parentTable === tableName,
           ) as ReferenceColumn,
       )
       .filter(it => it);

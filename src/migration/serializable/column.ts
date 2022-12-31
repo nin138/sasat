@@ -96,7 +96,7 @@ export class ReferenceColumn extends BaseColumn {
 
   getConstraintName(): string {
     return `ref_${this.table.tableName}_${this.fieldName()}__${
-      this.data.reference.targetTable
-    }_${this.data.reference.targetColumn}`;
+      this.data.reference.parentTable
+    }_${this.data.reference.parentColumn}`;
   }
 }

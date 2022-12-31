@@ -241,12 +241,12 @@ export class CreateTableParser {
       .filter(it => it.length === 1)
       .find(it => it[0] === columnName);
     const sameTableRefs = this.result.columns.filter(
-      it => it.hasReference && it.reference.targetTable === targetTable,
+      it => it.hasReference && it.reference.parentTable === targetTable,
     );
 
     const reference: Reference = {
-      targetTable,
-      targetColumn,
+      parentTable: targetTable,
+      parentColumn: targetColumn,
       columnName,
       relation: isColumnUnique ? 'OneOrZero' : 'Many',
       relationName:

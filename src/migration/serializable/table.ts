@@ -98,7 +98,7 @@ export class TableHandler implements Table {
   }
 
   addReferences(ref: Reference, fieldName?: string, notNull = true): this {
-    const target = this.store.table(ref.targetTable).column(ref.targetColumn);
+    const target = this.store.table(ref.parentTable).column(ref.parentColumn);
     const targetData = target.serialize();
     const data: SerializedReferenceColumn = {
       ...targetData,

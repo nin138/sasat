@@ -11,7 +11,7 @@ import { PostIdentifiable, Post } from "./entities/Post.js";
 import { Stock, StockIdentifiable } from "./entities/Stock.js";
 export const relationMap: RelationMap = {
   user: {
-    hogePost: {
+    uPost: {
       table: "post",
       on: (
         parentTableAlias: string,
@@ -37,7 +37,7 @@ export const relationMap: RelationMap = {
     },
   },
   post: {
-    hoge: {
+    pUser: {
       table: "user",
       on: (
         parentTableAlias: string,
@@ -116,13 +116,13 @@ export const tableInfo: TableInfo = {
   },
 };
 export type UserRelations = {
-  hogePost: Array<EntityResult<UserWithRelations, UserIdentifiable>>;
+  uPost: Array<EntityResult<UserWithRelations, UserIdentifiable>>;
   stock_userStock: Array<EntityResult<UserWithRelations, UserIdentifiable>>;
 };
 export type UserWithRelations = User & UserRelations;
 export type UserResult = EntityResult<UserWithRelations, UserIdentifiable>;
 export type PostRelations = {
-  hoge: EntityResult<UserWithRelations, UserRelations>;
+  pUser: EntityResult<UserWithRelations, UserRelations>;
   Stock: Array<EntityResult<PostWithRelations, PostIdentifiable>>;
 };
 export type PostWithRelations = Post & PostRelations;

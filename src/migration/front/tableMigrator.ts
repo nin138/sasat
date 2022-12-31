@@ -149,26 +149,26 @@ export class TableMigrator implements MigrationTable {
   }
 
   addForeignKey(reference: Reference): MigrationTable {
-    this.tableExists(reference.targetTable);
+    this.tableExists(reference.parentTable);
     this.table.addForeignKey(reference);
     const column = this.table.column(reference.columnName) as ReferenceColumn;
     const targetColumn = this.store
-      .table(reference.targetTable)!
-      .column(reference.targetColumn);
+      .table(reference.parentTable)!
+      .column(reference.parentColumn);
     if (!targetColumn)
       throw new Error(
         'Column: ' +
-          reference.targetTable +
+          reference.parentTable +
           '.' +
-          reference.targetColumn +
+          reference.parentColumn +
           ' Not Exists',
       );
     if (column.dataType() !== targetColumn.dataType()) {
       throw new Error(
         `${this.tableName}.${reference.columnName} AND ${
-          reference.targetTable
+          reference.parentTable
         }.${
-          reference.targetColumn
+          reference.parentColumn
         } is different Type( ${column.dataType()} != ${targetColumn.dataType()} )`,
       );
     }

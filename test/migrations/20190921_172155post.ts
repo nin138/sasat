@@ -13,8 +13,10 @@ export default class Post implements SasatMigration {
       table.references({
         columnName: 'userId',
         relationName: 'hoge',
-        targetColumn: 'userId',
-        targetTable: 'user',
+        parentColumn: 'userId',
+        parentTable: 'user',
+        parentFieldName: 'uPost',
+        fieldName: 'pUser',
         relation: 'Many',
       });
       table.enableGQL();

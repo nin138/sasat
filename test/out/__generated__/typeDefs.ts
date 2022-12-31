@@ -6,13 +6,13 @@ export const typeDefs = {
     nick: { return: "String" },
     createdAt: { return: "String!" },
     updatedAt: { return: "String!" },
-    hogePost: { return: "[Post!]!" },
+    uPost: { return: "[Post!]!" },
   },
   Post: {
     userId: { return: "Int!" },
     pid: { return: "Int!" },
     title: { return: "String!" },
-    hoge: { return: "User!" },
+    pUser: { return: "User!" },
   },
   Query: {
     user: { return: "User", args: [{ name: "userId", type: "Int!" }] },

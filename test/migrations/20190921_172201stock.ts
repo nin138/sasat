@@ -5,16 +5,16 @@ export default class Stock implements SasatMigration {
     return store.createTable('stock', table => {
       table.column('id').int().unsigned();
       table.references({
-        targetTable: 'user',
-        targetColumn: 'userId',
+        parentTable: 'user',
+        parentColumn: 'userId',
         relationName: 'stock_user',
         columnName: 'user',
         relation: 'Many',
       });
       table.references({
         // relationName: 'stockPost',
-        targetTable: 'post',
-        targetColumn: 'postId',
+        parentTable: 'post',
+        parentColumn: 'postId',
         columnName: 'post',
         relation: 'Many',
         onDelete: 'NO ACTION',

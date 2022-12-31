@@ -28,6 +28,6 @@ export const SqlCreator = {
     const onDelete = reference.onDelete
       ? ' ON DELETE ' + reference.onDelete
       : '';
-    return `ALTER TABLE ${tableName} ADD CONSTRAINT '${constraintName}' FOREIGN KEY (${reference.columnName}) REFERENCES ${reference.targetTable}(${reference.targetColumn})${onUpdate}${onDelete}`;
+    return `ALTER TABLE ${tableName} ADD CONSTRAINT '${constraintName}' FOREIGN KEY (${reference.columnName}) REFERENCES ${reference.parentTable}(${reference.parentColumn})${onUpdate}${onDelete}`;
   },
 };

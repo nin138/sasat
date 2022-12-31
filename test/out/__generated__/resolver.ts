@@ -11,14 +11,14 @@ export const resolvers = {
   Subscription: subscription,
   ...{
     User: {
-      hogePost: (user: UserResult) => {
-        if (user.hogePost !== undefined) return user.hogePost;
+      uPost: (user: UserResult) => {
+        if (user.uPost !== undefined) return user.uPost;
         return new PostDBDataSource().findByUser(user);
       },
     },
     Post: {
-      hoge: (post: PostResult) => {
-        if (post.hoge !== undefined) return post.hoge;
+      pUser: (post: PostResult) => {
+        if (post.pUser !== undefined) return post.pUser;
         return new UserDBDataSource().findByPost(post);
       },
     },

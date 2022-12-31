@@ -90,7 +90,7 @@ const startStrMap: {
         .filter(it => it.length === 1)
         .find(it => it[0] === columnName);
       const sameTableRefs = table.columns.filter(
-        it => it.hasReference && it.reference.targetTable === targetTable,
+        it => it.hasReference && it.reference.parentTable === targetTable,
       );
       const onUpdate = tokens.findIndex(
         it => it.kind === TokenKind.Keyword && it.value === 'ON UPDATE',
@@ -100,8 +100,8 @@ const startStrMap: {
       );
 
       const reference: Reference = {
-        targetTable,
-        targetColumn,
+        parentTable: targetTable,
+        parentColumn: targetColumn,
         columnName,
         relation: isColumnUnique ? 'OneOrZero' : 'Many',
         relationName:

@@ -25,10 +25,12 @@ export interface SerializedNormalColumn extends SerializedColumnBase {
 }
 
 export interface Reference {
-  targetTable: string;
-  targetColumn: string;
+  parentTable: string;
+  parentColumn: string;
   columnName: string;
   relation: Relation;
+  parentFieldName?: string;
+  fieldName?: string;
   relationName?: string;
   onUpdate?: ForeignKeyReferentialAction;
   onDelete?: ForeignKeyReferentialAction;
@@ -44,8 +46,8 @@ export const referenceToSql = (
   return (
     `CONSTRAINT ${constraintName} ` +
     `FOREIGN KEY(${ref.columnName}) ` +
-    `REFERENCES ${SqlString.escapeId(ref.targetTable)}(${SqlString.escapeId(
-      ref.targetColumn,
+    `REFERENCES ${SqlString.escapeId(ref.parentTable)}(${SqlString.escapeId(
+      ref.parentColumn,
     )})` +
     onUpdate +
     onDelete
