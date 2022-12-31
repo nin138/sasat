@@ -59,7 +59,7 @@ const fieldGqlType = (field: FieldNode): string => {
   return makeGQLType(field.gqlType, field.isNullable, field.isArray);
 };
 
-const makeGQLType = (
+export const makeGQLType = (
   typeName: string,
   isNullable: boolean,
   isArray: boolean,

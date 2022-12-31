@@ -1,42 +1,69 @@
 /* eslint-disable */
 export const typeDefs = {
-  User: [
-    "uid: Int!",
-    "NNN: String!",
-    "nick: String",
-    "createdAt: String!",
-    "updatedAt: String!",
-    "hogePost: [Post!]!",
-  ],
-  Post: ["userId: Int!", "pid: Int!", "title: String!", "hoge: User!"],
-  Query: [
-    "user(userId: Int!): User",
-    "users(option: PagingOption!): [User!]!",
-    "post(postId: Int!): Post",
-    "posts: [Post!]!",
-  ],
-  Mutation: [
-    "createUser(user: UserCreateInput!): User!",
-    "updateUser(user: UserUpdateInput!): Boolean!",
-    "createPost(post: PostCreateInput!): Post!",
-    "updatePost(post: PostUpdateInput!): Post!",
-  ],
-  Subscription: ["UserCreated: User!", "UserUpdated(name: String!): User!"],
+  User: {
+    uid: { return: "Int!" },
+    NNN: { return: "String!" },
+    nick: { return: "String" },
+    createdAt: { return: "String!" },
+    updatedAt: { return: "String!" },
+    hogePost: { return: "[Post!]!" },
+  },
+  Post: {
+    userId: { return: "Int!" },
+    pid: { return: "Int!" },
+    title: { return: "String!" },
+    hoge: { return: "User!" },
+  },
+  Query: {
+    user: { return: "User", args: [{ name: "userId", type: "Int!" }] },
+    users: {
+      return: "[User!]!",
+      args: [{ name: "option", type: "PagingOption!" }],
+    },
+    post: { return: "Post", args: [{ name: "postId", type: "Int!" }] },
+    posts: { return: "[Post!]!", args: [] },
+  },
+  Mutation: {
+    createUser: {
+      return: "User!",
+      args: [{ name: "user", type: "UserCreateInput!" }],
+    },
+    updateUser: {
+      return: "Boolean!",
+      args: [{ name: "user", type: "UserUpdateInput!" }],
+    },
+    createPost: {
+      return: "Post!",
+      args: [{ name: "post", type: "PostCreateInput!" }],
+    },
+    updatePost: {
+      return: "Post!",
+      args: [{ name: "post", type: "PostUpdateInput!" }],
+    },
+  },
+  Subscription: {
+    UserCreated: { return: "User!", args: [] },
+    UserUpdated: { return: "User!", args: [{ name: "name", type: "String!" }] },
+  },
 };
 export const inputs = {
-  PagingOption: [
-    "numberOfItem: Int!",
-    "offset: Int",
-    "order: String",
-    "asc: Boolean",
-  ],
-  UserCreateInput: ["NNN: String", "nick: String"],
-  PostCreateInput: ["userId: Int!", "title: String!"],
-  UserUpdateInput: [
-    "uid: Int!",
-    "NNN: String",
-    "nick: String",
-    "createdAt: String",
-  ],
-  PostUpdateInput: ["pid: Int!", "userId: Int", "title: String"],
+  PagingOption: {
+    numberOfItem: { return: "Int!" },
+    offset: { return: "Int" },
+    order: { return: "String" },
+    asc: { return: "Boolean" },
+  },
+  UserCreateInput: { NNN: { return: "String" }, nick: { return: "String" } },
+  PostCreateInput: { userId: { return: "Int!" }, title: { return: "String!" } },
+  UserUpdateInput: {
+    uid: { return: "Int!" },
+    NNN: { return: "String" },
+    nick: { return: "String" },
+    createdAt: { return: "String" },
+  },
+  PostUpdateInput: {
+    pid: { return: "Int!" },
+    userId: { return: "Int" },
+    title: { return: "String" },
+  },
 };

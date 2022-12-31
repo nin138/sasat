@@ -11,6 +11,7 @@ export type { TableInfo } from './runtime/dsl/query/createQueryResolveInfo.js';
 export type { Fields } from './runtime/field.js';
 export type { ComparisonOperators } from './db/sql/expression/comparison.js';
 export type { MigrationStore } from './migration/front/storeMigrator.js';
+export type { TypeFieldDefinition } from './generatorv2/codegen/gql/typeDefinition.js';
 export type { SasatMigration } from './migration/front/migration.js';
 export type {
   CommandResponse,
