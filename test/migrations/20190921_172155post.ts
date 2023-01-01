@@ -22,6 +22,23 @@ export default class Post implements SasatMigration {
       table.enableGQL();
       table.column('title').varchar(50).notNull();
       table.setGQLCreate(true).setGQLUpdate(true).setGQLContextColumn([]);
+      table.addVirtualRelation({
+        parentTable: 'user',
+        parentFieldName: 'vP',
+        childFieldName: 'vC',
+        conditions: [
+          {
+            left: { type: 'parent', field: 'uid' },
+            right: {
+              type: 'context',
+              field: 'vv',
+              onNotDefined: { action: 'error', message: 'hoge' },
+            },
+            operator: '=',
+          },
+        ],
+        relation: 'Many',
+      });
     });
   };
   down: (store: MigrationStore) => void = store => {

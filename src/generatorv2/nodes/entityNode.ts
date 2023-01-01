@@ -12,6 +12,8 @@ import { makeFindQueryName } from '../codegen/names.js';
 import { EntityName } from './entityName.js';
 import { columnTypeToGqlPrimitive } from '../scripts/columnToGqlType.js';
 import { GqlPrimitive } from '../scripts/gqlTypes.js';
+import { VirtualRelation } from '../../migration/data/virtualRelation.js';
+import { ConditionNode } from './ConditionNode.js';
 
 const makeFieldNode = (column: BaseColumn): FieldNode => ({
   fieldName: column.fieldName(),
@@ -102,17 +104,26 @@ export class EntityNode {
     };
     this.references = table
       .getReferenceColumns()
-      .map(
-        column =>
-          new ReferenceNode(
-            this,
-            column,
-            store.table(column.data.reference.parentTable),
-          ),
+      .map(column =>
+        ReferenceNode.fromReference(
+          this,
+          column,
+          store.table(column.data.reference.parentTable),
+        ),
+      )
+      .concat(
+        table.virtualRelations.map(it =>
+          ReferenceNode.formVirtualRelation(store, this, it),
+        ),
       );
     this.referencedBy = store
       .referencedBy(table.tableName)
-      .map(column => new ReferencedNode(this, table, column));
+      .map(column => ReferencedNode.fromReference(this, table, column))
+      .concat(
+        store
+          .virtualReferencedBy(table.tableName)
+          .map(rel => ReferencedNode.fromVirtualRelation(store, this, rel)),
+      );
 
     const makeFindMethodNode = (
       columns: string[],
@@ -188,71 +199,119 @@ const makeChildFieldName = (column: ReferenceColumn) => {
   );
 };
 
-export class ReferenceNode {
-  readonly parentTableName: string;
-  readonly parentColumnName: string;
-  readonly parentFieldName: string;
-  readonly tableName: string;
-  readonly columnName: string;
-  readonly isArray: boolean;
-  readonly isGQLOpen: boolean;
-  readonly isNullable: boolean;
-  readonly isPrimary: boolean;
-  readonly fieldName: string;
+const makeJoinCondition = (column: ReferenceColumn): ConditionNode[] => {
+  const ref = column.data.reference;
+  return [
+    {
+      left: { type: 'parent', field: ref.parentColumn },
+      right: { type: 'child', field: column.columnName() },
+      operator: '=',
+    },
+  ];
+};
 
-  constructor(
-    readonly entity: EntityNode,
+export class ReferenceNode {
+  static fromReference(
+    entity: EntityNode,
     column: ReferenceColumn,
     parentTable: Table,
   ) {
     const ref = column.data.reference;
-    this.isGQLOpen =
-      column.table.gqlOption.enabled && parentTable.gqlOption.enabled;
-    this.isPrimary = column.isPrimary();
-    this.isArray = false;
-    this.isNullable = false;
-    this.parentTableName = ref.parentTable;
-    this.parentColumnName = ref.parentColumn;
-    this.tableName = column.table.tableName;
-    this.columnName = column.columnName();
-    this.fieldName =
-      column.data.reference.fieldName || makeChildFieldName(column);
-    this.parentFieldName = makeParentFieldName(column);
+    return new ReferenceNode(
+      entity,
+      ref.fieldName || makeChildFieldName(column),
+      column.table.tableName,
+      ref.parentTable,
+      makeJoinCondition(column),
+      false,
+      false,
+      column.isPrimary(),
+      column.table.gqlOption.enabled && parentTable.gqlOption.enabled,
+    );
   }
+  static formVirtualRelation(
+    ds: DataStoreHandler,
+    entity: EntityNode,
+    rel: VirtualRelation,
+  ) {
+    return new ReferenceNode(
+      entity,
+      rel.childFieldName,
+      rel.childTable,
+      rel.parentTable,
+      rel.conditions,
+      false,
+      false,
+      false,
+      ds.table(rel.parentTable).gqlOption.enabled &&
+        ds.table(rel.childTable).gqlOption.enabled,
+    );
+  }
+
+  private constructor(
+    readonly entity: EntityNode,
+    readonly fieldName: string,
+    readonly tableName: string,
+    readonly parentTableName: string,
+    readonly joinCondition: ConditionNode[],
+    readonly isArray: boolean,
+    readonly isNullable: boolean,
+    readonly isPrimary: boolean,
+    readonly isGQLOpen: boolean,
+  ) {}
 }
 
 export class ReferencedNode {
-  readonly childTable: string;
-  readonly childColumn: string;
-  readonly childFieldName: string;
-  readonly columnName: string;
-  readonly fieldName: string;
-  readonly isGQLOpen: boolean;
-  readonly isPrimary: boolean;
-  readonly isArray: boolean;
-  readonly isNullable: boolean;
-  readonly relation: Relation;
-
-  constructor(
-    readonly entity: EntityNode,
+  static fromReference(
+    entity: EntityNode,
     parentTable: TableHandler,
     column: ReferenceColumn,
   ) {
     const ref = column.data.reference;
-    this.childTable = column.table.tableName;
-    this.childColumn = column.columnName();
-    this.columnName = column.data.reference.parentColumn;
-    this.childFieldName = makeChildFieldName(column);
-    this.fieldName =
-      column.data.reference.parentFieldName || makeParentFieldName(column);
-    this.isGQLOpen =
-      parentTable.gqlOption.enabled && column.table.gqlOption.enabled;
-    this.isPrimary = column.isPrimary();
-    this.isArray = ref.relation === 'Many';
-    this.isNullable = ref.relation === 'OneOrZero';
-    this.relation = ref.relation;
+    return new ReferencedNode(
+      entity,
+      column.data.reference.parentFieldName || makeParentFieldName(column),
+      column.table.tableName,
+      makeJoinCondition(column),
+      ref.relation === 'Many',
+      ref.relation === 'OneOrZero',
+      column.isPrimary(),
+      parentTable.gqlOption.enabled && column.table.gqlOption.enabled,
+      ref.relation,
+    );
     // requiredOnCreate: ref.relation === 'OneOrZero', TODO add to creatable
   }
+
+  static fromVirtualRelation(
+    ds: DataStoreHandler,
+    entity: EntityNode,
+    rel: VirtualRelation,
+  ) {
+    return new ReferencedNode(
+      entity,
+      rel.parentFieldName,
+      rel.childTable,
+      rel.conditions,
+      rel.relation === 'Many',
+      rel.relation === 'OneOrZero',
+      false,
+      ds.table(rel.parentTable).gqlOption.enabled &&
+        ds.table(rel.childTable).gqlOption.enabled,
+      rel.relation,
+    );
+  }
+
+  private constructor(
+    readonly entity: EntityNode,
+    readonly fieldName: string,
+    readonly childTable: string,
+    readonly joinCondition: ConditionNode[],
+    readonly isArray: boolean,
+    readonly isNullable: boolean,
+    readonly isPrimary: boolean,
+    readonly isGQLOpen: boolean,
+    readonly relation: Relation,
+  ) {}
 }
 
 export type SubTypeNode = {

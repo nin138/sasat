@@ -49,6 +49,7 @@ export class CreateTableParser {
       uniqueKeys: [],
       indexes: [],
       gqlOption: getDefaultGqlOption(),
+      virtualRelations: [],
     };
   }
 

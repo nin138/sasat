@@ -1,6 +1,7 @@
 import { Table, TableHandler } from './serializable/table.js';
 import { SerializedStore } from './serialized/serializedStore.js';
 import { ReferenceColumn } from './serializable/column.js';
+import { VirtualRelation } from './data/virtualRelation.js';
 
 export interface DataStore {
   table(tableName: string): Table;
@@ -18,14 +19,17 @@ export class DataStoreHandler implements DataStore {
   }
 
   referencedBy(tableName: string): ReferenceColumn[] {
-    return this.tables
-      .map(
-        it =>
-          it.columns.find(
-            it =>
-              it.isReference() && it.data.reference.parentTable === tableName,
-          ) as ReferenceColumn,
-      )
-      .filter(it => it);
+    return this.tables.flatMap(
+      it =>
+        it.columns.filter(
+          it => it.isReference() && it.data.reference.parentTable === tableName,
+        ) as ReferenceColumn[],
+    );
+  }
+
+  virtualReferencedBy(tableName: string): VirtualRelation[] {
+    return this.tables.flatMap(it =>
+      it.virtualRelations.filter(it => it.parentTable === tableName),
+    );
   }
 }

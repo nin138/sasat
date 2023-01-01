@@ -73,6 +73,28 @@ export abstract class GeneratedPostDBDataSource extends BaseDBDataSource<
       context
     );
   }
+  findByUser(
+    user: UserIdentifiable,
+    fields?: PostFields,
+    options?: Omit<QueryOptions, "offset" | "limit" | "sort">,
+    context?: GQLContext
+  ): Promise<QueryResult | null> {
+    const tableName = fields?.tableAlias || "t0";
+    return this.first(
+      fields,
+      {
+        ...options,
+        where: QExpr.conditions.and(
+          QExpr.conditions.eq(
+            QExpr.field(tableName, "userId"),
+            QExpr.value(user.uid)
+          ),
+          options?.where
+        ),
+      },
+      context
+    );
+  }
   findByStock(
     stock: StockIdentifiable,
     fields?: PostFields,

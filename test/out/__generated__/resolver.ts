@@ -15,10 +15,18 @@ export const resolvers = {
         if (user.uPost !== undefined) return user.uPost;
         return new PostDBDataSource().findByUser(user);
       },
+      vP: (user: UserResult) => {
+        if (user.vP !== undefined) return user.vP;
+        return new PostDBDataSource().findByUser(user);
+      },
     },
     Post: {
       pUser: (post: PostResult) => {
         if (post.pUser !== undefined) return post.pUser;
+        return new UserDBDataSource().findByPost(post);
+      },
+      vC: (post: PostResult) => {
+        if (post.vC !== undefined) return post.vC;
         return new UserDBDataSource().findByPost(post);
       },
     },

@@ -108,4 +108,26 @@ export abstract class GeneratedUserDBDataSource extends BaseDBDataSource<
       context
     );
   }
+  findByPost(
+    post: PostIdentifiable,
+    fields?: UserFields,
+    options?: QueryOptions,
+    context?: GQLContext
+  ): Promise<Array<QueryResult>> {
+    const tableName = fields?.tableAlias || "t0";
+    return this.find(
+      fields,
+      {
+        ...options,
+        where: QExpr.conditions.and(
+          QExpr.conditions.eq(
+            QExpr.field(tableName, "postId"),
+            QExpr.value(post.pid)
+          ),
+          options?.where
+        ),
+      },
+      context
+    );
+  }
 }

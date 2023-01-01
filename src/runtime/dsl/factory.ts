@@ -116,6 +116,8 @@ const conditions = {
   gte: comparison('>='),
   lt: comparison('<'),
   lte: comparison('<='),
+  comparison: (left: Value, operator: ComparisonOperators, right: Value) =>
+    comparison(operator)(left, right),
   contains: containsExpr(false, 'contains'),
   notContains: containsExpr(true, 'contains'),
   statsWiths: containsExpr(false, 'start'),

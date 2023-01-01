@@ -2,19 +2,19 @@ import { BooleanValueExpression } from './query.js';
 import { QueryResolveInfo } from './sql/hydrate.js';
 import { Fields } from '../../field.js';
 
-export type RelationInfo = {
+export type RelationInfo<Context = unknown> = {
   table: string;
   on: (
     parentTableAlias: string,
     childTableAlias: string,
-    context?: unknown,
+    context?: Context,
   ) => BooleanValueExpression;
   relation: 'One' | 'OneOrZero' | 'Many';
 };
 
-export type RelationMap = {
+export type RelationMap<Context = unknown> = {
   [from: string]: {
-    [to: string]: RelationInfo;
+    [to: string]: RelationInfo<Context>;
   };
 };
 

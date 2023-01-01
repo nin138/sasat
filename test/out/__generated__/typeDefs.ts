@@ -7,12 +7,14 @@ export const typeDefs = {
     createdAt: { return: "String!" },
     updatedAt: { return: "String!" },
     uPost: { return: "[Post!]!" },
+    vP: { return: "[Post!]!" },
   },
   Post: {
     userId: { return: "Int!" },
     pid: { return: "Int!" },
     title: { return: "String!" },
     pUser: { return: "User!" },
+    vC: { return: "User!" },
   },
   Query: {
     user: { return: "User", args: [{ name: "userId", type: "Int!" }] },

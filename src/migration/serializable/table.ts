@@ -1,7 +1,6 @@
 import { Serializable } from './serializable.js';
 import { SerializedTable } from '../serialized/serializedStore.js';
 import { BaseColumn, Column, NormalColumn, ReferenceColumn } from './column.js';
-import { camelize, capitalizeFirstLetter } from '../../util/stringUtil.js';
 import { SqlString } from '../../runtime/sql/sqlString.js';
 import { SasatError } from '../../error.js';
 import {
@@ -24,6 +23,7 @@ import { assembleColumn } from '../functions/assembleColumn.js';
 import { EntityName } from '../../generatorv2/nodes/entityName.js';
 import { DataStore } from '../dataStore.js';
 import { DBColumnTypes } from '../column/columnTypes.js';
+import { VirtualRelation } from '../data/virtualRelation.js';
 
 export interface Table extends Serializable<SerializedTable> {
   column(columnName: string): Column;
@@ -33,10 +33,6 @@ export interface Table extends Serializable<SerializedTable> {
 }
 
 export class TableHandler implements Table {
-  static tableNameToEntityName(tableName: string): string {
-    return capitalizeFirstLetter(camelize(tableName));
-  }
-
   private indexes: DBIndex[];
 
   get index(): DBIndex[] {
@@ -46,6 +42,15 @@ export class TableHandler implements Table {
   private _columns: BaseColumn[];
   get columns(): BaseColumn[] {
     return this._columns;
+  }
+
+  private readonly _virtualRelations: VirtualRelation[];
+  get virtualRelations(): VirtualRelation[] {
+    return this._virtualRelations;
+  }
+
+  addVirtualRelation(relation: Omit<VirtualRelation, 'childTable'>) {
+    this._virtualRelations.push({ ...relation, childTable: this.tableName });
   }
 
   primaryKey: string[];
@@ -67,6 +72,7 @@ export class TableHandler implements Table {
       table.indexes?.map(it => new DBIndex(this.tableName, it.columns)) || [];
     this._gqlOption = table.gqlOption || getDefaultGqlOption();
     this._columns = (table.columns || []).map(it => assembleColumn(it, this));
+    this._virtualRelations = table.virtualRelations || [];
   }
 
   column(columnName: string): Column {
@@ -94,6 +100,7 @@ export class TableHandler implements Table {
       indexes: this.indexes,
       tableName: this.tableName,
       gqlOption: JSON.parse(JSON.stringify(this.gqlOption)),
+      virtualRelations: this._virtualRelations,
     };
   }
 

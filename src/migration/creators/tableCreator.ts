@@ -9,9 +9,14 @@ import {
   MutationOption,
 } from '../data/GQLOption.js';
 import { DataStore } from '../dataStore.js';
+import { VirtualRelation } from '../data/virtualRelation.js';
 
 export interface TableBuilder {
   column(columnName: string): ColumnCreator;
+
+  addVirtualRelation(
+    relation: Omit<VirtualRelation, 'childTable'>,
+  ): TableBuilder;
 
   references(reference: Reference, notNull?: boolean): TableBuilder;
 
@@ -59,6 +64,11 @@ export class TableCreator implements TableBuilder {
     if (this.table.hasColumn(name))
       throw new Error(`${this.tableName}.${name} already exists`);
     return new ColumnCreator(this, name);
+  }
+
+  addVirtualRelation(relation: Omit<VirtualRelation, 'childTable'>) {
+    this.table.addVirtualRelation(relation);
+    return this;
   }
 
   addColumn(column: ColumnBuilder): void {
