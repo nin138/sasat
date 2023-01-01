@@ -143,44 +143,45 @@ export class EntityNode {
 
     this.findMethods = [
       makeFindMethodNode(table.primaryKey, false),
-      ...this.references.map(ref => {
-        const parent = store.table(ref.parentTableName);
-        return {
-          name: makeFindQueryName([parent.getEntityName().name]),
-          params: [
-            makeEntityParameterNode(
-              parent.getEntityName(),
-              parent.getPrimaryKeyColumns().map(it => ({
-                entity: false,
-                fieldName: it.fieldName(),
-                columnName: it.columnName(),
-                dbtype: it.dataType(),
-                gqltype: it.gqlType(),
-              })),
-            ),
-          ],
-          isArray: false,
-        };
-      }),
-      ...this.referencedBy.map(ref => {
-        const child = store.table(ref.childTable);
-        return {
-          name: makeFindQueryName([child.getEntityName().name]),
-          params: [
-            makeEntityParameterNode(
-              child.getEntityName(),
-              child.getPrimaryKeyColumns().map(it => ({
-                entity: false,
-                fieldName: it.fieldName(),
-                columnName: it.columnName(),
-                dbtype: it.dataType(),
-                gqltype: it.gqlType(),
-              })),
-            ),
-          ],
-          isArray: ref.relation === 'Many',
-        };
-      }),
+      // TODO impl relationMap.where and rm duplicate and use Field name
+      // ...this.references.map(ref => {
+      //   const parent = store.table(ref.parentTableName);
+      //   return {
+      //     name: makeFindQueryName([parent.getEntityName().name]),
+      //     params: [
+      //       makeEntityParameterNode(
+      //         parent.getEntityName(),
+      //         parent.getPrimaryKeyColumns().map(it => ({
+      //           entity: false,
+      //           fieldName: it.fieldName(),
+      //           columnName: it.columnName(),
+      //           dbtype: it.dataType(),
+      //           gqltype: it.gqlType(),
+      //         })),
+      //       ),
+      //     ],
+      //     isArray: false,
+      //   };
+      // }),
+      // ...this.referencedBy.map(ref => {
+      //   const child = store.table(ref.childTable);
+      //   return {
+      //     name: makeFindQueryName([child.getEntityName().name]),
+      //     params: [
+      //       makeEntityParameterNode(
+      //         child.getEntityName(),
+      //         child.getPrimaryKeyColumns().map(it => ({
+      //           entity: false,
+      //           fieldName: it.fieldName(),
+      //           columnName: it.columnName(),
+      //           dbtype: it.dataType(),
+      //           gqltype: it.gqlType(),
+      //         })),
+      //       ),
+      //     ],
+      //     isArray: ref.relation === 'Many',
+      //   };
+      // }),
     ];
   }
 }

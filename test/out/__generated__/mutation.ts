@@ -33,8 +33,8 @@ export const mutation = {
       .update(user)
       .then((it: CommandResponse): boolean => it.changedRows === 1);
     const identifiable = pick(user, ["uid"]) as unknown as UserIdentifiable;
-    const refetched = await ds.findByUid(identifiable.uid);
-    await publishUserUpdated(refetched as User);
+    const fetched = await ds.findByUid(identifiable.uid);
+    await publishUserUpdated(fetched as User);
     return result;
   }),
   createPost: makeResolver<GQLContext, { post: PostCreatable }>(
@@ -42,8 +42,8 @@ export const mutation = {
       const ds = new PostDBDataSource();
       const result = await ds.create(post);
       const identifiable = pick(result, ["pid"]) as unknown as PostIdentifiable;
-      const refetched = await ds.findByPid(identifiable.pid);
-      return refetched;
+      const fetched = await ds.findByPid(identifiable.pid);
+      return fetched;
     }
   ),
   updatePost: makeResolver<
@@ -55,7 +55,7 @@ export const mutation = {
       .update(post)
       .then((it: CommandResponse): boolean => it.changedRows === 1);
     const identifiable = pick(post, ["pid"]) as unknown as PostIdentifiable;
-    const refetched = await ds.findByPid(identifiable.pid);
-    return refetched;
+    const fetched = await ds.findByPid(identifiable.pid);
+    return fetched;
   }),
 };

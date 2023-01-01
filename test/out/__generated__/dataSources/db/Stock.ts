@@ -10,8 +10,6 @@ import { StockFields } from "../../fields.js";
 import { BaseDBDataSource } from "../../../baseDBDataSource.js";
 import { getCurrentDateTimeString, QueryOptions, QExpr } from "sasat";
 import { GQLContext } from "../../../context.js";
-import { UserIdentifiable } from "../../entities/User.js";
-import { PostIdentifiable } from "../../entities/Post.js";
 type QueryResult = Partial<StockWithRelations> & StockIdentifiable;
 export abstract class GeneratedStockDBDataSource extends BaseDBDataSource<
   Stock,
@@ -51,50 +49,6 @@ export abstract class GeneratedStockDBDataSource extends BaseDBDataSource<
         ...options,
         where: QExpr.conditions.and(
           QExpr.conditions.eq(QExpr.field(tableName, "id"), QExpr.value(id)),
-          options?.where
-        ),
-      },
-      context
-    );
-  }
-  findByUser(
-    user: UserIdentifiable,
-    fields?: StockFields,
-    options?: Omit<QueryOptions, "offset" | "limit" | "sort">,
-    context?: GQLContext
-  ): Promise<QueryResult | null> {
-    const tableName = fields?.tableAlias || "t0";
-    return this.first(
-      fields,
-      {
-        ...options,
-        where: QExpr.conditions.and(
-          QExpr.conditions.eq(
-            QExpr.field(tableName, "userId"),
-            QExpr.value(user.uid)
-          ),
-          options?.where
-        ),
-      },
-      context
-    );
-  }
-  findByPost(
-    post: PostIdentifiable,
-    fields?: StockFields,
-    options?: Omit<QueryOptions, "offset" | "limit" | "sort">,
-    context?: GQLContext
-  ): Promise<QueryResult | null> {
-    const tableName = fields?.tableAlias || "t0";
-    return this.first(
-      fields,
-      {
-        ...options,
-        where: QExpr.conditions.and(
-          QExpr.conditions.eq(
-            QExpr.field(tableName, "postId"),
-            QExpr.value(post.pid)
-          ),
           options?.where
         ),
       },

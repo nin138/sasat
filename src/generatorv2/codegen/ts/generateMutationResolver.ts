@@ -30,7 +30,7 @@ export const generateMutationResolver = (root: RootNode) => {
 };
 
 const result = tsg.identifier('result');
-const refetched = tsg.identifier('refetched');
+const refetched = tsg.identifier('fetched');
 const ds = tsg.identifier('ds');
 const ident = tsg.identifier('identifiable');
 

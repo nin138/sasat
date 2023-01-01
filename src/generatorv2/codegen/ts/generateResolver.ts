@@ -5,7 +5,7 @@ import {
   ReferencedNode,
   ReferenceNode,
 } from '../../nodes/entityNode.js';
-import { EntityName } from '../../../generatorv2/nodes/entityName.js';
+import { EntityName } from '../../nodes/entityName.js';
 import { makeDatasource } from './scripts/makeDatasource.js';
 import { makeFindQueryName } from '../names.js';
 import { makeTypeRef } from './scripts/getEntityTypeRefs.js';
@@ -82,10 +82,14 @@ const makeRelationProperty = (ref: ReferenceNode) => {
           ),
           tsg.return(tsg.identifier(paramName).property(ref.fieldName)),
         ),
-        tsg.return(
-          makeDatasource(parentEntity, 'GENERATED')
-            .property(makeFindQueryName([ref.entity.name.name]))
-            .call(tsg.identifier(paramName)),
+        tsg.throw(
+          tsg.string(
+            `sasat: UNEXPECTED ERROR. path=${ref.tableName}.${ref.fieldName}`,
+          ),
+          // tsg.return(
+          //   makeDatasource(parentEntity, 'GENERATED')
+          //     .property(makeFindQueryName([ref.entity.name.name]))
+          //     .call(tsg.identifier(paramName)),
         ),
       ),
     ),
@@ -93,7 +97,6 @@ const makeRelationProperty = (ref: ReferenceNode) => {
 };
 
 const makeReferencedByProperty = (ref: ReferencedNode) => {
-  const child = EntityName.fromTableName(ref.childTable);
   const paramName = ref.entity.name.lowerCase();
   const propertyName = ref.fieldName;
   return tsg.propertyAssign(
@@ -115,10 +118,12 @@ const makeReferencedByProperty = (ref: ReferencedNode) => {
           ),
           tsg.return(tsg.identifier(paramName).property(propertyName)),
         ),
-        tsg.return(
-          makeDatasource(child, 'GENERATED')
-            .property(makeFindQueryName([ref.entity.name.name]))
-            .call(tsg.identifier(paramName)),
+        tsg.throw(
+          tsg.string(`sasat: UNEXPECTED ERROR. path=${ref.fieldName}`),
+          // tsg.return(
+          //   makeDatasource(child, 'GENERATED')
+          //     .property(makeFindQueryName([ref.entity.name.name]))
+          //     .call(tsg.identifier(paramName)),
         ),
       ),
     ),

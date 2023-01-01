@@ -10,8 +10,6 @@ import { UserFields } from "../../fields.js";
 import { BaseDBDataSource } from "../../../baseDBDataSource.js";
 import { getCurrentDateTimeString, QueryOptions, QExpr } from "sasat";
 import { GQLContext } from "../../../context.js";
-import { PostIdentifiable } from "../../entities/Post.js";
-import { StockIdentifiable } from "../../entities/Stock.js";
 type QueryResult = Partial<UserWithRelations> & UserIdentifiable;
 export abstract class GeneratedUserDBDataSource extends BaseDBDataSource<
   User,
@@ -57,72 +55,6 @@ export abstract class GeneratedUserDBDataSource extends BaseDBDataSource<
           QExpr.conditions.eq(
             QExpr.field(tableName, "userId"),
             QExpr.value(uid)
-          ),
-          options?.where
-        ),
-      },
-      context
-    );
-  }
-  findByPost(
-    post: PostIdentifiable,
-    fields?: UserFields,
-    options?: QueryOptions,
-    context?: GQLContext
-  ): Promise<Array<QueryResult>> {
-    const tableName = fields?.tableAlias || "t0";
-    return this.find(
-      fields,
-      {
-        ...options,
-        where: QExpr.conditions.and(
-          QExpr.conditions.eq(
-            QExpr.field(tableName, "postId"),
-            QExpr.value(post.pid)
-          ),
-          options?.where
-        ),
-      },
-      context
-    );
-  }
-  findByStock(
-    stock: StockIdentifiable,
-    fields?: UserFields,
-    options?: QueryOptions,
-    context?: GQLContext
-  ): Promise<Array<QueryResult>> {
-    const tableName = fields?.tableAlias || "t0";
-    return this.find(
-      fields,
-      {
-        ...options,
-        where: QExpr.conditions.and(
-          QExpr.conditions.eq(
-            QExpr.field(tableName, "id"),
-            QExpr.value(stock.id)
-          ),
-          options?.where
-        ),
-      },
-      context
-    );
-  }
-  findByPost(
-    post: PostIdentifiable,
-    fields?: UserFields,
-    options?: QueryOptions,
-    context?: GQLContext
-  ): Promise<Array<QueryResult>> {
-    const tableName = fields?.tableAlias || "t0";
-    return this.find(
-      fields,
-      {
-        ...options,
-        where: QExpr.conditions.and(
-          QExpr.conditions.eq(
-            QExpr.field(tableName, "postId"),
-            QExpr.value(post.pid)
           ),
           options?.where
         ),
