@@ -32,7 +32,8 @@ export default class Post implements SasatMigration {
             right: {
               type: 'context',
               field: 'vv',
-              onNotDefined: { action: 'error', message: 'hoge' },
+              // onNotDefined: { action: 'error', message: 'aaaaaaww' },
+              onNotDefined: { action: 'defaultValue', value: 'ww' },
             },
             operator: '=',
           },

@@ -49,7 +49,7 @@ const makeJoinConditionThrowExpressions = (cv: ConditionValue) => {
   return tsg.if(
     tsg.binary(
       tsg.identifier('!context'),
-      '||',
+      '&&',
       tsg.binary(
         tsg.identifier('context').property(cv.field),
         '===',
@@ -70,21 +70,28 @@ const makeEntityRelationMap = (node: EntityNode) => {
       if (cv.type === 'context') {
         const value = tsg.identifier('context?').property(cv.field);
         if (cv.onNotDefined.action !== 'defaultValue') {
-          return value;
+          return qExpr.property('value').call(value);
         }
-        return tsg.binary(
-          tsg.identifier('context?').property(cv.field),
-          '||',
-          typeof cv.onNotDefined.value === 'string'
-            ? tsg.string(cv.onNotDefined.value)
-            : tsg.number(cv.onNotDefined.value),
-        );
+        return qExpr
+          .property('value')
+          .call(
+            tsg.binary(
+              tsg.identifier('context?').property(cv.field),
+              '||',
+              typeof cv.onNotDefined.value === 'string'
+                ? tsg.string(cv.onNotDefined.value)
+                : tsg.number(cv.onNotDefined.value),
+            ),
+          );
       }
+      const columnName =
+        node.fields.find(it => it.fieldName === cv.field)?.columnName ||
+        cv.field;
       return qExpr
         .property('field')
         .call(
           tsg.identifier(cv.type === 'parent' ? parentTable : childTable),
-          tsg.string(cv.field),
+          tsg.string(columnName),
         );
     };
     return tsg.propertyAssign(

@@ -51,12 +51,11 @@ export const relationMap: RelationMap<GQLContext> = {
         _: string,
         context?: GQLContext
       ): BooleanValueExpression => {
-        if (!context || context.vv === undefined) throw new Error("hoge");
         return QExpr.conditions.and(
           QExpr.conditions.comparison(
-            QExpr.field(parentTableAlias, "uid"),
+            QExpr.field(parentTableAlias, "userId"),
             "=",
-            context?.vv
+            QExpr.value(context?.vv || "ww")
           )
         );
       },
@@ -87,12 +86,11 @@ export const relationMap: RelationMap<GQLContext> = {
         _: string,
         context?: GQLContext
       ): BooleanValueExpression => {
-        if (!context || context.vv === undefined) throw new Error("hoge");
         return QExpr.conditions.and(
           QExpr.conditions.comparison(
             QExpr.field(parentTableAlias, "uid"),
             "=",
-            context?.vv
+            QExpr.value(context?.vv || "ww")
           )
         );
       },
