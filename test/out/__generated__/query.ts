@@ -1,5 +1,10 @@
 /* eslint-disable */
-import { makeResolver, gqlResolveInfoToField, PagingOption } from "sasat";
+import {
+  makeResolver,
+  gqlResolveInfoToField,
+  PagingOption,
+  QExpr,
+} from "sasat";
 import { UserDBDataSource } from "../dataSources/db/User.js";
 import { UserFields, PostFields } from "./fields.js";
 import { GQLContext } from "../context.js";
@@ -17,8 +22,16 @@ export const query = {
   users: makeResolver<GQLContext, { option: PagingOption }>(
     async (_, { option }, context, info) => {
       const fields = gqlResolveInfoToField<UserFields>(info);
+      const sort = option.order
+        ? [
+            QExpr.sort(
+              QExpr.field("t1", option.order),
+              option?.asc === false ? "DESC" : "ASC"
+            ),
+          ]
+        : [];
       return new UserDBDataSource().findPageable(
-        { numberOfItem: option.numberOfItem, offset: option.offset },
+        { numberOfItem: option.numberOfItem, offset: option.offset, sort },
         fields,
         undefined,
         context

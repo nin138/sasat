@@ -256,3 +256,17 @@ export class AsExpression extends TsExpression {
     return this.expression.toString() + ' as ' + this.asType.toString();
   }
 }
+
+export class TernaryExpression extends TsExpression {
+  constructor(
+    private readonly condition: TsExpression,
+    private readonly left: TsExpression,
+    private readonly right: TsExpression,
+  ) {
+    super();
+    this.mergeImport(condition, left, right);
+  }
+  protected toTsString(): string {
+    return `(${this.condition})?${this.left}:${this.right}`;
+  }
+}

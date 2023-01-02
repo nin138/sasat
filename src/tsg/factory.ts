@@ -49,6 +49,7 @@ const expressions = {
   array: createFactory(Exp.ArrayLiteral),
   object: createFactory(Exp.ObjectLiteral),
   as: createFactory(Exp.AsExpression),
+  ternary: createFactory(Exp.TernaryExpression),
 };
 
 const types = {

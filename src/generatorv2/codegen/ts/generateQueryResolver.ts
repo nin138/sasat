@@ -10,6 +10,7 @@ import { columnTypeToTsType } from '../../../migration/column/columnTypes.js';
 import { makeTypeRef } from './scripts/getEntityTypeRefs.js';
 import { makeDatasource } from './scripts/makeDatasource.js';
 import { Directory } from '../../directory.js';
+import { QExpr } from '../../../../lib/index.js';
 
 export const generateQueryResolver = (root: RootNode) => {
   return new TsFile(
@@ -113,8 +114,36 @@ const makeListAllQuery = (node: QueryNode) => {
 
 const makeListPagingQuery = (node: QueryNode) => {
   const option = tsg.identifier('option');
+  const expr = tsg.identifier('QExpr').importFrom('sasat');
+
   return [
     makeListQueryField(node).addImport(['PagingOption'], 'sasat'),
+    tsg.variable(
+      'const',
+      'sort',
+      tsg.ternary(
+        option.property('order'),
+        tsg.array([
+          expr
+            .property('sort')
+            .call(
+              expr
+                .property('field')
+                .call(tsg.string('t1'), option.property('order')),
+              tsg.ternary(
+                tsg.binary(
+                  tsg.identifier('option?').property('asc'),
+                  '===',
+                  tsg.identifier('false'),
+                ),
+                tsg.string('DESC'),
+                tsg.string('ASC'),
+              ),
+            ),
+        ]),
+        tsg.array([]),
+      ),
+    ),
     tsg.return(
       makeListQueryDataSource(node)
         .property('findPageable') // todo move
@@ -122,7 +151,8 @@ const makeListPagingQuery = (node: QueryNode) => {
           tsg.object(
             tsg.propertyAssign('numberOfItem', option.property('numberOfItem')),
             tsg.propertyAssign('offset', option.property('offset')),
-          ), // TODO sort
+            tsg.propertyAssign('sort'),
+          ),
           fields,
           tsg.identifier('undefined'),
           tsg.identifier('context'),
