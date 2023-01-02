@@ -20,7 +20,7 @@ export abstract class GeneratedPostDBDataSource extends BaseDBDataSource<
   QueryResult
 > {
   readonly tableName: string = "post";
-  readonly fields: Array<string> = ["userId", "pid", "title"];
+  readonly fields: Array<string> = ["uId", "pid", "title"];
   protected readonly primaryKeys: Array<string> = ["postId"];
   protected readonly identifyFields: Array<string> = ["pid"];
   protected readonly autoIncrementColumn?: string | undefined = "pid";

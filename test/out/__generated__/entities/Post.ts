@@ -1,13 +1,13 @@
 /* eslint-disable */
 export type Post = {
-  readonly userId: number;
+  readonly uId: number;
   readonly pid: number;
   readonly title: string;
 };
-export type PostCreatable = { readonly userId: number; readonly title: string };
+export type PostCreatable = { readonly uId: number; readonly title: string };
 export type PostUpdatable = {
   readonly pid: number;
-  readonly userId: number | null;
+  readonly uId: number | null;
   readonly title: string | null;
 };
 export type PostIdentifiable = { readonly pid: number };

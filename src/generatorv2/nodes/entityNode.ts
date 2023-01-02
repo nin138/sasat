@@ -200,12 +200,14 @@ const makeChildFieldName = (column: ReferenceColumn) => {
   );
 };
 
-const makeJoinCondition = (column: ReferenceColumn): ConditionNode[] => {
-  const ref = column.data.reference;
+const makeJoinCondition = (
+  parentColumn: string,
+  childColumn: string,
+): ConditionNode[] => {
   return [
     {
-      left: { type: 'parent', field: ref.parentColumn },
-      right: { type: 'child', field: column.columnName() },
+      left: { type: 'parent', field: parentColumn },
+      right: { type: 'child', field: childColumn },
       operator: '=',
     },
   ];
@@ -223,7 +225,7 @@ export class ReferenceNode {
       ref.fieldName || makeChildFieldName(column),
       column.table.tableName,
       ref.parentTable,
-      makeJoinCondition(column),
+      makeJoinCondition(column.columnName(), ref.parentColumn),
       false,
       false,
       column.isPrimary(),
@@ -273,7 +275,7 @@ export class ReferencedNode {
       entity,
       column.data.reference.parentFieldName || makeParentFieldName(column),
       column.table.tableName,
-      makeJoinCondition(column),
+      makeJoinCondition(ref.parentColumn, column.columnName()),
       ref.relation === 'Many',
       ref.relation === 'OneOrZero',
       column.isPrimary(),

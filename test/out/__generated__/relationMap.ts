@@ -22,7 +22,7 @@ export const relationMap: RelationMap<GQLContext> = {
           QExpr.conditions.comparison(
             QExpr.field(parentTableAlias, "userId"),
             "=",
-            QExpr.field(childTableAlias, "userId")
+            QExpr.field(childTableAlias, "uId")
           )
         );
       },
@@ -71,7 +71,7 @@ export const relationMap: RelationMap<GQLContext> = {
       ): BooleanValueExpression => {
         return QExpr.conditions.and(
           QExpr.conditions.comparison(
-            QExpr.field(parentTableAlias, "userId"),
+            QExpr.field(parentTableAlias, "uId"),
             "=",
             QExpr.field(childTableAlias, "userId")
           )
@@ -122,9 +122,9 @@ export const relationMap: RelationMap<GQLContext> = {
       ): BooleanValueExpression => {
         return QExpr.conditions.and(
           QExpr.conditions.comparison(
-            QExpr.field(parentTableAlias, "userId"),
+            QExpr.field(parentTableAlias, "user"),
             "=",
-            QExpr.field(childTableAlias, "user")
+            QExpr.field(childTableAlias, "userId")
           )
         );
       },
@@ -138,9 +138,9 @@ export const relationMap: RelationMap<GQLContext> = {
       ): BooleanValueExpression => {
         return QExpr.conditions.and(
           QExpr.conditions.comparison(
-            QExpr.field(parentTableAlias, "postId"),
+            QExpr.field(parentTableAlias, "post"),
             "=",
-            QExpr.field(childTableAlias, "post")
+            QExpr.field(childTableAlias, "postId")
           )
         );
       },
@@ -161,7 +161,7 @@ export const tableInfo: TableInfo = {
   },
   post: {
     identifiableKeys: ["postId"],
-    columnMap: { userId: "userId", pid: "postId", title: "title" },
+    columnMap: { uId: "uId", pid: "postId", title: "title" },
   },
   stock: {
     identifiableKeys: ["id"],

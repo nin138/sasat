@@ -11,7 +11,7 @@ export default class Post implements SasatMigration {
         .primary()
         .fieldName('pid');
       table.references({
-        columnName: 'userId',
+        columnName: 'uId',
         relationName: 'hoge',
         parentColumn: 'userId',
         parentTable: 'user',

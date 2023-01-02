@@ -10,7 +10,7 @@ export const typeDefs = {
     vP: { return: "[Post!]!" },
   },
   Post: {
-    userId: { return: "Int!" },
+    uId: { return: "Int!" },
     pid: { return: "Int!" },
     title: { return: "String!" },
     pUser: { return: "User!" },
@@ -56,7 +56,7 @@ export const inputs = {
     asc: { return: "Boolean" },
   },
   UserCreateInput: { NNN: { return: "String" }, nick: { return: "String" } },
-  PostCreateInput: { userId: { return: "Int!" }, title: { return: "String!" } },
+  PostCreateInput: { uId: { return: "Int!" }, title: { return: "String!" } },
   UserUpdateInput: {
     uid: { return: "Int!" },
     NNN: { return: "String" },
@@ -65,7 +65,7 @@ export const inputs = {
   },
   PostUpdateInput: {
     pid: { return: "Int!" },
-    userId: { return: "Int" },
+    uId: { return: "Int" },
     title: { return: "String" },
   },
 };
