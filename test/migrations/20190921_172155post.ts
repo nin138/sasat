@@ -24,7 +24,7 @@ export default class Post implements SasatMigration {
       table.setGQLCreate(true).setGQLUpdate(true).setGQLContextColumn([]);
       table.addVirtualRelation({
         parentTable: 'user',
-        parentFieldName: 'vP',
+        parentFieldName: false,
         childFieldName: 'vC',
         conditions: [
           {

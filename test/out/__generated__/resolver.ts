@@ -13,10 +13,6 @@ export const resolvers = {
         if (user.uPost !== undefined) return user.uPost;
         throw "sasat: UNEXPECTED ERROR. path=uPost";
       },
-      vP: (user: UserResult) => {
-        if (user.vP !== undefined) return user.vP;
-        throw "sasat: UNEXPECTED ERROR. path=vP";
-      },
     },
     Post: {
       pUser: (post: PostResult) => {

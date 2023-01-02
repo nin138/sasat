@@ -44,23 +44,6 @@ export const relationMap: RelationMap<GQLContext> = {
       },
       relation: "Many",
     },
-    vP: {
-      table: "post",
-      on: (
-        parentTableAlias: string,
-        _: string,
-        context?: GQLContext
-      ): BooleanValueExpression => {
-        return QExpr.conditions.and(
-          QExpr.conditions.comparison(
-            QExpr.field(parentTableAlias, "userId"),
-            "=",
-            QExpr.value(context?.vv || "ww")
-          )
-        );
-      },
-      relation: "Many",
-    },
   },
   post: {
     pUser: {
@@ -177,7 +160,6 @@ export const tableInfo: TableInfo = {
 export type UserRelations = {
   uPost: Array<EntityResult<PostWithRelations, PostIdentifiable>>;
   stock_userStock: Array<EntityResult<StockWithRelations, StockIdentifiable>>;
-  vP: Array<EntityResult<PostWithRelations, PostIdentifiable>>;
 };
 export type UserWithRelations = User & UserRelations;
 export type UserResult = EntityResult<UserWithRelations, UserIdentifiable>;

@@ -29,7 +29,7 @@ export interface Reference {
   parentColumn: string;
   columnName: string;
   relation: Relation;
-  parentFieldName?: string;
+  parentFieldName?: string | false;
   fieldName?: string;
   relationName?: string;
   onUpdate?: ForeignKeyReferentialAction;

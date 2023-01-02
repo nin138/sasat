@@ -123,7 +123,8 @@ export class EntityNode {
         store
           .virtualReferencedBy(table.tableName)
           .map(rel => ReferencedNode.fromVirtualRelation(store, this, rel)),
-      );
+      )
+      .filter(nonNullableFilter);
 
     const makeFindMethodNode = (
       columns: string[],
@@ -271,6 +272,7 @@ export class ReferencedNode {
     column: ReferenceColumn,
   ) {
     const ref = column.data.reference;
+    if (ref.parentFieldName === false) return null;
     return new ReferencedNode(
       entity,
       column.data.reference.parentFieldName || makeParentFieldName(column),
@@ -290,6 +292,7 @@ export class ReferencedNode {
     entity: EntityNode,
     rel: VirtualRelation,
   ) {
+    if (rel.parentFieldName === false) return null;
     return new ReferencedNode(
       entity,
       rel.parentFieldName,

@@ -7,7 +7,6 @@ export const typeDefs = {
     createdAt: { return: "String!" },
     updatedAt: { return: "String!" },
     uPost: { return: "[Post!]!" },
-    vP: { return: "[Post!]!" },
   },
   Post: {
     uId: { return: "Int!" },
