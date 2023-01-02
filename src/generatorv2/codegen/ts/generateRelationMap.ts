@@ -229,11 +229,24 @@ const makeTableInfo = (root: RootNode) => {
     .export();
 };
 
-const referencedRelationType = (node: ReferencedNode): PropertySignature => {
+const referenceRelationType = (ref: ReferenceNode) => {
+  const parentEntityName = EntityName.fromTableName(ref.parentTableName);
+  console.log(ref.entity.name.name, parentEntityName.name);
   const type = tsg
     .typeRef('EntityResult', [
-      tsg.typeRef(node.entity.name.entityWithRelationTypeName()),
-      makeTypeRef(node.entity.name, 'identifiable', 'GENERATED'),
+      tsg.typeRef(parentEntityName.entityWithRelationTypeName()),
+      tsg.typeRef(parentEntityName.relationTypeName()),
+    ])
+    .importFrom('sasat');
+  return tsg.propertySignature(ref.fieldName, type);
+};
+
+const referencedRelationType = (node: ReferencedNode): PropertySignature => {
+  const child = EntityName.fromTableName(node.childTable);
+  const type = tsg
+    .typeRef('EntityResult', [
+      tsg.typeRef(child.entityWithRelationTypeName()),
+      makeTypeRef(child, 'identifiable', 'GENERATED'),
     ])
     .importFrom('sasat');
 
@@ -245,17 +258,8 @@ const referencedRelationType = (node: ReferencedNode): PropertySignature => {
 
 const entityRelationType = (node: EntityNode) => {
   const typeProperties = [
-    ...node.references.map(it => {
-      const parentEntityName = EntityName.fromTableName(it.parentTableName);
-      const type = tsg
-        .typeRef('EntityResult', [
-          tsg.typeRef(parentEntityName.entityWithRelationTypeName()),
-          tsg.typeRef(parentEntityName.relationTypeName()),
-        ])
-        .importFrom('sasat');
-      return tsg.propertySignature(it.fieldName, type);
-    }),
-    ...node.referencedBy.map(it => referencedRelationType(it)),
+    ...node.references.map(referenceRelationType),
+    ...node.referencedBy.map(referencedRelationType),
   ];
   return [
     tsg

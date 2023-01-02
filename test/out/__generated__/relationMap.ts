@@ -7,9 +7,9 @@ import {
   EntityResult,
 } from "sasat";
 import { GQLContext } from "../context.js";
-import { UserIdentifiable, User } from "./entities/User.js";
 import { PostIdentifiable, Post } from "./entities/Post.js";
-import { Stock, StockIdentifiable } from "./entities/Stock.js";
+import { StockIdentifiable, Stock } from "./entities/Stock.js";
+import { User, UserIdentifiable } from "./entities/User.js";
 export const relationMap: RelationMap<GQLContext> = {
   user: {
     uPost: {
@@ -175,16 +175,16 @@ export const tableInfo: TableInfo = {
   },
 };
 export type UserRelations = {
-  uPost: Array<EntityResult<UserWithRelations, UserIdentifiable>>;
-  stock_userStock: Array<EntityResult<UserWithRelations, UserIdentifiable>>;
-  vP: Array<EntityResult<UserWithRelations, UserIdentifiable>>;
+  uPost: Array<EntityResult<PostWithRelations, PostIdentifiable>>;
+  stock_userStock: Array<EntityResult<StockWithRelations, StockIdentifiable>>;
+  vP: Array<EntityResult<PostWithRelations, PostIdentifiable>>;
 };
 export type UserWithRelations = User & UserRelations;
 export type UserResult = EntityResult<UserWithRelations, UserIdentifiable>;
 export type PostRelations = {
   pUser: EntityResult<UserWithRelations, UserRelations>;
   vC: EntityResult<UserWithRelations, UserRelations>;
-  Stock: Array<EntityResult<PostWithRelations, PostIdentifiable>>;
+  Stock: Array<EntityResult<StockWithRelations, StockIdentifiable>>;
 };
 export type PostWithRelations = Post & PostRelations;
 export type PostResult = EntityResult<PostWithRelations, PostIdentifiable>;
