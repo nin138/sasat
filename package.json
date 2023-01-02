@@ -23,10 +23,9 @@
     "test:single": "env-cmd jest --silent=false --verbose false",
     "test:base": "node --experimental-vm-modules node_modules/.bin/jest",
     "resetdb": "docker-compose exec db sh -c \"mysql -u root < /docker-entrypoint-initdb.d/temp.sql\"",
-    "prepare": "yarn build",
+    "prepare": "yarn build && husky install",
     "sasat": "yarn env-cmd ts-node-esm ./src/cli/cli.ts",
-    "server": "yarn env-cmd ts-node-esm -r tsconfig-paths/register ./test/testServer.ts",
-    "postinstall": "husky install"
+    "server": "yarn env-cmd ts-node-esm -r tsconfig-paths/register ./test/testServer.ts"
   },
   "dependencies": {
     "cac": "^6.7.14",
