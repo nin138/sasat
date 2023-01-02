@@ -7,7 +7,7 @@ export type Post = {
 export type PostCreatable = { readonly uId: number; readonly title: string };
 export type PostUpdatable = {
   readonly pid: number;
-  readonly uId: number | null;
-  readonly title: string | null;
+  readonly uId?: number | null;
+  readonly title?: string | null;
 };
 export type PostIdentifiable = { readonly pid: number };

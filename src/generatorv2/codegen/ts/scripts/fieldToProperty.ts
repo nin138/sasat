@@ -13,7 +13,7 @@ export const fieldToPropertySignature = (
   return tsg.propertySignature(
     field.fieldName,
     field.isNullable ? tsg.unionType(type, KeywordTypeNode.null) : type,
-    false,
+    field.isNullable,
     true,
   );
 };
