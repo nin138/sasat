@@ -62,11 +62,12 @@ export const createQuery = (
           return QExpr.join(
             resolveFields(rel.table, table as Fields<unknown>),
             QExpr.conditions.and(
-              rel.on(
-                tableAlias,
-                (table as Fields<unknown>).tableAlias || 't' + current,
+              rel.condition({
+                parentTableAlias: tableAlias,
+                childTableAlias:
+                  (table as Fields<unknown>).tableAlias || 't' + current,
                 context,
-              ),
+              }),
               (table as Fields<unknown>).joinOn,
             ),
             'LEFT',

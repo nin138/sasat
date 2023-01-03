@@ -2,13 +2,33 @@ import { BooleanValueExpression } from './query.js';
 import { QueryResolveInfo } from './sql/hydrate.js';
 import { Fields } from '../../field.js';
 
+type MakeConditionArg<Context = unknown, Entity = unknown> = {
+  childTableAlias: string;
+  context?: Context;
+} & (
+  | {
+      parentTableAlias: string;
+      parent?: undefined;
+    }
+  | {
+      parent: Partial<Entity>;
+      parentTableAlias?: undefined;
+    }
+);
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type MakeCondition<Context, Entity = any> = (
+  arg: MakeConditionArg<Context, Entity>,
+) => BooleanValueExpression;
+
 export type RelationInfo<Context = unknown> = {
   table: string;
-  on: (
-    parentTableAlias: string,
-    childTableAlias: string,
-    context?: Context,
-  ) => BooleanValueExpression;
+  // on: (
+  //   parentTableAlias: string,
+  //   childTableAlias: string,
+  //   context?: Context,
+  // ) => BooleanValueExpression;
+  condition: MakeCondition<Context>;
   relation: 'One' | 'OneOrZero' | 'Many';
 };
 

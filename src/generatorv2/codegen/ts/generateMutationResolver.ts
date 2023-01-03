@@ -72,6 +72,7 @@ const makeMutationBody = (node: MutationNode) => {
   return makeDeleteMutationBody(node);
 };
 
+// TODO refetch should use resolveInfo for avoiding n+1
 const makeResolver = tsg.identifier('makeResolver').importFrom('sasat');
 const context = tsg
   .typeRef('GQLContext')

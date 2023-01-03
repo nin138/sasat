@@ -1,10 +1,5 @@
 import { RootNode } from '../../nodes/rootNode.js';
-import {
-  KeywordTypeNode,
-  PropertySignature,
-  TsFile,
-  tsg,
-} from '../../../tsg/index.js';
+import { PropertySignature, TsFile, tsg } from '../../../tsg/index.js';
 import {
   EntityNode,
   ReferencedNode,
@@ -62,112 +57,167 @@ const makeJoinConditionThrowExpressions = (cv: ConditionValue) => {
   );
 };
 
-const makeEntityRelationMap = (node: EntityNode) => {
-  const makeOn = (ref: ReferenceNode | ReferencedNode) => {
-    const parentTable = 'parentTableAlias';
-    const childTable = 'childTableAlias';
-    const conditionValueQExpr = (cv: ConditionValue) => {
-      if (cv.type === 'context') {
-        const value = tsg.identifier('context?').property(cv.field);
-        if (cv.onNotDefined.action !== 'defaultValue') {
-          return qExpr.property('value').call(value);
-        }
-        return qExpr
-          .property('value')
-          .call(
-            tsg.binary(
-              tsg.identifier('context?').property(cv.field),
-              '||',
-              typeof cv.onNotDefined.value === 'string'
-                ? tsg.string(cv.onNotDefined.value)
-                : tsg.number(cv.onNotDefined.value),
-            ),
-          );
-      }
-      const columnName =
-        node.fields.find(it => it.fieldName === cv.field)?.columnName ||
-        cv.field;
-      return qExpr
+const parentTableAlias = 'parentTableAlias';
+const childTableAlias = 'childTableAlias';
+
+const makeConditionValueQExpr = (node: EntityNode, cv: ConditionValue) => {
+  const arg = tsg.identifier('arg');
+  const context = arg.property('context?');
+  if (cv.type === 'context') {
+    const value = context.property(cv.field);
+    if (cv.onNotDefined.action !== 'defaultValue') {
+      return qExpr.property('value').call(value);
+    }
+    return qExpr
+      .property('value')
+      .call(
+        tsg.binary(
+          context.property(cv.field),
+          '||',
+          typeof cv.onNotDefined.value === 'string'
+            ? tsg.string(cv.onNotDefined.value)
+            : tsg.number(cv.onNotDefined.value),
+        ),
+      );
+  }
+  if (cv.type === 'parent') {
+    const columnName =
+      node.fields.find(it => it.fieldName === cv.field)?.columnName || cv.field;
+    return tsg.ternary(
+      arg.property(parentTableAlias),
+      qExpr
         .property('field')
-        .call(
-          tsg.identifier(cv.type === 'parent' ? parentTable : childTable),
-          tsg.string(columnName),
-        );
-    };
-    return tsg.propertyAssign(
-      'on',
-      tsg.arrowFunc(
-        [
-          tsg.parameter(parentTable, KeywordTypeNode.string),
-          tsg.parameter(
-            ref.joinCondition.some(
-              it => it.left.type === 'child' || it.right.type === 'child',
-            )
-              ? childTable
-              : '_',
-            KeywordTypeNode.string,
-          ),
-          ref.joinCondition.some(
-            it => it.left.type === 'context' || it.right.type === 'context',
-          )
-            ? tsg.parameter('context?', makeContextTypeRef('GENERATED'))
-            : null,
-        ].filter(nonNullableFilter),
-        tsg.typeRef('BooleanValueExpression').importFrom('sasat'),
-        tsg.block(
-          ...ref.joinCondition
-            .flatMap(it => [
-              makeJoinConditionThrowExpressions(it.left),
-              makeJoinConditionThrowExpressions(it.right),
-            ])
-            .filter(nonNullableFilter),
-          tsg.return(
-            qExpr
-              .property('conditions')
-              .property('and')
-              .call(
-                ...ref.joinCondition.map(it =>
-                  qExpr
-                    .property('conditions')
-                    .property('comparison')
-                    .call(
-                      conditionValueQExpr(it.left),
-                      tsg.string(it.operator),
-                      conditionValueQExpr(it.right),
-                    ),
-                ),
+        .call(arg.property(parentTableAlias), tsg.string(columnName)),
+      qExpr.property('value').call(arg.property('parent?').property(cv.field)),
+    );
+  }
+  const columnName =
+    node.fields.find(it => it.fieldName === cv.field)?.columnName || cv.field;
+  return qExpr
+    .property('field')
+    .call(arg.property(childTableAlias), tsg.string(columnName));
+};
+
+const makeCondition = (
+  node: EntityNode,
+  ref: ReferenceNode | ReferencedNode,
+) => {
+  const arg = tsg.identifier('arg');
+
+  return tsg.propertyAssign(
+    'condition',
+    tsg.arrowFunc(
+      [tsg.parameter(arg.toString())],
+      tsg.typeRef('BooleanValueExpression').importFrom('sasat'),
+      tsg.block(
+        ...ref.joinCondition
+          .flatMap(it => [
+            makeJoinConditionThrowExpressions(it.left),
+            makeJoinConditionThrowExpressions(it.right),
+          ])
+          .filter(nonNullableFilter),
+        tsg.return(
+          qExpr
+            .property('conditions')
+            .property('and')
+            .call(
+              ...ref.joinCondition.map(it =>
+                qExpr
+                  .property('conditions')
+                  .property('comparison')
+                  .call(
+                    makeConditionValueQExpr(node, it.left),
+                    tsg.string(it.operator),
+                    makeConditionValueQExpr(node, it.right),
+                  ),
               ),
-          ),
+            ),
         ),
       ),
-    );
-  };
-  const on = (parentColumn: string, childColumn: string) =>
-    tsg.propertyAssign(
-      'on',
-      tsg.arrowFunc(
-        [
-          tsg.parameter('parentTableAlias', KeywordTypeNode.string),
-          tsg.parameter('childTableAlias', KeywordTypeNode.string),
-          // tsg.parameter('context?', KeywordTypeNode.any),
-        ],
-        tsg.typeRef('BooleanValueExpression').importFrom('sasat'),
-        qExpr
-          .property('conditions')
-          .property('eq')
-          .call(
-            qExpr
-              .property('field')
-              .call(
-                tsg.identifier('parentTableAlias'),
-                tsg.string(parentColumn),
-              ),
-            qExpr
-              .property('field')
-              .call(tsg.identifier('childTableAlias'), tsg.string(childColumn)),
-          ),
-      ),
-    );
+    ),
+  );
+};
+
+const makeEntityRelationMap = (node: EntityNode) => {
+  // const makeOn = (ref: ReferenceNode | ReferencedNode) => {
+  //   const parentTable = 'parentTableAlias';
+  //   const childTable = 'childTableAlias';
+  //   const conditionValueQExpr = (cv: ConditionValue) => {
+  //     if (cv.type === 'context') {
+  //       const value = tsg.identifier('context?').property(cv.field);
+  //       if (cv.onNotDefined.action !== 'defaultValue') {
+  //         return qExpr.property('value').call(value);
+  //       }
+  //       return qExpr
+  //         .property('value')
+  //         .call(
+  //           tsg.binary(
+  //             tsg.identifier('context?').property(cv.field),
+  //             '||',
+  //             typeof cv.onNotDefined.value === 'string'
+  //               ? tsg.string(cv.onNotDefined.value)
+  //               : tsg.number(cv.onNotDefined.value),
+  //           ),
+  //         );
+  //     }
+  //     const columnName =
+  //       node.fields.find(it => it.fieldName === cv.field)?.columnName ||
+  //       cv.field;
+  //     return qExpr
+  //       .property('field')
+  //       .call(
+  //         tsg.identifier(cv.type === 'parent' ? parentTable : childTable),
+  //         tsg.string(columnName),
+  //       );
+  //   };
+  //   return tsg.propertyAssign(
+  //     'on',
+  //     tsg.arrowFunc(
+  //       [
+  //         tsg.parameter(parentTable, KeywordTypeNode.string),
+  //         tsg.parameter(
+  //           ref.joinCondition.some(
+  //             it => it.left.type === 'child' || it.right.type === 'child',
+  //           )
+  //             ? childTable
+  //             : '_',
+  //           KeywordTypeNode.string,
+  //         ),
+  //         ref.joinCondition.some(
+  //           it => it.left.type === 'context' || it.right.type === 'context',
+  //         )
+  //           ? tsg.parameter('context?', makeContextTypeRef('GENERATED'))
+  //           : null,
+  //       ].filter(nonNullableFilter),
+  //       tsg.typeRef('BooleanValueExpression').importFrom('sasat'),
+  //       tsg.block(
+  //         ...ref.joinCondition
+  //           .flatMap(it => [
+  //             makeJoinConditionThrowExpressions(it.left),
+  //             makeJoinConditionThrowExpressions(it.right),
+  //           ])
+  //           .filter(nonNullableFilter),
+  //         tsg.return(
+  //           qExpr
+  //             .property('conditions')
+  //             .property('and')
+  //             .call(
+  //               ...ref.joinCondition.map(it =>
+  //                 qExpr
+  //                   .property('conditions')
+  //                   .property('comparison')
+  //                   .call(
+  //                     conditionValueQExpr(it.left),
+  //                     tsg.string(it.operator),
+  //                     conditionValueQExpr(it.right),
+  //                   ),
+  //               ),
+  //             ),
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // };
 
   return tsg.propertyAssign(
     node.tableName,
@@ -177,7 +227,7 @@ const makeEntityRelationMap = (node: EntityNode) => {
           ref.fieldName,
           tsg.object(
             tsg.propertyAssign('table', tsg.string(ref.parentTableName)),
-            makeOn(ref),
+            makeCondition(node, ref),
             tsg.propertyAssign('relation', tsg.string('One')),
           ),
         ),
@@ -187,7 +237,7 @@ const makeEntityRelationMap = (node: EntityNode) => {
           rel.fieldName,
           tsg.object(
             tsg.propertyAssign('table', tsg.string(rel.childTable)),
-            makeOn(rel),
+            makeCondition(node, rel),
             tsg.propertyAssign('relation', tsg.string(rel.relation)),
           ),
         ),

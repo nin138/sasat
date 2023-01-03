@@ -55,7 +55,7 @@ export abstract class SasatDBDatasource<
   QueryResult extends Partial<Entity> & Identifiable,
 > implements Repository<Entity, Identifiable, Creatable, Updatable>
 {
-  protected abstract relationMap: RelationMap<any>;
+  protected abstract relationMap: RelationMap<any>; // eslint-disable-line  @typescript-eslint/no-explicit-any
   protected abstract tableInfo: TableInfo;
   abstract readonly tableName: string;
   abstract readonly fields: string[];
