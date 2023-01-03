@@ -191,6 +191,9 @@ export abstract class SasatDBDatasource<
     });
     return QExpr.conditions.and(...expr);
   }
+  getRelationMap() {
+    return this.relationMap[this.tableName];
+  }
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function

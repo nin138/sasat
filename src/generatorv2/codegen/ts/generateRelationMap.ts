@@ -281,7 +281,6 @@ const makeTableInfo = (root: RootNode) => {
 
 const referenceRelationType = (ref: ReferenceNode) => {
   const parentEntityName = EntityName.fromTableName(ref.parentTableName);
-  console.log(ref.entity.name.name, parentEntityName.name);
   const type = tsg
     .typeRef('EntityResult', [
       tsg.typeRef(parentEntityName.entityWithRelationTypeName()),

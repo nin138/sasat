@@ -7,8 +7,10 @@ import {
 } from '../../nodes/entityNode.js';
 import { EntityName } from '../../nodes/entityName.js';
 import { makeDatasource } from './scripts/makeDatasource.js';
-import { makeFindQueryName } from '../names.js';
-import { makeTypeRef } from './scripts/getEntityTypeRefs.js';
+import {
+  makeContextTypeRef,
+  makeTypeRef,
+} from './scripts/getEntityTypeRefs.js';
 
 export const generateResolver = (root: RootNode): TsFile => {
   const hasSubscription = root.subscriptions.some(it => it.gqlEnabled);
@@ -71,6 +73,7 @@ const makeRelationProperty = (ref: ReferenceNode) => {
           paramName,
           makeTypeRef(ref.entity.name, 'result', 'GENERATED'),
         ),
+        tsg.parameter('context', makeContextTypeRef('GENERATED')),
       ],
       undefined,
       tsg.block(
@@ -82,14 +85,39 @@ const makeRelationProperty = (ref: ReferenceNode) => {
           ),
           tsg.return(tsg.identifier(paramName).property(ref.fieldName)),
         ),
-        tsg.throw(
-          tsg.string(
-            `sasat: UNEXPECTED ERROR. path=${ref.tableName}.${ref.fieldName}`,
+        tsg.variable(
+          'const',
+          'ds',
+          makeDatasource(
+            EntityName.fromTableName(ref.parentTableName),
+            'GENERATED',
           ),
-          // tsg.return(
-          //   makeDatasource(parentEntity, 'GENERATED')
-          //     .property(makeFindQueryName([ref.entity.name.name]))
-          //     .call(tsg.identifier(paramName)),
+        ),
+        tsg.variable(
+          'const',
+          'where',
+          tsg
+            .identifier('ds')
+            .property('getRelationMap')
+            .call()
+            .property(ref.fieldName)
+            .property('condition')
+            .call(
+              tsg.object(
+                tsg.propertyAssign('parent', tsg.identifier(paramName)),
+                tsg.propertyAssign('childTableAlias', tsg.string('t0')),
+                tsg.propertyAssign('context'),
+              ),
+            ),
+        ),
+        tsg.return(
+          tsg
+            .identifier('ds')
+            .property('first')
+            .call(
+              tsg.identifier('undefined'),
+              tsg.object(tsg.propertyAssign('where')),
+            ),
         ),
       ),
     ),
@@ -107,6 +135,7 @@ const makeReferencedByProperty = (ref: ReferencedNode) => {
           paramName,
           makeTypeRef(ref.entity.name, 'result', 'GENERATED'),
         ),
+        tsg.parameter('context', makeContextTypeRef('GENERATED')),
       ],
       undefined,
       tsg.block(
@@ -118,12 +147,36 @@ const makeReferencedByProperty = (ref: ReferencedNode) => {
           ),
           tsg.return(tsg.identifier(paramName).property(propertyName)),
         ),
-        tsg.throw(
-          tsg.string(`sasat: UNEXPECTED ERROR. path=${ref.fieldName}`),
-          // tsg.return(
-          //   makeDatasource(child, 'GENERATED')
-          //     .property(makeFindQueryName([ref.entity.name.name]))
-          //     .call(tsg.identifier(paramName)),
+        tsg.variable(
+          'const',
+          'ds',
+          makeDatasource(EntityName.fromTableName(ref.childTable), 'GENERATED'),
+        ),
+        tsg.variable(
+          'const',
+          'where',
+          tsg
+            .identifier('ds')
+            .property('getRelationMap')
+            .call()
+            .property(propertyName)
+            .property('condition')
+            .call(
+              tsg.object(
+                tsg.propertyAssign('parent', tsg.identifier(paramName)),
+                tsg.propertyAssign('childTableAlias', tsg.string('t0')),
+                tsg.propertyAssign('context'),
+              ),
+            ),
+        ),
+        tsg.return(
+          tsg
+            .identifier('ds')
+            .property(ref.relation === 'Many' ? 'find' : 'first')
+            .call(
+              tsg.identifier('undefined'),
+              tsg.object(tsg.propertyAssign('where')),
+            ),
         ),
       ),
     ),

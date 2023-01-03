@@ -3,25 +3,40 @@ import { query } from "./query.js";
 import { mutation } from "./mutation.js";
 import { subscription } from "./subscription.js";
 import { UserResult, PostResult } from "./relationMap.js";
+import { GQLContext } from "../context.js";
+import { PostDBDataSource } from "../dataSources/db/Post.js";
+import { UserDBDataSource } from "../dataSources/db/User.js";
 export const resolvers = {
   Query: query,
   Mutation: mutation,
   Subscription: subscription,
   ...{
     User: {
-      uPost: (user: UserResult) => {
+      uPost: (user: UserResult, context: GQLContext) => {
         if (user.uPost !== undefined) return user.uPost;
-        throw "sasat: UNEXPECTED ERROR. path=uPost";
+        const ds = new PostDBDataSource();
+        const where = ds
+          .getRelationMap()
+          .uPost.condition({ parent: user, childTableAlias: "t0", context });
+        return ds.find(undefined, { where });
       },
     },
     Post: {
-      pUser: (post: PostResult) => {
+      pUser: (post: PostResult, context: GQLContext) => {
         if (post.pUser !== undefined) return post.pUser;
-        throw "sasat: UNEXPECTED ERROR. path=post.pUser";
+        const ds = new UserDBDataSource();
+        const where = ds
+          .getRelationMap()
+          .pUser.condition({ parent: post, childTableAlias: "t0", context });
+        return ds.first(undefined, { where });
       },
-      vC: (post: PostResult) => {
+      vC: (post: PostResult, context: GQLContext) => {
         if (post.vC !== undefined) return post.vC;
-        throw "sasat: UNEXPECTED ERROR. path=post.vC";
+        const ds = new UserDBDataSource();
+        const where = ds
+          .getRelationMap()
+          .vC.condition({ parent: post, childTableAlias: "t0", context });
+        return ds.first(undefined, { where });
       },
     },
   },
