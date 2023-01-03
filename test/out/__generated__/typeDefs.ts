@@ -60,7 +60,6 @@ export const inputs = {
     uid: { return: "Int!" },
     NNN: { return: "String" },
     nick: { return: "String" },
-    createdAt: { return: "String" },
   },
   PostUpdateInput: {
     pid: { return: "Int!" },

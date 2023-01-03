@@ -103,7 +103,11 @@ export class TableCreator implements TableBuilder {
   }
 
   createdAt(): TableBuilder {
-    this.column('createdAt').timestamp().defaultCurrentTimeStamp().notNull();
+    this.column('createdAt')
+      .timestamp()
+      .defaultCurrentTimeStamp()
+      .notNull()
+      .updatable(false);
     return this;
   }
 
@@ -112,7 +116,8 @@ export class TableCreator implements TableBuilder {
       .timestamp()
       .defaultCurrentTimeStamp()
       .onUpdateCurrentTimeStamp()
-      .notNull();
+      .notNull()
+      .updatable(false);
     return this;
   }
 

@@ -24,7 +24,9 @@ const makeFieldNode = (column: BaseColumn): FieldNode => ({
   isArray: false,
   isPrimary: column.isPrimary(),
   isNullable: column.isNullable(),
-  isUpdatable: !(column.data.onUpdateCurrentTimeStamp || column.isPrimary()), // TODO impl non updatable column
+  isUpdatable:
+    !(column.data.onUpdateCurrentTimeStamp || column.isPrimary()) &&
+    column.data.option.updatable,
   isGQLOpen: !column.table.gqlOption.mutation.fromContextColumns.some(
     it => it.column === column.columnName(),
   ),
@@ -52,7 +54,7 @@ const makeCreatableFieldNode = (column: BaseColumn): FieldNode | null => {
 };
 
 const makeUpdatableFieldNode = (column: BaseColumn): FieldNode | null => {
-  if (!column.isUpdatable()) return null;
+  if (!column.isUpdatable() || !column.data.option.updatable) return null;
   return {
     fieldName: column.fieldName(),
     columnName: column.columnName(),

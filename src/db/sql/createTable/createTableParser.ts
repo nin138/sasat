@@ -3,6 +3,7 @@ import { SerializedTable } from '../../../migration/serialized/serializedStore.j
 import { camelize } from '../../../util/stringUtil.js';
 import { DBColumnTypes } from '../../../migration/column/columnTypes.js';
 import {
+  defaultColumnOption,
   Reference,
   SerializedNormalColumn,
 } from '../../../migration/serialized/serializedColumn.js';
@@ -164,6 +165,7 @@ export class CreateTableParser {
       scale: scale !== undefined ? +scale : undefined,
       defaultCurrentTimeStamp,
       onUpdateCurrentTimeStamp: isOnUpdate(),
+      option: defaultColumnOption,
     };
 
     // @ts-ignore

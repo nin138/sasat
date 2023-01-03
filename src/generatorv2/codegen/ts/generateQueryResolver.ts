@@ -10,7 +10,6 @@ import { columnTypeToTsType } from '../../../migration/column/columnTypes.js';
 import { makeTypeRef } from './scripts/getEntityTypeRefs.js';
 import { makeDatasource } from './scripts/makeDatasource.js';
 import { Directory } from '../../directory.js';
-import { QExpr } from '../../../../lib/index.js';
 
 export const generateQueryResolver = (root: RootNode) => {
   return new TsFile(

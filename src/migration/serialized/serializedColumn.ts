@@ -4,6 +4,14 @@ import { ForeignKeyReferentialAction } from '../data/foreignKey.js';
 import { SqlString } from '../../runtime/sql/sqlString.js';
 import { Relation } from '../data/relation.js';
 
+export type ColumnOptions = {
+  updatable: boolean;
+};
+
+export const defaultColumnOption = {
+  updatable: true,
+};
+
 interface SerializedColumnBase {
   hasReference: boolean;
   fieldName: string;
@@ -18,6 +26,7 @@ interface SerializedColumnBase {
   scale: number | undefined;
   defaultCurrentTimeStamp: boolean;
   onUpdateCurrentTimeStamp: boolean;
+  option: ColumnOptions;
 }
 
 export interface SerializedNormalColumn extends SerializedColumnBase {

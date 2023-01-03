@@ -61,7 +61,7 @@ export class BaseColumn implements Column {
   }
 
   serialize(): SerializedColumn {
-    return this.data;
+    return JSON.parse(JSON.stringify(this.data));
   }
 
   toSql(): string {

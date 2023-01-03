@@ -15,6 +15,5 @@ export type StockUpdatable = {
   readonly id: number;
   readonly user?: number | null;
   readonly post?: number | null;
-  readonly createdAt?: string | null;
 };
 export type StockIdentifiable = { readonly id: number };

@@ -8,7 +8,11 @@ import {
   DBTextTypes,
 } from '../column/columnTypes.js';
 import { SqlValueType } from '../../db/connectors/dbClient.js';
-import { SerializedNormalColumn } from '../serialized/serializedColumn.js';
+import {
+  ColumnOptions,
+  defaultColumnOption,
+  SerializedNormalColumn,
+} from '../serialized/serializedColumn.js';
 
 export abstract class ColumnBuilder {
   protected _primary = false;
@@ -21,6 +25,7 @@ export abstract class ColumnBuilder {
   protected _defaultCurrentTimeStamp = false;
   protected _onUpdateCurrentTimeStamp = false;
   protected _fieldName: string;
+  protected _option: ColumnOptions = defaultColumnOption;
   protected constructor(
     readonly name: string,
     protected type: DBColumnTypes,
@@ -55,6 +60,10 @@ export abstract class ColumnBuilder {
     this._default = value;
     return this;
   }
+  updatable(updatable: boolean): this {
+    this._option = { ...this._option, updatable };
+    return this;
+  }
   build(): {
     data: SerializedNormalColumn;
     isPrimary: boolean;
@@ -75,6 +84,7 @@ export abstract class ColumnBuilder {
         default: this._default,
         defaultCurrentTimeStamp: this._defaultCurrentTimeStamp,
         onUpdateCurrentTimeStamp: this._onUpdateCurrentTimeStamp,
+        option: this._option,
       },
       isPrimary: this._primary,
       isUnique: this._unique,

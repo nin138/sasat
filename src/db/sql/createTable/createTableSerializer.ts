@@ -1,5 +1,6 @@
 import { SerializedTable } from '../../../migration/serialized/serializedStore.js';
 import {
+  defaultColumnOption,
   Reference,
   SerializedNormalColumn,
 } from '../../../migration/serialized/serializedColumn.js';
@@ -184,6 +185,7 @@ const startStrMap: {
         scale: inPrenValues.length > 1 ? +inPrenValues[1].value : undefined,
         defaultCurrentTimeStamp: defaultToken?.kind === TokenKind.Identifier,
         onUpdateCurrentTimeStamp: keywords.includes('ON UPDATE'),
+        option: defaultColumnOption,
       };
       return {
         ...table,

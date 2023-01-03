@@ -14,6 +14,5 @@ export type UserUpdatable = {
   readonly uid: number;
   readonly NNN?: string | null;
   readonly nick?: string | null;
-  readonly createdAt?: string | null;
 };
 export type UserIdentifiable = { readonly uid: number };

@@ -31,6 +31,7 @@ export const writeYmlFile = (
     join(path, fileName),
     yaml.dump(obj, {
       skipInvalid: true,
+      noRefs: true,
       sortKeys: (a, b) => {
         if (b === 'tableName') return 1;
         if (a === 'tableName') return -1;
