@@ -62,7 +62,7 @@
     "sasat": "link:./lib",
     "ts-jest": "29.0.3",
     "ts-node": "10.9.1",
-    "tsconfig-paths": "4.1.1"
+    "tsconfig-paths": "4.1.2"
   },
   "peerDependencies": {
     "@apollo/server": "^4.0.0",
