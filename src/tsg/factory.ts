@@ -25,6 +25,7 @@ import { TypeReference } from './node/type/typeReference.js';
 import { MethodModifiers } from './node/modifier/methodModifiers.js';
 import { PropertyModifiers } from './node/modifier/propertyModifiers.js';
 import { ThrowStatement } from './node/throwStatement.js';
+import { SpreadElement } from './node/expressions.js';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const createFactory = <T extends new (...args: any[]) => InstanceType<T>>(
@@ -82,6 +83,7 @@ const others = {
   methodModifiers: createFactory(MethodModifiers),
   propertyModifiers: createFactory(PropertyModifiers),
   throw: createFactory(ThrowStatement),
+  spread: createFactory(SpreadElement),
 };
 
 export const tsg = {
