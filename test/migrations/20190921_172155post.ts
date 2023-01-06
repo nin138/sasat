@@ -37,6 +37,18 @@ export default class Post implements SasatMigration {
             },
             operator: '=',
           },
+          {
+            left: {
+              type: 'context',
+              field: 'uid',
+              onNotDefined: { action: 'error', message: 'eee' },
+            },
+            operator: 'BETWEEN',
+            right: {
+              type: 'date',
+              range: 'today',
+            },
+          },
         ],
         relation: 'Many',
       });

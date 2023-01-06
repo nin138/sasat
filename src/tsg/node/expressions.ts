@@ -270,3 +270,13 @@ export class TernaryExpression extends TsExpression {
     return `(${this.condition})?${this.left}:${this.right}`;
   }
 }
+
+export class SpreadElement extends TsExpression {
+  constructor(private readonly expression: TsExpression) {
+    super();
+    this.mergeImport(expression);
+  }
+  protected toTsString(): string {
+    return `...${this.expression}`;
+  }
+}

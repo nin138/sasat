@@ -4033,6 +4033,7 @@ safe-regex-test@^1.0.0:
 
 "sasat@link:./lib":
   version "0.0.0"
+  uid ""
 
 semver@7.x, semver@^7.3.5, semver@^7.3.7:
   version "7.3.7"

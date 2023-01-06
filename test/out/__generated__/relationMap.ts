@@ -2,9 +2,10 @@
 import {
   QExpr,
   BooleanValueExpression,
+  getDayRangeQExpr,
   RelationMap,
   TableInfo,
-  EntityResult,
+  EntityResult, getDayRange,
 } from "sasat";
 import { GQLContext } from "../context.js";
 import { PostIdentifiable, Post } from "./entities/Post.js";
@@ -62,13 +63,12 @@ export const relationMap: RelationMap<GQLContext> = {
     vC: {
       table: "user",
       condition: (arg): BooleanValueExpression => {
+        console.log(getDayRange(new Date()));
+        console.log(getDayRangeQExpr(new Date()));
         return QExpr.conditions.and(
-          QExpr.conditions.comparison(
-            arg.parentTableAlias
-              ? QExpr.field(arg.parentTableAlias, "uid")
-              : QExpr.value(arg.parent?.uid),
-            "=",
-            QExpr.value(arg.context?.vv || "ww")
+          QExpr.conditions.between(
+            QExpr.field(arg.childTableAlias!, 'createdAt'),
+            ...getDayRangeQExpr(new Date())
           )
         );
       },

@@ -1,5 +1,4 @@
 import { ListQueryOption } from './runtime/sasatDBDatasource.js';
-
 export type {
   BooleanValueExpression,
   Query,
@@ -31,6 +30,12 @@ export { getDbClient } from './db/getDbClient.js';
 export { assignDeep } from './util/assignDeep.js';
 export { createTypeDef } from './runtime/createTypeDef.js';
 export { CompositeCondition } from './db/sql/expression/compositeCondition.js';
-export { pick } from './runtime/util.js';
+export {
+  pick,
+  getDayRange,
+  dateOffset,
+  dateToString,
+  getDayRangeQExpr,
+} from './runtime/util.js';
 export { makeResolver } from './runtime/makeResolver.js';
 export type PagingOption = ListQueryOption;
