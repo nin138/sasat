@@ -5,7 +5,7 @@ import {
   getDayRangeQExpr,
   RelationMap,
   TableInfo,
-  EntityResult, getDayRange,
+  EntityResult,
 } from "sasat";
 import { GQLContext } from "../context.js";
 import { PostIdentifiable, Post } from "./entities/Post.js";
@@ -26,7 +26,8 @@ export const relationMap: RelationMap<GQLContext> = {
           )
         );
       },
-      relation: "Many",
+      array: true,
+      nullable: false,
     },
     stock_userStock: {
       table: "stock",
@@ -41,7 +42,23 @@ export const relationMap: RelationMap<GQLContext> = {
           )
         );
       },
-      relation: "Many",
+      array: true,
+      nullable: false,
+    },
+    vP: {
+      table: "post",
+      condition: (arg): BooleanValueExpression => {
+        return QExpr.conditions.and(
+          QExpr.conditions.between(
+            arg.parentTableAlias
+              ? QExpr.field(arg.parentTableAlias, "createdAt")
+              : QExpr.value(arg.parent?.createdAt),
+            ...getDayRangeQExpr(new Date(), undefined)
+          )
+        );
+      },
+      array: false,
+      nullable: true,
     },
   },
   post: {
@@ -58,21 +75,23 @@ export const relationMap: RelationMap<GQLContext> = {
           )
         );
       },
-      relation: "One",
+      array: false,
+      nullable: false,
     },
     vC: {
       table: "user",
       condition: (arg): BooleanValueExpression => {
-        console.log(getDayRange(new Date()));
-        console.log(getDayRangeQExpr(new Date()));
         return QExpr.conditions.and(
           QExpr.conditions.between(
-            QExpr.field(arg.childTableAlias!, 'createdAt'),
-            ...getDayRangeQExpr(new Date())
+            arg.parentTableAlias
+              ? QExpr.field(arg.parentTableAlias, "createdAt")
+              : QExpr.value(arg.parent?.createdAt),
+            ...getDayRangeQExpr(new Date(), undefined)
           )
         );
       },
-      relation: "One",
+      array: true,
+      nullable: false,
     },
     Stock: {
       table: "stock",
@@ -87,7 +106,8 @@ export const relationMap: RelationMap<GQLContext> = {
           )
         );
       },
-      relation: "Many",
+      array: true,
+      nullable: false,
     },
   },
   stock: {
@@ -104,7 +124,8 @@ export const relationMap: RelationMap<GQLContext> = {
           )
         );
       },
-      relation: "One",
+      array: false,
+      nullable: false,
     },
     postPost: {
       table: "post",
@@ -119,7 +140,8 @@ export const relationMap: RelationMap<GQLContext> = {
           )
         );
       },
-      relation: "One",
+      array: false,
+      nullable: false,
     },
   },
 };
@@ -152,6 +174,7 @@ export const tableInfo: TableInfo = {
 export type UserRelations = {
   uPost: Array<EntityResult<PostWithRelations, PostIdentifiable>>;
   stock_userStock: Array<EntityResult<StockWithRelations, StockIdentifiable>>;
+  vP: EntityResult<PostWithRelations, PostIdentifiable>;
 };
 export type UserWithRelations = User & UserRelations;
 export type UserResult = EntityResult<UserWithRelations, UserIdentifiable>;

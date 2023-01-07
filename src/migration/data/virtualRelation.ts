@@ -5,7 +5,8 @@ export type VirtualRelation = {
   parentTable: string;
   childTable: string;
   parentFieldName: string | false;
-  childFieldName: string;
+  childFieldName: string | false;
   conditions: ConditionNode[];
-  relation: Relation;
+  parentType?: 'array' | 'nullable' | 'notnull';
+  childType?: 'nullable' | 'notnull' | 'array';
 };

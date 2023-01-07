@@ -43,7 +43,9 @@ const makeEntityRelationMap = (node: EntityNode) => {
           tsg.object(
             tsg.propertyAssign('table', tsg.string(ref.parentTableName)),
             makeCondition(node, ref),
-            tsg.propertyAssign('relation', tsg.string('One')),
+            // tsg.propertyAssign('relation', tsg.string('One')),
+            tsg.propertyAssign('array', tsg.boolean(ref.isArray)),
+            tsg.propertyAssign('nullable', tsg.boolean(ref.isNullable)),
           ),
         ),
       ),
@@ -53,7 +55,9 @@ const makeEntityRelationMap = (node: EntityNode) => {
           tsg.object(
             tsg.propertyAssign('table', tsg.string(rel.childTable)),
             makeCondition(node, rel),
-            tsg.propertyAssign('relation', tsg.string(rel.relation)),
+            // tsg.propertyAssign('relation', tsg.string(rel.relation)),
+            tsg.propertyAssign('array', tsg.boolean(rel.isArray)),
+            tsg.propertyAssign('nullable', tsg.boolean(rel.isNullable)),
           ),
         ),
       ),
@@ -116,7 +120,7 @@ const referencedRelationType = (node: ReferencedNode): PropertySignature => {
 
   return tsg.propertySignature(
     node.fieldName,
-    node.relation === 'Many' ? tsg.arrayType(type) : type,
+    node.isArray ? tsg.arrayType(type) : type,
   );
 };
 

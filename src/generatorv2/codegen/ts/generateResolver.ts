@@ -172,7 +172,7 @@ const makeReferencedByProperty = (ref: ReferencedNode) => {
         tsg.return(
           tsg
             .identifier('ds')
-            .property(ref.relation === 'Many' ? 'find' : 'first')
+            .property(ref.isArray ? 'find' : 'first')
             .call(
               tsg.identifier('undefined'),
               tsg.object(tsg.propertyAssign('where')),

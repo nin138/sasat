@@ -85,14 +85,17 @@ const makeRangeCondition = (
       makeConditionValueQExpr(entity, range.end),
     ];
   }
-  // const date = tsg.identifier('dateOffset').importFrom('sasat').call(tsg.new(tsg.identifier('Date')));
-  // const r = tsg.identifier('dateToString').importFrom('sasat').call();
   return [
     tsg.spread(
       tsg
         .identifier('getDayRangeQExpr')
         .importFrom('sasat')
-        .call(tsg.new(tsg.identifier('Date'))),
+        .call(
+          tsg.new(tsg.identifier('Date')),
+          range.thresholdHour
+            ? tsg.number(range.thresholdHour)
+            : tsg.identifier('undefined'),
+        ),
     ),
   ];
 };

@@ -47,6 +47,7 @@ const expressions = {
   propertyAccess: createFactory(Exp.PropertyAccessExpression),
   string: createFactory(Exp.StringLiteral),
   number: createFactory(Exp.NumericLiteral),
+  boolean: createFactory(Exp.Boolean),
   array: createFactory(Exp.ArrayLiteral),
   object: createFactory(Exp.ObjectLiteral),
   as: createFactory(Exp.AsExpression),
