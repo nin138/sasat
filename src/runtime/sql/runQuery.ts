@@ -94,11 +94,15 @@ export const createPagingInnerQuery = (
   fields: Fields<unknown>,
   option: PagingOption,
   tableInfo: TableInfo,
+  relationMap: RelationMap,
 ): Query => {
   const map = tableInfo[tableName].columnMap;
   return {
     select: unique([
       ...tableInfo[tableName].identifiableKeys,
+      ...Object.keys(fields.relations || {}).flatMap(
+        key => relationMap[tableName][key].requiredColumns,
+      ),
       ...(fields.fields as string[])
         .filter(notTypeName)
         .map(it => map[it] || it),
@@ -154,6 +158,7 @@ export const createPagingFieldQuery = ({
     fields,
     pagingOption,
     tableInfo,
+    relationMap,
   );
 
   const main = createQuery(

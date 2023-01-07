@@ -33,7 +33,10 @@ export const typeDefs = {
       args: [{ name: "option", type: "PagingOption!" }],
     },
     post: { return: "Post", args: [{ name: "postId", type: "Int!" }] },
-    posts: { return: "[Post!]!", args: [] },
+    posts: {
+      return: "[Post!]!",
+      args: [{ name: "option", type: "PagingOption!" }],
+    },
     stock: { return: "Stock", args: [{ name: "id", type: "Int!" }] },
     stocks: { return: "[Stock!]!", args: [] },
   },

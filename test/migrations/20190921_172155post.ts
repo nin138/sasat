@@ -19,8 +19,8 @@ export default class Post implements SasatMigration {
         fieldName: 'pUser',
         relation: 'Many',
       });
-      table.enableGQL();
       table.column('title').varchar(50).notNull();
+      table.enableGQL().setGQLOption({ query: { find: true, list: 'paging' } });
       table.setGQLCreate(true).setGQLUpdate(true).setGQLContextColumn([]);
       table.addVirtualRelation({
         parentTable: 'user',

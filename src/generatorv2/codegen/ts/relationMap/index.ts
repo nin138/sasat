@@ -11,7 +11,10 @@ import {
   makeTypeRef,
 } from './../scripts/getEntityTypeRefs.js';
 import { makeCondition } from './makeCondition.js';
-import { getParentRequiredFieldNames } from './getRequiredColumnNames.js';
+import {
+  getChildRequiredNames,
+  getParentRequiredFieldNames,
+} from './getRequiredColumnNames.js';
 import { nonNullable } from '../../../../runtime/util.js';
 
 export const generateRelationMap = (root: RootNode) => {
@@ -50,11 +53,7 @@ const makeEntityRelationMap = (node: EntityNode, root: RootNode) => {
     node.tableName,
     tsg.object(
       ...node.references.map(ref => {
-        const parentEntity = root.entities.find(
-          it => it.tableName === ref.parentTableName,
-        )!;
-        const toColumnName =
-          fieldNameToColumnNameAndFilterPrimary(parentEntity);
+        const toColumnName = fieldNameToColumnNameAndFilterPrimary(ref.entity);
         return tsg.propertyAssign(
           ref.fieldName,
           tsg.object(
@@ -65,7 +64,7 @@ const makeEntityRelationMap = (node: EntityNode, root: RootNode) => {
             tsg.propertyAssign(
               'requiredColumns',
               tsg.array(
-                getParentRequiredFieldNames(ref)
+                getChildRequiredNames(ref)
                   .map(toColumnName)
                   .filter(nonNullable)
                   .map(tsg.string),
@@ -80,6 +79,7 @@ const makeEntityRelationMap = (node: EntityNode, root: RootNode) => {
         )!;
         const toColumnName =
           fieldNameToColumnNameAndFilterPrimary(parentEntity);
+        const toColumnName2 = fieldNameToColumnNameAndFilterPrimary(rel.entity);
         return tsg.propertyAssign(
           rel.fieldName,
           tsg.object(
@@ -90,8 +90,8 @@ const makeEntityRelationMap = (node: EntityNode, root: RootNode) => {
             tsg.propertyAssign(
               'requiredColumns',
               tsg.array(
-                getParentRequiredFieldNames(rel)
-                  .map(toColumnName)
+                getChildRequiredNames(rel)
+                  .map(toColumnName2)
                   .filter(nonNullable)
                   .map(tsg.string),
               ),
