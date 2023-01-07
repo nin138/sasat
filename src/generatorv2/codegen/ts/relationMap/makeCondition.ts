@@ -45,6 +45,14 @@ const makeConditionValueQExpr = (
       const columnName =
         node.fields.find(it => it.fieldName === cv.field)?.columnName ||
         cv.field;
+      return qExpr
+        .property('field')
+        .call(arg.property(childTableAlias), tsg.string(columnName));
+    }
+    case 'child': {
+      const columnName =
+        node.fields.find(it => it.fieldName === cv.field)?.columnName ||
+        cv.field;
       return tsg.ternary(
         arg.property(parentTableAlias),
         qExpr
@@ -54,14 +62,6 @@ const makeConditionValueQExpr = (
           .property('value')
           .call(arg.property('parent?').property(cv.field)),
       );
-    }
-    case 'child': {
-      const columnName =
-        node.fields.find(it => it.fieldName === cv.field)?.columnName ||
-        cv.field;
-      return qExpr
-        .property('field')
-        .call(arg.property(childTableAlias), tsg.string(columnName));
     }
     case 'fixed': {
       return qExpr
@@ -102,7 +102,6 @@ const makeRangeCondition = (
 
 const makeConditionExpr = (entity: EntityNode, condition: ConditionNode) => {
   if (condition.operator === 'BETWEEN') {
-    condition.right.type;
     return qExpr
       .property('conditions')
       .property('between')

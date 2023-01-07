@@ -7,7 +7,8 @@ export const typeDefs = {
     createdAt: { return: "String!" },
     updatedAt: { return: "String!" },
     uPost: { return: "[Post!]!" },
-    vP: { return: "Post" },
+    stock_userStock: { return: "[Stock!]!" },
+    vP: { return: "[Post!]!" },
   },
   Post: {
     uId: { return: "Int!" },
@@ -15,6 +16,15 @@ export const typeDefs = {
     title: { return: "String!" },
     pUser: { return: "User!" },
     vC: { return: "[User!]!" },
+    Stock: { return: "[Stock!]!" },
+  },
+  Stock: {
+    post: { return: "Int!" },
+    id: { return: "Int!" },
+    createdAt: { return: "String!" },
+    updatedAt: { return: "String!" },
+    stock_user: { return: "User!" },
+    postPost: { return: "Post!" },
   },
   Query: {
     user: { return: "User", args: [{ name: "userId", type: "Int!" }] },
@@ -24,6 +34,8 @@ export const typeDefs = {
     },
     post: { return: "Post", args: [{ name: "postId", type: "Int!" }] },
     posts: { return: "[Post!]!", args: [] },
+    stock: { return: "Stock", args: [{ name: "id", type: "Int!" }] },
+    stocks: { return: "[Stock!]!", args: [] },
   },
   Mutation: {
     createUser: {
@@ -42,10 +54,23 @@ export const typeDefs = {
       return: "Post!",
       args: [{ name: "post", type: "PostUpdateInput!" }],
     },
+    createStock: {
+      return: "Stock!",
+      args: [{ name: "stock", type: "StockCreateInput!" }],
+    },
+    updateStock: {
+      return: "Stock!",
+      args: [{ name: "stock", type: "StockUpdateInput!" }],
+    },
+    deleteStock: {
+      return: "Boolean!",
+      args: [{ name: "stock", type: "StockUpdateInput!" }],
+    },
   },
   Subscription: {
     UserCreated: { return: "User!", args: [] },
     UserUpdated: { return: "User!", args: [{ name: "name", type: "String!" }] },
+    StockDeleted: { return: "Stock!", args: [] },
   },
 };
 export const inputs = {
@@ -57,6 +82,7 @@ export const inputs = {
   },
   UserCreateInput: { NNN: { return: "String" }, nick: { return: "String" } },
   PostCreateInput: { uId: { return: "Int!" }, title: { return: "String!" } },
+  StockCreateInput: { post: { return: "Int!" }, id: { return: "Int!" } },
   UserUpdateInput: {
     uid: { return: "Int!" },
     NNN: { return: "String" },
@@ -67,4 +93,5 @@ export const inputs = {
     uId: { return: "Int" },
     title: { return: "String" },
   },
+  StockUpdateInput: { id: { return: "Int!" }, post: { return: "Int" } },
 };

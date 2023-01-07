@@ -12,7 +12,11 @@ import { EntityName } from './entityName.js';
 import { columnTypeToGqlPrimitive } from '../scripts/columnToGqlType.js';
 import { GqlPrimitive } from '../scripts/gqlTypes.js';
 import { VirtualRelation } from '../../migration/data/virtualRelation.js';
-import { ConditionNode } from './ConditionNode.js';
+import {
+  ConditionNode,
+  ConditionValue,
+  ContextConditionRangeValue,
+} from './ConditionNode.js';
 import { nonNullable } from '../../runtime/util.js';
 
 const makeFieldNode = (column: BaseColumn): FieldNode => ({
@@ -146,45 +150,7 @@ export class EntityNode {
 
     this.findMethods = [
       makeFindMethodNode(table.primaryKey, false),
-      // TODO impl relationMap.where and rm duplicate and use Field name
-      // ...this.references.map(ref => {
-      //   const parent = store.table(ref.parentTableName);
-      //   return {
-      //     name: makeFindQueryName([parent.getEntityName().name]),
-      //     params: [
-      //       makeEntityParameterNode(
-      //         parent.getEntityName(),
-      //         parent.getPrimaryKeyColumns().map(it => ({
-      //           entity: false,
-      //           fieldName: it.fieldName(),
-      //           columnName: it.columnName(),
-      //           dbtype: it.dataType(),
-      //           gqltype: it.gqlType(),
-      //         })),
-      //       ),
-      //     ],
-      //     isArray: false,
-      //   };
-      // }),
-      // ...this.referencedBy.map(ref => {
-      //   const child = store.table(ref.childTable);
-      //   return {
-      //     name: makeFindQueryName([child.getEntityName().name]),
-      //     params: [
-      //       makeEntityParameterNode(
-      //         child.getEntityName(),
-      //         child.getPrimaryKeyColumns().map(it => ({
-      //           entity: false,
-      //           fieldName: it.fieldName(),
-      //           columnName: it.columnName(),
-      //           dbtype: it.dataType(),
-      //           gqltype: it.gqlType(),
-      //         })),
-      //       ),
-      //     ],
-      //     isArray: ref.relation === 'Many',
-      //   };
-      // }),
+      // TODO findBy relations
     ];
   }
 }
@@ -228,7 +194,7 @@ export class ReferenceNode {
       ref.fieldName || makeChildFieldName(column),
       column.table.tableName,
       ref.parentTable,
-      makeJoinCondition(column.columnName(), ref.parentColumn),
+      makeJoinCondition(ref.parentColumn, column.columnName()),
       false,
       false,
       column.isPrimary(),
@@ -280,7 +246,7 @@ export class ReferencedNode {
       entity,
       column.data.reference.parentFieldName || makeParentFieldName(column),
       column.table.tableName,
-      makeJoinCondition(ref.parentColumn, column.columnName()),
+      makeJoinCondition(column.columnName(), ref.parentColumn),
       ref.relation === 'Many',
       ref.relation === 'OneOrZero',
       column.isPrimary(),
@@ -299,8 +265,8 @@ export class ReferencedNode {
       entity,
       rel.parentFieldName,
       rel.childTable,
-      rel.conditions,
-      rel.parentType === 'array',
+      rel.conditions.map(reverseConditionNode),
+      rel.parentType === undefined || rel.parentType === 'array',
       rel.parentType === 'nullable',
       false,
       ds.table(rel.parentTable).gqlOption.enabled &&
@@ -383,3 +349,46 @@ const makePrimitiveParameterNode = (
   dbtype,
   gqltype: columnTypeToGqlPrimitive(dbtype),
 });
+
+const reverseConditionValue = (cv: ConditionValue): ConditionValue => {
+  if (cv.type === 'parent') {
+    return {
+      ...cv,
+      type: 'child',
+    };
+  } else if (cv.type === 'child') {
+    return {
+      ...cv,
+      type: 'parent',
+    };
+  }
+  return cv;
+};
+
+const reverseRangeCondition = (
+  condition: ContextConditionRangeValue,
+): ContextConditionRangeValue => {
+  if (condition.type === 'range') {
+    return {
+      type: condition.type,
+      begin: reverseConditionValue(condition.begin),
+      end: reverseConditionValue(condition.end),
+    };
+  }
+  return condition;
+};
+
+const reverseConditionNode = (condition: ConditionNode): ConditionNode => {
+  if (condition.operator === 'BETWEEN') {
+    return {
+      left: reverseConditionValue(condition.left),
+      operator: condition.operator,
+      right: reverseRangeCondition(condition.right),
+    };
+  }
+  return {
+    left: reverseConditionValue(condition.left),
+    operator: condition.operator,
+    right: reverseConditionValue(condition.right),
+  };
+};

@@ -6,9 +6,10 @@ import {
   QExpr,
 } from "sasat";
 import { UserDBDataSource } from "../dataSources/db/User.js";
-import { UserFields, PostFields } from "./fields.js";
+import { UserFields, PostFields, StockFields } from "./fields.js";
 import { GQLContext } from "../context.js";
 import { PostDBDataSource } from "../dataSources/db/Post.js";
+import { StockDBDataSource } from "../dataSources/db/Stock.js";
 export const query = {
   user: makeResolver<GQLContext, { userId: number }>(
     async (_, { userId }, context, info) =>
@@ -50,5 +51,18 @@ export const query = {
   posts: makeResolver<GQLContext, {}>(async (_, {}, context, info) => {
     const fields = gqlResolveInfoToField<PostFields>(info);
     return new PostDBDataSource().find(fields, undefined, context);
+  }),
+  stock: makeResolver<GQLContext, { id: number }>(
+    async (_, { id }, context, info) =>
+      new StockDBDataSource().findById(
+        id,
+        gqlResolveInfoToField(info) as StockFields,
+        undefined,
+        context
+      )
+  ),
+  stocks: makeResolver<GQLContext, {}>(async (_, {}, context, info) => {
+    const fields = gqlResolveInfoToField<StockFields>(info);
+    return new StockDBDataSource().find(fields, undefined, context);
   }),
 };

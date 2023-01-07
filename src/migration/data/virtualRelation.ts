@@ -1,4 +1,3 @@
-import { Relation } from './relation.js';
 import { ConditionNode } from '../../generatorv2/nodes/ConditionNode.js';
 
 export type VirtualRelation = {
@@ -8,5 +7,5 @@ export type VirtualRelation = {
   childFieldName: string | false;
   conditions: ConditionNode[];
   parentType?: 'array' | 'nullable' | 'notnull';
-  childType?: 'nullable' | 'notnull' | 'array';
+  childType?: 'array' | 'nullable' | 'notnull';
 };

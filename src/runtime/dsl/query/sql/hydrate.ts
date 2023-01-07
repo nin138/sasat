@@ -118,7 +118,8 @@ export const appendKeysToQuery = (
   ];
   const tables = getTables(query.from);
   tables.forEach(table => {
-    const keys = identifiableKeyMap[getQueryTableName(table)].identifiableKeys;
+    const keys =
+      identifiableKeyMap[getQueryTableName(table)].identifiableFields;
     keys.forEach(key => {
       if (
         !query.select.some(

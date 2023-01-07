@@ -26,6 +26,7 @@ export default class Post implements SasatMigration {
         parentTable: 'user',
         parentFieldName: 'vP',
         childFieldName: 'vC',
+        parentType: 'array',
         conditions: [
           // {
           //   left: { type: 'parent', field: 'uid' },

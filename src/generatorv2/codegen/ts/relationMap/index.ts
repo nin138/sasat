@@ -11,6 +11,8 @@ import {
   makeTypeRef,
 } from './../scripts/getEntityTypeRefs.js';
 import { makeCondition } from './makeCondition.js';
+import { getParentRequiredFieldNames } from './getRequiredColumnNames.js';
+import { nonNullable } from '../../../../runtime/util.js';
 
 export const generateRelationMap = (root: RootNode) => {
   return new TsFile(
@@ -25,7 +27,7 @@ const makeRelationMap = (root: RootNode) => {
     .variable(
       'const',
       tsg.identifier('relationMap'),
-      tsg.object(...root.entities.map(it => makeEntityRelationMap(it))),
+      tsg.object(...root.entities.map(it => makeEntityRelationMap(it, root))),
       tsg
         .typeRef('RelationMap', [makeContextTypeRef('GENERATED')])
         .importFrom('sasat'),
@@ -33,34 +35,70 @@ const makeRelationMap = (root: RootNode) => {
     .export();
 };
 
-const makeEntityRelationMap = (node: EntityNode) => {
+const fieldNameToColumnNameAndFilterPrimary =
+  (node: EntityNode) => (field: string) => {
+    const column = node.fields.find(
+      it => it.fieldName === field || it.columnName === field,
+    );
+    if (!column) throw new Error(`${node.name.name}.${field} Not Found`);
+    if (column.isPrimary) return null;
+    return column.columnName;
+  };
+
+const makeEntityRelationMap = (node: EntityNode, root: RootNode) => {
   return tsg.propertyAssign(
     node.tableName,
     tsg.object(
-      ...node.references.map(ref =>
-        tsg.propertyAssign(
+      ...node.references.map(ref => {
+        const parentEntity = root.entities.find(
+          it => it.tableName === ref.parentTableName,
+        )!;
+        const toColumnName =
+          fieldNameToColumnNameAndFilterPrimary(parentEntity);
+        return tsg.propertyAssign(
           ref.fieldName,
           tsg.object(
             tsg.propertyAssign('table', tsg.string(ref.parentTableName)),
             makeCondition(node, ref),
-            // tsg.propertyAssign('relation', tsg.string('One')),
             tsg.propertyAssign('array', tsg.boolean(ref.isArray)),
             tsg.propertyAssign('nullable', tsg.boolean(ref.isNullable)),
+            tsg.propertyAssign(
+              'requiredColumns',
+              tsg.array(
+                getParentRequiredFieldNames(ref)
+                  .map(toColumnName)
+                  .filter(nonNullable)
+                  .map(tsg.string),
+              ),
+            ),
           ),
-        ),
-      ),
-      ...node.referencedBy.map(rel =>
-        tsg.propertyAssign(
+        );
+      }),
+      ...node.referencedBy.map(rel => {
+        const parentEntity = root.entities.find(
+          it => it.tableName === rel.childTable,
+        )!;
+        const toColumnName =
+          fieldNameToColumnNameAndFilterPrimary(parentEntity);
+        return tsg.propertyAssign(
           rel.fieldName,
           tsg.object(
             tsg.propertyAssign('table', tsg.string(rel.childTable)),
             makeCondition(node, rel),
-            // tsg.propertyAssign('relation', tsg.string(rel.relation)),
             tsg.propertyAssign('array', tsg.boolean(rel.isArray)),
             tsg.propertyAssign('nullable', tsg.boolean(rel.isNullable)),
+            tsg.propertyAssign(
+              'requiredColumns',
+              tsg.array(
+                getParentRequiredFieldNames(rel)
+                  .map(toColumnName)
+                  .filter(nonNullable)
+                  .map(tsg.string),
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      }),
     ),
   );
 };
@@ -87,6 +125,15 @@ const makeTableInfo = (root: RootNode) => {
               tsg.propertyAssign(
                 'identifiableKeys',
                 tsg.array(entity.identifyKeys.map(tsg.string)),
+              ),
+              tsg.propertyAssign(
+                'identifiableFields',
+                tsg.array(
+                  entity.fields
+                    .filter(it => it.isPrimary)
+                    .map(it => it.fieldName)
+                    .map(tsg.string),
+                ),
               ),
               columnMap(entity),
             ),

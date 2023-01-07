@@ -15,6 +15,12 @@ import {
   PostCreatable,
   PostUpdatable,
 } from "./entities/Post.js";
+import { StockDBDataSource } from "../dataSources/db/Stock.js";
+import {
+  StockIdentifiable,
+  StockCreatable,
+  StockUpdatable,
+} from "./entities/Stock.js";
 export const mutation = {
   createUser: makeResolver<GQLContext, { user: UserCreatable }>(
     async (_, { user }) => {
@@ -57,5 +63,36 @@ export const mutation = {
     const identifiable = pick(post, ["pid"]) as unknown as PostIdentifiable;
     const fetched = await ds.findByPid(identifiable.pid);
     return fetched;
+  }),
+  createStock: makeResolver<GQLContext, { stock: StockCreatable }>(
+    async (_, { stock }) => {
+      const ds = new StockDBDataSource();
+      const result = await ds.create(stock);
+      const identifiable = pick(result, ["id"]) as unknown as StockIdentifiable;
+      const fetched = await ds.findById(identifiable.id);
+      return fetched;
+    }
+  ),
+  updateStock: makeResolver<
+    GQLContext,
+    { stock: StockIdentifiable & StockUpdatable }
+  >(async (_, { stock }, context) => {
+    const ds = new StockDBDataSource();
+    const result = await ds
+      .update({ ...stock, user: context.userId })
+      .then((it: CommandResponse): boolean => it.changedRows === 1);
+    const identifiable = pick(stock, ["id"]) as unknown as StockIdentifiable;
+    const fetched = await ds.findById(identifiable.id);
+    return fetched;
+  }),
+  deleteStock: makeResolver<
+    GQLContext,
+    { stock: StockIdentifiable & StockUpdatable }
+  >(async (_, { stock }, context) => {
+    const ds = new StockDBDataSource();
+    const result = await ds
+      .update({ ...stock, user: context.userId })
+      .then((it: CommandResponse): boolean => it.changedRows === 1);
+    return result;
   }),
 };
