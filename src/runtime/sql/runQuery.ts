@@ -97,9 +97,12 @@ export const createPagingInnerQuery = (
 ): Query => {
   const map = tableInfo[tableName].columnMap;
   return {
-    select: (fields.fields as string[])
-      .filter(notTypeName)
-      .map(it => QExpr.field(tableAlias, map[it])),
+    select: unique([
+      ...tableInfo[tableName].identifiableKeys,
+      ...(fields.fields as string[])
+        .filter(notTypeName)
+        .map(it => map[it] || it),
+    ]).map(it => QExpr.field(tableAlias, it)),
     from: QExpr.table(tableName, [], tableAlias),
     limit: option.numberOfItem,
     offset: option.offset,
