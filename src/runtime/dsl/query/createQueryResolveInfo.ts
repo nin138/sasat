@@ -28,8 +28,10 @@ export type RelationInfo<Context = unknown> = {
   //   childTableAlias: string,
   //   context?: Context,
   // ) => BooleanValueExpression;
+  // relation: 'One' | 'OneOrZero' | 'Many';
   condition: MakeCondition<Context>;
-  relation: 'One' | 'OneOrZero' | 'Many';
+  array: boolean;
+  nullable: boolean;
 };
 
 export type RelationMap<Context = unknown> = {
@@ -49,7 +51,7 @@ const joinToQueryResolveInfo = (
   const tableAlias = fields.tableAlias || info.table;
   return {
     tableAlias,
-    isArray: info.relation === 'Many',
+    isArray: info.array,
     keyAliases: tableInfo[info.table].identifiableKeys,
     joins: Object.entries(fields.relations || {})
       .filter(([, value]) => value)

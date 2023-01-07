@@ -6,7 +6,6 @@ import {
   ReferenceColumn,
 } from '../../migration/serializable/column.js';
 import { nonNullableFilter } from '../../util/type.js';
-import { Relation } from '../../migration/data/relation.js';
 import { SerializedColumn } from '../../migration/serialized/serializedColumn.js';
 import { makeFindQueryName } from '../codegen/names.js';
 import { EntityName } from './entityName.js';
@@ -14,6 +13,7 @@ import { columnTypeToGqlPrimitive } from '../scripts/columnToGqlType.js';
 import { GqlPrimitive } from '../scripts/gqlTypes.js';
 import { VirtualRelation } from '../../migration/data/virtualRelation.js';
 import { ConditionNode } from './ConditionNode.js';
+import { nonNullable } from '../../runtime/util.js';
 
 const makeFieldNode = (column: BaseColumn): FieldNode => ({
   fieldName: column.fieldName(),
@@ -114,9 +114,9 @@ export class EntityNode {
         ),
       )
       .concat(
-        table.virtualRelations.map(it =>
-          ReferenceNode.formVirtualRelation(store, this, it),
-        ),
+        table.virtualRelations
+          .map(it => ReferenceNode.formVirtualRelation(store, this, it))
+          .filter(nonNullable),
       );
     this.referencedBy = store
       .referencedBy(table.tableName)
@@ -240,14 +240,15 @@ export class ReferenceNode {
     entity: EntityNode,
     rel: VirtualRelation,
   ) {
+    if (rel.childFieldName === false) return null;
     return new ReferenceNode(
       entity,
       rel.childFieldName,
       rel.childTable,
       rel.parentTable,
       rel.conditions,
-      false,
-      false,
+      rel.childType === undefined || rel.childType === 'array',
+      rel.childType === 'nullable',
       false,
       ds.table(rel.parentTable).gqlOption.enabled &&
         ds.table(rel.childTable).gqlOption.enabled,
@@ -284,7 +285,6 @@ export class ReferencedNode {
       ref.relation === 'OneOrZero',
       column.isPrimary(),
       parentTable.gqlOption.enabled && column.table.gqlOption.enabled,
-      ref.relation,
     );
     // requiredOnCreate: ref.relation === 'OneOrZero', TODO add to creatable
   }
@@ -300,12 +300,11 @@ export class ReferencedNode {
       rel.parentFieldName,
       rel.childTable,
       rel.conditions,
-      rel.relation === 'Many',
-      rel.relation === 'OneOrZero',
+      rel.parentType === 'array',
+      rel.parentType === 'nullable',
       false,
       ds.table(rel.parentTable).gqlOption.enabled &&
         ds.table(rel.childTable).gqlOption.enabled,
-      rel.relation,
     );
   }
 
@@ -318,7 +317,6 @@ export class ReferencedNode {
     readonly isNullable: boolean,
     readonly isPrimary: boolean,
     readonly isGQLOpen: boolean,
-    readonly relation: Relation,
   ) {}
 }
 

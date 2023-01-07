@@ -24,24 +24,23 @@ export default class Post implements SasatMigration {
       table.setGQLCreate(true).setGQLUpdate(true).setGQLContextColumn([]);
       table.addVirtualRelation({
         parentTable: 'user',
-        parentFieldName: false,
+        parentFieldName: 'vP',
         childFieldName: 'vC',
         conditions: [
-          {
-            left: { type: 'parent', field: 'uid' },
-            right: {
-              type: 'context',
-              field: 'vv',
-              // onNotDefined: { action: 'error', message: 'aaaaaaww' },
-              onNotDefined: { action: 'defaultValue', value: 'ww' },
-            },
-            operator: '=',
-          },
+          // {
+          //   left: { type: 'parent', field: 'uid' },
+          //   right: {
+          //     type: 'context',
+          //     field: 'vv',
+          //     // onNotDefined: { action: 'error', message: 'aaaaaaww' },
+          //     onNotDefined: { action: 'defaultValue', value: 'ww' },
+          //   },
+          //   operator: '=',
+          // },
           {
             left: {
-              type: 'context',
-              field: 'uid',
-              onNotDefined: { action: 'error', message: 'eee' },
+              type: 'parent',
+              field: 'createdAt',
             },
             operator: 'BETWEEN',
             right: {
@@ -50,7 +49,6 @@ export default class Post implements SasatMigration {
             },
           },
         ],
-        relation: 'Many',
       });
     });
   };

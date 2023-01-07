@@ -86,6 +86,16 @@ export class NumericLiteral extends Literal {
   }
 }
 
+export class Boolean extends Literal {
+  constructor(private value: boolean) {
+    super();
+  }
+
+  protected toTsString(): string {
+    return this.value.toString();
+  }
+}
+
 export class ArrayLiteral extends Literal {
   constructor(private readonly literals: TsExpression[]) {
     super();

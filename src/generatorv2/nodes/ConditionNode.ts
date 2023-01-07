@@ -30,6 +30,7 @@ export type ContextConditionRangeValue =
 type DateRangeConditionValue = {
   type: 'date';
   range: 'today';
+  thresholdHour?: number;
 };
 
 type OnNotDefinedAction =

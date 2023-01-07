@@ -20,6 +20,14 @@ export const resolvers = {
           .uPost.condition({ parent: user, childTableAlias: "t0", context });
         return ds.find(undefined, { where });
       },
+      vP: (user: UserResult, context: GQLContext) => {
+        if (user.vP !== undefined) return user.vP;
+        const ds = new PostDBDataSource();
+        const where = ds
+          .getRelationMap()
+          .vP.condition({ parent: user, childTableAlias: "t0", context });
+        return ds.first(undefined, { where });
+      },
     },
     Post: {
       pUser: (post: PostResult, context: GQLContext) => {
