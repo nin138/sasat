@@ -48,10 +48,25 @@ export const query = {
         context
       )
   ),
-  posts: makeResolver<GQLContext, {}>(async (_, {}, context, info) => {
-    const fields = gqlResolveInfoToField<PostFields>(info);
-    return new PostDBDataSource().find(fields, undefined, context);
-  }),
+  posts: makeResolver<GQLContext, { option: PagingOption }>(
+    async (_, { option }, context, info) => {
+      const fields = gqlResolveInfoToField<PostFields>(info);
+      const sort = option.order
+        ? [
+            QExpr.sort(
+              QExpr.field("t1", option.order),
+              option?.asc === false ? "DESC" : "ASC"
+            ),
+          ]
+        : [];
+      return new PostDBDataSource().findPageable(
+        { numberOfItem: option.numberOfItem, offset: option.offset, sort },
+        fields,
+        undefined,
+        context
+      );
+    }
+  ),
   stock: makeResolver<GQLContext, { id: number }>(
     async (_, { id }, context, info) =>
       new StockDBDataSource().findById(

@@ -28,7 +28,7 @@ export const relationMap: RelationMap<GQLContext> = {
       },
       array: true,
       nullable: false,
-      requiredColumns: ["uId"],
+      requiredColumns: [],
     },
     stock_userStock: {
       table: "stock",
@@ -45,7 +45,7 @@ export const relationMap: RelationMap<GQLContext> = {
       },
       array: true,
       nullable: false,
-      requiredColumns: ["user"],
+      requiredColumns: [],
     },
     vP: {
       table: "post",
@@ -61,7 +61,7 @@ export const relationMap: RelationMap<GQLContext> = {
       },
       array: true,
       nullable: false,
-      requiredColumns: [],
+      requiredColumns: ["createdAt"],
     },
   },
   post: {
@@ -80,7 +80,7 @@ export const relationMap: RelationMap<GQLContext> = {
       },
       array: false,
       nullable: false,
-      requiredColumns: [],
+      requiredColumns: ["uId"],
     },
     vC: {
       table: "user",
@@ -94,7 +94,7 @@ export const relationMap: RelationMap<GQLContext> = {
       },
       array: true,
       nullable: false,
-      requiredColumns: ["createdAt"],
+      requiredColumns: [],
     },
     Stock: {
       table: "stock",
@@ -111,7 +111,7 @@ export const relationMap: RelationMap<GQLContext> = {
       },
       array: true,
       nullable: false,
-      requiredColumns: ["post"],
+      requiredColumns: [],
     },
   },
   stock: {
@@ -130,7 +130,7 @@ export const relationMap: RelationMap<GQLContext> = {
       },
       array: false,
       nullable: false,
-      requiredColumns: [],
+      requiredColumns: ["user"],
     },
     postPost: {
       table: "post",
@@ -147,7 +147,7 @@ export const relationMap: RelationMap<GQLContext> = {
       },
       array: false,
       nullable: false,
-      requiredColumns: [],
+      requiredColumns: ["post"],
     },
   },
 };
