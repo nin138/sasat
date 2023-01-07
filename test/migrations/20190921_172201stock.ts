@@ -30,7 +30,7 @@ export default class Stock implements SasatMigration {
         .setGQLDelete(true, { subscription: true })
         .setGQLContextColumn([{ column: 'user', contextName: 'userId' }]);
       table.setGQLOption({
-        enabled: false,
+        enabled: true,
         query: { list: 'all', find: true },
       });
     });

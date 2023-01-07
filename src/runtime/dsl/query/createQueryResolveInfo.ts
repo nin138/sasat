@@ -23,15 +23,10 @@ export type MakeCondition<Context, Entity = any> = (
 
 export type RelationInfo<Context = unknown> = {
   table: string;
-  // on: (
-  //   parentTableAlias: string,
-  //   childTableAlias: string,
-  //   context?: Context,
-  // ) => BooleanValueExpression;
-  // relation: 'One' | 'OneOrZero' | 'Many';
   condition: MakeCondition<Context>;
   array: boolean;
   nullable: boolean;
+  requiredColumns: string[];
 };
 
 export type RelationMap<Context = unknown> = {
@@ -52,7 +47,7 @@ const joinToQueryResolveInfo = (
   return {
     tableAlias,
     isArray: info.array,
-    keyAliases: tableInfo[info.table].identifiableKeys,
+    keyAliases: tableInfo[info.table].identifiableFields,
     joins: Object.entries(fields.relations || {})
       .filter(([, value]) => value)
       .map(([key, value]) =>
@@ -71,6 +66,7 @@ const joinToQueryResolveInfo = (
 export type TableInfo = {
   [tableName: string]: {
     identifiableKeys: string[];
+    identifiableFields: string[];
     columnMap: { [fieldName: string]: string };
   };
 };
@@ -85,7 +81,7 @@ export const createQueryResolveInfo = (
   return {
     tableAlias,
     isArray: true,
-    keyAliases: tableInfo[tableName].identifiableKeys,
+    keyAliases: tableInfo[tableName].identifiableFields,
     joins: Object.entries(fields.relations || {})
       .filter(([, value]) => value)
       .map(([key, value]) =>

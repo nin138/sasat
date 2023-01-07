@@ -43,7 +43,7 @@ export const createQuery = (
     select.push(
       ...unique([
         ...(table.fields as string[]).filter(notTypeName),
-        ...info.identifiableKeys,
+        ...info.identifiableFields,
       ]).map(it => {
         const realName = info.columnMap[it] || it;
         return QExpr.field(

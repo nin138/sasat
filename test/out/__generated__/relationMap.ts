@@ -18,32 +18,34 @@ export const relationMap: RelationMap<GQLContext> = {
       condition: (arg): BooleanValueExpression => {
         return QExpr.conditions.and(
           QExpr.conditions.comparison(
+            QExpr.field(arg.childTableAlias, "uId"),
+            "=",
             arg.parentTableAlias
               ? QExpr.field(arg.parentTableAlias, "userId")
-              : QExpr.value(arg.parent?.userId),
-            "=",
-            QExpr.field(arg.childTableAlias, "uId")
+              : QExpr.value(arg.parent?.userId)
           )
         );
       },
       array: true,
       nullable: false,
+      requiredColumns: ["uId"],
     },
     stock_userStock: {
       table: "stock",
       condition: (arg): BooleanValueExpression => {
         return QExpr.conditions.and(
           QExpr.conditions.comparison(
+            QExpr.field(arg.childTableAlias, "user"),
+            "=",
             arg.parentTableAlias
               ? QExpr.field(arg.parentTableAlias, "userId")
-              : QExpr.value(arg.parent?.userId),
-            "=",
-            QExpr.field(arg.childTableAlias, "user")
+              : QExpr.value(arg.parent?.userId)
           )
         );
       },
       array: true,
       nullable: false,
+      requiredColumns: ["user"],
     },
     vP: {
       table: "post",
@@ -57,8 +59,9 @@ export const relationMap: RelationMap<GQLContext> = {
           )
         );
       },
-      array: false,
-      nullable: true,
+      array: true,
+      nullable: false,
+      requiredColumns: [],
     },
   },
   post: {
@@ -67,47 +70,48 @@ export const relationMap: RelationMap<GQLContext> = {
       condition: (arg): BooleanValueExpression => {
         return QExpr.conditions.and(
           QExpr.conditions.comparison(
+            QExpr.field(arg.childTableAlias, "userId"),
+            "=",
             arg.parentTableAlias
               ? QExpr.field(arg.parentTableAlias, "uId")
-              : QExpr.value(arg.parent?.uId),
-            "=",
-            QExpr.field(arg.childTableAlias, "userId")
+              : QExpr.value(arg.parent?.uId)
           )
         );
       },
       array: false,
       nullable: false,
+      requiredColumns: [],
     },
     vC: {
       table: "user",
       condition: (arg): BooleanValueExpression => {
         return QExpr.conditions.and(
           QExpr.conditions.between(
-            arg.parentTableAlias
-              ? QExpr.field(arg.parentTableAlias, "createdAt")
-              : QExpr.value(arg.parent?.createdAt),
+            QExpr.field(arg.childTableAlias, "createdAt"),
             ...getDayRangeQExpr(new Date(), undefined)
           )
         );
       },
       array: true,
       nullable: false,
+      requiredColumns: ["createdAt"],
     },
     Stock: {
       table: "stock",
       condition: (arg): BooleanValueExpression => {
         return QExpr.conditions.and(
           QExpr.conditions.comparison(
+            QExpr.field(arg.childTableAlias, "post"),
+            "=",
             arg.parentTableAlias
               ? QExpr.field(arg.parentTableAlias, "postId")
-              : QExpr.value(arg.parent?.postId),
-            "=",
-            QExpr.field(arg.childTableAlias, "post")
+              : QExpr.value(arg.parent?.postId)
           )
         );
       },
       array: true,
       nullable: false,
+      requiredColumns: ["post"],
     },
   },
   stock: {
@@ -116,38 +120,41 @@ export const relationMap: RelationMap<GQLContext> = {
       condition: (arg): BooleanValueExpression => {
         return QExpr.conditions.and(
           QExpr.conditions.comparison(
+            QExpr.field(arg.childTableAlias, "userId"),
+            "=",
             arg.parentTableAlias
               ? QExpr.field(arg.parentTableAlias, "user")
-              : QExpr.value(arg.parent?.user),
-            "=",
-            QExpr.field(arg.childTableAlias, "userId")
+              : QExpr.value(arg.parent?.user)
           )
         );
       },
       array: false,
       nullable: false,
+      requiredColumns: [],
     },
     postPost: {
       table: "post",
       condition: (arg): BooleanValueExpression => {
         return QExpr.conditions.and(
           QExpr.conditions.comparison(
+            QExpr.field(arg.childTableAlias, "postId"),
+            "=",
             arg.parentTableAlias
               ? QExpr.field(arg.parentTableAlias, "post")
-              : QExpr.value(arg.parent?.post),
-            "=",
-            QExpr.field(arg.childTableAlias, "postId")
+              : QExpr.value(arg.parent?.post)
           )
         );
       },
       array: false,
       nullable: false,
+      requiredColumns: [],
     },
   },
 };
 export const tableInfo: TableInfo = {
   user: {
     identifiableKeys: ["userId"],
+    identifiableFields: ["uid"],
     columnMap: {
       uid: "userId",
       NNN: "name",
@@ -158,10 +165,12 @@ export const tableInfo: TableInfo = {
   },
   post: {
     identifiableKeys: ["postId"],
+    identifiableFields: ["pid"],
     columnMap: { uId: "uId", pid: "postId", title: "title" },
   },
   stock: {
     identifiableKeys: ["id"],
+    identifiableFields: ["id"],
     columnMap: {
       user: "user",
       post: "post",
@@ -174,7 +183,7 @@ export const tableInfo: TableInfo = {
 export type UserRelations = {
   uPost: Array<EntityResult<PostWithRelations, PostIdentifiable>>;
   stock_userStock: Array<EntityResult<StockWithRelations, StockIdentifiable>>;
-  vP: EntityResult<PostWithRelations, PostIdentifiable>;
+  vP: Array<EntityResult<PostWithRelations, PostIdentifiable>>;
 };
 export type UserWithRelations = User & UserRelations;
 export type UserResult = EntityResult<UserWithRelations, UserIdentifiable>;
