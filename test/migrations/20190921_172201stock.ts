@@ -26,9 +26,8 @@ export default class Stock implements SasatMigration {
       table.addUniqueKey('user', 'post');
       table.setGQLCreate(true, { noReFetch: false });
       table.setGQLUpdate(true, { noReFetch: false });
-      table
-        .setGQLDelete(true, { subscription: true })
-        .setGQLContextColumn([{ column: 'user', contextName: 'userId' }]);
+      table.setGQLDelete(true, { subscription: true });
+      // .setGQLContextColumn([{ column: 'user', contextName: 'userId' }]);
       table.setGQLOption({
         enabled: true,
         query: { list: 'all', find: true },

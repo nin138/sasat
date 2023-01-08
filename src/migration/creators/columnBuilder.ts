@@ -23,8 +23,15 @@ export abstract class ColumnBuilderBase {
   protected _notNull = true;
   protected _unique = false;
   protected _option: ColumnOptions = defaultColumnOption;
+  protected _fieldName: string;
+  protected constructor(protected readonly columnName: string) {
+    this._fieldName = columnName;
+  }
 
-  protected constructor(protected readonly columnName: string) {}
+  fieldName(fieldName: string): this {
+    this._fieldName = fieldName;
+    return this;
+  }
 
   notNull(): this {
     this._notNull = true;
@@ -64,7 +71,6 @@ export abstract class ColumnBuilder extends ColumnBuilderBase {
   protected _default: SqlValueType | undefined;
   protected _defaultCurrentTimeStamp = false;
   protected _onUpdateCurrentTimeStamp = false;
-  protected _fieldName: string;
   protected constructor(
     name: string,
     protected type: DBColumnTypes,
@@ -73,11 +79,6 @@ export abstract class ColumnBuilder extends ColumnBuilderBase {
   ) {
     super(name);
     this._fieldName = name;
-  }
-
-  fieldName(fieldName: string): this {
-    this._fieldName = fieldName;
-    return this;
   }
 
   default(value: SqlValueType | undefined): this {
@@ -248,11 +249,10 @@ export class BooleanColumnBuilder extends ColumnBuilder {
 
 export class ReferenceColumnBuilder extends ColumnBuilderBase {
   constructor(
-    name: string,
     protected readonly ref: Reference,
     protected readonly parent: Column,
   ) {
-    super(name);
+    super(ref.columnName);
     this._option = {
       updatable: false,
     };
@@ -277,8 +277,8 @@ export class ReferenceColumnBuilder extends ColumnBuilderBase {
     const data: SerializedReferenceColumn = {
       ...this.parent.serialize(),
       hasReference: true,
-      fieldName: this.ref.fieldName || this.ref.columnName,
-      columnName: this.ref.columnName,
+      fieldName: this._fieldName,
+      columnName: this.columnName,
       notNull: this._notNull,
       default: undefined,
       autoIncrement: false,

@@ -6,7 +6,9 @@ export type ConditionValue =
       field: string;
     }
   | ContextConditionValue
-  | FixedConditionValue;
+  | FixedConditionValue
+  | TodayStartConditionValue
+  | NowConditionValue;
 
 type ContextConditionValue = {
   type: 'context';
@@ -19,6 +21,15 @@ type FixedConditionValue = {
   value: string | number;
 };
 
+type TodayStartConditionValue = {
+  type: 'today';
+  thresholdHour?: number;
+};
+
+type NowConditionValue = {
+  type: 'now';
+};
+
 export type ContextConditionRangeValue =
   | {
       type: 'range';
@@ -28,7 +39,7 @@ export type ContextConditionRangeValue =
   | DateRangeConditionValue;
 
 type DateRangeConditionValue = {
-  type: 'date';
+  type: 'date-range';
   range: 'today';
   thresholdHour?: number;
 };

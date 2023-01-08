@@ -1,4 +1,2 @@
 /* eslint-disable */
-export interface BaseGQLContext {
-  userId: number;
-}
+export interface BaseGQLContext {}

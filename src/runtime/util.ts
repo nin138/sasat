@@ -69,6 +69,10 @@ const getDateString = (d: Date) => {
   );
 };
 
+export const getTodayDateString = (timeZoneHour?: number): string => {
+  return getDateString(dateOffset(new Date(), timeZoneHour));
+};
+
 export const getDayRange = (
   date: Date,
   timeZoneHour?: number,

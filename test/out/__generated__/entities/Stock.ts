@@ -1,19 +1,15 @@
 /* eslint-disable */
 export type Stock = {
+  readonly id: number;
   readonly user: number;
   readonly post: number;
-  readonly id: number;
   readonly createdAt: string;
   readonly updatedAt: string;
 };
 export type StockCreatable = {
+  readonly id: number;
   readonly user: number;
   readonly post: number;
-  readonly id: number;
 };
-export type StockUpdatable = {
-  readonly id: number;
-  readonly user?: number | null;
-  readonly post?: number | null;
-};
+export type StockUpdatable = { readonly id: number };
 export type StockIdentifiable = { readonly id: number };
