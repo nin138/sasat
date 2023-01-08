@@ -72,6 +72,19 @@ const makeConditionValueQExpr = (
             : tsg.number(cv.value),
         );
     }
+    case 'today': {
+      return qExpr
+        .property('value')
+        .call(tsg.identifier('getTodayDateString').importFrom('sasat').call());
+    }
+    case 'now': {
+      return qExpr.property('value').call(
+        tsg
+          .identifier('dateString')
+          .importFrom('sasat')
+          .call(tsg.new(tsg.identifier('Date'))),
+      );
+    }
   }
 };
 

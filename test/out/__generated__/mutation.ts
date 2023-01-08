@@ -76,23 +76,22 @@ export const mutation = {
   updateStock: makeResolver<
     GQLContext,
     { stock: StockIdentifiable & StockUpdatable }
-  >(async (_, { stock }, context) => {
+  >(async (_, { stock }) => {
     const ds = new StockDBDataSource();
     const result = await ds
-      .update({ ...stock, user: context.userId })
+      .update(stock)
       .then((it: CommandResponse): boolean => it.changedRows === 1);
     const identifiable = pick(stock, ["id"]) as unknown as StockIdentifiable;
     const fetched = await ds.findById(identifiable.id);
     return fetched;
   }),
-  deleteStock: makeResolver<
-    GQLContext,
-    { stock: StockIdentifiable & StockUpdatable }
-  >(async (_, { stock }, context) => {
-    const ds = new StockDBDataSource();
-    const result = await ds
-      .update({ ...stock, user: context.userId })
-      .then((it: CommandResponse): boolean => it.changedRows === 1);
-    return result;
-  }),
+  deleteStock: makeResolver<GQLContext, { stock: StockIdentifiable }>(
+    async (_, { stock }) => {
+      const ds = new StockDBDataSource();
+      const result = await ds
+        .delete(stock)
+        .then((it: CommandResponse): boolean => it.affectedRows === 1);
+      return result;
+    }
+  ),
 };

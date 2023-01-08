@@ -36,6 +36,7 @@ export {
   dateOffset,
   dateToString,
   getDayRangeQExpr,
+  getTodayDateString,
 } from './runtime/util.js';
 export { makeResolver } from './runtime/makeResolver.js';
 export type PagingOption = ListQueryOption;

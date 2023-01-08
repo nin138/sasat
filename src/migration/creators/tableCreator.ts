@@ -81,9 +81,8 @@ export class TableCreator implements TableBuilder {
   }
   references(ref: Reference): ReferenceColumnBuilder {
     const column = new ReferenceColumnBuilder(
-      ref.columnName,
       ref,
-      this.store.table(ref.parentTable).column(ref.parentTable),
+      this.store.table(ref.parentTable).column(ref.parentColumn),
     );
     this.addColumn(column);
     return column;

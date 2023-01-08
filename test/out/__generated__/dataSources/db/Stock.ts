@@ -21,9 +21,9 @@ export abstract class GeneratedStockDBDataSource extends BaseDBDataSource<
 > {
   readonly tableName: string = "stock";
   readonly fields: Array<string> = [
+    "id",
     "user",
     "post",
-    "id",
     "createdAt",
     "updatedAt",
   ];

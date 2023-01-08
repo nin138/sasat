@@ -116,7 +116,7 @@ const makeDeleteMutationNode = (table: TableHandler): MutationNode => {
         },
       },
     ],
-    mutationType: 'update',
+    mutationType: 'delete',
     subscription: table.gqlOption.mutation.update.subscription,
   };
 };
