@@ -4,6 +4,7 @@ import {
   DecimalColumnBuilder,
   FloatColumnBuilder,
   IntegerColumnBuilder,
+  ReferenceColumnBuilder,
   StringColumnBuilder,
   TextColumnBuilder,
   TimeStampColumnBuilder,

@@ -11,13 +11,53 @@ import { SqlValueType } from '../../db/connectors/dbClient.js';
 import {
   ColumnOptions,
   defaultColumnOption,
+  Reference,
+  SerializedColumn,
   SerializedNormalColumn,
+  SerializedReferenceColumn,
 } from '../serialized/serializedColumn.js';
+import { Column } from '../serializable/column.js';
 
-export abstract class ColumnBuilder {
+export abstract class ColumnBuilderBase {
   protected _primary = false;
   protected _notNull = true;
   protected _unique = false;
+  protected _option: ColumnOptions = defaultColumnOption;
+
+  protected constructor(protected readonly columnName: string) {}
+
+  notNull(): this {
+    this._notNull = true;
+    return this;
+  }
+
+  nullable(): this {
+    this._notNull = false;
+    return this;
+  }
+
+  primary(): this {
+    this._primary = true;
+    return this;
+  }
+
+  unique(): this {
+    this._unique = true;
+    return this;
+  }
+
+  updatable(updatable: boolean): this {
+    this._option = { ...this._option, updatable };
+    return this;
+  }
+  abstract build(): {
+    data: SerializedColumn;
+    isPrimary: boolean;
+    isUnique: boolean;
+  };
+}
+
+export abstract class ColumnBuilder extends ColumnBuilderBase {
   protected _zerofill = false;
   protected _signed: boolean | undefined;
   protected _autoIncrement = false;
@@ -25,13 +65,13 @@ export abstract class ColumnBuilder {
   protected _defaultCurrentTimeStamp = false;
   protected _onUpdateCurrentTimeStamp = false;
   protected _fieldName: string;
-  protected _option: ColumnOptions = defaultColumnOption;
   protected constructor(
-    readonly name: string,
+    name: string,
     protected type: DBColumnTypes,
     protected length?: number,
     protected scale?: number,
   ) {
+    super(name);
     this._fieldName = name;
   }
 
@@ -40,28 +80,8 @@ export abstract class ColumnBuilder {
     return this;
   }
 
-  notNull(): this {
-    this._notNull = true;
-    return this;
-  }
-  nullable(): this {
-    this._notNull = false;
-    return this;
-  }
-  primary(): this {
-    this._primary = true;
-    return this;
-  }
-  unique(): this {
-    this._unique = true;
-    return this;
-  }
   default(value: SqlValueType | undefined): this {
     this._default = value;
-    return this;
-  }
-  updatable(updatable: boolean): this {
-    this._option = { ...this._option, updatable };
     return this;
   }
   build(): {
@@ -72,7 +92,7 @@ export abstract class ColumnBuilder {
     return {
       data: {
         hasReference: false,
-        columnName: this.name,
+        columnName: this.columnName,
         fieldName: this._fieldName,
         type: this.type,
         length: this.length,
@@ -223,5 +243,54 @@ export class BooleanColumnBuilder extends ColumnBuilder {
   default(value: boolean | null): this {
     this._default = value;
     return this;
+  }
+}
+
+export class ReferenceColumnBuilder extends ColumnBuilderBase {
+  constructor(
+    name: string,
+    protected readonly ref: Reference,
+    protected readonly parent: Column,
+  ) {
+    super(name);
+    this._option = {
+      updatable: false,
+    };
+  }
+  notNull(): this {
+    this._notNull = true;
+    return this;
+  }
+  nullable(): this {
+    this._notNull = false;
+    return this;
+  }
+  primary(): this {
+    this._primary = true;
+    return this;
+  }
+  unique(): this {
+    this._unique = true;
+    return this;
+  }
+  build() {
+    const data: SerializedReferenceColumn = {
+      ...this.parent.serialize(),
+      hasReference: true,
+      fieldName: this.ref.fieldName || this.ref.columnName,
+      columnName: this.ref.columnName,
+      notNull: this._notNull,
+      default: undefined,
+      autoIncrement: false,
+      defaultCurrentTimeStamp: false,
+      onUpdateCurrentTimeStamp: false,
+      reference: this.ref,
+      option: this._option,
+    };
+    return {
+      data,
+      isPrimary: this._primary,
+      isUnique: this._unique,
+    };
   }
 }
