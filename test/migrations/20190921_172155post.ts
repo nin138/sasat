@@ -45,7 +45,7 @@ export default class Post implements SasatMigration {
             },
             operator: 'BETWEEN',
             right: {
-              type: 'date',
+              type: 'date-range',
               range: 'today',
             },
           },
