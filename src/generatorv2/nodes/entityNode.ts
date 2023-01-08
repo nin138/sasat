@@ -118,10 +118,11 @@ export class EntityNode {
         ),
       )
       .concat(
-        table.virtualRelations
-          .map(it => ReferenceNode.formVirtualRelation(store, this, it))
-          .filter(nonNullable),
-      );
+        table.virtualRelations.map(it =>
+          ReferenceNode.formVirtualRelation(store, this, it),
+        ),
+      )
+      .filter(nonNullable);
     this.referencedBy = store
       .referencedBy(table.tableName)
       .map(column => ReferencedNode.fromReference(this, table, column))
@@ -155,20 +156,6 @@ export class EntityNode {
   }
 }
 
-const makeParentFieldName = (column: ReferenceColumn) => {
-  return (
-    (column.data.reference.relationName || '') +
-    EntityName.fromTableName(column.table.tableName).name
-  );
-};
-const makeChildFieldName = (column: ReferenceColumn) => {
-  return (
-    column.data.reference.relationName ||
-    column.fieldName() +
-      EntityName.fromTableName(column.data.reference.parentTable).name
-  );
-};
-
 const makeJoinCondition = (
   parentColumn: string,
   childColumn: string,
@@ -189,9 +176,10 @@ export class ReferenceNode {
     parentTable: Table,
   ) {
     const ref = column.data.reference;
+    if (!ref.fieldName) return null;
     return new ReferenceNode(
       entity,
-      ref.fieldName || makeChildFieldName(column),
+      ref.fieldName,
       column.table.tableName,
       ref.parentTable,
       makeJoinCondition(ref.parentColumn, column.columnName()),
@@ -206,7 +194,7 @@ export class ReferenceNode {
     entity: EntityNode,
     rel: VirtualRelation,
   ) {
-    if (rel.childFieldName === false) return null;
+    if (!rel.childFieldName) return null;
     return new ReferenceNode(
       entity,
       rel.childFieldName,
@@ -241,10 +229,10 @@ export class ReferencedNode {
     column: ReferenceColumn,
   ) {
     const ref = column.data.reference;
-    if (ref.parentFieldName === false) return null;
+    if (!ref.parentFieldName) return null;
     return new ReferencedNode(
       entity,
-      column.data.reference.parentFieldName || makeParentFieldName(column),
+      ref.parentFieldName,
       column.table.tableName,
       makeJoinCondition(column.columnName(), ref.parentColumn),
       ref.relation === 'Many',
@@ -260,7 +248,7 @@ export class ReferencedNode {
     entity: EntityNode,
     rel: VirtualRelation,
   ) {
-    if (rel.parentFieldName === false) return null;
+    if (!rel.parentFieldName) return null;
     return new ReferencedNode(
       entity,
       rel.parentFieldName,
@@ -319,16 +307,6 @@ type EntityParameterNode = {
   entityName: EntityName;
   fields: PrimitiveParameterNode[];
 };
-
-const makeEntityParameterNode = (
-  entityName: EntityName,
-  fields: PrimitiveParameterNode[],
-): EntityParameterNode => ({
-  entity: true,
-  name: entityName.lowerCase(),
-  entityName,
-  fields,
-});
 
 type PrimitiveParameterNode = {
   entity: false;
