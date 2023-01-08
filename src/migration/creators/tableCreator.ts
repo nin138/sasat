@@ -1,6 +1,6 @@
 import { ColumnCreator } from './columnCreator.js';
-import { ColumnBuilder } from './columnBuilder.js';
-import { NormalColumn } from '../serializable/column.js';
+import { ColumnBuilderBase, ReferenceColumnBuilder } from './columnBuilder.js';
+import { NormalColumn, ReferenceColumn } from '../serializable/column.js';
 import { Reference } from '../serialized/serializedColumn.js';
 import { TableHandler } from '../serializable/table.js';
 import {
@@ -18,7 +18,7 @@ export interface TableBuilder {
     relation: Omit<VirtualRelation, 'childTable'>,
   ): TableBuilder;
 
-  references(reference: Reference, notNull?: boolean): TableBuilder;
+  references(reference: Reference, notNull?: boolean): ColumnBuilderBase;
 
   setPrimaryKey(...columnNames: string[]): TableBuilder;
 
@@ -54,9 +54,9 @@ export interface TableBuilder {
 
 export class TableCreator implements TableBuilder {
   private readonly table: TableHandler;
-  private readonly columns: ColumnBuilder[] = [];
+  private readonly columns: ColumnBuilderBase[] = [];
 
-  constructor(public tableName: string, store: DataStore) {
+  constructor(public tableName: string, protected readonly store: DataStore) {
     this.table = new TableHandler({ tableName }, store);
   }
 
@@ -71,7 +71,7 @@ export class TableCreator implements TableBuilder {
     return this;
   }
 
-  addColumn(column: ColumnBuilder): void {
+  addColumn(column: ColumnBuilderBase): void {
     this.columns.push(column);
   }
 
@@ -79,10 +79,14 @@ export class TableCreator implements TableBuilder {
     this.table.addUniqueKey(...columnNames);
     return this;
   }
-
-  references(ref: Reference, notNull = true): TableBuilder {
-    this.table.addReferences(ref, undefined, notNull);
-    return this;
+  references(ref: Reference): ReferenceColumnBuilder {
+    const column = new ReferenceColumnBuilder(
+      ref.columnName,
+      ref,
+      this.store.table(ref.parentTable).column(ref.parentTable),
+    );
+    this.addColumn(column);
+    return column;
   }
 
   setPrimaryKey(...columnNames: string[]): TableBuilder {
@@ -94,7 +98,9 @@ export class TableCreator implements TableBuilder {
     this.columns.forEach(column => {
       const { data, isPrimary, isUnique } = column.build();
       this.table.addColumn(
-        new NormalColumn(data, this.table),
+        data.hasReference
+          ? new ReferenceColumn(data, this.table)
+          : new NormalColumn(data, this.table),
         isPrimary,
         isUnique,
       );
