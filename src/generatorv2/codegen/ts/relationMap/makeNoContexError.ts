@@ -8,11 +8,11 @@ import { IfStatement, tsg } from '../../../../tsg/index.js';
 const makeJoinRangeConditionThrowExpressions = (
   cv: ContextConditionRangeValue,
 ): (IfStatement | null)[] => {
-  if (cv.type === 'range') {
+  if (cv.kind === 'range') {
     const result = [];
-    if (cv.begin.type === 'context')
+    if (cv.begin.kind === 'context')
       result.push(makeJoinConditionThrowExpressions(cv.begin));
-    if (cv.end.type === 'context')
+    if (cv.end.kind === 'context')
       result.push(makeJoinConditionThrowExpressions(cv.end));
     return result;
   }
@@ -20,7 +20,7 @@ const makeJoinRangeConditionThrowExpressions = (
 };
 
 const makeJoinConditionThrowExpressions = (cv: ConditionValue) => {
-  if (cv.type !== 'context') return null;
+  if (cv.kind !== 'context') return null;
   if (cv.onNotDefined.action !== 'error') return null;
   return tsg.if(
     tsg.binary(
@@ -39,11 +39,11 @@ const makeJoinConditionThrowExpressions = (cv: ConditionValue) => {
 };
 
 export const makeThrowExpressions = (condition: ConditionNode) => {
-  if (condition.type === 'custom') return [];
+  if (condition.kind === 'custom') return [];
   if (condition.operator === 'BETWEEN') {
     return [
       makeJoinConditionThrowExpressions(condition.left),
-      ...(condition.right.type === 'range'
+      ...(condition.right.kind === 'range'
         ? makeJoinRangeConditionThrowExpressions(condition.right)
         : []),
     ];

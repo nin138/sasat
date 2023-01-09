@@ -6,12 +6,12 @@ import {
 import { ComparisonOperators } from '../db/sql/expression/comparison.js';
 
 const parent = (field: string): ConditionValue => ({
-  type: 'parent',
+  kind: 'parent',
   field,
 });
 
 const child = (field: string): ConditionValue => ({
-  type: 'child',
+  kind: 'child',
   field,
 });
 
@@ -19,7 +19,7 @@ const contextOrError = (
   field: string,
   errorMessage: string,
 ): ConditionValue => ({
-  type: 'context',
+  kind: 'context',
   field,
   onNotDefined: {
     action: 'error',
@@ -31,7 +31,7 @@ const contextOrDefault = (
   field: string,
   defaultValue: string | number,
 ): ConditionValue => ({
-  type: 'context',
+  kind: 'context',
   field,
   onNotDefined: {
     action: 'defaultValue',
@@ -40,17 +40,18 @@ const contextOrDefault = (
 });
 
 const fixed = (value: string | number): ConditionValue => ({
-  type: 'fixed',
+  kind: 'fixed',
   value,
 });
 
-const today = (thresholdHour?: number): ConditionValue => ({
-  type: 'today',
+const today = (thresholdHour?: number, date?: boolean): ConditionValue => ({
+  kind: 'today',
+  type: date ? 'date' : 'datetime',
   thresholdHour,
 });
 
 const now = (): ConditionValue => ({
-  type: 'now',
+  kind: 'now',
 });
 
 const comparison = (
@@ -58,7 +59,7 @@ const comparison = (
   operator: ComparisonOperators,
   right: ConditionValue,
 ): ConditionNode => ({
-  type: 'comparison',
+  kind: 'comparison',
   left,
   right,
   operator,
@@ -68,7 +69,7 @@ const between = (
   left: ConditionValue,
   range: ContextConditionRangeValue,
 ): ConditionNode => ({
-  type: 'comparison',
+  kind: 'comparison',
   left,
   operator: 'BETWEEN',
   right: range,
@@ -78,13 +79,13 @@ const values = (
   begin: ConditionValue,
   end: ConditionValue,
 ): ContextConditionRangeValue => ({
-  type: 'range',
+  kind: 'range',
   begin,
   end,
 });
 
 const betweenToday = (thresholdHour?: number): ContextConditionRangeValue => ({
-  type: 'date-range',
+  kind: 'date-range',
   range: 'today',
   thresholdHour,
 });
@@ -94,7 +95,7 @@ const custom = (
   parentRequiredFields?: string[],
   childRequiredFields?: string[],
 ): ConditionNode => ({
-  type: 'custom',
+  kind: 'custom',
   conditionName,
   parentRequiredFields,
   childRequiredFields,

@@ -50,12 +50,12 @@ export const generateUserDefinedCondition = (
     root.entities.flatMap(it => [
       ...it.references.flatMap(it =>
         it.joinCondition
-          .filter(it => it.type === 'custom')
+          .filter(it => it.kind === 'custom')
           .map(it => (it as CustomConditionNode).conditionName),
       ),
       ...it.referencedBy.flatMap(it =>
         it.joinCondition
-          .filter(it => it.type === 'custom')
+          .filter(it => it.kind === 'custom')
           .map(it => (it as CustomConditionNode).conditionName),
       ),
     ]),

@@ -39,7 +39,7 @@ export default class Post implements SasatMigration {
           //   },
           //   operator: '=',
           // },
-          Conditions.custom('hoge', undefined, ['userId']),
+          Conditions.custom('hoge', ['userId']),
           Conditions.between(
             Conditions.value.parent('createdAt'),
             Conditions.range.today(),

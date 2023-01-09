@@ -2,7 +2,7 @@ import { ComparisonOperators } from '../../db/sql/expression/comparison.js';
 
 export type ConditionValue =
   | {
-      type: 'parent' | 'child';
+      kind: 'parent' | 'child';
       field: string;
     }
   | ContextConditionValue
@@ -11,35 +11,36 @@ export type ConditionValue =
   | NowConditionValue;
 
 type ContextConditionValue = {
-  type: 'context';
+  kind: 'context';
   field: string;
   onNotDefined: OnNotDefinedAction;
 };
 
 type FixedConditionValue = {
-  type: 'fixed';
+  kind: 'fixed';
   value: string | number;
 };
 
 type TodayStartConditionValue = {
-  type: 'today';
+  kind: 'today';
+  type: 'date' | 'datetime';
   thresholdHour?: number;
 };
 
 type NowConditionValue = {
-  type: 'now';
+  kind: 'now';
 };
 
 export type ContextConditionRangeValue =
   | {
-      type: 'range';
+      kind: 'range';
       begin: ConditionValue;
       end: ConditionValue;
     }
   | DateRangeConditionValue;
 
 type DateRangeConditionValue = {
-  type: 'date-range';
+  kind: 'date-range';
   range: 'today';
   thresholdHour?: number;
 };
@@ -56,13 +57,13 @@ type OnNotDefinedAction =
 
 export type ConditionNode =
   | {
-      type: 'comparison';
+      kind: 'comparison';
       left: ConditionValue;
       operator: ComparisonOperators;
       right: ConditionValue;
     }
   | {
-      type: 'comparison';
+      kind: 'comparison';
       left: ConditionValue;
       operator: 'BETWEEN';
       right: ContextConditionRangeValue;
@@ -70,7 +71,7 @@ export type ConditionNode =
   | CustomConditionNode;
 
 export type CustomConditionNode = {
-  type: 'custom';
+  kind: 'custom';
   conditionName: string;
   parentRequiredFields?: string[];
   childRequiredFields?: string[];

@@ -5,7 +5,7 @@ import { nonNullable } from '../../../../runtime/util.js';
 type GetConditionValue = (cv: ConditionValue) => string | null;
 
 const getChildConditionValue: GetConditionValue = cv => {
-  if (cv.type === 'child') {
+  if (cv.kind === 'child') {
     return cv.field;
   }
   return null;
@@ -14,12 +14,12 @@ const getChildConditionValue: GetConditionValue = cv => {
 const getConditionChildColumnNames =
   (getConditionValue: GetConditionValue) =>
   (c: ConditionNode): (string | null)[] => {
-    if (c.type === 'custom') return c.childRequiredFields || [];
+    if (c.kind === 'custom') return c.childRequiredFields || [];
     const result = [getConditionValue(c.left)];
     if (c.operator !== 'BETWEEN') {
       result.push(getConditionValue(c.right));
     } else {
-      if (c.right.type === 'range') {
+      if (c.right.kind === 'range') {
         result.push(
           getConditionValue(c.right.begin),
           getConditionValue(c.right.end),

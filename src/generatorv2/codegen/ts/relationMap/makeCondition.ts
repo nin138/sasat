@@ -23,7 +23,7 @@ const makeConditionValueQExpr = (
 ): TsExpression => {
   const arg = tsg.identifier('arg');
   const context = arg.property('context?');
-  switch (cv.type) {
+  switch (cv.kind) {
     case 'context': {
       const value = context.property(cv.field);
       if (cv.onNotDefined.action !== 'defaultValue') {
@@ -73,9 +73,16 @@ const makeConditionValueQExpr = (
         );
     }
     case 'today': {
-      return qExpr
-        .property('value')
-        .call(tsg.identifier('getTodayDateString').importFrom('sasat').call());
+      return qExpr.property('value').call(
+        tsg
+          .identifier(
+            cv.type === 'datetime'
+              ? 'getTodayDateTimeString'
+              : 'getTodayDateString',
+          )
+          .importFrom('sasat')
+          .call(),
+      );
     }
     case 'now': {
       return qExpr.property('value').call(
@@ -92,7 +99,7 @@ const makeRangeCondition = (
   entity: EntityNode,
   range: ContextConditionRangeValue,
 ): TsExpression[] => {
-  if (range.type === 'range') {
+  if (range.kind === 'range') {
     return [
       makeConditionValueQExpr(entity, range.begin),
       makeConditionValueQExpr(entity, range.end),
@@ -114,7 +121,7 @@ const makeRangeCondition = (
 };
 
 const makeConditionExpr = (entity: EntityNode, condition: ConditionNode) => {
-  if (condition.type === 'custom') {
+  if (condition.kind === 'custom') {
     return tsg
       .identifier(condition.conditionName)
       .importFrom('../conditions')

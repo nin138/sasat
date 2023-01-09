@@ -330,15 +330,15 @@ const makePrimitiveParameterNode = (
 });
 
 const reverseConditionValue = (cv: ConditionValue): ConditionValue => {
-  if (cv.type === 'parent') {
+  if (cv.kind === 'parent') {
     return {
       ...cv,
-      type: 'child',
+      kind: 'child',
     };
-  } else if (cv.type === 'child') {
+  } else if (cv.kind === 'child') {
     return {
       ...cv,
-      type: 'parent',
+      kind: 'parent',
     };
   }
   return cv;
@@ -347,9 +347,9 @@ const reverseConditionValue = (cv: ConditionValue): ConditionValue => {
 const reverseRangeCondition = (
   condition: ContextConditionRangeValue,
 ): ContextConditionRangeValue => {
-  if (condition.type === 'range') {
+  if (condition.kind === 'range') {
     return {
-      type: condition.type,
+      kind: condition.kind,
       begin: reverseConditionValue(condition.begin),
       end: reverseConditionValue(condition.end),
     };
@@ -358,7 +358,7 @@ const reverseRangeCondition = (
 };
 
 const reverseConditionNode = (condition: ConditionNode): ConditionNode => {
-  if (condition.type === 'custom')
+  if (condition.kind === 'custom')
     return {
       ...condition,
       parentRequiredFields: condition.childRequiredFields,

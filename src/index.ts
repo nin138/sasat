@@ -33,12 +33,14 @@ export { assignDeep } from './util/assignDeep.js';
 export { createTypeDef } from './runtime/createTypeDef.js';
 export { CompositeCondition } from './db/sql/expression/compositeCondition.js';
 export {
-  pick,
   getDayRange,
   dateOffset,
-  dateToString,
-  getDayRangeQExpr,
+  dateToDateString,
+  dateToDatetimeString,
   getTodayDateString,
-} from './runtime/util.js';
+  getTodayDateTimeString,
+  getDayRangeQExpr,
+} from './runtime/date.js';
+export { pick } from './runtime/util.js';
 export { makeResolver } from './runtime/makeResolver.js';
 export type PagingOption = ListQueryOption;
