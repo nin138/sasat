@@ -56,12 +56,22 @@ type OnNotDefinedAction =
 
 export type ConditionNode =
   | {
+      type: 'comparison';
       left: ConditionValue;
       operator: ComparisonOperators;
       right: ConditionValue;
     }
   | {
+      type: 'comparison';
       left: ConditionValue;
       operator: 'BETWEEN';
       right: ContextConditionRangeValue;
-    };
+    }
+  | CustomConditionNode;
+
+export type CustomConditionNode = {
+  type: 'custom';
+  conditionName: string;
+  parentRequiredFields?: string[];
+  childRequiredFields?: string[];
+};

@@ -39,6 +39,7 @@ const makeJoinConditionThrowExpressions = (cv: ConditionValue) => {
 };
 
 export const makeThrowExpressions = (condition: ConditionNode) => {
+  if (condition.type === 'custom') return [];
   if (condition.operator === 'BETWEEN') {
     return [
       makeJoinConditionThrowExpressions(condition.left),

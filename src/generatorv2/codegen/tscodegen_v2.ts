@@ -12,6 +12,7 @@ import { generateDatasource } from './ts/generateDatasource.js';
 import { generateResolver } from './ts/generateResolver.js';
 import { generateContext } from './ts/generateContext.js';
 import { generateSubscription } from './ts/generateSubscription.js';
+import { generateUserDefinedCondition } from './ts/generateUserDefinedCondition.js';
 
 export type FileData = { name: string; body: string };
 
@@ -41,5 +42,8 @@ export class TsCodegen_v2 {
   };
   generateOnceFiles = (): FileData[] => {
     return staticFiles;
+  };
+  generateConditions = (root: RootNode, currentFile: string) => {
+    return generateUserDefinedCondition(root, currentFile);
   };
 }

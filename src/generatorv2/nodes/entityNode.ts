@@ -18,6 +18,7 @@ import {
   ContextConditionRangeValue,
 } from './ConditionNode.js';
 import { nonNullable } from '../../runtime/util.js';
+import { Conditions } from '../../migration/makeCondition.js';
 
 const makeFieldNode = (column: BaseColumn): FieldNode => ({
   fieldName: column.fieldName(),
@@ -161,11 +162,11 @@ const makeJoinCondition = (
   childColumn: string,
 ): ConditionNode[] => {
   return [
-    {
-      left: { type: 'parent', field: parentColumn },
-      right: { type: 'child', field: childColumn },
-      operator: '=',
-    },
+    Conditions.comparison(
+      Conditions.value.parent(parentColumn),
+      '=',
+      Conditions.value.child(childColumn),
+    ),
   ];
 };
 
@@ -357,16 +358,21 @@ const reverseRangeCondition = (
 };
 
 const reverseConditionNode = (condition: ConditionNode): ConditionNode => {
-  if (condition.operator === 'BETWEEN') {
+  if (condition.type === 'custom')
     return {
-      left: reverseConditionValue(condition.left),
-      operator: condition.operator,
-      right: reverseRangeCondition(condition.right),
+      ...condition,
+      parentRequiredFields: condition.childRequiredFields,
+      childRequiredFields: condition.parentRequiredFields,
     };
+  if (condition.operator === 'BETWEEN') {
+    return Conditions.between(
+      reverseConditionValue(condition.left),
+      reverseRangeCondition(condition.right),
+    );
   }
-  return {
-    left: reverseConditionValue(condition.left),
-    operator: condition.operator,
-    right: reverseConditionValue(condition.right),
-  };
+  return Conditions.comparison(
+    reverseConditionValue(condition.right),
+    condition.operator,
+    reverseConditionValue(condition.left),
+  );
 };

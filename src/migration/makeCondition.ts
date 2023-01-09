@@ -58,18 +58,21 @@ const comparison = (
   operator: ComparisonOperators,
   right: ConditionValue,
 ): ConditionNode => ({
+  type: 'comparison',
   left,
   right,
   operator,
 });
 
-const between =
-  () =>
-  (left: ConditionValue, range: ContextConditionRangeValue): ConditionNode => ({
-    left,
-    operator: 'BETWEEN',
-    right: range,
-  });
+const between = (
+  left: ConditionValue,
+  range: ContextConditionRangeValue,
+): ConditionNode => ({
+  type: 'comparison',
+  left,
+  operator: 'BETWEEN',
+  right: range,
+});
 
 const values = (
   begin: ConditionValue,
@@ -86,9 +89,21 @@ const betweenToday = (thresholdHour?: number): ContextConditionRangeValue => ({
   thresholdHour,
 });
 
+const custom = (
+  conditionName: string,
+  parentRequiredFields?: string[],
+  childRequiredFields?: string[],
+): ConditionNode => ({
+  type: 'custom',
+  conditionName,
+  parentRequiredFields,
+  childRequiredFields,
+});
+
 export const Conditions = {
   comparison,
   between,
+  custom,
   value: {
     parent,
     child,

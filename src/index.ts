@@ -1,4 +1,5 @@
 import { ListQueryOption } from './runtime/sasatDBDatasource.js';
+export type { CustomCondition } from './runtime/types.js';
 export { Conditions } from './migration/makeCondition.js';
 export type {
   BooleanValueExpression,

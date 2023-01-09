@@ -114,6 +114,12 @@ const makeRangeCondition = (
 };
 
 const makeConditionExpr = (entity: EntityNode, condition: ConditionNode) => {
+  if (condition.type === 'custom') {
+    return tsg
+      .identifier(condition.conditionName)
+      .importFrom('../conditions')
+      .call(tsg.identifier('arg'));
+  }
   if (condition.operator === 'BETWEEN') {
     return qExpr
       .property('conditions')

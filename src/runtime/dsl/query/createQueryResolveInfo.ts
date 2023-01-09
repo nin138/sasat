@@ -2,7 +2,7 @@ import { BooleanValueExpression } from './query.js';
 import { QueryResolveInfo } from './sql/hydrate.js';
 import { Fields } from '../../field.js';
 
-type MakeConditionArg<Context = unknown, Entity = unknown> = {
+export type MakeConditionArg<Context = unknown, Entity = unknown> = {
   childTableAlias: string;
   context?: Context;
 } & (

@@ -8,6 +8,7 @@ import { TsCodegen_v2 } from './codegen/tscodegen_v2.js';
 import { DataStoreHandler } from '../migration/dataStore.js';
 import { parse } from './parse.js';
 import { Directory } from './directory.js';
+import { readFileSync, writeFileSync } from 'fs';
 
 const { emptyDir, writeFile } = fs;
 
@@ -37,6 +38,7 @@ export class CodeGen_v2 {
       ...this.generateGql(this.root),
       ...this.generateFiles(this.root),
       ...this.generateOnceFiles(),
+      this.generateCondition(this.root),
     ]);
   }
 
@@ -119,5 +121,12 @@ export class CodeGen_v2 {
       .map(it =>
         writeFileIfNotExist(this.getFullPath(this.outDir, it.name), it.body),
       );
+  }
+
+  private async generateCondition(rootNode: RootNode) {
+    const filePath = this.getFullPath(this.outDir, 'conditions');
+    await writeFileIfNotExist(filePath, '');
+    const content = readFileSync(filePath).toString();
+    writeFileSync(filePath, this.codeGen.generateConditions(rootNode, content));
   }
 }

@@ -1,4 +1,5 @@
-import { MigrationStore, SasatMigration } from '../../src';
+import { MigrationStore, SasatMigration, Conditions } from '../../src/index.js';
+// import {Conditions} from "../../src";
 
 export default class Post implements SasatMigration {
   up: (store: MigrationStore) => void = store => {
@@ -38,17 +39,11 @@ export default class Post implements SasatMigration {
           //   },
           //   operator: '=',
           // },
-          {
-            left: {
-              type: 'parent',
-              field: 'createdAt',
-            },
-            operator: 'BETWEEN',
-            right: {
-              type: 'date-range',
-              range: 'today',
-            },
-          },
+          Conditions.custom('hoge', undefined, ['userId']),
+          Conditions.between(
+            Conditions.value.parent('createdAt'),
+            Conditions.range.today(),
+          ),
         ],
       });
     });

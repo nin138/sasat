@@ -11,10 +11,7 @@ import {
   makeTypeRef,
 } from './../scripts/getEntityTypeRefs.js';
 import { makeCondition } from './makeCondition.js';
-import {
-  getChildRequiredNames,
-  getParentRequiredFieldNames,
-} from './getRequiredColumnNames.js';
+import { getChildRequiredNames } from './getRequiredColumnNames.js';
 import { nonNullable } from '../../../../runtime/util.js';
 
 export const generateRelationMap = (root: RootNode) => {
@@ -30,7 +27,7 @@ const makeRelationMap = (root: RootNode) => {
     .variable(
       'const',
       tsg.identifier('relationMap'),
-      tsg.object(...root.entities.map(it => makeEntityRelationMap(it, root))),
+      tsg.object(...root.entities.map(it => makeEntityRelationMap(it))),
       tsg
         .typeRef('RelationMap', [makeContextTypeRef('GENERATED')])
         .importFrom('sasat'),
@@ -48,7 +45,7 @@ const fieldNameToColumnNameAndFilterPrimary =
     return column.columnName;
   };
 
-const makeEntityRelationMap = (node: EntityNode, root: RootNode) => {
+const makeEntityRelationMap = (node: EntityNode) => {
   return tsg.propertyAssign(
     node.tableName,
     tsg.object(
@@ -74,12 +71,7 @@ const makeEntityRelationMap = (node: EntityNode, root: RootNode) => {
         );
       }),
       ...node.referencedBy.map(rel => {
-        const parentEntity = root.entities.find(
-          it => it.tableName === rel.childTable,
-        )!;
-        const toColumnName =
-          fieldNameToColumnNameAndFilterPrimary(parentEntity);
-        const toColumnName2 = fieldNameToColumnNameAndFilterPrimary(rel.entity);
+        const toColumnName = fieldNameToColumnNameAndFilterPrimary(rel.entity);
         return tsg.propertyAssign(
           rel.fieldName,
           tsg.object(
@@ -91,7 +83,7 @@ const makeEntityRelationMap = (node: EntityNode, root: RootNode) => {
               'requiredColumns',
               tsg.array(
                 getChildRequiredNames(rel)
-                  .map(toColumnName2)
+                  .map(toColumnName)
                   .filter(nonNullable)
                   .map(tsg.string),
               ),
