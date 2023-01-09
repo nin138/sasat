@@ -2,17 +2,17 @@ import { TsFile, PropertyAssignment, tsg } from '../../../tsg/index.js';
 import { nonNullableFilter } from '../../../util/type.js';
 import { EntityNode, FieldNode } from '../../nodes/entityNode.js';
 import { RootNode } from '../../nodes/rootNode.js';
-import { QueryNode } from '../../nodes/queryNode.js';
 import { MutationNode } from '../../nodes/mutationNode.js';
 import { SubscriptionNode } from '../../nodes/subscriptionNode.js';
 import { GQLString, makeGQLType } from './gqlString.js';
 import { typeFieldDefinitionToTsg } from './typeDefinition.js';
 import { EntityName } from '../../nodes/entityName.js';
+import { getArgs, GQLQuery } from '../../../migration/data/GQLOption.js';
 
 export const generateTypeDefs = (root: RootNode) => {
   const types = [
     ...root.entities.map(makeEntityType),
-    makeQuery(root.queries),
+    makeQuery(root),
     makeMutation(root.mutations),
     makeSubscription(root.subscriptions.filter(it => it.gqlEnabled)),
   ].filter(nonNullableFilter);
@@ -128,12 +128,38 @@ const makeUpdateInput = (node: EntityNode) => {
   return makeInput(node.name.updateInputName(), node.updateInput.fields);
 };
 
-const makeQuery = (queries: QueryNode[]) => {
-  if (queries.length === 0) return null;
+const makeQueryTypeDef = (entity: EntityNode, query: GQLQuery) => {
+  const args = getArgs(query);
+  return tsg.propertyAssign(
+    query.name,
+    typeFieldDefinitionToTsg({
+      return: GQLString.type({
+        typeName: entity.name.name,
+        entity: true,
+        array: query.type === 'list-paging' || query.type === 'list-all',
+        nullable: query.type !== 'list-paging' && query.type !== 'list-all',
+      }),
+      args: args.map(it => ({
+        name: it.name,
+        type: it.type + '!',
+      })),
+    }),
+  );
+};
+
+const makeQuery2 = (root: RootNode) => {
+  return root.entities.flatMap(entity =>
+    entity.queries.map(it => makeQueryTypeDef(entity, it)),
+  );
+};
+
+const makeQuery = (root: RootNode) => {
+  if (root.queries.length === 0) return null;
   return tsg.propertyAssign(
     'Query',
     tsg.object(
-      ...queries.map(query => {
+      ...makeQuery2(root),
+      ...root.queries.map(query => {
         return tsg.propertyAssign(
           query.queryName,
           typeFieldDefinitionToTsg({

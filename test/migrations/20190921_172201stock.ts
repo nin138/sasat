@@ -1,4 +1,4 @@
-import { MigrationStore, SasatMigration } from '../../src';
+import { MigrationStore, SasatMigration } from '../../src/index.js';
 
 export default class Stock implements SasatMigration {
   up: (store: MigrationStore) => void = store => {

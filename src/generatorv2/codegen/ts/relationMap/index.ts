@@ -10,7 +10,7 @@ import {
   makeContextTypeRef,
   makeTypeRef,
 } from './../scripts/getEntityTypeRefs.js';
-import { makeCondition } from './makeCondition.js';
+import { makeJoinConditionValue } from './makeJoinConditionValue.js';
 import { getChildRequiredNames } from './getRequiredColumnNames.js';
 import { nonNullable } from '../../../../runtime/util.js';
 
@@ -55,7 +55,7 @@ const makeEntityRelationMap = (node: EntityNode) => {
           ref.fieldName,
           tsg.object(
             tsg.propertyAssign('table', tsg.string(ref.parentTableName)),
-            makeCondition(node, ref),
+            makeJoinConditionValue(node, ref),
             tsg.propertyAssign('array', tsg.boolean(ref.isArray)),
             tsg.propertyAssign('nullable', tsg.boolean(ref.isNullable)),
             tsg.propertyAssign(
@@ -76,7 +76,7 @@ const makeEntityRelationMap = (node: EntityNode) => {
           rel.fieldName,
           tsg.object(
             tsg.propertyAssign('table', tsg.string(rel.childTable)),
-            makeCondition(node, rel),
+            makeJoinConditionValue(node, rel),
             tsg.propertyAssign('array', tsg.boolean(rel.isArray)),
             tsg.propertyAssign('nullable', tsg.boolean(rel.isNullable)),
             tsg.propertyAssign(

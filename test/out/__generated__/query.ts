@@ -4,6 +4,7 @@ import {
   gqlResolveInfoToField,
   PagingOption,
   QExpr,
+  pagingOption,
 } from "sasat";
 import { UserDBDataSource } from "../dataSources/db/User.js";
 import { UserFields, PostFields, StockFields } from "./fields.js";
@@ -80,4 +81,28 @@ export const query = {
     const fields = gqlResolveInfoToField<StockFields>(info);
     return new StockDBDataSource().find(fields, undefined, context);
   }),
+  www: makeResolver<GQLContext, { a1: number }>(
+    async (_, { a1 }, context, info) => {
+      const fields = gqlResolveInfoToField(info) as UserFields;
+      const where = QExpr.conditions.and(
+        QExpr.conditions.comparison(QExpr.value(1), "=", QExpr.value(a1))
+      );
+      return new UserDBDataSource().first(fields, { where }, context);
+    }
+  ),
+  la: makeResolver<GQLContext, {}>(async (_, {}, context, info) => {
+    const fields = gqlResolveInfoToField(info) as UserFields;
+    return new UserDBDataSource().find(fields, undefined, context);
+  }),
+  p: makeResolver<GQLContext, { option: PagingOption }>(
+    async (_, { option }, context, info) => {
+      const fields = gqlResolveInfoToField(info) as UserFields;
+      return new UserDBDataSource().findPageable(
+        pagingOption(option),
+        fields,
+        undefined,
+        context
+      );
+    }
+  ),
 };

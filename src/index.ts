@@ -1,5 +1,6 @@
 import { ListQueryOption } from './runtime/sasatDBDatasource.js';
 export type { CustomCondition } from './runtime/types.js';
+export { Queries } from './migration/makeQuery.js';
 export { Conditions } from './migration/makeCondition.js';
 export type {
   BooleanValueExpression,
@@ -44,3 +45,4 @@ export {
 export { pick } from './runtime/util.js';
 export { makeResolver } from './runtime/makeResolver.js';
 export type PagingOption = ListQueryOption;
+export { pagingOption } from './runtime/pagingOption.js';

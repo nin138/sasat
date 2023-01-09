@@ -9,12 +9,31 @@ import { QueryNode } from '../../nodes/queryNode.js';
 import { columnTypeToTsType } from '../../../migration/column/columnTypes.js';
 import { makeTypeRef } from './scripts/getEntityTypeRefs.js';
 import { makeDatasource } from './scripts/makeDatasource.js';
-import { Directory } from '../../directory.js';
+import { Directories, Directory } from '../../directory.js';
+import { nonNullable } from '../../../runtime/util.js';
+import { EntityNode } from '../../nodes/entityNode.js';
+import { GQLQuery } from '../../../migration/data/GQLOption.js';
+import { ArgQueryConditionValue } from '../../nodes/QueryConditionNode.js';
+import { toTsType } from '../../scripts/gqlTypes.js';
+import { makeQueryConditionExpr } from './scripts/makeQueryConditionExpr.js';
+
+const DIR: Directories = 'GENERATED';
 
 export const generateQueryResolver = (root: RootNode) => {
   return new TsFile(
     tsg
-      .variable('const', 'query', tsg.object(...root.queries.map(makeQuery)))
+      .variable(
+        'const',
+        'query',
+        tsg.object(
+          ...root.queries.map(makeQuery),
+          ...root.entities
+            .flatMap(entity =>
+              entity.queries.map(query => makeGQLQuery(entity, query)),
+            )
+            .filter(nonNullable),
+        ),
+      )
       .export(),
   ).disableEsLint();
 };
@@ -43,7 +62,7 @@ const makeQuery = (node: QueryNode): PropertyAssignment => {
       .typeArgs(
         tsg
           .typeRef('GQLContext')
-          .importFrom(Directory.resolve('GENERATED', 'BASE', 'context')),
+          .importFrom(Directory.resolve(DIR, 'BASE', 'context')),
         tsg.typeLiteral(
           node.args.map(it =>
             tsg.propertySignature(
@@ -58,6 +77,115 @@ const makeQuery = (node: QueryNode): PropertyAssignment => {
         ),
       ),
   );
+};
+
+const pagingOption = {
+  kind: 'paging-option',
+  name: 'option',
+  type: 'PagingOption',
+} as const;
+type PagingOptionArg = typeof pagingOption;
+
+const makeGQLQuery = (
+  entity: EntityNode,
+  query: GQLQuery,
+): PropertyAssignment => {
+  const args = (query.conditions || [])?.flatMap(it => {
+    const r: (ArgQueryConditionValue | PagingOptionArg)[] = [];
+    if (it.left.kind === 'arg') r.push(it.left);
+    if (it.kind === 'between') {
+      if (it.begin.kind === 'arg') r.push(it.begin);
+      if (it.end.kind === 'arg') r.push(it.end);
+    } else if (it.right.kind === 'arg') {
+      r.push(it.right);
+    }
+    return r;
+  });
+
+  if (query.type === 'list-paging') {
+    args.push(pagingOption);
+  }
+
+  return tsg.propertyAssign(
+    query.name,
+    makeResolver()
+      .call(
+        tsg
+          .arrowFunc(
+            [
+              tsg.parameter('_'),
+              tsg.parameter(`{${args.map(it => it.name).join(',')}}`),
+              tsg.parameter('context'),
+              tsg.parameter('info'),
+            ],
+            undefined,
+            makeGQLQueryBody(entity, query),
+          )
+          .toAsync(),
+      )
+      .typeArgs(
+        tsg
+          .typeRef('GQLContext')
+          .importFrom(Directory.resolve('GENERATED', 'BASE', 'context')),
+        tsg.typeLiteral(
+          args.map(it =>
+            tsg.propertySignature(
+              it.name,
+              it.kind === 'paging-option'
+                ? tsg.typeRef(it.type).importFrom('sasat')
+                : tsg.typeRef(toTsType(it.type)),
+            ),
+          ),
+        ),
+      ),
+  );
+};
+
+const qExpr = tsg.identifier('QExpr').importFrom('sasat');
+
+const makeGQLQueryBody = (entity: EntityNode, query: GQLQuery) => {
+  const fields = tsg.variable(
+    'const',
+    'fields',
+    tsg
+      .identifier('gqlResolveInfoToField')
+      .importFrom('sasat')
+      .call(tsg.identifier('info'))
+      .as(makeTypeRef(entity.name, 'fields', 'GENERATED')),
+  );
+  const where =
+    query.conditions && query.conditions.length !== 0
+      ? tsg.variable(
+          'const',
+          'where',
+          qExpr
+            .property('conditions')
+            .property('and')
+            .call(...(query.conditions || []).map(makeQueryConditionExpr)),
+        )
+      : null;
+  const method = {
+    single: 'first',
+    'list-all': 'find',
+    'list-paging': 'findPageable',
+  } as const;
+
+  const args = [
+    query.type === 'list-paging'
+      ? tsg
+          .identifier('pagingOption')
+          .importFrom('sasat')
+          .call(tsg.identifier('option'))
+      : null,
+    tsg.identifier('fields'),
+    tsg.identifier(where ? '{ where }' : 'undefined'),
+    tsg.identifier('context'),
+  ].filter(nonNullable);
+
+  const result = makeDatasource(entity.name, DIR)
+    .property(method[query.type])
+    .call(...args);
+  return tsg.block(fields, where, tsg.return(result));
 };
 
 const makeQueryBody = (node: QueryNode) => {

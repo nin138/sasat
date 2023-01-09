@@ -1,3 +1,9 @@
+import {
+  ArgQueryConditionValue,
+  QueryConditionNode,
+  QueryConditionValue,
+} from '../../generatorv2/nodes/QueryConditionNode.js';
+
 export interface GqlFromContextParam {
   column: string;
   contextName?: string;
@@ -13,12 +19,20 @@ export type MutationOption = {
   subscriptionFilter: string[];
 };
 
+export type GQLQuery = {
+  type: 'single' | 'list-all' | 'list-paging';
+  name: string;
+  conditions: QueryConditionNode[];
+};
+
 export interface GQLOption {
   enabled: boolean;
+  // TODO Remove
   query: {
     find: boolean;
     list: false | 'all' | 'paging';
   };
+  queries: GQLQuery[];
   mutation: {
     create: MutationOption & Enabled;
     update: MutationOption & Enabled;
@@ -40,6 +54,7 @@ export const getDefaultGqlOption = (): GQLOption => ({
     find: true,
     list: 'all',
   },
+  queries: [],
   mutation: {
     create: defaultMutationOption,
     update: defaultMutationOption,
@@ -59,4 +74,16 @@ export const updateMutationOption = (
       ...mutation,
     },
   };
+};
+
+export const getArgs = (query: GQLQuery): ArgQueryConditionValue[] => {
+  return query.conditions.flatMap(it => {
+    const r: ArgQueryConditionValue[] = [];
+    if (it.left.kind === 'arg') r.push(it.left);
+    if (it.kind === 'between') {
+      if (it.begin.kind === 'arg') r.push(it.begin);
+      if (it.end.kind === 'arg') r.push(it.end);
+    } else if (it.right.kind === 'arg') r.push(it.right);
+    return r;
+  });
 };

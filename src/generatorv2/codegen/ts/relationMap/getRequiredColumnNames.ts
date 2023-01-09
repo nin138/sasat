@@ -1,8 +1,11 @@
 import { ReferencedNode, ReferenceNode } from '../../../nodes/entityNode.js';
-import { ConditionNode, ConditionValue } from '../../../nodes/ConditionNode.js';
+import {
+  JoinConditionNode,
+  JoinConditionValue,
+} from '../../../nodes/JoinConditionNode.js';
 import { nonNullable } from '../../../../runtime/util.js';
 
-type GetConditionValue = (cv: ConditionValue) => string | null;
+type GetConditionValue = (cv: JoinConditionValue) => string | null;
 
 const getChildConditionValue: GetConditionValue = cv => {
   if (cv.kind === 'child') {
@@ -13,7 +16,7 @@ const getChildConditionValue: GetConditionValue = cv => {
 
 const getConditionChildColumnNames =
   (getConditionValue: GetConditionValue) =>
-  (c: ConditionNode): (string | null)[] => {
+  (c: JoinConditionNode): (string | null)[] => {
     if (c.kind === 'custom') return c.childRequiredFields || [];
     const result = [getConditionValue(c.left)];
     if (c.operator !== 'BETWEEN') {

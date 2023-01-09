@@ -13,12 +13,13 @@ import { columnTypeToGqlPrimitive } from '../scripts/columnToGqlType.js';
 import { GqlPrimitive } from '../scripts/gqlTypes.js';
 import { VirtualRelation } from '../../migration/data/virtualRelation.js';
 import {
-  ConditionNode,
-  ConditionValue,
-  ContextConditionRangeValue,
-} from './ConditionNode.js';
+  JoinConditionNode,
+  JoinConditionValue,
+  JoinConditionRangeValue,
+} from './JoinConditionNode.js';
 import { nonNullable } from '../../runtime/util.js';
 import { Conditions } from '../../migration/makeCondition.js';
+import { GQLQuery } from '../../migration/data/GQLOption.js';
 
 const makeFieldNode = (column: BaseColumn): FieldNode => ({
   fieldName: column.fieldName(),
@@ -88,12 +89,14 @@ export class EntityNode {
   readonly references: ReferenceNode[];
   readonly referencedBy: ReferencedNode[];
   readonly findMethods: FindMethodNode[];
+  readonly queries: GQLQuery[];
   constructor(store: DataStoreHandler, table: TableHandler) {
     this.fields = table.columns.map(makeFieldNode);
     this.name = EntityName.fromTableName(table.tableName);
     this.tableName = table.tableName;
     this.gqlEnabled = table.gqlOption.enabled;
     this.identifyKeys = table.primaryKey;
+    this.queries = table.gqlOption.queries;
     this.creatable = {
       gqlEnabled:
         table.gqlOption.enabled && table.gqlOption.mutation.create.enabled,
@@ -160,9 +163,9 @@ export class EntityNode {
 const makeJoinCondition = (
   parentColumn: string,
   childColumn: string,
-): ConditionNode[] => {
+): JoinConditionNode[] => {
   return [
-    Conditions.comparison(
+    Conditions.rel.comparison(
       Conditions.value.parent(parentColumn),
       '=',
       Conditions.value.child(childColumn),
@@ -215,7 +218,7 @@ export class ReferenceNode {
     readonly fieldName: string,
     readonly tableName: string,
     readonly parentTableName: string,
-    readonly joinCondition: ConditionNode[],
+    readonly joinCondition: JoinConditionNode[],
     readonly isArray: boolean,
     readonly isNullable: boolean,
     readonly isPrimary: boolean,
@@ -267,7 +270,7 @@ export class ReferencedNode {
     readonly entity: EntityNode,
     readonly fieldName: string,
     readonly childTable: string,
-    readonly joinCondition: ConditionNode[],
+    readonly joinCondition: JoinConditionNode[],
     readonly isArray: boolean,
     readonly isNullable: boolean,
     readonly isPrimary: boolean,
@@ -329,7 +332,7 @@ const makePrimitiveParameterNode = (
   gqltype: columnTypeToGqlPrimitive(dbtype),
 });
 
-const reverseConditionValue = (cv: ConditionValue): ConditionValue => {
+const reverseConditionValue = (cv: JoinConditionValue): JoinConditionValue => {
   if (cv.kind === 'parent') {
     return {
       ...cv,
@@ -345,8 +348,8 @@ const reverseConditionValue = (cv: ConditionValue): ConditionValue => {
 };
 
 const reverseRangeCondition = (
-  condition: ContextConditionRangeValue,
-): ContextConditionRangeValue => {
+  condition: JoinConditionRangeValue,
+): JoinConditionRangeValue => {
   if (condition.kind === 'range') {
     return {
       kind: condition.kind,
@@ -357,7 +360,9 @@ const reverseRangeCondition = (
   return condition;
 };
 
-const reverseConditionNode = (condition: ConditionNode): ConditionNode => {
+const reverseConditionNode = (
+  condition: JoinConditionNode,
+): JoinConditionNode => {
   if (condition.kind === 'custom')
     return {
       ...condition,
@@ -365,12 +370,12 @@ const reverseConditionNode = (condition: ConditionNode): ConditionNode => {
       childRequiredFields: condition.parentRequiredFields,
     };
   if (condition.operator === 'BETWEEN') {
-    return Conditions.between(
+    return Conditions.rel.between(
       reverseConditionValue(condition.left),
       reverseRangeCondition(condition.right),
     );
   }
-  return Conditions.comparison(
+  return Conditions.rel.comparison(
     reverseConditionValue(condition.right),
     condition.operator,
     reverseConditionValue(condition.left),

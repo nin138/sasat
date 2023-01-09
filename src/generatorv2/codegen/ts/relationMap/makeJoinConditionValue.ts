@@ -4,43 +4,25 @@ import {
   ReferenceNode,
 } from '../../../nodes/entityNode.js';
 import {
-  ConditionNode,
-  ConditionValue,
-  ContextConditionRangeValue,
-} from '../../../nodes/ConditionNode.js';
+  JoinConditionNode,
+  JoinConditionRangeValue,
+  JoinConditionValue,
+} from '../../../nodes/JoinConditionNode.js';
 import { TsExpression, tsg } from '../../../../tsg/index.js';
 import { makeThrowExpressions } from './makeNoContexError.js';
 import { nonNullableFilter } from '../../../../util/type.js';
+import { makeConditionValueQExpr } from '../scripts/makeConditonValueExpr.js';
 
+const qExpr = tsg.identifier('QExpr').importFrom('sasat');
 const parentTableAlias = 'parentTableAlias';
 const childTableAlias = 'childTableAlias';
 
-const qExpr = tsg.identifier('QExpr').importFrom('sasat');
-
-const makeConditionValueQExpr = (
+export const makeJoinConditionValueQExpr = (
   node: EntityNode,
-  cv: ConditionValue,
+  cv: JoinConditionValue,
 ): TsExpression => {
   const arg = tsg.identifier('arg');
-  const context = arg.property('context?');
   switch (cv.kind) {
-    case 'context': {
-      const value = context.property(cv.field);
-      if (cv.onNotDefined.action !== 'defaultValue') {
-        return qExpr.property('value').call(value);
-      }
-      return qExpr
-        .property('value')
-        .call(
-          tsg.binary(
-            context.property(cv.field),
-            '||',
-            typeof cv.onNotDefined.value === 'string'
-              ? tsg.string(cv.onNotDefined.value)
-              : tsg.number(cv.onNotDefined.value),
-          ),
-        );
-    }
     case 'parent': {
       const columnName =
         node.fields.find(it => it.fieldName === cv.field)?.columnName ||
@@ -63,46 +45,19 @@ const makeConditionValueQExpr = (
           .call(arg.property('parent?').property(cv.field)),
       );
     }
-    case 'fixed': {
-      return qExpr
-        .property('value')
-        .call(
-          typeof cv.value === 'string'
-            ? tsg.string(cv.value)
-            : tsg.number(cv.value),
-        );
-    }
-    case 'today': {
-      return qExpr.property('value').call(
-        tsg
-          .identifier(
-            cv.type === 'datetime'
-              ? 'getTodayDateTimeString'
-              : 'getTodayDateString',
-          )
-          .importFrom('sasat')
-          .call(),
-      );
-    }
-    case 'now': {
-      return qExpr.property('value').call(
-        tsg
-          .identifier('dateString')
-          .importFrom('sasat')
-          .call(tsg.new(tsg.identifier('Date'))),
-      );
-    }
+    default:
+      return makeConditionValueQExpr(cv);
   }
 };
 
 const makeRangeCondition = (
   entity: EntityNode,
-  range: ContextConditionRangeValue,
+  range: JoinConditionRangeValue,
 ): TsExpression[] => {
   if (range.kind === 'range') {
     return [
-      makeConditionValueQExpr(entity, range.begin),
-      makeConditionValueQExpr(entity, range.end),
+      makeJoinConditionValueQExpr(entity, range.begin),
+      makeJoinConditionValueQExpr(entity, range.end),
     ];
   }
   return [
@@ -120,7 +75,10 @@ const makeRangeCondition = (
   ];
 };
 
-const makeConditionExpr = (entity: EntityNode, condition: ConditionNode) => {
+const makeConditionExpr = (
+  entity: EntityNode,
+  condition: JoinConditionNode,
+) => {
   if (condition.kind === 'custom') {
     return tsg
       .identifier(condition.conditionName)
@@ -132,7 +90,7 @@ const makeConditionExpr = (entity: EntityNode, condition: ConditionNode) => {
       .property('conditions')
       .property('between')
       .call(
-        makeConditionValueQExpr(entity, condition.left),
+        makeJoinConditionValueQExpr(entity, condition.left),
         ...makeRangeCondition(entity, condition.right),
       );
   }
@@ -140,13 +98,13 @@ const makeConditionExpr = (entity: EntityNode, condition: ConditionNode) => {
     .property('conditions')
     .property('comparison')
     .call(
-      makeConditionValueQExpr(entity, condition.left),
+      makeJoinConditionValueQExpr(entity, condition.left),
       tsg.string(condition.operator),
-      makeConditionValueQExpr(entity, condition.right),
+      makeJoinConditionValueQExpr(entity, condition.right),
     );
 };
 
-export const makeCondition = (
+export const makeJoinConditionValue = (
   node: EntityNode,
   ref: ReferenceNode | ReferencedNode,
 ) => {

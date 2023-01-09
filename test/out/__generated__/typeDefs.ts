@@ -24,6 +24,9 @@ export const typeDefs = {
     updatedAt: { return: "String!" },
   },
   Query: {
+    www: { return: "User", args: [{ name: "a1", type: "Int!" }] },
+    la: { return: "[User!]!", args: [] },
+    p: { return: "[User!]!", args: [] },
     user: { return: "User", args: [{ name: "userId", type: "Int!" }] },
     users: {
       return: "[User!]!",

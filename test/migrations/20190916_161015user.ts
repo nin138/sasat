@@ -1,5 +1,9 @@
-import { SasatMigration } from '../../src';
-import { MigrationStore } from '../../src';
+import {
+  Queries,
+  SasatMigration,
+  MigrationStore,
+  Conditions,
+} from '../../src/index.js';
 import { SqlString } from 'sasat/runtime/sql/sqlString.js';
 
 const a = 'a';
@@ -35,6 +39,17 @@ export default class CreateUser implements SasatMigration {
           list: 'paging',
           find: true,
         },
+        queries: [
+          Queries.single('www', [
+            Conditions.query.comparison(
+              Conditions.value.fixed(1),
+              '=',
+              Conditions.value.arg('a1', 'Int'),
+            ),
+          ]),
+          Queries.listAll('la'),
+          Queries.paging('p'),
+        ],
       });
       table.setGQLCreate(true, { noReFetch: true, subscription: true });
       table.setGQLUpdate(true, {

@@ -1,6 +1,6 @@
 import typescript, { ImportDeclaration, SourceFile } from 'typescript';
 import { RootNode } from '../../nodes/rootNode.js';
-import { CustomConditionNode } from '../../nodes/ConditionNode.js';
+import { JoinCustomConditionNode } from '../../nodes/JoinConditionNode.js';
 import { unique } from '../../../runtime/util.js';
 import { TsFile, tsg, TsStatement } from '../../../tsg/index.js';
 import { ImportDeclaration as TsgImport } from '../../../tsg/importDeclaration.js';
@@ -51,12 +51,12 @@ export const generateUserDefinedCondition = (
       ...it.references.flatMap(it =>
         it.joinCondition
           .filter(it => it.kind === 'custom')
-          .map(it => (it as CustomConditionNode).conditionName),
+          .map(it => (it as JoinCustomConditionNode).conditionName),
       ),
       ...it.referencedBy.flatMap(it =>
         it.joinCondition
           .filter(it => it.kind === 'custom')
-          .map(it => (it as CustomConditionNode).conditionName),
+          .map(it => (it as JoinCustomConditionNode).conditionName),
       ),
     ]),
   );

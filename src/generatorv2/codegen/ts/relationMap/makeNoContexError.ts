@@ -1,12 +1,12 @@
 import {
-  ConditionNode,
-  ConditionValue,
-  ContextConditionRangeValue,
-} from '../../../nodes/ConditionNode.js';
+  JoinConditionNode,
+  JoinConditionValue,
+  JoinConditionRangeValue,
+} from '../../../nodes/JoinConditionNode.js';
 import { IfStatement, tsg } from '../../../../tsg/index.js';
 
 const makeJoinRangeConditionThrowExpressions = (
-  cv: ContextConditionRangeValue,
+  cv: JoinConditionRangeValue,
 ): (IfStatement | null)[] => {
   if (cv.kind === 'range') {
     const result = [];
@@ -19,7 +19,7 @@ const makeJoinRangeConditionThrowExpressions = (
   return [];
 };
 
-const makeJoinConditionThrowExpressions = (cv: ConditionValue) => {
+const makeJoinConditionThrowExpressions = (cv: JoinConditionValue) => {
   if (cv.kind !== 'context') return null;
   if (cv.onNotDefined.action !== 'error') return null;
   return tsg.if(
@@ -38,7 +38,7 @@ const makeJoinConditionThrowExpressions = (cv: ConditionValue) => {
   );
 };
 
-export const makeThrowExpressions = (condition: ConditionNode) => {
+export const makeThrowExpressions = (condition: JoinConditionNode) => {
   if (condition.kind === 'custom') return [];
   if (condition.operator === 'BETWEEN') {
     return [
