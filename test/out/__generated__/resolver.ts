@@ -47,6 +47,5 @@ export const resolvers = {
         return ds.first(undefined, { where });
       },
     },
-    Stock: {},
   },
 };

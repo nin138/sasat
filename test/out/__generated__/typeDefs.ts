@@ -16,28 +16,24 @@ export const typeDefs = {
     pUser: { return: "User!" },
     vC: { return: "[User!]!" },
   },
-  Stock: {
-    id: { return: "Int!" },
-    user: { return: "Int!" },
-    post: { return: "Int!" },
-    createdAt: { return: "String!" },
-    updatedAt: { return: "String!" },
-  },
   Query: {
-    www: { return: "User", args: [{ name: "a1", type: "Int!" }] },
-    la: { return: "[User!]!", args: [] },
-    p: { return: "[User!]!", args: [] },
-    user: { return: "User", args: [{ name: "userId", type: "Int!" }] },
+    findByUid: { return: "User", args: [{ name: "uid", type: "Int!" }] },
     users: {
       return: "[User!]!",
       args: [{ name: "option", type: "PagingOption!" }],
     },
-    post: { return: "Post", args: [{ name: "postId", type: "Int!" }] },
+    www: { return: "User", args: [{ name: "a1", type: "Int!" }] },
+    la: { return: "[User!]!", args: [] },
+    p: {
+      return: "[User!]!",
+      args: [{ name: "option", type: "PagingOption!" }],
+    },
+    findByPid: { return: "Post", args: [{ name: "pid", type: "Int!" }] },
     posts: {
       return: "[Post!]!",
       args: [{ name: "option", type: "PagingOption!" }],
     },
-    stock: { return: "Stock", args: [{ name: "id", type: "Int!" }] },
+    findById: { return: "Stock", args: [{ name: "id", type: "Int!" }] },
     stocks: { return: "[Stock!]!", args: [] },
   },
   Mutation: {
@@ -57,23 +53,10 @@ export const typeDefs = {
       return: "Post!",
       args: [{ name: "post", type: "PostUpdateInput!" }],
     },
-    createStock: {
-      return: "Stock!",
-      args: [{ name: "stock", type: "StockCreateInput!" }],
-    },
-    updateStock: {
-      return: "Stock!",
-      args: [{ name: "stock", type: "StockUpdateInput!" }],
-    },
-    deleteStock: {
-      return: "Boolean!",
-      args: [{ name: "stock", type: "StockUpdateInput!" }],
-    },
   },
   Subscription: {
     UserCreated: { return: "User!", args: [] },
     UserUpdated: { return: "User!", args: [{ name: "name", type: "String!" }] },
-    StockDeleted: { return: "Stock!", args: [] },
   },
 };
 export const inputs = {
@@ -85,16 +68,10 @@ export const inputs = {
   },
   UserCreateInput: { NNN: { return: "String" }, nick: { return: "String" } },
   PostCreateInput: { uId: { return: "Int!" }, title: { return: "String!" } },
-  StockCreateInput: {
-    id: { return: "Int!" },
-    user: { return: "Int!" },
-    post: { return: "Int!" },
-  },
   UserUpdateInput: {
     uid: { return: "Int!" },
     NNN: { return: "String" },
     nick: { return: "String" },
   },
   PostUpdateInput: { pid: { return: "Int!" }, title: { return: "String" } },
-  StockUpdateInput: { id: { return: "Int!" } },
 };

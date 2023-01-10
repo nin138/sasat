@@ -1,4 +1,9 @@
-import { MigrationStore, SasatMigration, Conditions } from '../../src/index.js';
+import {
+  MigrationStore,
+  SasatMigration,
+  Conditions,
+  Queries,
+} from '../../src/index.js';
 
 export default class Post implements SasatMigration {
   up: (store: MigrationStore) => void = store => {
@@ -20,7 +25,9 @@ export default class Post implements SasatMigration {
         relation: 'Many',
       });
       table.column('title').varchar(50).notNull();
-      table.enableGQL().setGQLOption({ query: { find: true, list: 'paging' } });
+      table
+        .enableGQL()
+        .setGQLOption({ queries: [Queries.primary, Queries.paging('posts')] });
       table.setGQLCreate(true).setGQLUpdate(true).setGQLContextColumn([]);
       table.addVirtualRelation({
         parentTable: 'user',

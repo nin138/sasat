@@ -129,9 +129,9 @@ const makeUpdateInput = (node: EntityNode) => {
 };
 
 const makeQueryTypeDef = (entity: EntityNode, query: GQLQuery) => {
-  const args = getArgs(query);
+  const args = getArgs(query, entity);
   return tsg.propertyAssign(
-    query.name,
+    query.type === 'primary' ? entity.primaryQueryName() : query.name,
     typeFieldDefinitionToTsg({
       return: GQLString.type({
         typeName: entity.name.name,
@@ -147,32 +147,16 @@ const makeQueryTypeDef = (entity: EntityNode, query: GQLQuery) => {
   );
 };
 
-const makeQuery2 = (root: RootNode) => {
+const makeQueryProperties = (root: RootNode) => {
   return root.entities.flatMap(entity =>
     entity.queries.map(it => makeQueryTypeDef(entity, it)),
   );
 };
 
 const makeQuery = (root: RootNode) => {
-  if (root.queries.length === 0) return null;
-  return tsg.propertyAssign(
-    'Query',
-    tsg.object(
-      ...makeQuery2(root),
-      ...root.queries.map(query => {
-        return tsg.propertyAssign(
-          query.queryName,
-          typeFieldDefinitionToTsg({
-            return: GQLString.type(query.returnType),
-            args: query.args.map(arg => ({
-              name: arg.name,
-              type: GQLString.type(arg.type),
-            })),
-          }),
-        );
-      }),
-    ),
-  );
+  const properties = makeQueryProperties(root);
+  if (properties.length === 0) return null;
+  return tsg.propertyAssign('Query', tsg.object(...properties));
 };
 
 const makeMutation = (mutations: MutationNode[]) => {

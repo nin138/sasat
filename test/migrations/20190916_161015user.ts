@@ -35,11 +35,9 @@ export default class CreateUser implements SasatMigration {
       table.createdAt().updatedAt();
       table.enableGQL();
       table.setGQLOption({
-        query: {
-          list: 'paging',
-          find: true,
-        },
         queries: [
+          Queries.primary,
+          Queries.paging('users'),
           Queries.single('www', [
             Conditions.query.comparison(
               Conditions.value.fixed(1),

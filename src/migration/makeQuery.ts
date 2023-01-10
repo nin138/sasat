@@ -22,8 +22,14 @@ const paging = (name: string, conditions?: QueryConditionNode[]): GQLQuery => ({
   conditions: conditions || [],
 });
 
+const primary = (): GQLQuery => ({
+  type: 'primary',
+  conditions: [],
+});
+
 export const Queries = {
   single,
   listAll,
   paging,
+  primary: primary(),
 };

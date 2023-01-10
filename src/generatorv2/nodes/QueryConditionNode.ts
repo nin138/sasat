@@ -12,7 +12,7 @@ export type QueryConditionValue =
 export type ArgQueryConditionValue = {
   kind: 'arg';
   name: string;
-  type: 'Int' | 'Float' | 'String';
+  type: 'Int' | 'Float' | 'String' | string;
 };
 
 export type QueryConditionNode =

@@ -1,8 +1,8 @@
 import {
   ArgQueryConditionValue,
   QueryConditionNode,
-  QueryConditionValue,
 } from '../../generatorv2/nodes/QueryConditionNode.js';
+import { EntityNode } from '../../generatorv2/nodes/entityNode.js';
 
 export interface GqlFromContextParam {
   column: string;
@@ -19,19 +19,25 @@ export type MutationOption = {
   subscriptionFilter: string[];
 };
 
-export type GQLQuery = {
-  type: 'single' | 'list-all' | 'list-paging';
-  name: string;
-  conditions: QueryConditionNode[];
-};
+export type GQLQuery =
+  | {
+      type: 'single' | 'list-all' | 'list-paging';
+      name: string;
+      conditions: QueryConditionNode[];
+    }
+  | {
+      type: 'primary';
+      name?: never;
+      conditions: never[];
+    };
 
 export interface GQLOption {
   enabled: boolean;
   // TODO Remove
-  query: {
-    find: boolean;
-    list: false | 'all' | 'paging';
-  };
+  // query: {
+  //   find: boolean;
+  //   list: false | 'all' | 'paging';
+  // };
   queries: GQLQuery[];
   mutation: {
     create: MutationOption & Enabled;
@@ -50,10 +56,10 @@ export const defaultMutationOption = {
 
 export const getDefaultGqlOption = (): GQLOption => ({
   enabled: false,
-  query: {
-    find: true,
-    list: 'all',
-  },
+  // query: {
+  //   find: true,
+  //   list: 'all',
+  // },
   queries: [],
   mutation: {
     create: defaultMutationOption,
@@ -76,14 +82,32 @@ export const updateMutationOption = (
   };
 };
 
-export const getArgs = (query: GQLQuery): ArgQueryConditionValue[] => {
-  return query.conditions.flatMap(it => {
-    const r: ArgQueryConditionValue[] = [];
+export const getArgs = (
+  query: GQLQuery,
+  entity: EntityNode,
+): ArgQueryConditionValue[] => {
+  if (query.type === 'primary')
+    return entity.fields
+      .filter(it => it.isPrimary)
+      .map(it => ({
+        kind: 'arg',
+        name: it.fieldName,
+        type: it.gqlType,
+      }));
+  const r: ArgQueryConditionValue[] = [];
+  if (query.type === 'list-paging') {
+    r.push({
+      kind: 'arg',
+      name: 'option',
+      type: 'PagingOption',
+    });
+  }
+  query.conditions.forEach(it => {
     if (it.left.kind === 'arg') r.push(it.left);
     if (it.kind === 'between') {
       if (it.begin.kind === 'arg') r.push(it.begin);
       if (it.end.kind === 'arg') r.push(it.end);
     } else if (it.right.kind === 'arg') r.push(it.right);
-    return r;
   });
+  return r;
 };

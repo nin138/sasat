@@ -158,6 +158,12 @@ export class EntityNode {
       // TODO findBy relations
     ];
   }
+
+  primaryQueryName() {
+    return makeFindQueryName(
+      this.fields.filter(it => it.isPrimary).map(it => it.fieldName),
+    );
+  }
 }
 
 const makeJoinCondition = (

@@ -6,7 +6,7 @@ export enum GqlPrimitive {
   // ID = 'ID',
 }
 
-export const toTsType = (type: 'Int' | 'String' | 'Float') => {
+export const toTsType = (type: 'Int' | 'String' | 'Float' | string) => {
   switch (type) {
     case 'Int':
     case 'Float':
@@ -15,5 +15,7 @@ export const toTsType = (type: 'Int' | 'String' | 'Float') => {
     // case GqlPrimitive.ID:
     case 'String':
       return 'string';
+    default:
+      return type;
   }
 };

@@ -1,4 +1,4 @@
-import { MigrationStore, SasatMigration } from '../../src/index.js';
+import { MigrationStore, SasatMigration, Queries } from '../../src/index.js';
 
 export default class Stock implements SasatMigration {
   up: (store: MigrationStore) => void = store => {
@@ -29,8 +29,7 @@ export default class Stock implements SasatMigration {
       table.setGQLDelete(true, { subscription: true });
       // .setGQLContextColumn([{ column: 'user', contextName: 'userId' }]);
       table.setGQLOption({
-        enabled: true,
-        query: { list: 'all', find: true },
+        queries: [Queries.primary, Queries.listAll('stocks')],
       });
     });
   };

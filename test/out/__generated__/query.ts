@@ -2,85 +2,33 @@
 import {
   makeResolver,
   gqlResolveInfoToField,
+  pagingOption,
   PagingOption,
   QExpr,
-  pagingOption,
 } from "sasat";
-import { UserDBDataSource } from "../dataSources/db/User.js";
 import { UserFields, PostFields, StockFields } from "./fields.js";
+import { UserDBDataSource } from "../dataSources/db/User.js";
 import { GQLContext } from "../context.js";
 import { PostDBDataSource } from "../dataSources/db/Post.js";
 import { StockDBDataSource } from "../dataSources/db/Stock.js";
 export const query = {
-  user: makeResolver<GQLContext, { userId: number }>(
-    async (_, { userId }, context, info) =>
-      new UserDBDataSource().findByUid(
-        userId,
-        gqlResolveInfoToField(info) as UserFields,
-        undefined,
-        context
-      )
+  findByUid: makeResolver<GQLContext, { uid: number }>(
+    async (_, { uid }, context, info) => {
+      const fields = gqlResolveInfoToField(info) as UserFields;
+      return new UserDBDataSource().findByUid(uid, fields, undefined, context);
+    }
   ),
   users: makeResolver<GQLContext, { option: PagingOption }>(
     async (_, { option }, context, info) => {
-      const fields = gqlResolveInfoToField<UserFields>(info);
-      const sort = option.order
-        ? [
-            QExpr.sort(
-              QExpr.field("t1", option.order),
-              option?.asc === false ? "DESC" : "ASC"
-            ),
-          ]
-        : [];
+      const fields = gqlResolveInfoToField(info) as UserFields;
       return new UserDBDataSource().findPageable(
-        { numberOfItem: option.numberOfItem, offset: option.offset, sort },
+        pagingOption(option),
         fields,
         undefined,
         context
       );
     }
   ),
-  post: makeResolver<GQLContext, { postId: number }>(
-    async (_, { postId }, context, info) =>
-      new PostDBDataSource().findByPid(
-        postId,
-        gqlResolveInfoToField(info) as PostFields,
-        undefined,
-        context
-      )
-  ),
-  posts: makeResolver<GQLContext, { option: PagingOption }>(
-    async (_, { option }, context, info) => {
-      const fields = gqlResolveInfoToField<PostFields>(info);
-      const sort = option.order
-        ? [
-            QExpr.sort(
-              QExpr.field("t1", option.order),
-              option?.asc === false ? "DESC" : "ASC"
-            ),
-          ]
-        : [];
-      return new PostDBDataSource().findPageable(
-        { numberOfItem: option.numberOfItem, offset: option.offset, sort },
-        fields,
-        undefined,
-        context
-      );
-    }
-  ),
-  stock: makeResolver<GQLContext, { id: number }>(
-    async (_, { id }, context, info) =>
-      new StockDBDataSource().findById(
-        id,
-        gqlResolveInfoToField(info) as StockFields,
-        undefined,
-        context
-      )
-  ),
-  stocks: makeResolver<GQLContext, {}>(async (_, {}, context, info) => {
-    const fields = gqlResolveInfoToField<StockFields>(info);
-    return new StockDBDataSource().find(fields, undefined, context);
-  }),
   www: makeResolver<GQLContext, { a1: number }>(
     async (_, { a1 }, context, info) => {
       const fields = gqlResolveInfoToField(info) as UserFields;
@@ -105,4 +53,31 @@ export const query = {
       );
     }
   ),
+  findByPid: makeResolver<GQLContext, { pid: number }>(
+    async (_, { pid }, context, info) => {
+      const fields = gqlResolveInfoToField(info) as PostFields;
+      return new PostDBDataSource().findByPid(pid, fields, undefined, context);
+    }
+  ),
+  posts: makeResolver<GQLContext, { option: PagingOption }>(
+    async (_, { option }, context, info) => {
+      const fields = gqlResolveInfoToField(info) as PostFields;
+      return new PostDBDataSource().findPageable(
+        pagingOption(option),
+        fields,
+        undefined,
+        context
+      );
+    }
+  ),
+  findById: makeResolver<GQLContext, { id: number }>(
+    async (_, { id }, context, info) => {
+      const fields = gqlResolveInfoToField(info) as StockFields;
+      return new StockDBDataSource().findById(id, fields, undefined, context);
+    }
+  ),
+  stocks: makeResolver<GQLContext, {}>(async (_, {}, context, info) => {
+    const fields = gqlResolveInfoToField(info) as StockFields;
+    return new StockDBDataSource().find(fields, undefined, context);
+  }),
 };
