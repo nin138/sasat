@@ -91,7 +91,7 @@ const makeGQLQuery = (
 ): PropertyAssignment => {
   const args = getArgs(query, entity);
   return tsg.propertyAssign(
-    query.type === 'primary' ? entity.primaryQueryName() : query.name,
+    query.type === 'primary' ? entity.name.lowerCase() : query.name,
     makeResolver()
       .call(
         tsg

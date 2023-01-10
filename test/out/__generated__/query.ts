@@ -12,7 +12,7 @@ import { GQLContext } from "../context.js";
 import { PostDBDataSource } from "../dataSources/db/Post.js";
 import { StockDBDataSource } from "../dataSources/db/Stock.js";
 export const query = {
-  findByUid: makeResolver<GQLContext, { uid: number }>(
+  user: makeResolver<GQLContext, { uid: number }>(
     async (_, { uid }, context, info) => {
       const fields = gqlResolveInfoToField(info) as UserFields;
       return new UserDBDataSource().findByUid(uid, fields, undefined, context);
@@ -53,7 +53,7 @@ export const query = {
       );
     }
   ),
-  findByPid: makeResolver<GQLContext, { pid: number }>(
+  post: makeResolver<GQLContext, { pid: number }>(
     async (_, { pid }, context, info) => {
       const fields = gqlResolveInfoToField(info) as PostFields;
       return new PostDBDataSource().findByPid(pid, fields, undefined, context);
@@ -70,7 +70,7 @@ export const query = {
       );
     }
   ),
-  findById: makeResolver<GQLContext, { id: number }>(
+  stock: makeResolver<GQLContext, { id: number }>(
     async (_, { id }, context, info) => {
       const fields = gqlResolveInfoToField(info) as StockFields;
       return new StockDBDataSource().findById(id, fields, undefined, context);
