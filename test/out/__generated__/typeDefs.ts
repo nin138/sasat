@@ -17,7 +17,7 @@ export const typeDefs = {
     vC: { return: "[User!]!" },
   },
   Query: {
-    findByUid: { return: "User", args: [{ name: "uid", type: "Int!" }] },
+    user: { return: "User", args: [{ name: "uid", type: "Int!" }] },
     users: {
       return: "[User!]!",
       args: [{ name: "option", type: "PagingOption!" }],
@@ -28,12 +28,12 @@ export const typeDefs = {
       return: "[User!]!",
       args: [{ name: "option", type: "PagingOption!" }],
     },
-    findByPid: { return: "Post", args: [{ name: "pid", type: "Int!" }] },
+    post: { return: "Post", args: [{ name: "pid", type: "Int!" }] },
     posts: {
       return: "[Post!]!",
       args: [{ name: "option", type: "PagingOption!" }],
     },
-    findById: { return: "Stock", args: [{ name: "id", type: "Int!" }] },
+    stock: { return: "Stock", args: [{ name: "id", type: "Int!" }] },
     stocks: { return: "[Stock!]!", args: [] },
   },
   Mutation: {

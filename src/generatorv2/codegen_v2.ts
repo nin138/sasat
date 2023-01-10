@@ -9,6 +9,7 @@ import { DataStoreHandler } from '../migration/dataStore.js';
 import { parse } from './parse.js';
 import { Directory } from './directory.js';
 import { readFileSync, writeFileSync } from 'fs';
+import { fileExistsSync } from 'tsconfig-paths/lib/filesystem';
 
 const { emptyDir, writeFile } = fs;
 
@@ -125,8 +126,10 @@ export class CodeGen_v2 {
 
   private async generateCondition(rootNode: RootNode) {
     const filePath = this.getFullPath(this.outDir, 'conditions');
-    await writeFileIfNotExist(filePath, '');
-    const content = readFileSync(filePath).toString();
-    writeFileSync(filePath, this.codeGen.generateConditions(rootNode, content));
+    const content = fileExistsSync(filePath)
+      ? readFileSync(filePath).toString()
+      : '';
+    const nextContent = this.codeGen.generateConditions(rootNode, content);
+    if (nextContent) writeFileSync(filePath, nextContent);
   }
 }

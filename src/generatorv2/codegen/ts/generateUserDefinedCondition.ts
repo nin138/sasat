@@ -13,7 +13,13 @@ const isImported = (sourceFile: SourceFile, type: string, paths: string[]) => {
     it => it.kind === SyntaxKind.ImportDeclaration,
   ) as ImportDeclaration[];
   return importDeclarations.some(it => {
-    if (!paths.includes(it.moduleSpecifier.getText(sourceFile))) return false;
+    if (
+      !paths.some(path => {
+        const text = it.moduleSpecifier.getText(sourceFile);
+        return `'${path}'` === text || `"${path}"` === text;
+      })
+    )
+      return false;
     const binding = it.importClause?.namedBindings;
     if (binding?.kind !== SyntaxKind.NamedImports) return false;
     return binding.elements.some(it => {
@@ -25,7 +31,22 @@ const isImported = (sourceFile: SourceFile, type: string, paths: string[]) => {
 export const generateUserDefinedCondition = (
   root: RootNode,
   content: string,
-): string => {
+): string | null => {
+  const customConditionNames = unique(
+    root.entities.flatMap(it => [
+      ...it.references.flatMap(it =>
+        it.joinCondition
+          .filter(it => it.kind === 'custom')
+          .map(it => (it as JoinCustomConditionNode).conditionName),
+      ),
+      ...it.referencedBy.flatMap(it =>
+        it.joinCondition
+          .filter(it => it.kind === 'custom')
+          .map(it => (it as JoinCustomConditionNode).conditionName),
+      ),
+    ]),
+  );
+  if (customConditionNames.length === 0) return null;
   const sourceFile = createSourceFile(
     'conditions.ts',
     content,
@@ -41,27 +62,12 @@ export const generateUserDefinedCondition = (
   ) as VariableStatement[];
 
   const contextImported = isImported(sourceFile, 'GQLContext', [
-    '"./context"',
-    '"./context.js"',
+    './context',
+    './context.js',
   ]);
   const customConditionImported = isImported(sourceFile, 'CustomCondition', [
-    '"sasat"',
+    'sasat',
   ]);
-
-  const customConditionNames = unique(
-    root.entities.flatMap(it => [
-      ...it.references.flatMap(it =>
-        it.joinCondition
-          .filter(it => it.kind === 'custom')
-          .map(it => (it as JoinCustomConditionNode).conditionName),
-      ),
-      ...it.referencedBy.flatMap(it =>
-        it.joinCondition
-          .filter(it => it.kind === 'custom')
-          .map(it => (it as JoinCustomConditionNode).conditionName),
-      ),
-    ]),
-  );
   const statements: TsStatement[] = [];
   customConditionNames.forEach(conditionName => {
     const exists = exportedVariables.some(it => {

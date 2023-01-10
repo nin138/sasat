@@ -43,7 +43,7 @@ export class TsCodegen_v2 {
   generateOnceFiles = (): FileData[] => {
     return staticFiles;
   };
-  generateConditions = (root: RootNode, currentFile: string) => {
+  generateConditions = (root: RootNode, currentFile: string): string | null => {
     return generateUserDefinedCondition(root, currentFile);
   };
 }

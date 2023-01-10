@@ -131,7 +131,7 @@ const makeUpdateInput = (node: EntityNode) => {
 const makeQueryTypeDef = (entity: EntityNode, query: GQLQuery) => {
   const args = getArgs(query, entity);
   return tsg.propertyAssign(
-    query.type === 'primary' ? entity.primaryQueryName() : query.name,
+    query.type === 'primary' ? entity.name.lowerCase() : query.name,
     typeFieldDefinitionToTsg({
       return: GQLString.type({
         typeName: entity.name.name,
