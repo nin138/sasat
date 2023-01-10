@@ -6,6 +6,7 @@ import { TableHandler } from '../serializable/table.js';
 import {
   GqlFromContextParam,
   GQLOption,
+  GQLQuery,
   MutationOption,
 } from '../data/GQLOption.js';
 import { DataStore } from '../dataStore.js';
@@ -50,6 +51,7 @@ export interface TableBuilder {
   enableGQL(): TableBuilder;
 
   setGQLOption(option: Partial<GQLOption>): TableBuilder;
+  addQuery(query: GQLQuery): TableBuilder;
 }
 
 export class TableCreator implements TableBuilder {
@@ -173,6 +175,13 @@ export class TableCreator implements TableBuilder {
 
   setGQLContextColumn(columns: GqlFromContextParam[]): TableBuilder {
     this.table.setGQLContextColumn(columns);
+    return this;
+  }
+
+  addQuery(query: GQLQuery): TableBuilder {
+    this.table.setGQLOption({
+      queries: [...this.table.gqlOption.queries, query],
+    });
     return this;
   }
 }
