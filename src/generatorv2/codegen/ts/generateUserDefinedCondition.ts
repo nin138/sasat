@@ -16,7 +16,9 @@ const isImported = (sourceFile: SourceFile, type: string, paths: string[]) => {
     if (!paths.includes(it.moduleSpecifier.getText(sourceFile))) return false;
     const binding = it.importClause?.namedBindings;
     if (binding?.kind !== SyntaxKind.NamedImports) return false;
-    return binding.elements.some(it => it.name.escapedText === type);
+    return binding.elements.some(it => {
+      return it.name.text.trim() === type;
+    });
   });
 };
 
