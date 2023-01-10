@@ -3,7 +3,6 @@ import { TableHandler } from '../../migration/serializable/table.js';
 import { DBColumnTypes } from '../../migration/column/columnTypes.js';
 import { ContextField, MutationNode } from '../nodes/mutationNode.js';
 import { GqlFromContextParam } from '../../migration/data/GQLOption.js';
-import { GqlPrimitive } from '../scripts/gqlTypes.js';
 
 export const makeMutationNodes = (store: DataStoreHandler) => {
   return store.tables.flatMap(makeTableMutationNodes);
@@ -66,7 +65,7 @@ const makeUpdateMutationNode = (table: TableHandler): MutationNode => {
     mutationName: `update${table.getEntityName().name}`,
     refetch: !table.gqlOption.mutation.update.noReFetch,
     returnType: {
-      typeName: noRefetch ? GqlPrimitive.Boolean : table.getEntityName().name,
+      typeName: noRefetch ? 'Boolean' : table.getEntityName().name,
       dbType: noRefetch
         ? DBColumnTypes.boolean
         : (undefined as unknown as DBColumnTypes),
@@ -99,7 +98,7 @@ const makeDeleteMutationNode = (table: TableHandler): MutationNode => {
     identifyFields: table.getPrimaryKeyColumns().map(it => it.fieldName()),
     refetch: false,
     returnType: {
-      typeName: GqlPrimitive.Boolean,
+      typeName: 'Boolean',
       dbType: DBColumnTypes.boolean,
       nullable: false,
       array: false,

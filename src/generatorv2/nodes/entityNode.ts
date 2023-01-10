@@ -10,7 +10,7 @@ import { SerializedColumn } from '../../migration/serialized/serializedColumn.js
 import { makeFindQueryName } from '../codegen/names.js';
 import { EntityName } from './entityName.js';
 import { columnTypeToGqlPrimitive } from '../scripts/columnToGqlType.js';
-import { GqlPrimitive } from '../scripts/gqlTypes.js';
+import { GQLPrimitive } from '../scripts/gqlTypes.js';
 import { VirtualRelation } from '../../migration/data/virtualRelation.js';
 import {
   JoinConditionNode,
@@ -292,7 +292,7 @@ export type SubTypeNode = {
 export type FieldNode = {
   fieldName: string;
   columnName: string;
-  gqlType: GqlPrimitive | string;
+  gqlType: GQLPrimitive | string;
   dbType: DBColumnTypes;
   isNullable: boolean;
   isArray: boolean;
@@ -323,7 +323,7 @@ type PrimitiveParameterNode = {
   fieldName: string;
   columnName: string;
   dbtype: DBColumnTypes;
-  gqltype: GqlPrimitive;
+  gqltype: GQLPrimitive;
 };
 
 const makePrimitiveParameterNode = (

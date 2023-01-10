@@ -8,7 +8,7 @@ import {
   SerializedReferenceColumn,
 } from '../serialized/serializedColumn.js';
 import { Table } from './table.js';
-import { GqlPrimitive } from '../../generatorv2/scripts/gqlTypes.js';
+import { GQLPrimitive } from '../../generatorv2/scripts/gqlTypes.js';
 import { columnTypeToGqlPrimitive } from '../../generatorv2/scripts/columnToGqlType.js';
 
 export interface Column extends Serializable<SerializedColumn> {
@@ -19,7 +19,7 @@ export interface Column extends Serializable<SerializedColumn> {
   isReference(): this is ReferenceColumn;
   isNullable(): boolean;
   tsType(): string;
-  gqlType(): GqlPrimitive;
+  gqlType(): GQLPrimitive;
   isNullableOnCreate(): boolean;
 }
 
@@ -39,7 +39,7 @@ export class BaseColumn implements Column {
   tsType(): string {
     return columnTypeToTsType(this.dataType());
   }
-  gqlType(): GqlPrimitive {
+  gqlType(): GQLPrimitive {
     return columnTypeToGqlPrimitive(this.dataType());
   }
 

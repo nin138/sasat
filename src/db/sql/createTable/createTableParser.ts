@@ -9,7 +9,6 @@ import {
 } from '../../../migration/serialized/serializedColumn.js';
 import { getDefaultGqlOption } from '../../../migration/data/GQLOption.js';
 import { columnTypeToGqlPrimitive } from '../../../generatorv2/scripts/columnToGqlType.js';
-import { GqlPrimitive } from '../../../generatorv2/scripts/gqlTypes.js';
 
 const splitArray = <T>(array: T[], callback: (item: T) => boolean): T[][] => {
   const indexes: number[] = [];
@@ -114,8 +113,8 @@ export class CreateTableParser {
       if (next.kind === 'NULL') return undefined;
       if (
         next.kind === TokenKind.Number ||
-        gqlType === GqlPrimitive.Float ||
-        gqlType === GqlPrimitive.Int
+        gqlType === 'Float' ||
+        gqlType === 'Int'
       )
         return +next.value;
       if (next.kind === TokenKind.String) return next.value;

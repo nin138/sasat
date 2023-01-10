@@ -1,6 +1,6 @@
 import { ArgNode, TypeNode } from './typeNode.js';
 import { EntityName } from './entityName.js';
-import { GqlPrimitive } from '../scripts/gqlTypes.js';
+import { GQLPrimitive } from '../scripts/gqlTypes.js';
 
 type MutationType = 'create' | 'delete' | 'update';
 
@@ -18,5 +18,5 @@ export type SubscriptionNode = {
 
 export type SubscriptionFilterNode = {
   field: string;
-  gqlType: GqlPrimitive;
+  gqlType: GQLPrimitive;
 };

@@ -1,20 +1,15 @@
-export enum GqlPrimitive {
-  Int = 'Int',
-  Float = 'Float',
-  String = 'String',
-  Boolean = 'Boolean',
-  // ID = 'ID',
-}
+export type GQLPrimitive = 'Int' | 'Float' | 'String' | 'Boolean';
 
-export const toTsType = (type: 'Int' | 'String' | 'Float' | string) => {
+export const toTsType = (type: GQLPrimitive | string) => {
   switch (type) {
     case 'Int':
     case 'Float':
       return 'number';
-    // case GqlPrimitive.Boolean: return 'boolean';
-    // case GqlPrimitive.ID:
+    // case 'ID':
     case 'String':
       return 'string';
+    case 'Boolean':
+      return 'boolean';
     default:
       return type;
   }
