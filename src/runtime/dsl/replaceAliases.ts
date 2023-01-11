@@ -19,7 +19,6 @@ import {
   NO_ALIAS,
 } from './query/query.js';
 import { TableInfo } from './query/createQueryResolveInfo.js';
-import { getQueryTableName } from './query/sql/hydrate.js';
 
 export const createAliasReplacer = (
   tableInfo: TableInfo,
@@ -127,4 +126,9 @@ export const replaceAliases = (query: Query, tableInfo: TableInfo): Query => {
     limit: query.limit,
     offset: query.offset,
   };
+};
+
+const getQueryTableName = (table: QueryTable): string => {
+  if (!table.subquery) return table.name;
+  return getQueryTableName(table.query.from);
 };

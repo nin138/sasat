@@ -1,8 +1,5 @@
 import { SqlValueType } from '../../../../db/connectors/dbClient.js';
 import { SELECT_ALIAS_SEPARATOR } from './nodeToSql.js';
-import { Query, QueryNodeKind, QueryTable } from '../query.js';
-import { TableInfo } from '../createQueryResolveInfo.js';
-import { QExpr } from '../../factory.js';
 
 export type QueryResolveInfo = {
   tableAlias: string;
@@ -14,14 +11,10 @@ export type QueryResolveInfo = {
 
 export type ResultRow = Record<string, SqlValueType>;
 
-type ParseObjs = Record<string, Record<string, unknown>>;
+type Entity = Record<string, unknown>;
+type ParsedObjs = Record<string, Entity>;
 
-const getUnique = (target: ResultRow, info: QueryResolveInfo) =>
-  info.keyAliases
-    .map(it => target[info.tableAlias + SELECT_ALIAS_SEPARATOR + it])
-    .join('_~_');
-
-const rowToObjs = (row: ResultRow): ParseObjs => {
+const rowToObjs = (row: ResultRow): ParsedObjs => {
   const objs: Record<string, ResultRow> = {};
   Object.entries(row).forEach(([key, value]) => {
     const [table, column] = key.split(SELECT_ALIAS_SEPARATOR);
@@ -33,48 +26,53 @@ const rowToObjs = (row: ResultRow): ParseObjs => {
   return objs;
 };
 
-const hydrateRow = (info: QueryResolveInfo, objs: ParseObjs) => {
-  const result: Record<string, unknown> = objs[info.tableAlias];
-  if (result[info.keyAliases[0]] === null) return null;
-  info.joins.forEach(it => {
-    if (it.isArray) {
-      const child = hydrateRow(it, objs);
-      result[it.property] = child ? [child] : [];
-    } else {
-      result[it.property] = hydrateRow(it, objs);
-    }
-  });
-  return result;
-};
+const getUnique = (obj: Entity, info: QueryResolveInfo) =>
+  info.keyAliases.map(it => obj[it]).join('_~_');
 
-const findAndAppend = (
-  base: Record<string, unknown>,
+const execTable = (
   info: QueryResolveInfo,
-  objs: ParseObjs,
-): boolean => {
+  objs: ParsedObjs,
+  current?: Entity | Entity[],
+) => {
+  let entity: Record<string, unknown> | null = objs[info.tableAlias];
+  if (entity[info.keyAliases[0]] == null) entity = null;
+  let result: Entity | Entity[] | null;
+  let currentTarget: Entity | null;
   if (info.isArray) {
-    if (!base[info.property]) {
-      base[info.property] = [hydrateRow(info, objs)];
-      return true;
+    if (!current) {
+      result = entity == null ? [] : [entity];
+      currentTarget = entity;
+    } else {
+      currentTarget =
+        entity == null
+          ? null
+          : (current as Entity[]).find(
+              (item: Record<string, unknown>) =>
+                item &&
+                info.keyAliases.every(key => item[key] === entity![key]),
+            )!;
+      if (currentTarget) {
+        result = current;
+      } else {
+        currentTarget = entity;
+        result = current;
+        if (currentTarget) (result as Entity[]).push(currentTarget);
+      }
     }
-    const tArr: Record<string, unknown>[] = base[info.property] as Record<
-      string,
-      unknown
-    >[];
-    const target = tArr.find(
-      item =>
-        item &&
-        info.keyAliases.every(key => item[key] === objs[info.tableAlias][key]),
-    );
-    if (!target) {
-      const child = hydrateRow(info, objs);
-      if (child) tArr.push(child);
-      return true;
-    } else return info.joins.some(info => findAndAppend(target, info, objs));
+  } else {
+    currentTarget = (current as Entity | undefined) || entity;
+    result = currentTarget;
   }
-  if (base[info.property] !== undefined) return false;
-  base[info.property] = hydrateRow(info, objs);
-  return true;
+  if (currentTarget !== null) {
+    info.joins.forEach(it => {
+      currentTarget![it.property] = execTable(
+        it,
+        objs,
+        currentTarget![it.property] as Entity | Entity[],
+      );
+    });
+  }
+  return result;
 };
 
 /**
@@ -87,57 +85,20 @@ export const hydrate = (
   const result: Record<string, unknown>[] = [];
   // Record<uniqueValue, index of result>
   const t0mapper: Record<string, number> = {};
-
+  info.isArray = false; // TODO skip t0 mapper & getUnique when isArray = false;
   data.forEach(row => {
-    const unique = getUnique(row, info);
-    const objs: Record<string, Record<string, unknown>> = rowToObjs(row);
+    const objs: ParsedObjs = rowToObjs(row);
+    const currentObj = objs[info.tableAlias];
+    const unique = getUnique(currentObj, info);
+
     if (t0mapper[unique] === undefined) {
       t0mapper[unique] = result.length;
-      result.push(hydrateRow(info, objs)!);
+      result.push(execTable(info, objs, currentObj) as Entity);
       return;
     }
     const base = result[t0mapper[unique]];
-    info.joins.some(info => findAndAppend(base, info, objs));
+    execTable(info, objs, base);
   });
 
   return result;
-};
-
-export const getQueryTableName = (table: QueryTable): string => {
-  if (!table.subquery) return table.name;
-  return getQueryTableName(table.query.from);
-};
-
-export const appendKeysToQuery = (
-  query: Query,
-  identifiableKeyMap: TableInfo,
-): Query => {
-  const getTables = (table: QueryTable): QueryTable[] => [
-    table,
-    ...table.joins.flatMap(it => getTables(it.table)),
-  ];
-  const tables = getTables(query.from);
-  tables.forEach(table => {
-    const keys =
-      identifiableKeyMap[getQueryTableName(table)].identifiableFields;
-    keys.forEach(key => {
-      if (
-        !query.select.some(
-          it =>
-            it.kind === QueryNodeKind.Field &&
-            it.table === table.alias &&
-            it.name === key,
-        )
-      ) {
-        query.select.push(
-          QExpr.field(
-            table.alias,
-            key,
-            table.alias + SELECT_ALIAS_SEPARATOR + key,
-          ),
-        );
-      }
-    });
-  });
-  return query;
 };
