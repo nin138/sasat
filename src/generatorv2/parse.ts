@@ -6,6 +6,11 @@ import { makeSubscriptionNodes } from './parser/makeSubscriptionNode.js';
 import { makeContextNodes } from './parser/makeContextNodes.js';
 
 export const parse = (store: DataStoreHandler): RootNode => {
+  store.tables.forEach(it => {
+    if (it.primaryKey.length === 0) {
+      throw new Error(`Table: ${it.tableName} has no primary key.`);
+    }
+  });
   return {
     entities: makeEntityNodes(store),
     mutations: makeMutationNodes(store),
