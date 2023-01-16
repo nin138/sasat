@@ -11,7 +11,7 @@ import {
   MutationOption,
 } from '../data/GQLOption.js';
 import {
-  Column,
+  BaseColumn,
   NormalColumn,
   ReferenceColumn,
 } from '../serializable/column.js';
@@ -65,7 +65,7 @@ export class TableMigrator implements MigrationTable {
     return this.table.tableName;
   }
 
-  column(columnName: string): Column {
+  column(columnName: string): BaseColumn {
     return this.table.column(columnName);
   }
 

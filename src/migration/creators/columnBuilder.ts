@@ -24,7 +24,7 @@ export abstract class ColumnBuilderBase {
   protected _unique = false;
   protected _option: ColumnOptions = defaultColumnOption;
   protected _fieldName: string;
-  protected constructor(protected readonly columnName: string) {
+  protected constructor(readonly columnName: string) {
     this._fieldName = columnName;
   }
 
@@ -254,6 +254,7 @@ export class ReferenceColumnBuilder extends ColumnBuilderBase {
   ) {
     super(ref.columnName);
     this._option = {
+      ...this._option,
       updatable: false,
     };
   }
@@ -291,6 +292,44 @@ export class ReferenceColumnBuilder extends ColumnBuilderBase {
       data,
       isPrimary: this._primary,
       isUnique: this._unique,
+    };
+  }
+}
+
+export class AutoIncrementIDColumnBuilder extends ColumnBuilderBase {
+  constructor(
+    columnName: string,
+    protected readonly option?: { salt?: string; bigint?: boolean },
+  ) {
+    super(columnName);
+    this._option = {
+      ...this._option,
+      updatable: false,
+      autoIncrementHashId: true,
+      hashSalt: option?.salt,
+    };
+  }
+
+  build(): { data: SerializedColumn; isPrimary: boolean; isUnique: boolean } {
+    return {
+      data: {
+        hasReference: false,
+        fieldName: this._fieldName,
+        columnName: this.columnName,
+        type: this.option?.bigint ? DBColumnTypes.bigInt : DBColumnTypes.int,
+        notNull: true,
+        default: undefined,
+        zerofill: false,
+        signed: false,
+        autoIncrement: true,
+        length: undefined,
+        scale: undefined,
+        defaultCurrentTimeStamp: false,
+        onUpdateCurrentTimeStamp: false,
+        option: this._option,
+      },
+      isPrimary: true,
+      isUnique: false,
     };
   }
 }

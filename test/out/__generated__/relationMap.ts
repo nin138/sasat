@@ -88,9 +88,9 @@ export const relationMap: RelationMap<GQLContext> = {
 export const tableInfo: TableInfo = {
   user: {
     identifiableKeys: ["userId"],
-    identifiableFields: ["uid"],
+    identifiableFields: ["userId"],
     columnMap: {
-      uid: "userId",
+      userId: "userId",
       NNN: "name",
       nick: "nickName",
       createdAt: "createdAt",

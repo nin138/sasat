@@ -15,14 +15,29 @@ export type Resolver<Context, Params> = (
   info: GraphQLResolveInfo,
 ) => unknown;
 
-export const makeResolver = <Context, Params>(
-  resolver: Resolver<Context, Params>,
-  middlewares: ResolverMiddleware<Context, Params>[] = [],
-): Resolver<Context, Params> => {
+export const makeResolver = <
+  Context,
+  RequiredParams,
+  IncomingParams = RequiredParams,
+>(
+  resolver: Resolver<Context, RequiredParams>,
+  middlewares: ResolverMiddleware<
+    Context,
+    RequiredParams,
+    IncomingParams
+  >[] = [],
+): Resolver<Context, RequiredParams> => {
   return (...args: Parameters<typeof resolver>) => {
-    const newArgs = middlewares.reduce((args, middleware) => {
-      return middleware(args);
-    }, args);
-    return resolver(...newArgs);
+    const newArgs: ResolverArgs<Context, RequiredParams | IncomingParams> =
+      middlewares.reduce(
+        (
+          args: ResolverArgs<Context, RequiredParams | IncomingParams>,
+          middleware,
+        ) => {
+          return middleware(args);
+        },
+        args,
+      );
+    return resolver(...(newArgs as ResolverArgs<Context, RequiredParams>));
   };
 };

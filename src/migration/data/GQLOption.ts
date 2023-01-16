@@ -33,11 +33,6 @@ export type GQLQuery =
 
 export interface GQLOption {
   enabled: boolean;
-  // TODO Remove
-  // query: {
-  //   find: boolean;
-  //   list: false | 'all' | 'paging';
-  // };
   queries: GQLQuery[];
   mutation: {
     create: MutationOption & Enabled;
@@ -56,10 +51,6 @@ export const defaultMutationOption = {
 
 export const getDefaultGqlOption = (): GQLOption => ({
   enabled: false,
-  // query: {
-  //   find: true,
-  //   list: 'all',
-  // },
   queries: [],
   mutation: {
     create: defaultMutationOption,

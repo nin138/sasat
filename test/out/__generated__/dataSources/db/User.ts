@@ -21,15 +21,15 @@ export abstract class GeneratedUserDBDataSource extends BaseDBDataSource<
 > {
   readonly tableName: string = "user";
   readonly fields: Array<string> = [
-    "uid",
+    "userId",
     "NNN",
     "nick",
     "createdAt",
     "updatedAt",
   ];
   protected readonly primaryKeys: Array<string> = ["userId"];
-  protected readonly identifyFields: Array<string> = ["uid"];
-  protected readonly autoIncrementColumn?: string | undefined = "uid";
+  protected readonly identifyFields: Array<string> = ["userId"];
+  protected readonly autoIncrementColumn?: string | undefined = "userId";
   protected getDefaultValueString(): Pick<
     User,
     "NNN" | "createdAt" | "updatedAt"
@@ -40,8 +40,8 @@ export abstract class GeneratedUserDBDataSource extends BaseDBDataSource<
       updatedAt: getCurrentDateTimeString(),
     };
   }
-  findByUid(
-    uid: number,
+  findByUserId(
+    userId: number,
     fields?: UserFields,
     options?: Omit<QueryOptions, "offset" | "limit" | "sort">,
     context?: GQLContext
@@ -54,7 +54,7 @@ export abstract class GeneratedUserDBDataSource extends BaseDBDataSource<
         where: QExpr.conditions.and(
           QExpr.conditions.eq(
             QExpr.field(tableName, "userId"),
-            QExpr.value(uid)
+            QExpr.value(userId)
           ),
           options?.where
         ),

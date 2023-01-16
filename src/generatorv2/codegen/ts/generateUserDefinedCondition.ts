@@ -1,32 +1,14 @@
-import typescript, { ImportDeclaration, SourceFile } from 'typescript';
+import typescript from 'typescript';
 import { RootNode } from '../../nodes/rootNode.js';
 import { JoinCustomConditionNode } from '../../nodes/JoinConditionNode.js';
 import { unique } from '../../../runtime/util.js';
 import { TsFile, tsg, TsStatement } from '../../../tsg/index.js';
 import { ImportDeclaration as TsgImport } from '../../../tsg/importDeclaration.js';
+import { isImported } from './scripts/ast/isImported.js';
+import { getExportedVariables } from './scripts/ast/getExportedVariables.js';
+import { tsFileNames } from './tsFileNames.js';
 
-type VariableStatement = typescript.VariableStatement;
-const { createSourceFile, ScriptTarget, SyntaxKind } = typescript;
-
-const isImported = (sourceFile: SourceFile, type: string, paths: string[]) => {
-  const importDeclarations = sourceFile.statements.filter(
-    it => it.kind === SyntaxKind.ImportDeclaration,
-  ) as ImportDeclaration[];
-  return importDeclarations.some(it => {
-    if (
-      !paths.some(path => {
-        const text = it.moduleSpecifier.getText(sourceFile);
-        return `'${path}'` === text || `"${path}"` === text;
-      })
-    )
-      return false;
-    const binding = it.importClause?.namedBindings;
-    if (binding?.kind !== SyntaxKind.NamedImports) return false;
-    return binding.elements.some(it => {
-      return it.name.text.trim() === type;
-    });
-  });
-};
+const { createSourceFile, ScriptTarget } = typescript;
 
 export const generateUserDefinedCondition = (
   root: RootNode,
@@ -48,19 +30,11 @@ export const generateUserDefinedCondition = (
   );
   if (customConditionNames.length === 0) return null;
   const sourceFile = createSourceFile(
-    'conditions.ts',
+    tsFileNames.conditions + '.ts',
     content,
     ScriptTarget.ESNext,
   );
-  sourceFile.getChildren().map(it => it);
-  const exportedVariables = sourceFile.statements.filter(
-    it =>
-      it.kind === SyntaxKind.VariableStatement &&
-      (it as VariableStatement).modifiers?.some(
-        it => it.kind === SyntaxKind.ExportKeyword,
-      ),
-  ) as VariableStatement[];
-
+  const exportedVariables = getExportedVariables(sourceFile);
   const contextImported = isImported(sourceFile, 'GQLContext', [
     './context',
     './context.js',

@@ -6,10 +6,13 @@ import { Relation } from '../data/relation.js';
 
 export type ColumnOptions = {
   updatable: boolean;
+  autoIncrementHashId: boolean;
+  hashSalt?: string;
 };
 
-export const defaultColumnOption = {
+export const defaultColumnOption: ColumnOptions = {
   updatable: true,
+  autoIncrementHashId: false,
 };
 
 interface SerializedColumnBase {

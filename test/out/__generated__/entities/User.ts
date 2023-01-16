@@ -1,6 +1,6 @@
 /* eslint-disable */
 export type User = {
-  readonly uid: number;
+  readonly userId: number;
   readonly NNN: string;
   readonly nick?: string | null;
   readonly createdAt: string;
@@ -11,8 +11,8 @@ export type UserCreatable = {
   readonly nick?: string | null;
 };
 export type UserUpdatable = {
-  readonly uid: number;
+  readonly userId: number;
   readonly NNN?: string | null;
   readonly nick?: string | null;
 };
-export type UserIdentifiable = { readonly uid: number };
+export type UserIdentifiable = { readonly userId: number };

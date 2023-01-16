@@ -52,4 +52,7 @@ export class EntityName {
   updateInputName(): string {
     return this.name + 'UpdateInput';
   }
+  IDEncoderName(): string {
+    return `${this.name}HashId`;
+  }
 }

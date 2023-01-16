@@ -8,15 +8,30 @@ import {
 } from "sasat";
 import { UserFields, PostFields, StockFields } from "./fields.js";
 import { UserDBDataSource } from "../dataSources/db/User.js";
+import { UserHashId } from "../idEncoder.js";
 import { GQLContext } from "../context.js";
 import { PostDBDataSource } from "../dataSources/db/Post.js";
 import { StockDBDataSource } from "../dataSources/db/Stock.js";
 export const query = {
-  user: makeResolver<GQLContext, { uid: number }>(
-    async (_, { uid }, context, info) => {
+  user: makeResolver<GQLContext, { userId: number }, { userId: string }>(
+    async (_, { userId }, context, info) => {
       const fields = gqlResolveInfoToField(info) as UserFields;
-      return new UserDBDataSource().findByUid(uid, fields, undefined, context);
-    }
+      return new UserDBDataSource().findByUserId(
+        userId,
+        fields,
+        undefined,
+        context
+      );
+    },
+    [
+      (args) => {
+        args[1] = {
+          ...args[1],
+          userId: UserHashId.decode(args[1].userId as string),
+        };
+        return args;
+      },
+    ]
   ),
   users: makeResolver<GQLContext, { option: PagingOption }>(
     async (_, { option }, context, info) => {

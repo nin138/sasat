@@ -1,7 +1,7 @@
 import { generateEntityFile } from './ts/generateEntity.js';
 import { EntityNode } from '../nodes/entityNode.js';
 import { RootNode } from '../nodes/rootNode.js';
-import { generateTypeDefs } from './gql/generateTypeDefs.js';
+import { generateTypeDefs } from './ts/generateTypeDefs.js';
 import { generateQueryResolver } from './ts/generateQueryResolver.js';
 import { generateMutationResolver } from './ts/generateMutationResolver.js';
 import { generateRelationMap } from './ts/relationMap/index.js';
@@ -13,6 +13,7 @@ import { generateResolver } from './ts/generateResolver.js';
 import { generateContext } from './ts/generateContext.js';
 import { generateSubscription } from './ts/generateSubscription.js';
 import { generateUserDefinedCondition } from './ts/generateUserDefinedCondition.js';
+import { generateIDEncoder } from './ts/generateIDEncoder.js';
 
 export type FileData = { name: string; body: string };
 
@@ -45,5 +46,8 @@ export class TsCodegen_v2 {
   };
   generateConditions = (root: RootNode, currentFile: string): string | null => {
     return generateUserDefinedCondition(root, currentFile);
+  };
+  generateIDEncoders = (root: RootNode, currentFile: string): string | null => {
+    return generateIDEncoder(root, currentFile);
   };
 }

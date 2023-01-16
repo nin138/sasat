@@ -6,7 +6,10 @@ import {
   ReferenceColumn,
 } from '../../migration/serializable/column.js';
 import { nonNullableFilter } from '../../util/type.js';
-import { SerializedColumn } from '../../migration/serialized/serializedColumn.js';
+import {
+  ColumnOptions,
+  SerializedColumn,
+} from '../../migration/serialized/serializedColumn.js';
 import { makeFindQueryName } from '../codegen/names.js';
 import { EntityName } from './entityName.js';
 import { columnTypeToGqlPrimitive } from '../scripts/columnToGqlType.js';
@@ -21,28 +24,61 @@ import { nonNullable } from '../../runtime/util.js';
 import { Conditions } from '../../migration/makeCondition.js';
 import { GQLQuery } from '../../migration/data/GQLOption.js';
 
-const makeFieldNode = (column: BaseColumn): FieldNode => ({
-  fieldName: column.fieldName(),
-  columnName: column.columnName(),
-  gqlType: column.gqlType(),
-  dbType: column.dataType(),
-  isAutoIncrement: column.data.autoIncrement,
-  isArray: false,
-  isPrimary: column.isPrimary(),
-  isNullable: column.isNullable(),
-  isUpdatable:
-    !(column.data.onUpdateCurrentTimeStamp || column.isPrimary()) &&
-    column.data.option.updatable,
-  isGQLOpen: !column.table.gqlOption.mutation.fromContextColumns.some(
-    it => it.column === column.columnName(),
-  ),
-  column: column.data,
-});
+const getHashId = (
+  store: DataStoreHandler,
+  entity: EntityName,
+  column: BaseColumn,
+): FieldNode['hashId'] => {
+  if (!column.isReference()) {
+    if (column.data.option.autoIncrementHashId)
+      return { encoder: entity.IDEncoderName() };
+    return undefined;
+  }
+  const ref = column.data.reference;
+  const parent = store.table(ref.parentTable);
+  if (!parent.column(ref.parentColumn).data.option.autoIncrementHashId)
+    return undefined;
+  return {
+    encoder: parent.getEntityName().IDEncoderName(),
+  };
+};
 
-const makeCreatableFieldNode = (column: BaseColumn): FieldNode | null => {
+const makeFieldNode = (
+  store: DataStoreHandler,
+  entity: EntityNode,
+  column: BaseColumn,
+): FieldNode => {
+  return {
+    entity,
+    fieldName: column.fieldName(),
+    columnName: column.columnName(),
+    gqlType: column.data.option.autoIncrementHashId ? 'ID' : column.gqlType(),
+    dbType: column.dataType(),
+    isAutoIncrement: column.data.autoIncrement,
+    isArray: false,
+    isPrimary: column.isPrimary(),
+    isNullable: column.isNullable(),
+    isUpdatable:
+      !(column.data.onUpdateCurrentTimeStamp || column.isPrimary()) &&
+      column.data.option.updatable,
+    isGQLOpen: !column.table.gqlOption.mutation.fromContextColumns.some(
+      it => it.column === column.columnName(),
+    ),
+    column: column.data,
+    option: column.data.option,
+    hashId: getHashId(store, entity.name, column),
+  };
+};
+
+const makeCreatableFieldNode = (
+  store: DataStoreHandler,
+  entity: EntityNode,
+  column: BaseColumn,
+): FieldNode | null => {
   if (column.data.autoIncrement || column.data.defaultCurrentTimeStamp)
     return null;
   return {
+    entity,
     fieldName: column.fieldName(),
     columnName: column.columnName(),
     gqlType: column.gqlType(),
@@ -56,12 +92,19 @@ const makeCreatableFieldNode = (column: BaseColumn): FieldNode | null => {
       it => it.column === column.columnName(),
     ),
     column: column.data,
+    option: column.data.option,
+    hashId: getHashId(store, entity.name, column),
   };
 };
 
-const makeUpdatableFieldNode = (column: BaseColumn): FieldNode | null => {
+const makeUpdatableFieldNode = (
+  store: DataStoreHandler,
+  entity: EntityNode,
+  column: BaseColumn,
+): FieldNode | null => {
   if (!column.isUpdatable() || !column.data.option.updatable) return null;
   return {
+    entity,
     fieldName: column.fieldName(),
     columnName: column.columnName(),
     gqlType: column.gqlType(),
@@ -75,6 +118,8 @@ const makeUpdatableFieldNode = (column: BaseColumn): FieldNode | null => {
       it => it.column === column.columnName(),
     ),
     column: column.data,
+    option: column.data.option,
+    hashId: getHashId(store, entity.name, column),
   };
 };
 
@@ -91,8 +136,8 @@ export class EntityNode {
   readonly findMethods: FindMethodNode[];
   readonly queries: GQLQuery[];
   constructor(store: DataStoreHandler, table: TableHandler) {
-    this.fields = table.columns.map(makeFieldNode);
     this.name = EntityName.fromTableName(table.tableName);
+    this.fields = table.columns.map(it => makeFieldNode(store, this, it));
     this.tableName = table.tableName;
     this.gqlEnabled = table.gqlOption.enabled;
     this.identifyKeys = table.primaryKey;
@@ -101,7 +146,7 @@ export class EntityNode {
       gqlEnabled:
         table.gqlOption.enabled && table.gqlOption.mutation.create.enabled,
       fields: table.columns
-        .map(makeCreatableFieldNode)
+        .map(it => makeCreatableFieldNode(store, this, it))
         .filter(nonNullableFilter),
     };
     this.updateInput = {
@@ -109,7 +154,9 @@ export class EntityNode {
         table.gqlOption.enabled && table.gqlOption.mutation.update.enabled,
       fields: [
         ...this.fields.filter(it => it.isPrimary),
-        ...table.columns.map(makeUpdatableFieldNode).filter(nonNullableFilter),
+        ...table.columns
+          .map(it => makeUpdatableFieldNode(store, this, it))
+          .filter(nonNullableFilter),
       ],
     };
     this.references = table
@@ -159,10 +206,12 @@ export class EntityNode {
     ];
   }
 
+  identifyFields() {
+    return this.fields.filter(it => it.isPrimary);
+  }
+
   primaryQueryName() {
-    return makeFindQueryName(
-      this.fields.filter(it => it.isPrimary).map(it => it.fieldName),
-    );
+    return makeFindQueryName(this.identifyFields().map(it => it.fieldName));
   }
 }
 
@@ -290,6 +339,7 @@ export type SubTypeNode = {
 };
 
 export type FieldNode = {
+  entity: EntityNode;
   fieldName: string;
   columnName: string;
   gqlType: GQLPrimitive | string;
@@ -301,6 +351,10 @@ export type FieldNode = {
   isGQLOpen: boolean;
   isAutoIncrement: boolean;
   column: SerializedColumn;
+  option: ColumnOptions;
+  hashId?: {
+    encoder: string;
+  };
 };
 
 export type FindMethodNode = {

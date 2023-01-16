@@ -32,8 +32,8 @@ export const mutation = {
     const result = await ds
       .update(user)
       .then((it: CommandResponse): boolean => it.changedRows === 1);
-    const identifiable = pick(user, ["uid"]) as unknown as UserIdentifiable;
-    const fetched = await ds.findByUid(identifiable.uid);
+    const identifiable = pick(user, ["userId"]) as unknown as UserIdentifiable;
+    const fetched = await ds.findByUserId(identifiable.userId);
     await publishUserUpdated(fetched as User);
     return result;
   }),

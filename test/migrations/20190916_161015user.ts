@@ -13,13 +13,14 @@ console.log(SqlString.escape(a));
 export default class CreateUser implements SasatMigration {
   up: (store: MigrationStore) => void = store => {
     return store.createTable('user', table => {
-      table
-        .column('userId')
-        .int()
-        .primary()
-        .unsigned()
-        .autoIncrement()
-        .fieldName('uid');
+      // table
+      //   .column('userId')
+      //   .int()
+      //   .primary()
+      //   .unsigned()
+      //   .autoIncrement()
+      //   .fieldName('uid');
+      table.autoIncrementHashId('userId');
       table
         .column('name')
         .varchar(20)

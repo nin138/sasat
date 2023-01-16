@@ -8,6 +8,7 @@ import { TsCodegen_v2 } from './codegen/tscodegen_v2.js';
 import { DataStoreHandler } from '../migration/dataStore.js';
 import { parse } from './parse.js';
 import { Directory } from './directory.js';
+import { tsFileNames } from './codegen/ts/tsFileNames.js';
 
 const { emptyDir, writeFile } = fs;
 
@@ -38,6 +39,7 @@ export class CodeGen_v2 {
       ...this.generateFiles(this.root),
       ...this.generateOnceFiles(),
       this.generateCondition(this.root),
+      this.generateIDEncoders(this.root),
     ]);
   }
 
@@ -123,11 +125,20 @@ export class CodeGen_v2 {
   }
 
   private async generateCondition(rootNode: RootNode) {
-    const filePath = this.getFullPath(this.outDir, 'conditions');
+    const filePath = this.getFullPath(this.outDir, tsFileNames.conditions);
     const content = fs.existsSync(filePath)
       ? fs.readFileSync(filePath).toString()
       : '';
     const nextContent = this.codeGen.generateConditions(rootNode, content);
+    if (nextContent) fs.writeFileSync(filePath, nextContent);
+  }
+
+  private async generateIDEncoders(rootNode: RootNode) {
+    const filePath = this.getFullPath(this.outDir, tsFileNames.encoder);
+    const content = fs.existsSync(filePath)
+      ? fs.readFileSync(filePath).toString()
+      : '';
+    const nextContent = this.codeGen.generateIDEncoders(rootNode, content);
     if (nextContent) fs.writeFileSync(filePath, nextContent);
   }
 }

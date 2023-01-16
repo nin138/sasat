@@ -3,11 +3,13 @@ import { ComparisonOperators } from '../../db/sql/expression/comparison.js';
 
 export type QueryConditionValue =
   | ConditionValue
-  | {
-      kind: 'field';
-      column: string;
-    }
+  | FieldQueryConditionValue
   | ArgQueryConditionValue;
+
+export type FieldQueryConditionValue = {
+  kind: 'field';
+  column: string;
+};
 
 export type ArgQueryConditionValue = {
   kind: 'arg';

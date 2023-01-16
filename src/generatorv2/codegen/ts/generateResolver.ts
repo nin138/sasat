@@ -2,6 +2,7 @@ import { RootNode } from '../../nodes/rootNode.js';
 import { PropertyAssignment, TsFile, tsg } from '../../../tsg/index.js';
 import {
   EntityNode,
+  FieldNode,
   ReferencedNode,
   ReferenceNode,
 } from '../../nodes/entityNode.js';
@@ -11,6 +12,8 @@ import {
   makeContextTypeRef,
   makeTypeRef,
 } from './scripts/getEntityTypeRefs.js';
+import { Directory } from '../../directory.js';
+import { tsFileNames } from './tsFileNames.js';
 
 export const generateResolver = (root: RootNode): TsFile => {
   const hasSubscription = root.subscriptions.some(it => it.gqlEnabled);
@@ -52,6 +55,9 @@ const makeEntityResolver = (node: EntityNode): PropertyAssignment => {
   return tsg.propertyAssign(
     node.name.name,
     tsg.object(
+      ...node.fields
+        .filter(it => it.option.autoIncrementHashId)
+        .map(makeHashIdProperty),
       ...node.references
         .filter(it => it.isGQLOpen)
         .map(ref => makeRelationProperty(ref)),
@@ -62,8 +68,28 @@ const makeEntityResolver = (node: EntityNode): PropertyAssignment => {
   );
 };
 
+const makeHashIdProperty = (field: FieldNode): PropertyAssignment => {
+  const paramName = field.entity.name.lowerCase();
+  return tsg.propertyAssign(
+    field.fieldName,
+    tsg.arrowFunc(
+      [
+        tsg.parameter(
+          paramName,
+          makeTypeRef(field.entity.name, 'result', 'GENERATED'),
+        ),
+      ],
+      undefined,
+      tsg
+        .identifier(field.entity.name.IDEncoderName())
+        .importFrom(Directory.resolve('GENERATED', 'BASE', tsFileNames.encoder))
+        .property('encode')
+        .call(tsg.identifier(paramName).property(field.fieldName)),
+    ),
+  );
+};
+
 const makeRelationProperty = (ref: ReferenceNode) => {
-  const parentEntity = EntityName.fromTableName(ref.parentTableName);
   const paramName = ref.entity.name.lowerCase();
   return tsg.propertyAssign(
     ref.fieldName,

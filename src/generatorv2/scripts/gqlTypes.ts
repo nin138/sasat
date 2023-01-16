@@ -1,11 +1,11 @@
-export type GQLPrimitive = 'Int' | 'Float' | 'String' | 'Boolean';
+export type GQLPrimitive = 'Int' | 'Float' | 'String' | 'Boolean' | 'ID';
 
 export const toTsType = (type: GQLPrimitive | string) => {
   switch (type) {
     case 'Int':
     case 'Float':
       return 'number';
-    // case 'ID':
+    case 'ID':
     case 'String':
       return 'string';
     case 'Boolean':

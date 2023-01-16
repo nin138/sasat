@@ -1,7 +1,7 @@
 /* eslint-disable */
 export const typeDefs = {
   User: {
-    uid: { return: "Int!" },
+    userId: { return: "ID!" },
     NNN: { return: "String!" },
     nick: { return: "String" },
     createdAt: { return: "String!" },
@@ -17,7 +17,7 @@ export const typeDefs = {
     vC: { return: "[User!]!" },
   },
   Query: {
-    user: { return: "User", args: [{ name: "uid", type: "Int!" }] },
+    user: { return: "User", args: [{ name: "userId", type: "ID!" }] },
     users: {
       return: "[User!]!",
       args: [{ name: "option", type: "PagingOption!" }],
@@ -69,7 +69,7 @@ export const inputs = {
   UserCreateInput: { NNN: { return: "String" }, nick: { return: "String" } },
   PostCreateInput: { uId: { return: "Int!" }, title: { return: "String!" } },
   UserUpdateInput: {
-    uid: { return: "Int!" },
+    userId: { return: "ID!" },
     NNN: { return: "String" },
     nick: { return: "String" },
   },

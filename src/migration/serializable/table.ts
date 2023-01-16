@@ -26,7 +26,7 @@ import { DBColumnTypes } from '../column/columnTypes.js';
 import { VirtualRelation } from '../data/virtualRelation.js';
 
 export interface Table extends Serializable<SerializedTable> {
-  column(columnName: string): Column;
+  column(columnName: string): BaseColumn;
   tableName: string;
   gqlOption: GQLOption;
   primaryKey: string[];
@@ -75,7 +75,7 @@ export class TableHandler implements Table {
     this._virtualRelations = table.virtualRelations || [];
   }
 
-  column(columnName: string): Column {
+  column(columnName: string): BaseColumn {
     const column = this.columns.find(it => it.columnName() === columnName);
     if (!column)
       throw new Error(`${this.tableName}.${columnName} is Not Found`);

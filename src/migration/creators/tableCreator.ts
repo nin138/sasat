@@ -1,5 +1,9 @@
 import { ColumnCreator } from './columnCreator.js';
-import { ColumnBuilderBase, ReferenceColumnBuilder } from './columnBuilder.js';
+import {
+  AutoIncrementIDColumnBuilder,
+  ColumnBuilderBase,
+  ReferenceColumnBuilder,
+} from './columnBuilder.js';
 import { NormalColumn, ReferenceColumn } from '../serializable/column.js';
 import { Reference } from '../serialized/serializedColumn.js';
 import { TableHandler } from '../serializable/table.js';
@@ -13,6 +17,10 @@ import { DataStore } from '../dataStore.js';
 import { VirtualRelation } from '../data/virtualRelation.js';
 
 export interface TableBuilder {
+  autoIncrementHashId(
+    columnName: string,
+    option?: { salt?: string; bigint?: boolean },
+  ): TableBuilder;
   column(columnName: string): ColumnCreator;
 
   addVirtualRelation(
@@ -62,9 +70,15 @@ export class TableCreator implements TableBuilder {
     this.table = new TableHandler({ tableName }, store);
   }
 
+  autoIncrementHashId(
+    columnName: string,
+    option?: { salt?: string; bigint?: boolean },
+  ): TableBuilder {
+    this.addColumn(new AutoIncrementIDColumnBuilder(columnName, option));
+    return this;
+  }
+
   column(name: string): ColumnCreator {
-    if (this.table.hasColumn(name))
-      throw new Error(`${this.tableName}.${name} already exists`);
     return new ColumnCreator(this, name);
   }
 
@@ -74,6 +88,8 @@ export class TableCreator implements TableBuilder {
   }
 
   addColumn(column: ColumnBuilderBase): void {
+    if (this.table.hasColumn(column.columnName))
+      throw new Error(`${this.tableName}.${column.columnName} already exists`);
     this.columns.push(column);
   }
 

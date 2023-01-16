@@ -1,4 +1,4 @@
-import { TypeFieldDefinition } from '../generatorv2/codegen/gql/typeDefinition.js';
+import { TypeFieldDefinition } from '../generatorv2/codegen/ts/scripts/typeDefinition.js';
 
 type TypeDef = Record<string, TypeFieldDefinition>;
 

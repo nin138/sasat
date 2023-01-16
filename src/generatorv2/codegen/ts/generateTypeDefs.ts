@@ -4,8 +4,8 @@ import { EntityNode, FieldNode } from '../../nodes/entityNode.js';
 import { RootNode } from '../../nodes/rootNode.js';
 import { MutationNode } from '../../nodes/mutationNode.js';
 import { SubscriptionNode } from '../../nodes/subscriptionNode.js';
-import { GQLString, makeGQLType } from './gqlString.js';
-import { typeFieldDefinitionToTsg } from './typeDefinition.js';
+import { GQLString, makeGQLType } from './scripts/gqlString.js';
+import { typeFieldDefinitionToTsg } from './scripts/typeDefinition.js';
 import { EntityName } from '../../nodes/entityName.js';
 import { getArgs, GQLQuery } from '../../../migration/data/GQLOption.js';
 

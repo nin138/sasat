@@ -64,7 +64,7 @@ export class StoreMigrator implements MigrationStore {
     return this;
   }
 
-  dropTable(tableName: string): this {
+  dropTable(tableName: string): MigrationStore {
     this.addQuery(`DROP TABLE ${tableName}`);
     return this;
   }

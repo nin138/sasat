@@ -1,5 +1,9 @@
-import { ObjectLiteral, PropertyAssignment, tsg } from '../../../tsg/index.js';
-import { nonNullableFilter } from '../../../util/type.js';
+import {
+  ObjectLiteral,
+  PropertyAssignment,
+  tsg,
+} from '../../../../tsg/index.js';
+import { nonNullableFilter } from '../../../../util/type.js';
 
 export type TypeFieldDefinition = {
   return: string;
