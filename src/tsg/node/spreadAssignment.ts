@@ -1,9 +1,18 @@
 import { TsCode } from '../abstruct/tsCode.js';
-import { ArrayLiteral, Identifier, ObjectLiteral } from './expressions.js';
+import {
+  ArrayLiteral,
+  Identifier,
+  ObjectLiteral,
+  TsExpression,
+} from './expressions.js';
 
 export class SpreadAssignment extends TsCode {
   constructor(
-    private readonly identifier: Identifier | ObjectLiteral | ArrayLiteral,
+    private readonly identifier:
+      | Identifier
+      | ObjectLiteral
+      | ArrayLiteral
+      | TsExpression,
   ) {
     super();
     this.mergeImport(identifier);

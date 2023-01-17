@@ -12,6 +12,7 @@ export type ContextField = {
 export type MutationNode = {
   entity: EntityNode;
   mutationName: string;
+  inputName: string;
   identifyFields: string[];
   entityName: EntityName;
   returnType: TypeNode;
@@ -20,4 +21,5 @@ export type MutationNode = {
   subscription: boolean;
   refetch: boolean;
   contextFields: ContextField[];
+  requireIdDecodeMiddleware: boolean;
 };

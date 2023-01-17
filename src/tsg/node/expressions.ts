@@ -180,7 +180,8 @@ export type BinaryExpressionToken =
   | '*'
   | '/'
   | '||'
-  | '&&';
+  | '&&'
+  | '=';
 export class BinaryExpression extends TsExpression {
   constructor(
     private readonly left: TsExpression,

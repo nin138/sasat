@@ -52,6 +52,9 @@ export class EntityName {
   updateInputName(): string {
     return this.name + 'UpdateInput';
   }
+  identifyInputName(): string {
+    return `${this.name}IdentifyInput`;
+  }
   IDEncoderName(): string {
     return `${this.name}HashId`;
   }

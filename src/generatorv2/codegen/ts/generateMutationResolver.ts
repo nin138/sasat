@@ -16,9 +16,11 @@ import { makeTypeRef } from './scripts/getEntityTypeRefs.js';
 import { makeDatasource } from './scripts/makeDatasource.js';
 import { makeFindQueryName, publishFunctionName } from '../names.js';
 import { nonNullable } from '../../../runtime/util.js';
+import { makeMutationMiddlewareAndTypes } from './mutation/makeMutationInputDecoder.js';
 
 export const generateMutationResolver = (root: RootNode) => {
   return new TsFile(
+    ...root.entities.flatMap(makeMutationMiddlewareAndTypes).flat(),
     tsg
       .variable(
         'const',
@@ -37,7 +39,6 @@ const ds = tsg.identifier('ds');
 const ident = tsg.identifier('identifiable');
 
 const makeMutation = (node: MutationNode): PropertyAssignment => {
-  console.log(node.args);
   return tsg.propertyAssign(
     node.mutationName,
     makeResolver
@@ -45,16 +46,23 @@ const makeMutation = (node: MutationNode): PropertyAssignment => {
         tsg
           .arrowFunc(makeResolverArgs(node), undefined, makeMutationBody(node))
           .toAsync(),
+        tsg.identifier(node.mutationName + 'Middleware'),
       )
       // TODO make EntityCreateInput EntityIdentifiableInput ... for autoIncrement ID column
       .typeArgs(
-        context,
-        tsg.typeLiteral([
-          tsg.propertySignature(
-            node.entityName.lowerCase(),
-            makeParamType(node),
-          ),
-        ]),
+        ...[
+          context,
+          tsg.typeRef(node.inputName),
+          node.requireIdDecodeMiddleware
+            ? tsg.typeRef('GQL' + node.inputName)
+            : null,
+        ].filter(nonNullable),
+        // tsg.typeLiteral([
+        //   tsg.propertySignature(
+        //     node.entityName.lowerCase(),
+        //     makeParamType(node),
+        //   ),
+        // ]),
       ),
   );
 };

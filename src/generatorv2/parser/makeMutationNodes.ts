@@ -35,6 +35,7 @@ const makeCreateMutationNode = (
     entityName: table.getEntityName(),
     identifyFields: table.getPrimaryKeyColumns().map(it => it.fieldName()),
     mutationName: `create${table.getEntityName().name}`,
+    inputName: entity.name.createInputName(),
     refetch: !table.gqlOption.mutation.create.noReFetch,
     returnType: {
       typeName: table.getEntityName().name,
@@ -55,6 +56,7 @@ const makeCreateMutationNode = (
     ],
     mutationType: 'create',
     subscription: table.gqlOption.mutation.create.subscription,
+    requireIdDecodeMiddleware: entity.creatable.fields.some(it => it.hashId),
   };
 };
 
@@ -70,6 +72,7 @@ const makeUpdateMutationNode = (
     entityName: table.getEntityName(),
     identifyFields: table.getPrimaryKeyColumns().map(it => it.fieldName()),
     mutationName: `update${table.getEntityName().name}`,
+    inputName: entity.name.updateInputName(),
     refetch: !table.gqlOption.mutation.update.noReFetch,
     returnType: {
       typeName: noRefetch ? 'Boolean' : table.getEntityName().name,
@@ -93,6 +96,7 @@ const makeUpdateMutationNode = (
     ],
     mutationType: 'update',
     subscription: table.gqlOption.mutation.update.subscription,
+    requireIdDecodeMiddleware: entity.updateInput.fields.some(it => it.hashId),
   };
 };
 
@@ -103,6 +107,7 @@ const makeDeleteMutationNode = (
   return {
     entity,
     mutationName: `delete${table.getEntityName().name}`,
+    inputName: entity.name.identifyInputName(),
     contextFields:
       table.gqlOption.mutation.fromContextColumns.map(makeContextField),
     entityName: table.getEntityName(),
@@ -128,5 +133,6 @@ const makeDeleteMutationNode = (
     ],
     mutationType: 'delete',
     subscription: table.gqlOption.mutation.update.subscription,
+    requireIdDecodeMiddleware: entity.identifyFields().some(it => it.hashId),
   };
 };
