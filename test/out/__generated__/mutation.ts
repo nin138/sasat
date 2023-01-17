@@ -41,8 +41,10 @@ export const mutation = {
     async (_, { post }) => {
       const ds = new PostDBDataSource();
       const result = await ds.create(post);
-      const identifiable = pick(result, ["pid"]) as unknown as PostIdentifiable;
-      const fetched = await ds.findByPid(identifiable.pid);
+      const identifiable = pick(result, [
+        "postId",
+      ]) as unknown as PostIdentifiable;
+      const fetched = await ds.findByPostId(identifiable.postId);
       return fetched;
     }
   ),
@@ -54,8 +56,8 @@ export const mutation = {
     const result = await ds
       .update(post)
       .then((it: CommandResponse): boolean => it.changedRows === 1);
-    const identifiable = pick(post, ["pid"]) as unknown as PostIdentifiable;
-    const fetched = await ds.findByPid(identifiable.pid);
+    const identifiable = pick(post, ["postId"]) as unknown as PostIdentifiable;
+    const fetched = await ds.findByPostId(identifiable.postId);
     return fetched;
   }),
 };

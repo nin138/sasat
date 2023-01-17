@@ -3,7 +3,3 @@ export type NestedPartial<T> = {
     ? Array<NestedPartial<R>>
     : NestedPartial<T[K]>;
 };
-
-export const nonNullableFilter = <T>(
-  item: T,
-): item is NonNullable<typeof item> => item != null;

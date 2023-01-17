@@ -20,15 +20,15 @@ export abstract class GeneratedPostDBDataSource extends BaseDBDataSource<
   QueryResult
 > {
   readonly tableName: string = "post";
-  readonly fields: Array<string> = ["pid", "uId", "title"];
+  readonly fields: Array<string> = ["postId", "uId", "title"];
   protected readonly primaryKeys: Array<string> = ["postId"];
-  protected readonly identifyFields: Array<string> = ["pid"];
-  protected readonly autoIncrementColumn?: string | undefined = "pid";
+  protected readonly identifyFields: Array<string> = ["postId"];
+  protected readonly autoIncrementColumn?: string | undefined = "postId";
   protected getDefaultValueString(): Record<string, never> {
     return {};
   }
-  findByPid(
-    pid: number,
+  findByPostId(
+    postId: number,
     fields?: PostFields,
     options?: Omit<QueryOptions, "offset" | "limit" | "sort">,
     context?: GQLContext
@@ -41,7 +41,7 @@ export abstract class GeneratedPostDBDataSource extends BaseDBDataSource<
         where: QExpr.conditions.and(
           QExpr.conditions.eq(
             QExpr.field(tableName, "postId"),
-            QExpr.value(pid)
+            QExpr.value(postId)
           ),
           options?.where
         ),

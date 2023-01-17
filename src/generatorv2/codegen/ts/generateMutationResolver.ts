@@ -15,7 +15,7 @@ import { Directory } from '../../directory.js';
 import { makeTypeRef } from './scripts/getEntityTypeRefs.js';
 import { makeDatasource } from './scripts/makeDatasource.js';
 import { makeFindQueryName, publishFunctionName } from '../names.js';
-import { nonNullableFilter } from '../../../util/type.js';
+import { nonNullable } from '../../../runtime/util.js';
 
 export const generateMutationResolver = (root: RootNode) => {
   return new TsFile(
@@ -82,7 +82,7 @@ const makeResolverArgs = (node: MutationNode) =>
     tsg.parameter('_'),
     tsg.parameter(`{${node.entityName.lowerCase()}}`),
     node.contextFields.length === 0 ? null : tsg.parameter('context'),
-  ].filter(nonNullableFilter);
+  ].filter(nonNullable);
 
 const makeCreateMutationBody = (node: MutationNode) => {
   const entity = tsg.identifier(node.entityName.lowerCase());

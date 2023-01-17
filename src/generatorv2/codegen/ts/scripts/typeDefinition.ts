@@ -3,7 +3,7 @@ import {
   PropertyAssignment,
   tsg,
 } from '../../../../tsg/index.js';
-import { nonNullableFilter } from '../../../../util/type.js';
+import { nonNullable } from '../../../../runtime/util.js';
 
 export type TypeFieldDefinition = {
   return: string;
@@ -29,5 +29,5 @@ export const typeFieldDefinitionToTsg = (
         )
       : null,
   ];
-  return tsg.object(...properties.filter(nonNullableFilter));
+  return tsg.object(...properties.filter(nonNullable));
 };

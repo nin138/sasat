@@ -3,7 +3,7 @@ import { query } from "./query.js";
 import { mutation } from "./mutation.js";
 import { subscription } from "./subscription.js";
 import { UserResult, PostResult } from "./relationMap.js";
-import { UserHashId } from "../idEncoder.js";
+import { UserHashId, PostHashId } from "../idEncoder.js";
 import { GQLContext } from "../context.js";
 import { PostDBDataSource } from "../dataSources/db/Post.js";
 import { UserDBDataSource } from "../dataSources/db/User.js";
@@ -13,7 +13,8 @@ export const resolvers = {
   Subscription: subscription,
   ...{
     User: {
-      userId: (user: UserResult) => UserHashId.encode(user.userId),
+      userId: (user: UserResult) =>
+        user.userId && UserHashId.encode(user.userId),
       uPost: (user: UserResult, context: GQLContext) => {
         if (user.uPost !== undefined) return user.uPost;
         const ds = new PostDBDataSource();
@@ -32,6 +33,9 @@ export const resolvers = {
       },
     },
     Post: {
+      postId: (post: PostResult) =>
+        post.postId && PostHashId.encode(post.postId),
+      uId: (post: PostResult) => post.uId && UserHashId.encode(post.uId),
       pUser: (post: PostResult, context: GQLContext) => {
         if (post.pUser !== undefined) return post.pUser;
         const ds = new UserDBDataSource();

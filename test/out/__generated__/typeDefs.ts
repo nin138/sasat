@@ -10,8 +10,8 @@ export const typeDefs = {
     vP: { return: "[Post!]!" },
   },
   Post: {
-    pid: { return: "Int!" },
-    uId: { return: "Int!" },
+    postId: { return: "ID!" },
+    uId: { return: "ID!" },
     title: { return: "String!" },
     pUser: { return: "User!" },
     vC: { return: "[User!]!" },
@@ -28,13 +28,11 @@ export const typeDefs = {
       return: "[User!]!",
       args: [{ name: "option", type: "PagingOption!" }],
     },
-    post: { return: "Post", args: [{ name: "pid", type: "Int!" }] },
+    post: { return: "Post", args: [{ name: "postId", type: "ID!" }] },
     posts: {
       return: "[Post!]!",
       args: [{ name: "option", type: "PagingOption!" }],
     },
-    stock: { return: "Stock", args: [{ name: "id", type: "Int!" }] },
-    stocks: { return: "[Stock!]!", args: [] },
   },
   Mutation: {
     createUser: {
@@ -67,11 +65,11 @@ export const inputs = {
     asc: { return: "Boolean" },
   },
   UserCreateInput: { NNN: { return: "String" }, nick: { return: "String" } },
-  PostCreateInput: { uId: { return: "Int!" }, title: { return: "String!" } },
+  PostCreateInput: { uId: { return: "ID!" }, title: { return: "String!" } },
   UserUpdateInput: {
     userId: { return: "ID!" },
     NNN: { return: "String" },
     nick: { return: "String" },
   },
-  PostUpdateInput: { pid: { return: "Int!" }, title: { return: "String" } },
+  PostUpdateInput: { postId: { return: "ID!" }, title: { return: "String" } },
 };

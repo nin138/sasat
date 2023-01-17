@@ -14,6 +14,7 @@ import {
 } from './scripts/getEntityTypeRefs.js';
 import { Directory } from '../../directory.js';
 import { tsFileNames } from './tsFileNames.js';
+import { nonNullable } from '../../../runtime/util.js';
 
 export const generateResolver = (root: RootNode): TsFile => {
   const hasSubscription = root.subscriptions.some(it => it.gqlEnabled);
@@ -56,8 +57,9 @@ const makeEntityResolver = (node: EntityNode): PropertyAssignment => {
     node.name.name,
     tsg.object(
       ...node.fields
-        .filter(it => it.option.autoIncrementHashId)
-        .map(makeHashIdProperty),
+        .filter(it => it.hashId)
+        .map(makeHashIdProperty)
+        .filter(nonNullable),
       ...node.references
         .filter(it => it.isGQLOpen)
         .map(ref => makeRelationProperty(ref)),
@@ -68,7 +70,8 @@ const makeEntityResolver = (node: EntityNode): PropertyAssignment => {
   );
 };
 
-const makeHashIdProperty = (field: FieldNode): PropertyAssignment => {
+const makeHashIdProperty = (field: FieldNode): PropertyAssignment | null => {
+  if (!field.hashId) return null;
   const paramName = field.entity.name.lowerCase();
   return tsg.propertyAssign(
     field.fieldName,
@@ -80,11 +83,17 @@ const makeHashIdProperty = (field: FieldNode): PropertyAssignment => {
         ),
       ],
       undefined,
-      tsg
-        .identifier(field.entity.name.IDEncoderName())
-        .importFrom(Directory.resolve('GENERATED', 'BASE', tsFileNames.encoder))
-        .property('encode')
-        .call(tsg.identifier(paramName).property(field.fieldName)),
+      tsg.binary(
+        tsg.identifier(paramName).property(field.fieldName),
+        '&&',
+        tsg
+          .identifier(field.hashId.encoder)
+          .importFrom(
+            Directory.resolve('GENERATED', 'BASE', tsFileNames.encoder),
+          )
+          .property('encode')
+          .call(tsg.identifier(paramName).property(field.fieldName)),
+      ),
     ),
   );
 };

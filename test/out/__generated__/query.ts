@@ -6,12 +6,11 @@ import {
   PagingOption,
   QExpr,
 } from "sasat";
-import { UserFields, PostFields, StockFields } from "./fields.js";
+import { UserFields, PostFields } from "./fields.js";
 import { UserDBDataSource } from "../dataSources/db/User.js";
-import { UserHashId } from "../idEncoder.js";
+import { UserHashId, PostHashId } from "../idEncoder.js";
 import { GQLContext } from "../context.js";
 import { PostDBDataSource } from "../dataSources/db/Post.js";
-import { StockDBDataSource } from "../dataSources/db/Stock.js";
 export const query = {
   user: makeResolver<GQLContext, { userId: number }, { userId: string }>(
     async (_, { userId }, context, info) => {
@@ -68,11 +67,25 @@ export const query = {
       );
     }
   ),
-  post: makeResolver<GQLContext, { pid: number }>(
-    async (_, { pid }, context, info) => {
+  post: makeResolver<GQLContext, { postId: number }, { postId: string }>(
+    async (_, { postId }, context, info) => {
       const fields = gqlResolveInfoToField(info) as PostFields;
-      return new PostDBDataSource().findByPid(pid, fields, undefined, context);
-    }
+      return new PostDBDataSource().findByPostId(
+        postId,
+        fields,
+        undefined,
+        context
+      );
+    },
+    [
+      (args) => {
+        args[1] = {
+          ...args[1],
+          postId: PostHashId.decode(args[1].postId as string),
+        };
+        return args;
+      },
+    ]
   ),
   posts: makeResolver<GQLContext, { option: PagingOption }>(
     async (_, { option }, context, info) => {
@@ -85,14 +98,4 @@ export const query = {
       );
     }
   ),
-  stock: makeResolver<GQLContext, { id: number }>(
-    async (_, { id }, context, info) => {
-      const fields = gqlResolveInfoToField(info) as StockFields;
-      return new StockDBDataSource().findById(id, fields, undefined, context);
-    }
-  ),
-  stocks: makeResolver<GQLContext, {}>(async (_, {}, context, info) => {
-    const fields = gqlResolveInfoToField(info) as StockFields;
-    return new StockDBDataSource().find(fields, undefined, context);
-  }),
 };

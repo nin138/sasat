@@ -2,7 +2,7 @@ import { DataStoreHandler } from '../../migration/dataStore.js';
 import { SubscriptionNode } from '../nodes/subscriptionNode.js';
 import { MutationType } from '../nodes/mutationNode.js';
 import { TableHandler } from '../../migration/serializable/table.js';
-import { nonNullableFilter } from '../../util/type.js';
+import { nonNullable } from '../../runtime/util.js';
 
 export const makeSubscriptionNodes = (
   store: DataStoreHandler,
@@ -22,7 +22,7 @@ export const makeSubscriptionNodes = (
           : undefined,
       ];
     })
-    .filter(nonNullableFilter);
+    .filter(nonNullable);
 };
 
 const subscriptionNamePostfix = {

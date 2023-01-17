@@ -8,13 +8,14 @@ import {
 export default class Post implements SasatMigration {
   up: (store: MigrationStore) => void = store => {
     return store.createTable('post', table => {
-      table
-        .column('postId')
-        .int()
-        .unsigned()
-        .autoIncrement()
-        .primary()
-        .fieldName('pid');
+      table.autoIncrementHashId('postId');
+      // table
+      // .column('postId')
+      //   .int()
+      //   .unsigned()
+      //   .autoIncrement()
+      //   .primary()
+      //   .fieldName('pid');
       table.references({
         columnName: 'uId',
         relationName: 'hoge',

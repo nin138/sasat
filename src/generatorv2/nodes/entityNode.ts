@@ -5,7 +5,6 @@ import {
   BaseColumn,
   ReferenceColumn,
 } from '../../migration/serializable/column.js';
-import { nonNullableFilter } from '../../util/type.js';
 import {
   ColumnOptions,
   SerializedColumn,
@@ -48,11 +47,12 @@ const makeFieldNode = (
   entity: EntityNode,
   column: BaseColumn,
 ): FieldNode => {
+  const hashId = getHashId(store, entity.name, column);
   return {
     entity,
     fieldName: column.fieldName(),
     columnName: column.columnName(),
-    gqlType: column.data.option.autoIncrementHashId ? 'ID' : column.gqlType(),
+    gqlType: hashId ? 'ID' : column.gqlType(),
     dbType: column.dataType(),
     isAutoIncrement: column.data.autoIncrement,
     isArray: false,
@@ -66,7 +66,7 @@ const makeFieldNode = (
     ),
     column: column.data,
     option: column.data.option,
-    hashId: getHashId(store, entity.name, column),
+    hashId,
   };
 };
 
@@ -77,11 +77,12 @@ const makeCreatableFieldNode = (
 ): FieldNode | null => {
   if (column.data.autoIncrement || column.data.defaultCurrentTimeStamp)
     return null;
+  const hashId = getHashId(store, entity.name, column);
   return {
     entity,
     fieldName: column.fieldName(),
     columnName: column.columnName(),
-    gqlType: column.gqlType(),
+    gqlType: hashId ? 'ID' : column.gqlType(),
     dbType: column.dataType(),
     isAutoIncrement: column.data.autoIncrement,
     isArray: false,
@@ -103,11 +104,12 @@ const makeUpdatableFieldNode = (
   column: BaseColumn,
 ): FieldNode | null => {
   if (!column.isUpdatable() || !column.data.option.updatable) return null;
+  const hashId = getHashId(store, entity.name, column);
   return {
     entity,
     fieldName: column.fieldName(),
     columnName: column.columnName(),
-    gqlType: column.gqlType(),
+    gqlType: hashId ? 'ID' : column.gqlType(),
     dbType: column.dataType(),
     isAutoIncrement: column.data.autoIncrement,
     isArray: false,
@@ -147,7 +149,7 @@ export class EntityNode {
         table.gqlOption.enabled && table.gqlOption.mutation.create.enabled,
       fields: table.columns
         .map(it => makeCreatableFieldNode(store, this, it))
-        .filter(nonNullableFilter),
+        .filter(nonNullable),
     };
     this.updateInput = {
       gqlEnabled:
@@ -156,7 +158,7 @@ export class EntityNode {
         ...this.fields.filter(it => it.isPrimary),
         ...table.columns
           .map(it => makeUpdatableFieldNode(store, this, it))
-          .filter(nonNullableFilter),
+          .filter(nonNullable),
       ],
     };
     this.references = table
@@ -182,7 +184,7 @@ export class EntityNode {
           .virtualReferencedBy(table.tableName)
           .map(rel => ReferencedNode.fromVirtualRelation(store, this, rel)),
       )
-      .filter(nonNullableFilter);
+      .filter(nonNullable);
 
     const makeFindMethodNode = (
       columns: string[],

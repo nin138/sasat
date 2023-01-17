@@ -10,8 +10,8 @@ import {
 } from '../../../nodes/JoinConditionNode.js';
 import { TsExpression, tsg } from '../../../../tsg/index.js';
 import { makeThrowExpressions } from './makeNoContexError.js';
-import { nonNullableFilter } from '../../../../util/type.js';
 import { makeConditionValueQExpr } from '../scripts/makeConditonValueExpr.js';
+import { nonNullable } from '../../../../runtime/util.js';
 
 const qExpr = tsg.identifier('QExpr').importFrom('sasat');
 const parentTableAlias = 'parentTableAlias';
@@ -118,7 +118,7 @@ export const makeJoinConditionValue = (
       tsg.block(
         ...ref.joinCondition
           .flatMap(it => makeThrowExpressions(it))
-          .filter(nonNullableFilter),
+          .filter(nonNullable),
         tsg.return(
           qExpr
             .property('conditions')

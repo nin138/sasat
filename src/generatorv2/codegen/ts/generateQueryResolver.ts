@@ -23,6 +23,7 @@ import {
 } from '../../nodes/QueryConditionNode.js';
 import { RawCodeStatement } from '../../../tsg/node/rawCodeStatement.js';
 import { tsFileNames } from './tsFileNames.js';
+import { Console } from '../../../cli/console.js';
 
 const DIR: Directories = 'GENERATED';
 
@@ -48,7 +49,17 @@ const makeResolver = () => tsg.identifier('makeResolver').importFrom('sasat');
 const makeGQLQuery = (
   entity: EntityNode,
   query: GQLQuery,
-): PropertyAssignment => {
+): PropertyAssignment | null => {
+  if (!entity.gqlEnabled) {
+    Console.log(
+      `Query.${
+        query.name || entity.name.lowerCase()
+      } generation skipped. Reason: Entity:${
+        entity.name.name
+      } is not Open to GQL.`,
+    );
+    return null;
+  }
   const args = getArgs(query, entity);
 
   return tsg.propertyAssign(

@@ -1,5 +1,4 @@
 import { TsFile, PropertyAssignment, tsg } from '../../../tsg/index.js';
-import { nonNullableFilter } from '../../../util/type.js';
 import { EntityNode, FieldNode } from '../../nodes/entityNode.js';
 import { RootNode } from '../../nodes/rootNode.js';
 import { MutationNode } from '../../nodes/mutationNode.js';
@@ -8,6 +7,7 @@ import { GQLString, makeGQLType } from './scripts/gqlString.js';
 import { typeFieldDefinitionToTsg } from './scripts/typeDefinition.js';
 import { EntityName } from '../../nodes/entityName.js';
 import { getArgs, GQLQuery } from '../../../migration/data/GQLOption.js';
+import { nonNullable } from '../../../runtime/util.js';
 
 export const generateTypeDefs = (root: RootNode) => {
   const types = [
@@ -15,7 +15,7 @@ export const generateTypeDefs = (root: RootNode) => {
     makeQuery(root),
     makeMutation(root.mutations),
     makeSubscription(root.subscriptions.filter(it => it.gqlEnabled)),
-  ].filter(nonNullableFilter);
+  ].filter(nonNullable);
 
   const inputs = [
     tsg.propertyAssign(
@@ -41,7 +41,7 @@ export const generateTypeDefs = (root: RootNode) => {
     ),
     ...root.entities.map(makeCreateInput),
     ...root.entities.map(makeUpdateInput),
-  ].filter(nonNullableFilter);
+  ].filter(nonNullable);
 
   return new TsFile(
     tsg
@@ -148,9 +148,9 @@ const makeQueryTypeDef = (entity: EntityNode, query: GQLQuery) => {
 };
 
 const makeQueryProperties = (root: RootNode) => {
-  return root.entities.flatMap(entity =>
-    entity.queries.map(it => makeQueryTypeDef(entity, it)),
-  );
+  return root.entities
+    .filter(it => it.gqlEnabled)
+    .flatMap(entity => entity.queries.map(it => makeQueryTypeDef(entity, it)));
 };
 
 const makeQuery = (root: RootNode) => {

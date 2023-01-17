@@ -99,8 +99,8 @@ export const tableInfo: TableInfo = {
   },
   post: {
     identifiableKeys: ["postId"],
-    identifiableFields: ["pid"],
-    columnMap: { pid: "postId", uId: "uId", title: "title" },
+    identifiableFields: ["postId"],
+    columnMap: { postId: "postId", uId: "uId", title: "title" },
   },
   stock: {
     identifiableKeys: ["id"],
