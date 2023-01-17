@@ -23,7 +23,9 @@ export const generateMutationResolver = (root: RootNode) => {
       .variable(
         'const',
         'mutation',
-        tsg.object(...root.mutations.map(makeMutation)),
+        tsg.object(
+          ...root.entities.flatMap(it => it.mutations).map(makeMutation),
+        ),
       )
       .export(),
   ).disableEsLint();
@@ -35,6 +37,7 @@ const ds = tsg.identifier('ds');
 const ident = tsg.identifier('identifiable');
 
 const makeMutation = (node: MutationNode): PropertyAssignment => {
+  console.log(node.args);
   return tsg.propertyAssign(
     node.mutationName,
     makeResolver
@@ -43,6 +46,7 @@ const makeMutation = (node: MutationNode): PropertyAssignment => {
           .arrowFunc(makeResolverArgs(node), undefined, makeMutationBody(node))
           .toAsync(),
       )
+      // TODO make EntityCreateInput EntityIdentifiableInput ... for autoIncrement ID column
       .typeArgs(
         context,
         tsg.typeLiteral([

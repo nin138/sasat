@@ -13,7 +13,7 @@ export const generateTypeDefs = (root: RootNode) => {
   const types = [
     ...root.entities.map(makeEntityType),
     makeQuery(root),
-    makeMutation(root.mutations),
+    makeMutation(root.entities.flatMap(it => it.mutations)),
     makeSubscription(root.subscriptions.filter(it => it.gqlEnabled)),
   ].filter(nonNullable);
 

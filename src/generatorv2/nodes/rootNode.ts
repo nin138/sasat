@@ -6,7 +6,6 @@ import { ContextNode } from './contextNode.js';
 
 export type RootNode = {
   entities: EntityNode[];
-  mutations: MutationNode[];
   subscriptions: SubscriptionNode[];
   contexts: ContextNode[];
 };

@@ -1,5 +1,6 @@
 import { ArgNode, TypeNode } from './typeNode.js';
 import { EntityName } from './entityName.js';
+import { EntityNode } from './entityNode.js';
 
 export type MutationType = 'create' | 'delete' | 'update';
 
@@ -9,6 +10,7 @@ export type ContextField = {
 };
 
 export type MutationNode = {
+  entity: EntityNode;
   mutationName: string;
   identifyFields: string[];
   entityName: EntityName;

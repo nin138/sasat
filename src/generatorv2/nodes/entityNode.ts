@@ -22,6 +22,8 @@ import {
 import { nonNullable } from '../../runtime/util.js';
 import { Conditions } from '../../migration/makeCondition.js';
 import { GQLQuery } from '../../migration/data/GQLOption.js';
+import { MutationNode } from './mutationNode.js';
+import { makeEntityMutationNodes } from '../parser/makeMutationNodes.js';
 
 const getHashId = (
   store: DataStoreHandler,
@@ -137,6 +139,7 @@ export class EntityNode {
   readonly referencedBy: ReferencedNode[];
   readonly findMethods: FindMethodNode[];
   readonly queries: GQLQuery[];
+  readonly mutations: MutationNode[];
   constructor(store: DataStoreHandler, table: TableHandler) {
     this.name = EntityName.fromTableName(table.tableName);
     this.fields = table.columns.map(it => makeFieldNode(store, this, it));
@@ -206,7 +209,10 @@ export class EntityNode {
       makeFindMethodNode(table.primaryKey, false),
       // TODO findBy relations
     ];
+
+    this.mutations = makeEntityMutationNodes(table, this);
   }
+  // end constructor
 
   identifyFields() {
     return this.fields.filter(it => it.isPrimary);

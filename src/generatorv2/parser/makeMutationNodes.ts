@@ -1,22 +1,21 @@
-import { DataStoreHandler } from '../../migration/dataStore.js';
 import { TableHandler } from '../../migration/serializable/table.js';
 import { DBColumnTypes } from '../../migration/column/columnTypes.js';
 import { ContextField, MutationNode } from '../nodes/mutationNode.js';
 import { GqlFromContextParam } from '../../migration/data/GQLOption.js';
+import { EntityNode } from '../nodes/entityNode.js';
 
-export const makeMutationNodes = (store: DataStoreHandler) => {
-  return store.tables.flatMap(makeTableMutationNodes);
-};
-
-const makeTableMutationNodes = (table: TableHandler): MutationNode[] => {
+export const makeEntityMutationNodes = (
+  table: TableHandler,
+  entity: EntityNode,
+): MutationNode[] => {
   const result: MutationNode[] = [];
   if (!table.gqlOption.enabled) return [];
   if (table.gqlOption.mutation.create.enabled)
-    result.push(makeCreateMutationNode(table));
+    result.push(makeCreateMutationNode(table, entity));
   if (table.gqlOption.mutation.update.enabled)
-    result.push(makeUpdateMutationNode(table));
+    result.push(makeUpdateMutationNode(table, entity));
   if (table.gqlOption.mutation.delete.enabled)
-    result.push(makeDeleteMutationNode(table));
+    result.push(makeDeleteMutationNode(table, entity));
   return result;
 };
 
@@ -25,8 +24,12 @@ const makeContextField = (params: GqlFromContextParam): ContextField => ({
   contextName: params.contextName || params.column,
 });
 
-const makeCreateMutationNode = (table: TableHandler): MutationNode => {
+const makeCreateMutationNode = (
+  table: TableHandler,
+  entity: EntityNode,
+): MutationNode => {
   return {
+    entity,
     contextFields:
       table.gqlOption.mutation.fromContextColumns.map(makeContextField),
     entityName: table.getEntityName(),
@@ -55,9 +58,13 @@ const makeCreateMutationNode = (table: TableHandler): MutationNode => {
   };
 };
 
-const makeUpdateMutationNode = (table: TableHandler): MutationNode => {
+const makeUpdateMutationNode = (
+  table: TableHandler,
+  entity: EntityNode,
+): MutationNode => {
   const noRefetch = table.gqlOption.mutation.update.noReFetch;
   return {
+    entity,
     contextFields:
       table.gqlOption.mutation.fromContextColumns.map(makeContextField),
     entityName: table.getEntityName(),
@@ -89,8 +96,12 @@ const makeUpdateMutationNode = (table: TableHandler): MutationNode => {
   };
 };
 
-const makeDeleteMutationNode = (table: TableHandler): MutationNode => {
+const makeDeleteMutationNode = (
+  table: TableHandler,
+  entity: EntityNode,
+): MutationNode => {
   return {
+    entity,
     mutationName: `delete${table.getEntityName().name}`,
     contextFields:
       table.gqlOption.mutation.fromContextColumns.map(makeContextField),
