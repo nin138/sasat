@@ -135,8 +135,6 @@ const makeResolverMiddleware = (
         .importFrom('sasat'),
     ),
   );
-  console.log(typeName);
-
   return [incomingType, requiredType, middleware];
 };
 

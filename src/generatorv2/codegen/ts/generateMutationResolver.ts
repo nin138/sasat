@@ -48,7 +48,6 @@ const makeMutation = (node: MutationNode): PropertyAssignment => {
           .toAsync(),
         tsg.identifier(node.mutationName + 'Middleware'),
       )
-      // TODO make EntityCreateInput EntityIdentifiableInput ... for autoIncrement ID column
       .typeArgs(
         ...[
           context,
@@ -57,25 +56,8 @@ const makeMutation = (node: MutationNode): PropertyAssignment => {
             ? tsg.typeRef('GQL' + node.inputName)
             : null,
         ].filter(nonNullable),
-        // tsg.typeLiteral([
-        //   tsg.propertySignature(
-        //     node.entityName.lowerCase(),
-        //     makeParamType(node),
-        //   ),
-        // ]),
       ),
   );
-};
-
-const makeParamType = (node: MutationNode): TsType => {
-  if (node.mutationType === 'create')
-    return makeTypeRef(node.entityName, 'creatable', 'GENERATED');
-  if (node.mutationType === 'update')
-    return tsg.intersectionType(
-      makeTypeRef(node.entityName, 'identifiable', 'GENERATED'),
-      makeTypeRef(node.entityName, 'updatable', 'GENERATED'),
-    );
-  return makeTypeRef(node.entityName, 'identifiable', 'GENERATED');
 };
 
 const makeMutationBody = (node: MutationNode) => {

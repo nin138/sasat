@@ -5,6 +5,7 @@ import { TsFile, tsg, TsStatement } from '../../../tsg/index.js';
 import { isImported } from './scripts/ast/isImported.js';
 import { getExportedVariables } from './scripts/ast/getExportedVariables.js';
 import { tsFileNames } from './tsFileNames.js';
+import { ImportDeclaration } from '../../../tsg/importDeclaration.js';
 
 const { createSourceFile, ScriptTarget } = typescript;
 
@@ -43,7 +44,6 @@ export const generateIDEncoder = (
           name,
           tsg
             .identifier('makeNumberIdEncoder')
-            .importFrom('sasat')
             .call(
               tsg.new(
                 tsg.identifier(hashIds),
@@ -58,6 +58,15 @@ export const generateIDEncoder = (
   });
 
   const imports = hashIdImported ? '' : 'import HashIds from "hashids";\n';
+  const makeEncoder = isImported(sourceFile, 'makeNumberIdEncoder', ['sasat'])
+    ? ''
+    : new ImportDeclaration(['makeNumberIdEncoder'], 'sasat').toString();
 
-  return imports + content + '\n' + new TsFile(...statements).toString();
+  return (
+    imports +
+    makeEncoder +
+    content +
+    '\n' +
+    new TsFile(...statements).toString()
+  );
 };
