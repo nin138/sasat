@@ -1,20 +1,26 @@
 import path from 'path';
-import ts from 'typescript';
+import ts, { CompilerOptions } from 'typescript';
 import fse from 'fs-extra';
 import {
   getMigrationFileDir,
   getMigrationFileNames,
 } from './getMigrationFiles.js';
 
-const getTsConfig = () => {
+const getTsConfig = (): CompilerOptions => {
   const configFileName = ts.findConfigFile(
     './',
     ts.sys.fileExists,
     'tsconfig.json',
   );
-  if (!configFileName) return undefined;
+  if (!configFileName)
+    return {
+      module: ts.ModuleKind.ESNext,
+    };
   const configFile = ts.readConfigFile(configFileName, ts.sys.readFile);
-  return ts.parseJsonConfigFileContent(configFile.config, ts.sys, './').options;
+  return {
+    ...ts.parseJsonConfigFileContent(configFile.config, ts.sys, './').options,
+    module: ts.ModuleKind.ESNext,
+  };
 };
 
 export const changeExtTsToJs = (fileName: string) =>
