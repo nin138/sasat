@@ -1,6 +1,5 @@
 import { SasatMigration, MigrationStore } from 'sasat';
-import { PostCreatable } from '../outv1/__generated__/entities/Post.js';
-import { StockCreatable } from '../outv1/__generated__/entities/Stock.js';
+import { StockCreatable } from '../out/__generated__/entities/Stock.js';
 import { SqlString } from '../../src/runtime/sql/sqlString.js';
 
 const toSQL = (table: string, obj: any) => {
@@ -19,12 +18,12 @@ const users = [
 ];
 
 const posts = [
-  { postId: 1, userId: 1, title: 't1' },
-  { postId: 2, userId: 1, title: 't2' },
-  { postId: 3, userId: 1, title: 't3' },
-  { postId: 4, userId: 2, title: 't4' },
-  { postId: 5, userId: 2, title: 't5' },
-  { postId: 6, userId: 3, title: 't6' },
+  { postId: 1, uId: 1, title: 't1' },
+  { postId: 2, uId: 1, title: 't2' },
+  { postId: 3, uId: 1, title: 't3' },
+  { postId: 4, uId: 2, title: 't4' },
+  { postId: 5, uId: 2, title: 't5' },
+  { postId: 6, uId: 3, title: 't6' },
 ];
 
 const stocks: StockCreatable[] = [

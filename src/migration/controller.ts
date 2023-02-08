@@ -6,9 +6,11 @@ import { readMigration } from './exec/readMigrationFile.js';
 import { runMigration } from './exec/runMigration.js';
 import { getMigrationTargets } from './exec/getMigrationTarget.js';
 import { createCurrentMigrationDataStore } from './exec/createCurrentMigrationDataStore.js';
+import { MigrateCommandOption } from '../cli/commands/migrate.js';
+import { Console } from '../cli/console.js';
 
 export class MigrationController {
-  async migrate(): Promise<{
+  async migrate(options: MigrateCommandOption): Promise<{
     store: SerializedStore;
     currentMigration: string;
   }> {
@@ -18,8 +20,11 @@ export class MigrationController {
     const target = getMigrationTargets(fileNames, currentMigration);
 
     for (const tsFileName of target.files) {
+      if (!options.silent) {
+        Console.log('---------\n' + tsFileName);
+      }
       store = await readMigration(store, tsFileName, target.direction);
-      await runMigration(store, tsFileName, target.direction);
+      await runMigration(store, tsFileName, target.direction, options);
       store.resetQueue();
     }
     return {

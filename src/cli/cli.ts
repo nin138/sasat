@@ -12,6 +12,8 @@ try {
     .usage('yarn sasat <command> [options]\n')
     .command('migrate', 'execute migration')
     .option('-g, --generateFiles', 'migrate with generate files')
+    .option('-d, --dry', 'dry run')
+    .option('-s, --silent', 'do not print logs')
     .action(async options => {
       await migrate(options).catch(() => {
         process.exit(1);

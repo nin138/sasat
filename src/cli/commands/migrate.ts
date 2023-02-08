@@ -5,14 +5,17 @@ import { writeCurrentSchema } from '../../util/fsUtil.js';
 import { getDbClient } from '../../db/getDbClient.js';
 import { CodeGen_v2 } from '../../generatorv2/codegen_v2.js';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const migrate = async (options: {
-  [key: string]: boolean;
-}): Promise<void> => {
+export type MigrateCommandOption = {
+  generateFiles: boolean;
+  silent: boolean;
+  dry: boolean;
+};
+
+export const migrate = async (options: MigrateCommandOption): Promise<void> => {
   let current;
   try {
     const migration = new MigrationController();
-    const result = await migration.migrate();
+    const result = await migration.migrate(options);
     current = result.currentMigration;
     if (options.generateFiles) {
       const storeHandler = new DataStoreHandler(result.store);
