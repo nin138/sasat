@@ -76,6 +76,7 @@ export const generateMiddlewares = (
       ? ''
       : new TsgImport(['ResolverMiddleware'], 'sasat').toString() + '\n',
   ].join('');
-
-  return imports + content + '\n' + new TsFile(...statements).toString();
+  const addition =
+    statements.length === 0 ? '' : '\n' + new TsFile(...statements).toString();
+  return imports + content + addition;
 };

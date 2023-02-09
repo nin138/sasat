@@ -3,6 +3,7 @@ import {
   SasatMigration,
   Conditions,
   Queries,
+  Mutations,
 } from '../../src/index.js';
 
 export default class Post implements SasatMigration {
@@ -29,7 +30,8 @@ export default class Post implements SasatMigration {
       table.enableGQL().setGQLOption({
         queries: [Queries.primary(), Queries.paging('posts')],
       });
-      table.setGQLCreate(true).setGQLUpdate(true).setGQLContextColumn([]);
+      table.addGQLMutation(Mutations.create(), Mutations.update());
+
       table.addVirtualRelation({
         parentTable: 'user',
         parentFieldName: 'vP',

@@ -124,7 +124,12 @@ const makeResolverMiddleware = (
   const middleware = tsg.variable(
     'const',
     node.mutationName + 'Middleware',
-    tsg.array([makeIdDecodeMiddleware(fields, node)]),
+    tsg.array([
+      makeIdDecodeMiddleware(fields, node),
+      ...node.middlewares.map(it =>
+        tsg.identifier(it).importFrom('../' + tsFileNames.middleware),
+      ),
+    ]),
     tsg.arrayType(
       tsg
         .typeRef('ResolverMiddleware', [

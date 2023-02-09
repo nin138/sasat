@@ -61,12 +61,7 @@ export const generateIDEncoder = (
   const makeEncoder = isImported(sourceFile, 'makeNumberIdEncoder', ['sasat'])
     ? ''
     : new ImportDeclaration(['makeNumberIdEncoder'], 'sasat').toString();
-
-  return (
-    imports +
-    makeEncoder +
-    content +
-    '\n' +
-    new TsFile(...statements).toString()
-  );
+  const addition =
+    statements.length === 0 ? '' : '\n' + new TsFile(...statements).toString();
+  return imports + makeEncoder + content + addition;
 };

@@ -81,7 +81,7 @@ export const generateUserDefinedCondition = (
   const condition = customConditionImported
     ? ''
     : new TsgImport(['CustomCondition'], 'sasat').toString() + '\n';
-  return (
-    context + condition + content + '\n' + new TsFile(...statements).toString()
-  );
+  const addition =
+    statements.length === 0 ? '' : '\n' + new TsFile(...statements).toString();
+  return context + condition + content + addition;
 };

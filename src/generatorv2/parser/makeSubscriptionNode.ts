@@ -26,6 +26,7 @@ const makeSubscriptionNode = (
   table: TableHandler,
   mutation: GQLMutation,
 ): SubscriptionNode | null => {
+  if (!mutation.subscription.enabled) return null;
   const subscriptionName =
     table.getEntityName().name + subscriptionNamePostfix[mutation.type];
   return {

@@ -8,7 +8,6 @@ import {
   TsFile,
   tsg,
   TsStatement,
-  TsType,
 } from '../../../tsg/index.js';
 import { ContextField, MutationNode } from '../../nodes/mutationNode.js';
 import { Directory } from '../../directory.js';

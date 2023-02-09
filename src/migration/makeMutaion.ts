@@ -4,9 +4,29 @@ type Option = {
   noRefetch?: boolean;
   middlewares?: string[];
   contextFields?: GqlFromContextParam[];
-  subscription?: {
-    enabled: boolean;
-    subscriptionFilter?: string[];
+  subscription?:
+    | {
+        enabled: boolean;
+        subscriptionFilter?: string[];
+      }
+    | boolean;
+};
+
+const formatSubscription = (subscription: Option['subscription']) => {
+  if (subscription === undefined || subscription === false) {
+    return {
+      enabled: false,
+      subscriptionFilter: [],
+    };
+  }
+  if (subscription === true)
+    return {
+      enabled: true,
+      subscriptionFilter: [],
+    };
+  return {
+    enabled: subscription.enabled,
+    subscriptionFilter: subscription.subscriptionFilter || [],
   };
 };
 
@@ -18,15 +38,7 @@ const formatOptions = (
   noReFetch: option?.noRefetch || false,
   middlewares: option?.middlewares || [],
   contextFields: option?.contextFields || [],
-  subscription: option?.subscription
-    ? {
-        enabled: option?.subscription.enabled,
-        subscriptionFilter: option?.subscription.subscriptionFilter || [],
-      }
-    : {
-        enabled: false,
-        subscriptionFilter: [],
-      },
+  subscription: formatSubscription(option?.subscription),
 });
 
 export const Mutations = {

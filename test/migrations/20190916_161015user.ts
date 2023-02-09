@@ -3,6 +3,7 @@ import {
   SasatMigration,
   MigrationStore,
   Conditions,
+  Mutations,
 } from '../../src/index.js';
 import { SqlString } from 'sasat/runtime/sql/sqlString.js';
 
@@ -52,12 +53,20 @@ export default class CreateUser implements SasatMigration {
         Queries.listAll('la'),
         Queries.paging('p'),
       );
-      table.setGQLCreate(true, { noReFetch: true, subscription: true });
-      table.setGQLUpdate(true, {
-        noReFetch: true,
-        subscription: true,
-        subscriptionFilter: ['name'],
-      });
+      table.addGQLMutation(
+        Mutations.create({
+          noRefetch: true,
+          subscription: true,
+          middlewares: ['testMiddleware', 'hoge'],
+        }),
+        Mutations.update({
+          noRefetch: true,
+          subscription: {
+            enabled: true,
+            subscriptionFilter: ['name'],
+          },
+        }),
+      );
     });
   };
   down: (store: MigrationStore) => void = store => {
