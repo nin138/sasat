@@ -2,7 +2,8 @@ import { ResolverArgs } from './makeResolver.js';
 
 export type ResolverMiddleware<
   Context,
-  RequiredParams = unknown,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  RequiredParams = any,
   IncomingParams = RequiredParams,
 > = (
   args: ResolverArgs<Context, IncomingParams | RequiredParams>,

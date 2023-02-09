@@ -19,6 +19,16 @@ export type MutationOption = {
   subscriptionFilter: string[];
 };
 
+export type GQLMutation = {
+  type: 'create' | 'update' | 'delete';
+  noReFetch: boolean;
+  contextFields: GqlFromContextParam[];
+  subscription?: {
+    enabled: boolean;
+    subscriptionFilter: string[];
+  };
+};
+
 export type GQLQuery =
   | {
       type: 'single' | 'list-all' | 'list-paging';
@@ -36,6 +46,7 @@ export type GQLQuery =
 export interface GQLOption {
   enabled: boolean;
   queries: GQLQuery[];
+  mutations: GQLMutation[];
   mutation: {
     create: MutationOption & Enabled;
     update: MutationOption & Enabled;
@@ -54,6 +65,7 @@ export const defaultMutationOption = {
 export const getDefaultGqlOption = (): GQLOption => ({
   enabled: false,
   queries: [],
+  mutations: [],
   mutation: {
     create: defaultMutationOption,
     update: defaultMutationOption,

@@ -9,6 +9,7 @@ import { Reference } from '../serialized/serializedColumn.js';
 import { TableHandler } from '../serializable/table.js';
 import {
   GqlFromContextParam,
+  GQLMutation,
   GQLOption,
   GQLQuery,
   MutationOption,
@@ -59,7 +60,8 @@ export interface TableBuilder {
   enableGQL(): TableBuilder;
 
   setGQLOption(option: Partial<GQLOption>): TableBuilder;
-  addQuery(query: GQLQuery): TableBuilder;
+  addGQLQuery(...query: GQLQuery[]): TableBuilder;
+  addGQLMutation(...mutation: GQLMutation[]): TableBuilder;
 }
 
 export class TableCreator implements TableBuilder {
@@ -194,9 +196,15 @@ export class TableCreator implements TableBuilder {
     return this;
   }
 
-  addQuery(query: GQLQuery): TableBuilder {
+  addGQLQuery(...query: GQLQuery[]): TableBuilder {
     this.table.setGQLOption({
-      queries: [...this.table.gqlOption.queries, query],
+      queries: [...this.table.gqlOption.queries, ...query],
+    });
+    return this;
+  }
+  addGQLMutation(...mutation: GQLMutation[]): TableBuilder {
+    this.table.setGQLOption({
+      mutations: [...this.table.gqlOption.mutations, ...mutation],
     });
     return this;
   }

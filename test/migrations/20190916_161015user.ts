@@ -35,25 +35,23 @@ export default class CreateUser implements SasatMigration {
         .fieldName('nick');
       table.createdAt().updatedAt();
       table.enableGQL();
-      table.setGQLOption({
-        queries: [
-          Queries.primary(['testMiddleware']),
-          Queries.paging('users', {
-            middlewares: ['testMiddleware', 't2Middleware'],
-          }),
-          Queries.single('www', {
-            conditions: [
-              Conditions.query.comparison(
-                Conditions.value.fixed(1),
-                '=',
-                Conditions.value.arg('a1', 'Int'),
-              ),
-            ],
-          }),
-          Queries.listAll('la'),
-          Queries.paging('p'),
-        ],
-      });
+      table.addGQLQuery(
+        Queries.primary(['testMiddleware']),
+        Queries.paging('users', {
+          middlewares: ['testMiddleware', 't2Middleware'],
+        }),
+        Queries.single('www', {
+          conditions: [
+            Conditions.query.comparison(
+              Conditions.value.fixed(1),
+              '=',
+              Conditions.value.arg('a1', 'Int'),
+            ),
+          ],
+        }),
+        Queries.listAll('la'),
+        Queries.paging('p'),
+      );
       table.setGQLCreate(true, { noReFetch: true, subscription: true });
       table.setGQLUpdate(true, {
         noReFetch: true,
