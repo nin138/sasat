@@ -103,7 +103,11 @@ const makeResolverMiddleware = (
       tsg.variable(
         'const',
         middlewareName,
-        tsg.array([]),
+        tsg.array(
+          node.middlewares.map(it =>
+            tsg.identifier(it).importFrom('../' + tsFileNames.middleware),
+          ),
+        ),
         tsg.arrayType(
           tsg
             .typeRef('ResolverMiddleware', [

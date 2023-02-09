@@ -5,6 +5,7 @@ import {
   UserUpdatable,
   User,
 } from "./entities/User.js";
+import { testMiddleware, hoge } from "../middlewares.js";
 import { GQLContext } from "../context.js";
 import { ResolverMiddleware, makeResolver, CommandResponse, pick } from "sasat";
 import { UserHashId, PostHashId } from "../idEncoder.js";
@@ -19,7 +20,7 @@ import { PostDBDataSource } from "../dataSources/db/Post.js";
 type UserCreateInput = { user: UserCreatable };
 const createUserMiddleware: Array<
   ResolverMiddleware<GQLContext, UserCreateInput>
-> = [];
+> = [testMiddleware, hoge];
 type GQLUserUpdateInput = {
   user: { userId: string; NNN: string; nick: string };
 };

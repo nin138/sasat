@@ -15,7 +15,10 @@ export const generateMiddlewares = (
   content: string,
 ): string | null => {
   const middlewares = unique(
-    root.entities.flatMap(it => it.queries.flatMap(it => it.middlewares)),
+    root.entities.flatMap(it => [
+      ...it.queries.flatMap(it => it.middlewares),
+      ...it.mutations.flatMap(it => it.middlewares),
+    ]),
   );
   if (middlewares.length === 0) return null;
   const sourceFile = createSourceFile(
