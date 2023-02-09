@@ -139,7 +139,7 @@ const getHashIdArgs = (
     .filter(nonNullable);
 };
 
-const makeMiddlewares = (
+const makeHashIdMiddleware = (
   entity: EntityNode,
   query: GQLQuery,
 ): TsExpression | null => {
@@ -165,6 +165,17 @@ const makeMiddlewares = (
       ),
     ),
   ]);
+};
+
+const makeMiddlewares = (entity: EntityNode, query: GQLQuery) => {
+  const hashId = makeHashIdMiddleware(entity, query);
+  if (!hashId && query.middlewares.length === 0) return null;
+  if (query.middlewares.length === 0) return tsg.array([hashId!]);
+  const middlewares = query.middlewares.map(it =>
+    tsg.identifier(it).importFrom('./' + tsFileNames.middleware),
+  );
+  if (!hashId) return tsg.array(middlewares);
+  return tsg.array([hashId, ...middlewares]);
 };
 
 const makeTypeArgs = (args: ArgQueryConditionValue[]): TsType[] => {

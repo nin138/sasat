@@ -37,15 +37,19 @@ export default class CreateUser implements SasatMigration {
       table.enableGQL();
       table.setGQLOption({
         queries: [
-          Queries.primary,
-          Queries.paging('users'),
-          Queries.single('www', [
-            Conditions.query.comparison(
-              Conditions.value.fixed(1),
-              '=',
-              Conditions.value.arg('a1', 'Int'),
-            ),
-          ]),
+          Queries.primary(['testMiddleware']),
+          Queries.paging('users', {
+            middlewares: ['testMiddleware', 't2Middleware'],
+          }),
+          Queries.single('www', {
+            conditions: [
+              Conditions.query.comparison(
+                Conditions.value.fixed(1),
+                '=',
+                Conditions.value.arg('a1', 'Int'),
+              ),
+            ],
+          }),
           Queries.listAll('la'),
           Queries.paging('p'),
         ],
