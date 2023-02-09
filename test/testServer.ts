@@ -12,5 +12,5 @@ const server = new ApolloServer<Context>({
   resolvers,
 });
 
-const { url } = await startStandaloneServer(server);
+const { url } = await startStandaloneServer(server, { listen: { port: 4444 } });
 console.log(`🚀 Server ready at ${url}`);
