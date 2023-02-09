@@ -4,11 +4,9 @@ import { TsFile, tsg, TsStatement } from '../../../tsg/index.js';
 import { isImported } from './scripts/ast/isImported.js';
 import { getExportedVariables } from './scripts/ast/getExportedVariables.js';
 import { tsFileNames } from './tsFileNames.js';
-import {
-  ImportDeclaration as TsgImport,
-  ImportDeclaration,
-} from '../../../tsg/importDeclaration.js';
+import { ImportDeclaration as TsgImport } from '../../../tsg/importDeclaration.js';
 import { ResolverMiddleware } from '../../../runtime/resolverMiddleware.js';
+import { unique } from '../../../runtime/util.js';
 
 const { createSourceFile, ScriptTarget } = typescript;
 
@@ -16,8 +14,8 @@ export const generateMiddlewares = (
   root: RootNode,
   content: string,
 ): string | null => {
-  const middlewares = root.entities.flatMap(it =>
-    it.queries.flatMap(it => it.middlewares),
+  const middlewares = unique(
+    root.entities.flatMap(it => it.queries.flatMap(it => it.middlewares)),
   );
   if (middlewares.length === 0) return null;
   const sourceFile = createSourceFile(
@@ -78,15 +76,6 @@ export const generateMiddlewares = (
       ? ''
       : new TsgImport(['ResolverMiddleware'], 'sasat').toString() + '\n',
   ].join('');
-  const makeEncoder = isImported(sourceFile, 'makeNumberIdEncoder', ['sasat'])
-    ? ''
-    : new ImportDeclaration(['makeNumberIdEncoder'], 'sasat').toString();
 
-  return (
-    imports +
-    makeEncoder +
-    content +
-    '\n' +
-    new TsFile(...statements).toString()
-  );
+  return imports + content + '\n' + new TsFile(...statements).toString();
 };

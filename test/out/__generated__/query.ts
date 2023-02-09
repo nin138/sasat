@@ -9,7 +9,7 @@ import {
 import { UserFields, PostFields } from "./fields.js";
 import { UserDBDataSource } from "../dataSources/db/User.js";
 import { UserHashId, PostHashId } from "../idEncoder.js";
-import { testMiddleware, t2Middleware } from "./middlewares.js";
+import { testMiddleware, t2Middleware } from "../middlewares.js";
 import { GQLContext } from "../context.js";
 import { PostDBDataSource } from "../dataSources/db/Post.js";
 export const query = {
@@ -24,15 +24,13 @@ export const query = {
       );
     },
     [
-      [
-        (args) => {
-          args[1] = {
-            ...args[1],
-            userId: UserHashId.decode(args[1].userId as string),
-          };
-          return args;
-        },
-      ],
+      (args) => {
+        args[1] = {
+          ...args[1],
+          userId: UserHashId.decode(args[1].userId as string),
+        };
+        return args;
+      },
       testMiddleware,
     ]
   ),
@@ -83,15 +81,13 @@ export const query = {
       );
     },
     [
-      [
-        (args) => {
-          args[1] = {
-            ...args[1],
-            postId: PostHashId.decode(args[1].postId as string),
-          };
-          return args;
-        },
-      ],
+      (args) => {
+        args[1] = {
+          ...args[1],
+          postId: PostHashId.decode(args[1].postId as string),
+        };
+        return args;
+      },
     ]
   ),
   posts: makeResolver<GQLContext, { option: PagingOption }>(

@@ -145,26 +145,24 @@ const makeHashIdMiddleware = (
 ): TsExpression | null => {
   const args = getHashIdArgs(entity, query);
   if (!args || args?.length === 0) return null;
-  return tsg.array([
-    tsg.arrowFunc(
-      [tsg.parameter('args')],
-      undefined,
-      tsg.block(
-        new RawCodeStatement(
-          `args[1] = {...args[1], ${args
-            .map(
-              it =>
-                `${it.name}: ${it.encoder}.decode(args[1].${it.name} as string),`,
-            )
-            .join('')}};`,
-        ).addImport(
-          args.map(it => it.encoder),
-          Directory.resolve(DIR, 'BASE', tsFileNames.encoder),
-        ),
-        tsg.return(tsg.identifier('args')),
+  return tsg.arrowFunc(
+    [tsg.parameter('args')],
+    undefined,
+    tsg.block(
+      new RawCodeStatement(
+        `args[1] = {...args[1], ${args
+          .map(
+            it =>
+              `${it.name}: ${it.encoder}.decode(args[1].${it.name} as string),`,
+          )
+          .join('')}};`,
+      ).addImport(
+        args.map(it => it.encoder),
+        Directory.resolve(DIR, 'BASE', tsFileNames.encoder),
       ),
+      tsg.return(tsg.identifier('args')),
     ),
-  ]);
+  );
 };
 
 const makeMiddlewares = (entity: EntityNode, query: GQLQuery) => {
@@ -172,7 +170,7 @@ const makeMiddlewares = (entity: EntityNode, query: GQLQuery) => {
   if (!hashId && query.middlewares.length === 0) return null;
   if (query.middlewares.length === 0) return tsg.array([hashId!]);
   const middlewares = query.middlewares.map(it =>
-    tsg.identifier(it).importFrom('./' + tsFileNames.middleware),
+    tsg.identifier(it).importFrom('../' + tsFileNames.middleware),
   );
   if (!hashId) return tsg.array(middlewares);
   return tsg.array([hashId, ...middlewares]);
