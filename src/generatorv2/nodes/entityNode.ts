@@ -63,9 +63,7 @@ const makeFieldNode = (
     isUpdatable:
       !(column.data.onUpdateCurrentTimeStamp || column.isPrimary()) &&
       column.data.option.updatable,
-    isGQLOpen: !column.table.gqlOption.mutation.fromContextColumns.some(
-      it => it.column === column.columnName(),
-    ),
+    isGQLOpen: true,
     column: column.data,
     option: column.data.option,
     hashId,
@@ -91,9 +89,10 @@ const makeCreatableFieldNode = (
     isPrimary: column.isPrimary(),
     isNullable: column.isNullableOnCreate(),
     isUpdatable: column.isUpdatable(),
-    isGQLOpen: !column.table.gqlOption.mutation.fromContextColumns.some(
-      it => it.column === column.columnName(),
-    ),
+    isGQLOpen: !(
+      column.table.gqlOption.mutations.find(it => it.type === 'create')
+        ?.contextFields || []
+    ).some(it => it.column === column.columnName()),
     column: column.data,
     option: column.data.option,
     hashId: getHashId(store, entity.name, column),
@@ -118,9 +117,10 @@ const makeUpdatableFieldNode = (
     isNullable: true,
     isPrimary: false,
     isUpdatable: true,
-    isGQLOpen: !column.table.gqlOption.mutation.fromContextColumns.some(
-      it => it.column === column.columnName(),
-    ),
+    isGQLOpen: !(
+      column.table.gqlOption.mutations.find(it => it.type === 'update')
+        ?.contextFields || []
+    ).some(it => it.column === column.columnName()),
     column: column.data,
     option: column.data.option,
     hashId: getHashId(store, entity.name, column),
@@ -149,14 +149,18 @@ export class EntityNode {
     this.queries = table.gqlOption.queries;
     this.creatable = {
       gqlEnabled:
-        table.gqlOption.enabled && table.gqlOption.mutation.create.enabled,
+        table.gqlOption.enabled &&
+        table.gqlOption.mutations.find(it => it.type === 'create') !==
+          undefined,
       fields: table.columns
         .map(it => makeCreatableFieldNode(store, this, it))
         .filter(nonNullable),
     };
     this.updateInput = {
       gqlEnabled:
-        table.gqlOption.enabled && table.gqlOption.mutation.update.enabled,
+        table.gqlOption.enabled &&
+        table.gqlOption.mutations.find(it => it.type === 'update') !==
+          undefined,
       fields: [
         ...this.fields.filter(it => it.isPrimary),
         ...table.columns

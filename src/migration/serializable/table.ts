@@ -1,6 +1,6 @@
 import { Serializable } from './serializable.js';
 import { SerializedTable } from '../serialized/serializedStore.js';
-import { BaseColumn, Column, NormalColumn, ReferenceColumn } from './column.js';
+import { BaseColumn, NormalColumn, ReferenceColumn } from './column.js';
 import { SqlString } from '../../runtime/sql/sqlString.js';
 import { SasatError } from '../../error.js';
 import {
@@ -11,14 +11,7 @@ import {
   SerializedReferenceColumn,
 } from '../serialized/serializedColumn.js';
 import { DBIndex } from '../data/index.js';
-import {
-  defaultMutationOption,
-  getDefaultGqlOption,
-  GqlFromContextParam,
-  GQLOption,
-  MutationOption,
-  updateMutationOption,
-} from '../data/GQLOption.js';
+import { defaultGQLOption, GQLOption } from '../data/GQLOption.js';
 import { assembleColumn } from '../functions/assembleColumn.js';
 import { EntityName } from '../../generatorv2/nodes/entityName.js';
 import { DataStore } from '../dataStore.js';
@@ -56,7 +49,7 @@ export class TableHandler implements Table {
   primaryKey: string[];
   readonly uniqueKeys: string[][];
   readonly tableName: string;
-  private _gqlOption: GQLOption = getDefaultGqlOption();
+  private _gqlOption: GQLOption = defaultGQLOption();
   get gqlOption(): GQLOption {
     return this._gqlOption;
   }
@@ -70,7 +63,7 @@ export class TableHandler implements Table {
     this.uniqueKeys = table.uniqueKeys || [];
     this.indexes =
       table.indexes?.map(it => new DBIndex(this.tableName, it.columns)) || [];
-    this._gqlOption = table.gqlOption || getDefaultGqlOption();
+    this._gqlOption = table.gqlOption || defaultGQLOption();
     this._columns = (table.columns || []).map(it => assembleColumn(it, this));
     this._virtualRelations = table.virtualRelations || [];
   }
@@ -190,47 +183,8 @@ export class TableHandler implements Table {
     return EntityName.fromTableName(this.tableName);
   }
 
-  setGQLCreate(enabled: boolean, options?: Partial<MutationOption>): void {
-    this._gqlOption = updateMutationOption(this._gqlOption, {
-      create: {
-        ...defaultMutationOption,
-        ...(options || defaultMutationOption),
-        enabled,
-      },
-    });
-  }
-
-  setGQLUpdate(enabled: boolean, options?: Partial<MutationOption>) {
-    this._gqlOption = updateMutationOption(this._gqlOption, {
-      update: {
-        ...defaultMutationOption,
-        ...(options || defaultMutationOption),
-        enabled,
-      },
-    });
-  }
-
   setGQLOption(option: Partial<GQLOption>) {
     this._gqlOption = { ...this.gqlOption, ...option };
-  }
-
-  setGQLDelete(
-    enabled: boolean,
-    options?: Partial<Omit<MutationOption, 'noReFetch'>>,
-  ) {
-    this._gqlOption = updateMutationOption(this._gqlOption, {
-      delete: {
-        ...defaultMutationOption,
-        ...(options || defaultMutationOption),
-        enabled,
-      },
-    });
-  }
-
-  setGQLContextColumn(columns: GqlFromContextParam[]) {
-    this._gqlOption = updateMutationOption(this._gqlOption, {
-      fromContextColumns: columns,
-    });
   }
 
   getReferenceColumns(): ReferenceColumn[] {

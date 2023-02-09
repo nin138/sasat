@@ -7,7 +7,7 @@ import {
   Reference,
   SerializedNormalColumn,
 } from '../../../migration/serialized/serializedColumn.js';
-import { getDefaultGqlOption } from '../../../migration/data/GQLOption.js';
+import { defaultGQLOption } from '../../../migration/data/GQLOption.js';
 import { columnTypeToGqlPrimitive } from '../../../generatorv2/scripts/columnToGqlType.js';
 
 const splitArray = <T>(array: T[], callback: (item: T) => boolean): T[][] => {
@@ -48,7 +48,7 @@ export class CreateTableParser {
       primaryKey: [],
       uniqueKeys: [],
       indexes: [],
-      gqlOption: getDefaultGqlOption(),
+      gqlOption: defaultGQLOption(),
       virtualRelations: [],
     };
   }

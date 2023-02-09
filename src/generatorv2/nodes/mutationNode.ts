@@ -22,4 +22,5 @@ export type MutationNode = {
   refetch: boolean;
   contextFields: ContextField[];
   requireIdDecodeMiddleware: boolean;
+  middlewares: string[];
 };

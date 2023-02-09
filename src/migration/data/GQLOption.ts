@@ -9,10 +9,6 @@ export interface GqlFromContextParam {
   contextName?: string;
 }
 
-type Enabled = {
-  enabled: boolean;
-};
-
 export type MutationOption = {
   noReFetch: boolean;
   subscription: boolean;
@@ -22,8 +18,9 @@ export type MutationOption = {
 export type GQLMutation = {
   type: 'create' | 'update' | 'delete';
   noReFetch: boolean;
+  middlewares: string[];
   contextFields: GqlFromContextParam[];
-  subscription?: {
+  subscription: {
     enabled: boolean;
     subscriptionFilter: string[];
   };
@@ -47,45 +44,13 @@ export interface GQLOption {
   enabled: boolean;
   queries: GQLQuery[];
   mutations: GQLMutation[];
-  mutation: {
-    create: MutationOption & Enabled;
-    update: MutationOption & Enabled;
-    delete: Omit<MutationOption, 'noReFetch'> & Enabled;
-    fromContextColumns: GqlFromContextParam[];
-  };
 }
 
-export const defaultMutationOption = {
-  enabled: false,
-  noReFetch: false,
-  subscription: false,
-  subscriptionFilter: [],
-};
-
-export const getDefaultGqlOption = (): GQLOption => ({
+export const defaultGQLOption = (): GQLOption => ({
   enabled: false,
   queries: [],
   mutations: [],
-  mutation: {
-    create: defaultMutationOption,
-    update: defaultMutationOption,
-    delete: defaultMutationOption,
-    fromContextColumns: [],
-  },
 });
-
-export const updateMutationOption = (
-  option: GQLOption,
-  mutation: Partial<GQLOption['mutation']>,
-): GQLOption => {
-  return {
-    ...option,
-    mutation: {
-      ...option.mutation,
-      ...mutation,
-    },
-  };
-};
 
 export const getArgs = (
   query: GQLQuery,

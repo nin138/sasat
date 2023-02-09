@@ -3,6 +3,7 @@ export { ResolverMiddleware } from './runtime/resolverMiddleware.js';
 export { makeNumberIdEncoder } from './runtime/id.js';
 export type { CustomCondition } from './runtime/types.js';
 export { Queries } from './migration/makeQuery.js';
+export { Mutations } from './migration/makeMutaion.js';
 export { Conditions } from './migration/makeCondition.js';
 export type {
   BooleanValueExpression,

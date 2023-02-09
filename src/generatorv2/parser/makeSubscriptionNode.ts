@@ -1,7 +1,7 @@
 import { DataStoreHandler } from '../../migration/dataStore.js';
 import { SubscriptionNode } from '../nodes/subscriptionNode.js';
-import { MutationType } from '../nodes/mutationNode.js';
 import { TableHandler } from '../../migration/serializable/table.js';
+import { GQLMutation } from '../../migration/data/GQLOption.js';
 import { nonNullable } from '../../runtime/util.js';
 
 export const makeSubscriptionNodes = (
@@ -9,18 +9,9 @@ export const makeSubscriptionNodes = (
 ): SubscriptionNode[] => {
   return store.tables
     .flatMap(table => {
-      const mutation = table.gqlOption.mutation;
-      return [
-        mutation.create.subscription
-          ? makeSubscriptionNode('create', table)
-          : undefined,
-        mutation.update.subscription
-          ? makeSubscriptionNode('update', table)
-          : undefined,
-        mutation.delete.subscription
-          ? makeSubscriptionNode('delete', table)
-          : undefined,
-      ];
+      return table.gqlOption.mutations.map(it => {
+        return makeSubscriptionNode(table, it);
+      });
     })
     .filter(nonNullable);
 };
@@ -32,12 +23,11 @@ const subscriptionNamePostfix = {
 };
 
 const makeSubscriptionNode = (
-  mutationType: MutationType,
   table: TableHandler,
-): SubscriptionNode => {
+  mutation: GQLMutation,
+): SubscriptionNode | null => {
   const subscriptionName =
-    table.getEntityName().name + subscriptionNamePostfix[mutationType];
-  const option = table.gqlOption.mutation[mutationType];
+    table.getEntityName().name + subscriptionNamePostfix[mutation.type];
   return {
     subscriptionName,
     entity: table.getEntityName(),
@@ -48,7 +38,7 @@ const makeSubscriptionNode = (
       array: false,
       entity: true,
     },
-    args: table.gqlOption.mutation[mutationType].subscriptionFilter.map(it => {
+    args: mutation.subscription.subscriptionFilter.map(it => {
       const column = table.column(it);
       return {
         name: it,
@@ -61,14 +51,14 @@ const makeSubscriptionNode = (
         },
       };
     }),
-    filters: option.subscriptionFilter.map(it => {
+    filters: (mutation.subscription?.subscriptionFilter || []).map(it => {
       const column = table.column(it);
       return {
         field: column.fieldName(),
         gqlType: column.gqlType(),
       };
     }),
-    mutationType,
-    gqlEnabled: table.gqlOption.enabled && option.enabled,
+    mutationType: mutation.type,
+    gqlEnabled: table.gqlOption.enabled && mutation.subscription.enabled,
   };
 };

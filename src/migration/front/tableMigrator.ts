@@ -7,7 +7,9 @@ import {
 } from '../serialized/serializedColumn.js';
 import {
   GqlFromContextParam,
+  GQLMutation,
   GQLOption,
+  GQLQuery,
   MutationOption,
 } from '../data/GQLOption.js';
 import {
@@ -29,23 +31,10 @@ export interface MigrationTable extends Table {
   addForeignKey(reference: Reference): MigrationTable;
   changeColumnType(columnName: string, type: DBType): MigrationTable;
   setDefault(columnName: string, value: string | number | null): MigrationTable;
-  setGQLCreate(
-    enabled: boolean,
-    options?: Partial<MutationOption>,
-  ): MigrationTable;
-  setGQLUpdate(
-    enabled: boolean,
-    options?: Partial<MutationOption>,
-  ): MigrationTable;
-  setGQLDelete(
-    enabled: boolean,
-    options?: Partial<Omit<MutationOption, 'noReFetch'>>,
-  ): MigrationTable;
-  setGQLContextColumn(columns: GqlFromContextParam[]): MigrationTable;
-
   enableGQL(): MigrationTable;
-
   setGQLOption(option: GQLOption): MigrationTable;
+  addGQLQuery(...queries: GQLQuery[]): MigrationTable;
+  addGQLMutation(...mutations: GQLMutation[]): MigrationTable;
 }
 
 export class TableMigrator implements MigrationTable {
@@ -106,22 +95,6 @@ export class TableMigrator implements MigrationTable {
     return this;
   }
 
-  setGQLCreate(
-    enabled: boolean,
-    options?: Partial<MutationOption>,
-  ): MigrationTable {
-    this.table.setGQLCreate(enabled, options);
-    return this;
-  }
-
-  setGQLUpdate(
-    enabled: boolean,
-    options?: Partial<MutationOption>,
-  ): MigrationTable {
-    this.table.setGQLUpdate(enabled, options);
-    return this;
-  }
-
   enableGQL(): MigrationTable {
     this.table.setGQLOption({
       ...this.table.gqlOption,
@@ -132,19 +105,6 @@ export class TableMigrator implements MigrationTable {
 
   setGQLOption(option: GQLOption): MigrationTable {
     this.table.setGQLOption(option);
-    return this;
-  }
-
-  setGQLDelete(
-    enabled: boolean,
-    options?: Partial<Omit<MutationOption, 'noReFetch'>>,
-  ): MigrationTable {
-    this.table.setGQLDelete(enabled, options);
-    return this;
-  }
-
-  setGQLContextColumn(columns: GqlFromContextParam[]): MigrationTable {
-    this.table.setGQLContextColumn(columns);
     return this;
   }
 
@@ -213,5 +173,19 @@ export class TableMigrator implements MigrationTable {
 
   get gqlOption(): GQLOption {
     return this.table.gqlOption;
+  }
+  addGQLQuery(...queries: GQLQuery[]): MigrationTable {
+    this.table.setGQLOption({
+      ...this.table.gqlOption,
+      queries: [...this.table.gqlOption.queries, ...queries],
+    });
+    return this;
+  }
+  addGQLMutation(...mutations: GQLMutation[]): MigrationTable {
+    this.table.setGQLOption({
+      ...this.table.gqlOption,
+      mutations: [...this.table.gqlOption.mutations, ...mutations],
+    });
+    return this;
   }
 }
