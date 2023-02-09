@@ -14,6 +14,7 @@ import { generateContext } from './ts/generateContext.js';
 import { generateSubscription } from './ts/generateSubscription.js';
 import { generateUserDefinedCondition } from './ts/generateUserDefinedCondition.js';
 import { generateIDEncoder } from './ts/generateIDEncoder.js';
+import { generateMiddlewares } from './ts/generateMiddlewares.js';
 
 export type FileData = { name: string; body: string };
 
@@ -49,5 +50,11 @@ export class TsCodegen_v2 {
   };
   generateIDEncoders = (root: RootNode, currentFile: string): string | null => {
     return generateIDEncoder(root, currentFile);
+  };
+  generateMiddlewares = (
+    root: RootNode,
+    currentFile: string,
+  ): string | null => {
+    return generateMiddlewares(root, currentFile);
   };
 }

@@ -1,35 +1,45 @@
 import { QueryConditionNode } from '../generatorv2/nodes/QueryConditionNode.js';
 import { GQLQuery } from './data/GQLOption.js';
 
-const single = (name: string, conditions?: QueryConditionNode[]): GQLQuery => ({
+const single = (
+  name: string,
+  options: { conditions?: QueryConditionNode[]; middlewares?: string[] },
+): GQLQuery => ({
   type: 'single',
   name,
-  conditions: conditions || [],
+  conditions: options.conditions || [],
+  middlewares: options.middlewares || [],
 });
 
 const listAll = (
   name: string,
-  conditions?: QueryConditionNode[],
+  options: { conditions?: QueryConditionNode[]; middlewares?: string[] },
 ): GQLQuery => ({
   type: 'list-all',
   name,
-  conditions: conditions || [],
+  conditions: options.conditions || [],
+  middlewares: options.middlewares || [],
 });
 
-const paging = (name: string, conditions?: QueryConditionNode[]): GQLQuery => ({
+const paging = (
+  name: string,
+  options: { conditions?: QueryConditionNode[]; middlewares?: string[] },
+): GQLQuery => ({
   type: 'list-paging',
   name,
-  conditions: conditions || [],
+  conditions: options.conditions || [],
+  middlewares: options.middlewares || [],
 });
 
-const primary = (): GQLQuery => ({
+const primary = (middlewares: string[] = []): GQLQuery => ({
   type: 'primary',
   conditions: [],
+  middlewares,
 });
 
 export const Queries = {
   single,
   listAll,
   paging,
-  primary: primary(),
+  primary,
 };

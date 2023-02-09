@@ -40,6 +40,7 @@ export class CodeGen_v2 {
       ...this.generateOnceFiles(),
       this.generateCondition(this.root),
       this.generateIDEncoders(this.root),
+      this.generateMiddleware(this.root),
     ]);
   }
 
@@ -139,6 +140,15 @@ export class CodeGen_v2 {
       ? fs.readFileSync(filePath).toString()
       : '';
     const nextContent = this.codeGen.generateIDEncoders(rootNode, content);
+    if (nextContent) fs.writeFileSync(filePath, nextContent);
+  }
+
+  private async generateMiddleware(rootNode: RootNode) {
+    const filePath = this.getFullPath(this.outDir, tsFileNames.middleware);
+    const content = fs.existsSync(filePath)
+      ? fs.readFileSync(filePath).toString()
+      : '';
+    const nextContent = this.codeGen.generateMiddlewares(rootNode, content);
     if (nextContent) fs.writeFileSync(filePath, nextContent);
   }
 }

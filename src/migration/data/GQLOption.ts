@@ -24,11 +24,13 @@ export type GQLQuery =
       type: 'single' | 'list-all' | 'list-paging';
       name: string;
       conditions: QueryConditionNode[];
+      middlewares: string[];
     }
   | {
       type: 'primary';
       name?: never;
       conditions: never[];
+      middlewares: string[];
     };
 
 export interface GQLOption {
