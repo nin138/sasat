@@ -1,4 +1,5 @@
 import { TypeFieldDefinition } from '../generatorv2/codegen/ts/scripts/typeDefinition.js';
+import { validate } from 'graphql/validation';
 
 type TypeDef = Record<string, TypeFieldDefinition>;
 
@@ -17,7 +18,11 @@ const makeTypedefString = (
   return `\
 ${type} ${typeName} {
 ${entries
-  .map(([field, value]) => `  ${field}${makeArgs(value.args)}: ${value.return}`)
+  .map(([field, value]) => {
+    if (!value.return)
+      throw new Error(`Return type required: ${typeName}.${field}`);
+    return `  ${field}${makeArgs(value.args)}: ${value.return}`;
+  })
   .join('\n')}
 }
 `;
