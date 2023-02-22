@@ -66,6 +66,7 @@ export class StoreMigrator implements MigrationStore {
 
   dropTable(tableName: string): MigrationStore {
     this.addQuery(`DROP TABLE ${tableName}`);
+    this.tables = this.tables.filter(it => it.tableName !== tableName);
     return this;
   }
 
