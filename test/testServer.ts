@@ -16,6 +16,7 @@ const server = new ApolloServer<Context>({
           args: [
             { name: 'id', type: 'Int!' },
             { name: 'name', type: 'String!' },
+            { name: 'NNN', type: 'String!' },
           ],
           return: 'Boolean!',
         },
@@ -25,20 +26,25 @@ const server = new ApolloServer<Context>({
   ),
   resolvers: assignDeep(resolvers, {
     Mutation: {
-      upsertUser: makeResolver<unknown, { id: number; name: string }>(
-        async (_, params, _2) => {
-          try {
-            await new UserDBDataSource().upsert({
+      upsertUser: makeResolver<
+        unknown,
+        { id: number; name: string; NNN: string }
+      >(async (_, params, _2) => {
+        try {
+          await new UserDBDataSource().upsert(
+            {
               userId: params.id,
-              NNN: params.name,
-            } as any);
-          } catch (e) {
-            console.error(e);
-            throw e;
-          }
-          return true;
-        },
-      ),
+              NNN: params.NNN,
+              nick: params.name,
+            },
+            ['NNN'],
+          );
+        } catch (e) {
+          console.error(e);
+          throw e;
+        }
+        return true;
+      }),
     },
   }),
 });

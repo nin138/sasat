@@ -63,6 +63,7 @@ export abstract class SasatDBDatasource<
   protected abstract readonly identifyFields: string[];
   protected abstract readonly autoIncrementColumn?: string;
   protected queryLogger: (sql: string) => void = noop;
+  protected commandLogger: (sql: string) => void = noop;
 
   constructor(protected client: SQLExecutor = getDbClient()) {}
   protected abstract getDefaultValueString(): Partial<{
@@ -71,7 +72,7 @@ export abstract class SasatDBDatasource<
 
   async create(
     entity: Creatable,
-    upsert?: { columns: string[] },
+    upsert?: { updateColumns: string[] },
   ): Promise<Entity> {
     const obj: Entity = {
       ...this.getDefaultValueString(),
@@ -83,11 +84,11 @@ export abstract class SasatDBDatasource<
         field: column,
         value,
       })),
-      upsert: upsert?.columns,
+      upsert: upsert?.updateColumns,
     };
-    const response = await this.client.rawCommand(
-      createToSql(dsl, this.tableInfo),
-    );
+    const sql = createToSql(dsl, this.tableInfo);
+    this.commandLogger(sql);
+    const response = await this.client.rawCommand(sql);
     if (!this.autoIncrementColumn) return obj;
     return {
       ...obj,
@@ -95,14 +96,12 @@ export abstract class SasatDBDatasource<
     } as unknown as Entity;
   }
 
-  async upsert(
-    entity: Creatable,
-    keys: (keyof Creatable)[] = this.primaryKeys,
+  async upsert<T extends Creatable & Partial<Entity>>(
+    entity: T,
+    updateFields: (keyof T)[] = this.primaryKeys,
   ): Promise<Entity> {
     return this.create(entity, {
-      columns: Object.keys(entity)
-        .filter(it => !keys.includes(it))
-        .map(it => this.tableInfo[this.tableName].columnMap[it] || it),
+      updateColumns: this.fieldToColumn(updateFields as string[]),
     });
   }
 
@@ -115,7 +114,9 @@ export abstract class SasatDBDatasource<
       })),
       where: this.createIdentifiableExpression(entity),
     };
-    return this.client.rawCommand(updateToSql(dsl, this.tableInfo));
+    const sql = updateToSql(dsl, this.tableInfo);
+    this.commandLogger(sql);
+    return this.client.rawCommand(sql);
   }
 
   async delete(entity: Identifiable): Promise<CommandResponse> {
@@ -123,7 +124,9 @@ export abstract class SasatDBDatasource<
       table: this.tableName,
       where: this.createIdentifiableExpression(entity),
     };
-    return this.client.rawCommand(deleteToSql(dsl));
+    const sql = deleteToSql(dsl);
+    this.commandLogger(sql);
+    return this.client.rawCommand(sql);
   }
 
   async first(
@@ -208,6 +211,10 @@ export abstract class SasatDBDatasource<
   }
   getRelationMap() {
     return this.relationMap[this.tableName];
+  }
+
+  protected fieldToColumn(fields: string[]) {
+    return fields.map(it => this.tableInfo[this.tableName].columnMap[it] || it);
   }
 }
 

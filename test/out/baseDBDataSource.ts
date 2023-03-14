@@ -19,4 +19,5 @@ export abstract class BaseDBDataSource<
   protected relationMap = relationMap;
   protected tableInfo = tableInfo;
   protected queryLogger = (q: string) => console.log(q);
+  protected commandLogger = (q: string) => console.log(q);
 }
