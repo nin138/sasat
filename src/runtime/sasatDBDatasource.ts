@@ -49,7 +49,7 @@ export type QueryOptions = {
 export abstract class SasatDBDatasource<
   Entity extends EntityType,
   Identifiable extends object,
-  Creatable,
+  Creatable extends EntityType,
   Updatable extends Identifiable,
   EntityFields extends Fields<Entity>,
   QueryResult extends Partial<Entity> & Identifiable,
@@ -69,7 +69,10 @@ export abstract class SasatDBDatasource<
     [P in keyof Entity]: Entity[P] | string | null;
   }>;
 
-  async create(entity: Creatable): Promise<Entity> {
+  async create(
+    entity: Creatable,
+    upsert?: { columns: string[] },
+  ): Promise<Entity> {
     const obj: Entity = {
       ...this.getDefaultValueString(),
       ...entity,
@@ -80,6 +83,7 @@ export abstract class SasatDBDatasource<
         field: column,
         value,
       })),
+      upsert: upsert?.columns,
     };
     const response = await this.client.rawCommand(
       createToSql(dsl, this.tableInfo),
@@ -89,6 +93,17 @@ export abstract class SasatDBDatasource<
       ...obj,
       [this.autoIncrementColumn]: response.insertId,
     } as unknown as Entity;
+  }
+
+  async upsert(
+    entity: Creatable,
+    keys: (keyof Creatable)[] = this.primaryKeys,
+  ): Promise<Entity> {
+    return this.create(entity, {
+      columns: Object.keys(entity)
+        .filter(it => !keys.includes(it))
+        .map(it => this.tableInfo[this.tableName].columnMap[it] || it),
+    });
   }
 
   update(entity: Updatable): Promise<CommandResponse> {

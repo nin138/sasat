@@ -12,6 +12,7 @@ type ValueSet = {
 export type Create = {
   table: string;
   values: ValueSet[];
+  upsert?: string[];
 };
 
 export type Update = {
@@ -28,11 +29,24 @@ export type Delete = {
 const escape = SqlString.escape;
 const escapeId = SqlString.escapeId;
 
+const onDuplicateKeyUpdate = (columns: Create['upsert']): string => {
+  if (!columns || columns.length === 0) return '';
+  return (
+    ' ON DUPLICATE KEY UPDATE ' +
+    columns
+      .map(escapeId)
+      .map(it => `${it} = VALUES(${it})`)
+      .join(',')
+  );
+};
+
 export const createToSql = (dsl: Create, tableInfo: TableInfo): string => {
   const map = tableInfo[dsl.table].columnMap;
   return `INSERT INTO ${escapeId(dsl.table)}(${dsl.values.map(it =>
     escapeId(map[it.field]),
-  )}) VALUES(${dsl.values.map(it => escape(it.value))})`;
+  )}) VALUES(${dsl.values.map(it => escape(it.value))})${onDuplicateKeyUpdate(
+    dsl.upsert,
+  )}`;
 };
 
 export const updateToSql = (dsl: Update, tableInfo: TableInfo): string => {

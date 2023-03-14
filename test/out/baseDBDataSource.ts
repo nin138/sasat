@@ -4,7 +4,7 @@ import { EntityType, Fields, SasatDBDatasource } from '../../lib/index.js';
 export abstract class BaseDBDataSource<
   Entity extends EntityType,
   Identifiable extends object,
-  Creatable,
+  Creatable extends EntityType,
   Updatable extends Identifiable,
   EntityFields extends Fields<Entity>,
   QueryResult extends Partial<Entity> & Identifiable,
