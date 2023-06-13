@@ -44,7 +44,7 @@
   "devDependencies": {
     "@apollo/server": "^4.3.0",
     "@types/fs-extra": "11.0.1",
-    "@types/jest": "29.4.0",
+    "@types/jest": "29.5.2",
     "@types/js-yaml": "4.0.5",
     "@types/node": "18.16.18",
     "@types/pluralize": "0.0.29",
@@ -58,7 +58,7 @@
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-prettier": "4.2.1",
     "husky": "8.0.3",
-    "jest": "29.4.2",
+    "jest": "29.5.0",
     "lint-staged": "13.2.2",
     "sasat": "link:./lib",
     "ts-jest": "29.0.5",
