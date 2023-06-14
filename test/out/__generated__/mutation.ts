@@ -22,7 +22,7 @@ const createUserMiddleware: Array<
   ResolverMiddleware<GQLContext, UserCreateInput>
 > = [testMiddleware, hoge];
 type GQLUserUpdateInput = {
-  user: { userId: string; NNN: string; nick: string };
+  user: { userId: string; NNN: string; nick: string; foo: string };
 };
 type UserUpdateInput = { user: UserIdentifiable & UserUpdatable };
 const updateUserMiddleware: Array<

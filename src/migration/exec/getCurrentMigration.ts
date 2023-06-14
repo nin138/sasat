@@ -41,13 +41,13 @@ export const getCurrentMigration = async (): Promise<string | undefined> => {
   const result = await client.rawQuery(
     `SELECT name, direction
      FROM ${migrationTable}
-     ORDER BY migrated_at ASC LIMIT 1`,
+     ORDER BY migrated_at ASC`,
   );
   if (!result.length) return;
   const runs = calcRunMigrationFileNames(
     result as unknown as MigrationRecord[],
   );
-  if (runs.length) return;
+  if (runs.length === 0) return;
   runs.forEach((run, i) => {
     if (files[i] !== run)
       throw new Error(`\
@@ -55,6 +55,5 @@ Invalid migration order: Migration must be performed in the same order
 Found               : ${files[i]} 
 in migration history: ${run}`);
   });
-  console.log(runs[runs.length - 1]);
   return runs[runs.length - 1];
 };

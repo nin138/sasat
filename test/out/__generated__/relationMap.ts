@@ -95,6 +95,7 @@ export const tableInfo: TableInfo = {
       nick: "nickName",
       createdAt: "createdAt",
       updatedAt: "updatedAt",
+      foo: "foo",
     },
   },
   post: {

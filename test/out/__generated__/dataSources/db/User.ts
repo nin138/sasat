@@ -26,18 +26,20 @@ export abstract class GeneratedUserDBDataSource extends BaseDBDataSource<
     "nick",
     "createdAt",
     "updatedAt",
+    "foo",
   ];
   protected readonly primaryKeys: Array<string> = ["userId"];
   protected readonly identifyFields: Array<string> = ["userId"];
   protected readonly autoIncrementColumn?: string | undefined = "userId";
   protected getDefaultValueString(): Pick<
     User,
-    "NNN" | "createdAt" | "updatedAt"
+    "NNN" | "createdAt" | "updatedAt" | "foo"
   > {
     return {
       NNN: "no name",
       createdAt: getCurrentDateTimeString(),
       updatedAt: getCurrentDateTimeString(),
+      foo: "www",
     };
   }
   findByUserId(

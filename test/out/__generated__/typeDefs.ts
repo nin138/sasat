@@ -6,6 +6,7 @@ export const typeDefs = {
     nick: { return: "String" },
     createdAt: { return: "String!" },
     updatedAt: { return: "String!" },
+    foo: { return: "String!" },
     uPost: { return: "[Post!]!" },
     vP: { return: "[Post!]!" },
   },
@@ -64,12 +65,17 @@ export const inputs = {
     order: { return: "String" },
     asc: { return: "Boolean" },
   },
-  UserCreateInput: { NNN: { return: "String" }, nick: { return: "String" } },
+  UserCreateInput: {
+    NNN: { return: "String" },
+    nick: { return: "String" },
+    foo: { return: "String" },
+  },
   PostCreateInput: { uId: { return: "ID!" }, title: { return: "String!" } },
   UserUpdateInput: {
     userId: { return: "ID!" },
     NNN: { return: "String" },
     nick: { return: "String" },
+    foo: { return: "String" },
   },
   PostUpdateInput: { postId: { return: "ID!" }, title: { return: "String" } },
 };
