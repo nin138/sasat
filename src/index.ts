@@ -23,6 +23,7 @@ export type {
   QueryResponse,
 } from './db/connectors/dbClient.js';
 export { QExpr } from './runtime/dsl/factory.js';
+export { QExpr as qe } from './runtime/dsl/factory.js';
 export { gqlResolveInfoToField } from './runtime/gqlResolveInfoToField.js';
 export {
   SasatDBDatasource,

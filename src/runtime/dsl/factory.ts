@@ -175,6 +175,7 @@ const sort = (field: Field, direction: SortDirection): Sort => ({
 
 export const QExpr = {
   conditions,
+  ...conditions,
   field,
   fn,
   paren,
