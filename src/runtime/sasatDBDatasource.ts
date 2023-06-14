@@ -61,14 +61,16 @@ export abstract class SasatDBDatasource<
   abstract readonly fields: string[];
   protected abstract readonly primaryKeys: string[];
   protected abstract readonly identifyFields: string[];
-  protected abstract readonly autoIncrementColumn?: string;
+  protected abstract readonly autoIncrementColumn?: string | undefined;
   protected queryLogger: (sql: string) => void = noop;
   protected commandLogger: (sql: string) => void = noop;
 
   constructor(protected client: SQLExecutor = getDbClient()) {}
-  protected abstract getDefaultValueString(): Partial<{
-    [P in keyof Entity]: Entity[P] | string | null;
-  }>;
+  protected abstract getDefaultValueString():
+    | Partial<{
+        [P in keyof Entity]: Entity[P] | string | null | never;
+      }>
+    | never;
 
   async create(
     entity: Creatable,
