@@ -107,7 +107,24 @@ const isNull =
     isNot,
   });
 
+const simpleWhere = (
+  tableNameOrAlias: string,
+  where: { [field: string]: ValueType | [ComparisonOperators, ValueType] },
+  isOr = false,
+) => {
+  const compound = isOr ? or : and;
+  return compound(
+    ...Object.entries(where).map(([f, value]) => {
+      const fe = field(tableNameOrAlias, f);
+      if (Array.isArray(value))
+        return comparison(value[0])(fe, literal(value[1]));
+      return conditions.eq(fe, literal(value));
+    }),
+  );
+};
+
 const conditions = {
+  simpleWhere,
   and,
   or,
   eq: comparison('='),
@@ -162,7 +179,8 @@ const join = (
   conditions,
 });
 
-const literal = (value: string | boolean | number | null): Literal => ({
+type ValueType = string | boolean | number | null;
+const literal = (value: ValueType): Literal => ({
   kind: QueryNodeKind.Literal,
   value,
 });
