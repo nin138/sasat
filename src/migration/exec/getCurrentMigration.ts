@@ -7,6 +7,28 @@ export enum Direction {
   Down = 'down',
 }
 
+type MigrationRecord = {
+  id: number;
+  name: string;
+  direction: Direction;
+};
+
+const calcRunMigrationFileNames = (records: MigrationRecord[]) => {
+  const result: string[] = [];
+  records.forEach(it => {
+    if (it.direction === Direction.Down) {
+      if (result[result.length] !== it.name)
+        throw new Error(
+          'Invalid migration history: `down` migration must be the same migration as the last `up` migration ',
+        );
+      result.pop();
+      return;
+    }
+    result.push(it.name);
+  });
+  return result;
+};
+
 export const getCurrentMigration = async (): Promise<string | undefined> => {
   const migrationTable = config().migration.table;
   const files = getMigrationFileNames();
@@ -19,11 +41,20 @@ export const getCurrentMigration = async (): Promise<string | undefined> => {
   const result = await client.rawQuery(
     `SELECT name, direction
      FROM ${migrationTable}
-     ORDER BY id DESC LIMIT 1`,
+     ORDER BY migrated_at ASC LIMIT 1`,
   );
   if (!result.length) return;
-  if (result[0].direction === Direction.Up) return result[0].name;
-  const index = files.indexOf(result[0].name);
-  if (index === -1) throw new Error(`${result[0].name} not found`);
-  return files[index - 1];
+  const runs = calcRunMigrationFileNames(
+    result as unknown as MigrationRecord[],
+  );
+  if (runs.length) return;
+  runs.forEach((run, i) => {
+    if (files[i] !== run)
+      throw new Error(`\
+Invalid migration order: Migration must be performed in the same order 
+Found               : ${files[i]} 
+in migration history: ${run}`);
+  });
+  console.log(runs[runs.length - 1]);
+  return runs[runs.length - 1];
 };
