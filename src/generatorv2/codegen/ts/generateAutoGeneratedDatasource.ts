@@ -118,7 +118,7 @@ const makeDefaultValueMethod = (node: EntityNode) => {
       [],
       columns.length !== 0
         ? tsg.typeRef(node.name.name).pick(...columns.map(it => it.fieldName))
-        : tsg.typeRef('Record<string, never>'),
+        : tsg.typeRef(node.name.name).partial(),
       [body],
     )
     .modifiers(tsg.methodModifiers().protected());

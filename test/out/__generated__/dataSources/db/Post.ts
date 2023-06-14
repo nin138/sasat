@@ -24,7 +24,7 @@ export abstract class GeneratedPostDBDataSource extends BaseDBDataSource<
   protected readonly primaryKeys: Array<string> = ["postId"];
   protected readonly identifyFields: Array<string> = ["postId"];
   protected readonly autoIncrementColumn?: string | undefined = "postId";
-  protected getDefaultValueString(): Record<string, never> {
+  protected getDefaultValueString(): Partial<Post> {
     return {};
   }
   findByPostId(
