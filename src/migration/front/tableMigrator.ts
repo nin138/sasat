@@ -16,11 +16,17 @@ import { SqlCreator } from '../../db/sql/sqlCreater.js';
 import { DBColumnTypes, DBType } from '../column/columnTypes.js';
 import { SqlString } from '../../runtime/sql/sqlString.js';
 import { DBIndex } from '../data/index.js';
+import { CreateColumn, createColumn } from '../creators/createColumn.js';
+import { ColumnBuilder } from '../creators/columnBuilder.js';
 
 export interface MigrationTable extends Table {
   addIndex(...columns: string[]): MigrationTable;
   removeIndex(...columns: string[]): MigrationTable;
-  addColumn(column: SerializedColumn): MigrationTable;
+  addColumn(
+    name: string,
+    create: (column: CreateColumn) => ColumnBuilder,
+  ): MigrationTable;
+  _addColumn(column: SerializedColumn): MigrationTable;
   dropColumn(columnName: string): MigrationTable;
   addForeignKey(reference: Reference): MigrationTable;
   changeColumnType(columnName: string, type: DBType): MigrationTable;
@@ -77,10 +83,15 @@ export class TableMigrator implements MigrationTable {
     return this;
   }
 
-  addColumn(column: SerializedNormalColumn): MigrationTable {
+  _addColumn(column: SerializedNormalColumn): MigrationTable {
     this.table.addColumn(new NormalColumn(column, this.table));
     this.store.addQuery(SqlCreator.addColumn(this.tableName, column));
     return this;
+  }
+
+  addColumn(name: string, create: (column: CreateColumn) => ColumnBuilder) {
+    const column = create(createColumn(name)).build();
+    return this._addColumn(column.data);
   }
 
   dropColumn(columnName: string): MigrationTable {
