@@ -41,7 +41,7 @@ export const getCurrentMigration = async (): Promise<string | undefined> => {
   const result = await client.rawQuery(
     `SELECT name, direction
      FROM ${migrationTable}
-     ORDER BY migrated_at ASC`,
+     ORDER BY id ASC`,
   );
   if (!result.length) return;
   const runs = calcRunMigrationFileNames(
