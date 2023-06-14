@@ -9,9 +9,7 @@
   "files": [
     "lib"
   ],
-  "bin": {
-    "sasat": "lib/cli/cli.js"
-  },
+  "bin": "lib/cli/cli.js",
   "scripts": {
     "start": "env-cmd .env ts-node ./index.ts",
     "build": "yarn tsc",
@@ -74,5 +72,6 @@
       "yarn format"
     ]
   },
-  "type": "module"
+  "type": "module",
+  "packageManager": "yarn@3.6.0"
 }
