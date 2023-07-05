@@ -17,13 +17,13 @@ export const readMigration = async (
   const module = await import(file);
   const instance = new module.default();
   if (direction === Direction.Up) {
-    if (instance.beforeUp) instance.beforeUp();
-    instance.up(store);
-    if (instance.afterUp) instance.afterUp();
+    if (instance.beforeUp) await instance.beforeUp();
+    await instance.up(store);
+    if (instance.afterUp) await instance.afterUp();
   } else {
-    if (instance.beforeDown) instance.beforeDown();
-    instance.down(store);
-    if (instance.afterDown) instance.afterDown();
+    if (instance.beforeDown) await instance.beforeDown();
+    await instance.down(store);
+    if (instance.afterDown) await instance.afterDown();
   }
   return store;
 };
