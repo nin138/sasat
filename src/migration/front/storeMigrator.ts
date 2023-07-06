@@ -15,7 +15,7 @@ export interface MigrationStore extends DataStore {
   ): MigrationStore;
   dropTable(tableName: string): MigrationStore;
   table(tableName: string): MigrationTable;
-  sql(sql: string): MigrationStore;
+  sql(...sql: string[]): MigrationStore;
 }
 
 export class StoreMigrator implements MigrationStore {
@@ -70,8 +70,8 @@ export class StoreMigrator implements MigrationStore {
     return this;
   }
 
-  sql(sql: string): MigrationStore {
-    this.addQuery(sql);
+  sql(...sql: string[]): MigrationStore {
+    this.addQuery(...sql);
     return this;
   }
 
