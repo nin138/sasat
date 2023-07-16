@@ -22,11 +22,11 @@ export const migrate = async (options: MigrateCommandOption): Promise<void> => {
       writeCurrentSchema(result.store);
       await new CodeGen_v2(storeHandler).generate();
     }
+    Console.success(`current migration is ${current}`);
   } catch (e: unknown) {
     Console.error((e as Error).message);
     throw e;
   } finally {
     await getDbClient().release();
-    Console.success(`current migration is ${current}`);
   }
 };
