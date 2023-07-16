@@ -23,7 +23,10 @@ export class Lexer {
   // eslint-disable-next-line no-irregular-whitespace
   private whiteSpaces = /([ 　\t\n])/;
   private separators = ['(', ')', ','];
-  constructor(str: string, private keywords: string[]) {
+  constructor(
+    str: string,
+    private keywords: string[],
+  ) {
     this.chars = str.split('');
   }
   lex(): Token[] {

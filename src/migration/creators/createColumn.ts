@@ -62,4 +62,4 @@ export const createColumn = (name: string): CreateColumn =>
       new TimeStampColumnBuilder(name, DBColumnTypes.dateTime),
     timestamp: (): TimeStampColumnBuilder =>
       new TimeStampColumnBuilder(name, DBColumnTypes.timestamp),
-  } as const);
+  }) as const;

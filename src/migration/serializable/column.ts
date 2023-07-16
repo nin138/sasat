@@ -24,7 +24,10 @@ export interface Column extends Serializable<SerializedColumn> {
 }
 
 export class BaseColumn implements Column {
-  constructor(public data: SerializedColumn, public table: Table) {}
+  constructor(
+    public data: SerializedColumn,
+    public table: Table,
+  ) {}
   fieldName(): string {
     return this.data.fieldName;
   }
@@ -77,7 +80,10 @@ export class BaseColumn implements Column {
 }
 
 export class NormalColumn extends BaseColumn {
-  constructor(public data: SerializedNormalColumn, table: Table) {
+  constructor(
+    public data: SerializedNormalColumn,
+    table: Table,
+  ) {
     super(data, table);
   }
 
@@ -90,7 +96,10 @@ export class NormalColumn extends BaseColumn {
 }
 
 export class ReferenceColumn extends BaseColumn {
-  constructor(public data: SerializedReferenceColumn, table: Table) {
+  constructor(
+    public data: SerializedReferenceColumn,
+    table: Table,
+  ) {
     super(data, table);
   }
 

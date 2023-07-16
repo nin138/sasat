@@ -2,7 +2,10 @@ import { TsType } from './type/type.js';
 import { TsCode } from '../abstruct/tsCode.js';
 
 export class Parameter extends TsCode {
-  constructor(private paramName: string, private type?: TsType) {
+  constructor(
+    private paramName: string,
+    private type?: TsType,
+  ) {
     super();
     this.mergeImport(type);
   }

@@ -12,7 +12,10 @@ import { TableCreator } from './tableCreator.js';
 import { DBColumnTypes } from '../column/columnTypes.js';
 
 export class ColumnCreator {
-  constructor(private table: TableCreator, private name: string) {}
+  constructor(
+    private table: TableCreator,
+    private name: string,
+  ) {}
   char = (length: number): StringColumnBuilder =>
     this.create(new StringColumnBuilder(this.name, DBColumnTypes.char, length));
   varchar = (length: number): StringColumnBuilder =>

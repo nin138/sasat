@@ -7,7 +7,10 @@ export interface Index {
 
 export class DBIndex implements Index, Serializable<Index> {
   readonly constraintName: string;
-  constructor(readonly tableName: string, readonly columns: string[]) {
+  constructor(
+    readonly tableName: string,
+    readonly columns: string[],
+  ) {
     this.constraintName = this.toConstraintName(columns);
   }
 

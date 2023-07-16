@@ -129,7 +129,10 @@ export class StringColumnBuilder extends ColumnBuilder {
 }
 
 export class TextColumnBuilder extends ColumnBuilder {
-  constructor(readonly name: string, protected type: DBTextTypes) {
+  constructor(
+    readonly name: string,
+    protected type: DBTextTypes,
+  ) {
     super(name, type);
   }
 
@@ -207,7 +210,10 @@ export class DecimalColumnBuilder extends NumberColumnBuilder {
 }
 
 export class DateColumnBuilder extends ColumnBuilder {
-  constructor(readonly name: string, protected type: DBDateTypes) {
+  constructor(
+    readonly name: string,
+    protected type: DBDateTypes,
+  ) {
     super(name, type);
   }
   default(value: string | number | null | undefined): this {

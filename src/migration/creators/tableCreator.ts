@@ -51,7 +51,10 @@ export class TableCreator implements TableBuilder {
   private readonly table: TableHandler;
   private readonly columns: ColumnBuilderBase[] = [];
 
-  constructor(public tableName: string, protected readonly store: DataStore) {
+  constructor(
+    public tableName: string,
+    protected readonly store: DataStore,
+  ) {
     this.table = new TableHandler({ tableName }, store);
   }
 
