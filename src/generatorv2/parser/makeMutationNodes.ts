@@ -6,6 +6,7 @@ import {
   GQLMutation,
 } from '../../migration/data/GQLOption.js';
 import { EntityNode } from '../nodes/entityNode.js';
+import { TypeNode } from '../nodes/typeNode.js';
 
 export const makeEntityMutationNodes = (
   table: TableHandler,
@@ -126,17 +127,16 @@ const makeDeleteMutationNode = (
       array: false,
       entity: false,
     },
-    args: [
-      {
-        name: table.getEntityName().lowerCase(),
-        type: {
-          typeName: table.getEntityName().updateInputName(),
-          nullable: false,
-          array: false,
-          entity: true,
-        },
-      },
-    ],
+    args: entity.identifyFields().map(it => ({
+      name: it.fieldName,
+      type: {
+        typeName: it.gqlType,
+        nullable: false,
+        array: false,
+        entity: false,
+        dbType: it.dbType,
+      } satisfies TypeNode,
+    })),
     mutationType: 'delete',
     subscription: mutation.subscription.enabled,
     requireIdDecodeMiddleware: entity.identifyFields().some(it => it.hashId),
