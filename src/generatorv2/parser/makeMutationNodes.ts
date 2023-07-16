@@ -127,16 +127,17 @@ const makeDeleteMutationNode = (
       array: false,
       entity: false,
     },
-    args: entity.identifyFields().map(it => ({
-      name: it.fieldName,
-      type: {
-        typeName: it.gqlType,
-        nullable: false,
-        array: false,
-        entity: false,
-        dbType: it.dbType,
-      } satisfies TypeNode,
-    })),
+    args: [
+      {
+        name: table.getEntityName().lowerCase(),
+        type: {
+          typeName: table.getEntityName().identifyInputName(),
+          nullable: false,
+          array: false,
+          entity: true,
+        },
+      },
+    ],
     mutationType: 'delete',
     subscription: mutation.subscription.enabled,
     requireIdDecodeMiddleware: entity.identifyFields().some(it => it.hashId),

@@ -42,6 +42,7 @@ export const generateTypeDefs = (root: RootNode) => {
     ),
     ...root.entities.map(makeCreateInput),
     ...root.entities.map(makeUpdateInput),
+    ...root.entities.map(makeIdentifyInput),
   ].filter(nonNullable);
 
   return new TsFile(
@@ -127,6 +128,18 @@ const makeCreateInput = (node: EntityNode) => {
 const makeUpdateInput = (node: EntityNode) => {
   if (!node.gqlEnabled || !node.updateInput.gqlEnabled) return null;
   return makeInput(node.name.updateInputName(), node.updateInput.fields);
+};
+
+const makeIdentifyInput = (node: EntityNode) => {
+  if (
+    !node.gqlEnabled ||
+    !node.mutations.find(it => it.mutationType === 'delete')
+  )
+    return null;
+  return makeInput(
+    node.name.identifyInputName(),
+    node.fields.filter(it => it.isPrimary),
+  );
 };
 
 const makeQueryTypeDef = (entity: EntityNode, query: GQLQuery) => {
