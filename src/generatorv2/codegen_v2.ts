@@ -35,8 +35,8 @@ export class CodeGen_v2 {
       ...this.root.entities.map(it => this.generateEntity(it)),
       ...this.root.entities.map(it => this.generateDatasource(it)),
       ...this.root.entities.map(it => this.generateGeneratedDatasource(it)),
-      ...this.generateGql(this.root),
-      ...this.generateFiles(this.root),
+      this.generateGql(this.root),
+      this.generateFiles(this.root),
       ...this.generateOnceFiles(),
       this.generateCondition(this.root),
       this.generateIDEncoders(this.root),
@@ -56,65 +56,66 @@ export class CodeGen_v2 {
     return path.join(basePath, `${entityName}.${this.codeGen.fileExtension}`);
   }
 
-  private generateEntity(node: EntityNode) {
+  private async generateEntity(node: EntityNode) {
     return writeFile(
       this.getFullPath(this.generateEntityDir, node.name.name),
-      this.codeGen.generateEntity(node),
+      await this.codeGen.generateEntity(node),
     );
   }
 
-  private generateDatasource(node: EntityNode) {
+  private async generateDatasource(node: EntityNode) {
     return writeFileIfNotExist(
       this.getFullPath(this.dbDataSourceDir, node.name.name),
-      this.codeGen.generateDatasource(node),
+      await this.codeGen.generateDatasource(node),
     );
   }
 
-  private generateGeneratedDatasource(node: EntityNode) {
+  private async generateGeneratedDatasource(node: EntityNode) {
     return writeFile(
       this.getFullPath(this.generateDbDataSourceDir, node.name.name),
-      this.codeGen.generateGeneratedDatasource(node),
+      await this.codeGen.generateGeneratedDatasource(node),
     );
   }
 
-  private generateGql(rootNode: RootNode) {
-    return [
+  private async generateGql(rootNode: RootNode): Promise<void[]> {
+    return Promise.all([
       writeFile(
         this.getFullPath(this.generateDir, 'typeDefs'),
-        this.codeGen.generateGqlTypeDefs(rootNode),
+        await this.codeGen.generateGqlTypeDefs(rootNode),
       ),
       writeFile(
         this.getFullPath(this.generateDir, 'resolver'),
-        this.codeGen.generateGqlResolver(rootNode),
+        await this.codeGen.generateGqlResolver(rootNode),
       ),
       writeFile(
         this.getFullPath(this.generateDir, 'query'),
-        this.codeGen.generateGqlQuery(rootNode),
+        await this.codeGen.generateGqlQuery(rootNode),
       ),
       writeFile(
         this.getFullPath(this.generateDir, 'mutation'),
-        this.codeGen.generateGqlMutation(rootNode),
+        await this.codeGen.generateGqlMutation(rootNode),
       ),
       writeFile(
         this.getFullPath(this.generateDir, 'subscription'),
-        this.codeGen.generateGqlSubscription(rootNode),
+        await this.codeGen.generateGqlSubscription(rootNode),
       ),
       writeFile(
         this.getFullPath(this.generateDir, 'context'),
-        this.codeGen.generateGQLContext(rootNode),
+        await this.codeGen.generateGQLContext(rootNode),
       ),
-    ];
+    ]);
   }
 
-  private generateFiles(rootNode: RootNode) {
-    return this.codeGen
-      .generateFiles(rootNode)
-      .map(it =>
+  private async generateFiles(rootNode: RootNode): Promise<void[]> {
+    const files = await this.codeGen.generateFiles(rootNode);
+    return Promise.all(
+      files.map(it =>
         writeFileIfNotExist(
           this.getFullPath(this.generateDir, it.name),
           it.body,
         ),
-      );
+      ),
+    );
   }
 
   private generateOnceFiles() {

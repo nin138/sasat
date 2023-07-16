@@ -18,10 +18,7 @@ export class TsFile extends TsCode {
     ]
       .map(it => it.toString())
       .join('\n');
-    return (
-      (this.esLintDisabled ? '/* eslint-disable */\n' : '') +
-      TsFile.prettier(string)
-    );
+    return (this.esLintDisabled ? '/* eslint-disable */\n' : '') + string;
   }
 
   protected resolveImport(imports: ImportDeclaration[]): ImportDeclaration[] {
@@ -47,7 +44,11 @@ export class TsFile extends TsCode {
     return this;
   }
 
-  private static prettier(code: string) {
+  private static prettier(code: string): Promise<string> {
     return prettier.format(code, { parser: 'typescript' });
+  }
+
+  generate(): Promise<string> {
+    return TsFile.prettier(this.toString());
   }
 }
