@@ -20,7 +20,7 @@ export const query = {
         userId,
         fields,
         undefined,
-        context
+        context,
       );
     },
     [
@@ -32,7 +32,7 @@ export const query = {
         return args;
       },
       testMiddleware,
-    ]
+    ],
   ),
   users: makeResolver<GQLContext, { option: PagingOption }>(
     async (_, { option }, context, info) => {
@@ -41,19 +41,19 @@ export const query = {
         pagingOption(option),
         fields,
         undefined,
-        context
+        context,
       );
     },
-    [testMiddleware, t2Middleware]
+    [testMiddleware, t2Middleware],
   ),
   www: makeResolver<GQLContext, { a1: number }>(
     async (_, { a1 }, context, info) => {
       const fields = gqlResolveInfoToField(info) as UserFields;
       const where = QExpr.conditions.and(
-        QExpr.conditions.comparison(QExpr.value(1), "=", QExpr.value(a1))
+        QExpr.conditions.comparison(QExpr.value(1), "=", QExpr.value(a1)),
       );
       return new UserDBDataSource().first(fields, { where }, context);
-    }
+    },
   ),
   la: makeResolver<GQLContext, {}>(async (_, {}, context, info) => {
     const fields = gqlResolveInfoToField(info) as UserFields;
@@ -66,9 +66,9 @@ export const query = {
         pagingOption(option),
         fields,
         undefined,
-        context
+        context,
       );
-    }
+    },
   ),
   post: makeResolver<GQLContext, { postId: number }, { postId: string }>(
     async (_, { postId }, context, info) => {
@@ -77,7 +77,7 @@ export const query = {
         postId,
         fields,
         undefined,
-        context
+        context,
       );
     },
     [
@@ -88,7 +88,7 @@ export const query = {
         };
         return args;
       },
-    ]
+    ],
   ),
   posts: makeResolver<GQLContext, { option: PagingOption }>(
     async (_, { option }, context, info) => {
@@ -97,8 +97,8 @@ export const query = {
         pagingOption(option),
         fields,
         undefined,
-        context
+        context,
       );
-    }
+    },
   ),
 };

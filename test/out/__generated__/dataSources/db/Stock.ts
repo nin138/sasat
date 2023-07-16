@@ -40,7 +40,7 @@ export abstract class GeneratedStockDBDataSource extends BaseDBDataSource<
     id: number,
     fields?: StockFields,
     options?: Omit<QueryOptions, "offset" | "limit" | "sort">,
-    context?: GQLContext
+    context?: GQLContext,
   ): Promise<QueryResult | null> {
     const tableName = fields?.tableAlias || "t0";
     return this.first(
@@ -49,10 +49,10 @@ export abstract class GeneratedStockDBDataSource extends BaseDBDataSource<
         ...options,
         where: QExpr.conditions.and(
           QExpr.conditions.eq(QExpr.field(tableName, "id"), QExpr.value(id)),
-          options?.where
+          options?.where,
         ),
       },
-      context
+      context,
     );
   }
 }

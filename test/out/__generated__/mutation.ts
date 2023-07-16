@@ -91,7 +91,7 @@ export const mutation = {
       await publishUserUpdated(fetched as User);
       return result;
     },
-    updateUserMiddleware
+    updateUserMiddleware,
   ),
   createPost: makeResolver<GQLContext, PostCreateInput, GQLPostCreateInput>(
     async (_, { post }) => {
@@ -103,7 +103,7 @@ export const mutation = {
       const fetched = await ds.findByPostId(identifiable.postId);
       return fetched;
     },
-    createPostMiddleware
+    createPostMiddleware,
   ),
   updatePost: makeResolver<GQLContext, PostUpdateInput, GQLPostUpdateInput>(
     async (_, { post }) => {
@@ -117,6 +117,6 @@ export const mutation = {
       const fetched = await ds.findByPostId(identifiable.postId);
       return fetched;
     },
-    updatePostMiddleware
+    updatePostMiddleware,
   ),
 };

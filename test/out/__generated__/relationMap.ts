@@ -23,8 +23,8 @@ export const relationMap: RelationMap<GQLContext> = {
             "=",
             arg.parentTableAlias
               ? QExpr.field(arg.parentTableAlias, "userId")
-              : QExpr.value(arg.parent?.userId)
-          )
+              : QExpr.value(arg.parent?.userId),
+          ),
         );
       },
       array: true,
@@ -40,8 +40,8 @@ export const relationMap: RelationMap<GQLContext> = {
             arg.parentTableAlias
               ? QExpr.field(arg.parentTableAlias, "createdAt")
               : QExpr.value(arg.parent?.createdAt),
-            ...getDayRangeQExpr(new Date(), undefined)
-          )
+            ...getDayRangeQExpr(new Date(), undefined),
+          ),
         );
       },
       array: true,
@@ -59,8 +59,8 @@ export const relationMap: RelationMap<GQLContext> = {
             "=",
             arg.parentTableAlias
               ? QExpr.field(arg.parentTableAlias, "uId")
-              : QExpr.value(arg.parent?.uId)
-          )
+              : QExpr.value(arg.parent?.uId),
+          ),
         );
       },
       array: false,
@@ -74,8 +74,8 @@ export const relationMap: RelationMap<GQLContext> = {
           hoge(arg),
           QExpr.conditions.between(
             QExpr.field(arg.childTableAlias, "createdAt"),
-            ...getDayRangeQExpr(new Date(), undefined)
-          )
+            ...getDayRangeQExpr(new Date(), undefined),
+          ),
         );
       },
       array: true,

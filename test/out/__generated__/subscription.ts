@@ -18,7 +18,7 @@ export const subscription = {
       async (payload: any, variables: any): Promise<boolean> => {
         const result = await payload.UserUpdated;
         return result.NNN === variables.NNN;
-      }
+      },
     ),
   },
 };

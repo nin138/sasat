@@ -46,7 +46,7 @@ export abstract class GeneratedUserDBDataSource extends BaseDBDataSource<
     userId: number,
     fields?: UserFields,
     options?: Omit<QueryOptions, "offset" | "limit" | "sort">,
-    context?: GQLContext
+    context?: GQLContext,
   ): Promise<QueryResult | null> {
     const tableName = fields?.tableAlias || "t0";
     return this.first(
@@ -56,12 +56,12 @@ export abstract class GeneratedUserDBDataSource extends BaseDBDataSource<
         where: QExpr.conditions.and(
           QExpr.conditions.eq(
             QExpr.field(tableName, "userId"),
-            QExpr.value(userId)
+            QExpr.value(userId),
           ),
-          options?.where
+          options?.where,
         ),
       },
-      context
+      context,
     );
   }
 }
