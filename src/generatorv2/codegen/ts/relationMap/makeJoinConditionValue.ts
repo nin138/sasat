@@ -1,8 +1,4 @@
-import {
-  EntityNode,
-  ReferencedNode,
-  ReferenceNode,
-} from '../../../nodes/entityNode.js';
+import { EntityNode } from '../../../nodes/entityNode.js';
 import {
   JoinConditionNode,
   JoinConditionRangeValue,
@@ -12,6 +8,10 @@ import { TsExpression, tsg } from '../../../../tsg/index.js';
 import { makeThrowExpressions } from './makeNoContexError.js';
 import { makeConditionValueQExpr } from '../scripts/makeConditonValueExpr.js';
 import { nonNullable } from '../../../../runtime/util.js';
+import {
+  ReferencedNode,
+  ReferenceNode,
+} from '../../../nodes/ReferencedNode.js';
 
 const qExpr = tsg.identifier('QExpr').importFrom('sasat');
 const parentTableAlias = 'parentTableAlias';

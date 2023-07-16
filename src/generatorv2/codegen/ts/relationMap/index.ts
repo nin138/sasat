@@ -1,10 +1,6 @@
 import { RootNode } from '../../../nodes/rootNode.js';
 import { PropertySignature, TsFile, tsg } from '../../../../tsg/index.js';
-import {
-  EntityNode,
-  ReferencedNode,
-  ReferenceNode,
-} from '../../../nodes/entityNode.js';
+import { EntityNode } from '../../../nodes/entityNode.js';
 import { EntityName } from '../../../nodes/entityName.js';
 import {
   makeContextTypeRef,
@@ -13,6 +9,10 @@ import {
 import { makeJoinConditionValue } from './makeJoinConditionValue.js';
 import { getChildRequiredNames } from './getRequiredColumnNames.js';
 import { nonNullable } from '../../../../runtime/util.js';
+import {
+  ReferencedNode,
+  ReferenceNode,
+} from '../../../nodes/ReferencedNode.js';
 
 export const generateRelationMap = (root: RootNode) => {
   return new TsFile(

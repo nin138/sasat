@@ -1,4 +1,5 @@
-import { EntityNode, FieldNode } from '../../../nodes/entityNode.js';
+import { EntityNode } from '../../../nodes/entityNode.js';
+import { FieldNode } from '../../../nodes/FieldNode.js';
 import { tsg, TsStatement, TsType } from '../../../../tsg/index.js';
 import { columnTypeToTsType } from '../../../../migration/column/columnTypes.js';
 import { MutationNode } from '../../../nodes/mutationNode.js';

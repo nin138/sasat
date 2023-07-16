@@ -4,7 +4,7 @@ import {
   tsg,
 } from '../../../../tsg/index.js';
 import { columnTypeToTsType } from '../../../../migration/column/columnTypes.js';
-import { FieldNode } from '../../../nodes/entityNode.js';
+import { FieldNode } from '../../../nodes/FieldNode.js';
 
 export const fieldToPropertySignature = (
   field: FieldNode,

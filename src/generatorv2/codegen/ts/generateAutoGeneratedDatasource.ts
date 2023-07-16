@@ -1,5 +1,6 @@
 import { KeywordTypeNode, TsFile, tsg } from '../../../tsg/index.js';
-import { EntityNode, FieldNode } from '../../nodes/entityNode.js';
+import { EntityNode } from '../../nodes/entityNode.js';
+import { FieldNode } from '../../nodes/FieldNode.js';
 import {
   makeContextTypeRef,
   makeTypeRef,

@@ -1,11 +1,7 @@
 import { RootNode } from '../../nodes/rootNode.js';
 import { PropertyAssignment, TsFile, tsg } from '../../../tsg/index.js';
-import {
-  EntityNode,
-  FieldNode,
-  ReferencedNode,
-  ReferenceNode,
-} from '../../nodes/entityNode.js';
+import { EntityNode } from '../../nodes/entityNode.js';
+import { ReferencedNode, ReferenceNode } from '../../nodes/ReferencedNode.js';
 import { EntityName } from '../../nodes/entityName.js';
 import { makeDatasource } from './scripts/makeDatasource.js';
 import {
@@ -15,6 +11,7 @@ import {
 import { Directory } from '../../directory.js';
 import { tsFileNames } from './tsFileNames.js';
 import { nonNullable } from '../../../runtime/util.js';
+import { FieldNode } from '../../nodes/FieldNode.js';
 
 export const generateResolver = (root: RootNode): TsFile => {
   const hasSubscription = root.subscriptions.some(it => it.gqlEnabled);

@@ -1,4 +1,7 @@
-import { ReferencedNode, ReferenceNode } from '../../../nodes/entityNode.js';
+import {
+  ReferencedNode,
+  ReferenceNode,
+} from '../../../nodes/ReferencedNode.js';
 import {
   JoinConditionNode,
   JoinConditionValue,
