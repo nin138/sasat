@@ -19,7 +19,11 @@ import {
   Update,
   updateToSql,
 } from './dsl/mutation/mutation.js';
-import { createPagingFieldQuery, createQuery } from './sql/runQuery.js';
+import {
+  createPagingFieldQuery,
+  createQuery,
+  PagingOption,
+} from './sql/runQuery.js';
 import { hydrate, ResultRow } from './dsl/query/sql/hydrate.js';
 import { queryToSql } from './dsl/query/sql/queryToSql.js';
 
@@ -158,12 +162,7 @@ export abstract class SasatDBDatasource<
   }
 
   async findPageable(
-    paging: {
-      numberOfItem: number;
-      where?: BooleanValueExpression;
-      offset?: number; // TODO prev, next
-      sort?: Sort[];
-    },
+    paging: PagingOption,
     fields: EntityFields = { fields: this.fields } as EntityFields,
     options?: QueryOptions,
     context?: unknown,

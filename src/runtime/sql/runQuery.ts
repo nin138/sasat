@@ -3,6 +3,7 @@ import {
   Field,
   Query,
   QueryTable,
+  Sort,
 } from '../dsl/query/query.js';
 import { SQLExecutor } from '../../db/connectors/dbClient.js';
 import { RelationMap, TableInfo } from '../dsl/query/createQueryResolveInfo.js';
@@ -86,8 +87,12 @@ export const createQuery = (
   };
 };
 
-type PagingOption = ListQueryOption & { where?: BooleanValueExpression };
-
+export type PagingOption = {
+  numberOfItem: number;
+  where?: BooleanValueExpression;
+  offset?: number; // TODO prev, next
+  sort?: Sort[];
+};
 export const createPagingInnerQuery = (
   tableName: string,
   tableAlias: string,
@@ -111,14 +116,7 @@ export const createPagingInnerQuery = (
     limit: option.numberOfItem,
     offset: option.offset,
     where: option.where,
-    sort: option.order
-      ? [
-          QExpr.sort(
-            QExpr.field(tableAlias, map[option.order]),
-            option.asc ? 'ASC' : 'DESC',
-          ),
-        ]
-      : undefined,
+    sort: option.sort,
   };
 };
 
