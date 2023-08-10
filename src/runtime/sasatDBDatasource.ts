@@ -114,10 +114,12 @@ export abstract class SasatDBDatasource<
   update(entity: Updatable): Promise<CommandResponse> {
     const dsl: Update = {
       table: this.tableName,
-      values: Object.entries(entity).map(([column, value]) => ({
-        field: column,
-        value: value as SqlValueType,
-      })),
+      values: Object.entries(entity)
+        .filter(([, value]) => value !== undefined)
+        .map(([column, value]) => ({
+          field: column,
+          value: value as SqlValueType,
+        })),
       where: this.createIdentifiableExpression(entity),
     };
     const sql = updateToSql(dsl, this.tableInfo);
