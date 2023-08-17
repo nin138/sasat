@@ -185,7 +185,7 @@ const literal = (value: ValueType): Literal => ({
   value,
 });
 
-const sort = (field: Field, direction: SortDirection): Sort => ({
+const sort = (field: Field | Fn, direction: SortDirection): Sort => ({
   kind: QueryNodeKind.Sort,
   field,
   direction,
