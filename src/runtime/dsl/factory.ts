@@ -6,6 +6,7 @@ import {
   ContainType,
   Field,
   Fn,
+  Identifier,
   InExpression,
   IsNullExpression,
   Join,
@@ -191,6 +192,11 @@ const sort = (field: Field | Fn, direction: SortDirection): Sort => ({
   direction,
 });
 
+const ident = (identifier: string): Identifier => ({
+  kind: QueryNodeKind.Identifier,
+  identifier,
+});
+
 export const QExpr = {
   conditions,
   ...conditions,
@@ -203,4 +209,5 @@ export const QExpr = {
   value: literal,
   sort,
   order: sort,
+  ident,
 } as const;
