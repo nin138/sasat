@@ -79,12 +79,19 @@ const paren = (expression: BooleanValueExpression): ParenthesisExpression => ({
   expression,
 });
 
-const In = (left: Value, values: (string | number)[]): InExpression => ({
-  kind: QueryNodeKind.InExpr,
-  left,
-  operator: 'IN',
-  right: values.map(literal),
-});
+type StrOrNum = string | number;
+const In = (
+  left: Value,
+  values: [StrOrNum, ...StrOrNum[]],
+): BooleanValueExpression => {
+  if (values.length === 0) return conditions.eq(literal(0), literal(1));
+  return {
+    kind: QueryNodeKind.InExpr,
+    left,
+    operator: 'IN',
+    right: values.map(literal),
+  };
+};
 
 const notIn = (left: Value, values: (string | number)[]): InExpression => ({
   kind: QueryNodeKind.InExpr,
