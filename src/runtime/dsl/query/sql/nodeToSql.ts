@@ -7,16 +7,17 @@ import {
   ContainType,
   Field,
   Fn,
+  Identifier,
   InExpression,
   IsNullExpression,
   Join,
   Literal,
   ParenthesisExpression,
   QueryNodeKind,
-  SelectExpr,
   QueryTable,
-  Value,
+  SelectExpr,
   Sort,
+  Value,
 } from '../query.js';
 
 import { SqlString } from '../../../sql/sqlString.js';
@@ -43,10 +44,14 @@ export const Sql = {
       alias
     );
   },
+  identifier: (ident: Identifier): string => {
+    return SqlString.escapeId(ident.identifier);
+  },
   fn: (fn: Fn): string => `${fn.fnName}(${fn.args.map(Sql.value).join(',')})`,
   value: (v: Value): string => {
     if (v.kind === QueryNodeKind.Function) return Sql.fn(v);
     if (v.kind === QueryNodeKind.Field) return Sql.fieldInCondition(v);
+    if (v.kind === QueryNodeKind.Identifier) return Sql.identifier(v);
     return Sql.literal(v);
   },
   between: (expr: BetweenExpression): string =>
@@ -110,9 +115,14 @@ export const Sql = {
         return Sql.isNull(expr);
     }
   },
-  sort: (expr: Sort): string =>
-    `${Sql.fieldInCondition(expr.field)} ${
-      expr.direction === 'DESC' ? 'DESC' : 'ASC'
-    }`,
+  sort: (expr: Sort): string => {
+    const f =
+      expr.field.kind === QueryNodeKind.Field
+        ? Sql.fieldInCondition(expr.field)
+        : Sql.fn(expr.field);
+    if (expr.direction)
+      return `${f} ${expr.direction === 'DESC' ? 'DESC' : 'ASC'}`;
+    return f;
+  },
   sorts: (sorts: Sort[]): string => sorts.map(Sql.sort).join(', '),
 };

@@ -14,6 +14,7 @@ export enum QueryNodeKind {
   ContainsExpr,
   Literal,
   Sort,
+  Identifier,
 }
 
 export type LockMode = 'FOR UPDATE' | 'FOR SHARE';
@@ -129,9 +130,12 @@ export type BetweenExpression = {
   end: Value;
 };
 
-export type Value = Literal | Identifier | Fn;
+export type Value = Literal | Field | Fn | Identifier;
 
-type Identifier = Field;
+export type Identifier = {
+  kind: QueryNodeKind.Identifier;
+  identifier: string;
+};
 
 export type Literal = {
   kind: QueryNodeKind.Literal;
@@ -141,8 +145,8 @@ export type Literal = {
 export type SortDirection = 'ASC' | 'DESC';
 export type Sort = {
   kind: QueryNodeKind.Sort;
-  field: Field;
-  direction: SortDirection;
+  field: Field | Fn;
+  direction?: SortDirection;
 };
 
 export type QueryNode =
