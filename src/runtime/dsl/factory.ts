@@ -80,10 +80,7 @@ const paren = (expression: BooleanValueExpression): ParenthesisExpression => ({
 });
 
 type StrOrNum = string | number;
-const In = (
-  left: Value,
-  values: [StrOrNum, ...StrOrNum[]],
-): BooleanValueExpression => {
+const In = (left: Value, values: StrOrNum[]): BooleanValueExpression => {
   if (values.length === 0) return conditions.eq(literal(0), literal(1));
   return {
     kind: QueryNodeKind.InExpr,
