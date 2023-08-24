@@ -1,7 +1,7 @@
 import { GraphQLResolveInfo, SelectionNode } from 'graphql';
 import { Fields } from './field.js';
 
-const selectionSetToField = <T extends Fields<unknown>>(
+export const selectionSetToField = <T extends Fields<unknown>>(
   selections: readonly SelectionNode[],
   number: number,
 ): [T, number] => {
