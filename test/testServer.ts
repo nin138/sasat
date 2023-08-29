@@ -11,6 +11,9 @@ type Context = {};
 const server = new ApolloServer<Context>({
   typeDefs: createTypeDef(
     assignDeep(typeDefs, {
+      User: {
+        a: { return: 'String' },
+      },
       Mutation: {
         upsertUser: {
           args: [
@@ -25,6 +28,11 @@ const server = new ApolloServer<Context>({
     inputs,
   ),
   resolvers: assignDeep(resolvers, {
+    User: {
+      a: () => {
+        return 'test';
+      },
+    },
     Mutation: {
       upsertUser: makeResolver<
         unknown,
