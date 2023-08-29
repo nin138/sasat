@@ -13,6 +13,7 @@ const server = new ApolloServer<Context>({
     assignDeep(typeDefs, {
       User: {
         a: { return: 'String' },
+        b: { return: '[User!]!' },
       },
       Mutation: {
         upsertUser: {
@@ -31,6 +32,9 @@ const server = new ApolloServer<Context>({
     User: {
       a: () => {
         return 'test';
+      },
+      b: () => {
+        return [];
       },
     },
     Mutation: {

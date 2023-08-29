@@ -1,6 +1,7 @@
 import { BooleanValueExpression } from './query.js';
 import { QueryResolveInfo } from './sql/hydrate.js';
 import { Fields } from '../../field.js';
+import { nonNullable } from '../../util.js';
 
 export type MakeConditionArg<Context = unknown, Entity = unknown> = {
   childTableAlias: string;
@@ -41,8 +42,9 @@ const joinToQueryResolveInfo = (
   fields: Fields<unknown>,
   map: RelationMap,
   tableInfo: TableInfo,
-): QueryResolveInfo => {
+): QueryResolveInfo | undefined => {
   const info = map[parentTableAlias][property];
+  if (!info) return undefined;
   const tableAlias = fields.tableAlias || info.table;
   return {
     tableAlias,
@@ -58,7 +60,8 @@ const joinToQueryResolveInfo = (
           map,
           tableInfo,
         ),
-      ),
+      )
+      .filter(nonNullable),
     property,
   };
 };
@@ -92,7 +95,8 @@ export const createQueryResolveInfo = (
           map,
           tableInfo,
         ),
-      ),
+      )
+      .filter(nonNullable),
     property: '',
   };
 };

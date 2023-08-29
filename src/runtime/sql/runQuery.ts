@@ -9,7 +9,7 @@ import { SQLExecutor } from '../../db/connectors/dbClient.js';
 import { RelationMap, TableInfo } from '../dsl/query/createQueryResolveInfo.js';
 import { Fields } from '../field.js';
 import { QExpr } from '../dsl/factory.js';
-import { unique } from '../util.js';
+import { nonNullable, unique } from '../util.js';
 import { queryToSql } from '../dsl/query/sql/queryToSql.js';
 import {
   hydrate,
@@ -58,10 +58,11 @@ export const createQuery = (
     );
     return QExpr.table(
       tableName,
-      Object.entries(table.relations || {}).map(
-        ([relationName, table]: [string, Fields<unknown> | unknown]) => {
+      Object.entries(table.relations || {})
+        .map(([relationName, table]: [string, Fields<unknown> | unknown]) => {
           const current = tableCount;
           const rel = relationMap[tableName][relationName];
+          if (!rel) return undefined;
           return QExpr.join(
             resolveFields(rel.table, table as Fields<unknown>),
             QExpr.conditions.and(
@@ -75,8 +76,8 @@ export const createQuery = (
             ),
             'LEFT',
           );
-        },
-      ),
+        })
+        .filter(nonNullable),
       tableAlias,
     );
   };
@@ -107,9 +108,9 @@ export const createPagingInnerQuery = (
   return {
     select: unique([
       ...tableInfo[tableName].identifiableKeys,
-      ...Object.keys(fields.relations || {}).flatMap(
-        key => relationMap[tableName][key].requiredColumns,
-      ),
+      ...Object.keys(fields.relations || {}).flatMap(key => {
+        return relationMap[tableName][key]?.requiredColumns || [];
+      }),
       ...(fields.fields as string[])
         .filter(it => notTypeName(it) && map[it])
         .map(it => map[it] || it),
