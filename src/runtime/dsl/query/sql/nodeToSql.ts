@@ -116,13 +116,19 @@ export const Sql = {
     }
   },
   sort: (expr: Sort): string => {
-    const f =
-      expr.field.kind === QueryNodeKind.Field
-        ? Sql.fieldInCondition(expr.field)
-        : Sql.fn(expr.field);
+    const field = () => {
+      switch (expr.field.kind) {
+        case QueryNodeKind.Field:
+          return Sql.fieldInCondition(expr.field);
+        case QueryNodeKind.Identifier:
+          return Sql.identifier(expr.field);
+        default:
+          return Sql.fn(expr.field);
+      }
+    };
     if (expr.direction)
-      return `${f} ${expr.direction === 'DESC' ? 'DESC' : 'ASC'}`;
-    return f;
+      return `${field()} ${expr.direction === 'DESC' ? 'DESC' : 'ASC'}`;
+    return field();
   },
   sorts: (sorts: Sort[]): string => sorts.map(Sql.sort).join(', '),
 };

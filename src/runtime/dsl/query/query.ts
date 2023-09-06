@@ -145,7 +145,7 @@ export type Literal = {
 export type SortDirection = 'ASC' | 'DESC';
 export type Sort = {
   kind: QueryNodeKind.Sort;
-  field: Field | Fn;
+  field: Field | Fn | Identifier;
   direction?: SortDirection;
 };
 
