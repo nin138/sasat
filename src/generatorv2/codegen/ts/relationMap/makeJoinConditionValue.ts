@@ -13,7 +13,7 @@ import {
   ReferenceNode,
 } from '../../../nodes/ReferencedNode.js';
 
-const qExpr = tsg.identifier('QExpr').importFrom('sasat');
+const qExpr = tsg.identifier('qe').importFrom('sasat');
 const parentTableAlias = 'parentTableAlias';
 const childTableAlias = 'childTableAlias';
 
@@ -87,7 +87,6 @@ const makeConditionExpr = (
   }
   if (condition.operator === 'BETWEEN') {
     return qExpr
-      .property('conditions')
       .property('between')
       .call(
         makeJoinConditionValueQExpr(entity, condition.left),
@@ -95,7 +94,6 @@ const makeConditionExpr = (
       );
   }
   return qExpr
-    .property('conditions')
     .property('comparison')
     .call(
       makeJoinConditionValueQExpr(entity, condition.left),
@@ -121,7 +119,6 @@ export const makeJoinConditionValue = (
           .filter(nonNullable),
         tsg.return(
           qExpr
-            .property('conditions')
             .property('and')
             .call(...ref.joinCondition.map(it => makeConditionExpr(node, it))),
         ),

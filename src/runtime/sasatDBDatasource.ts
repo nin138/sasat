@@ -1,4 +1,4 @@
-import { CommandResponse, getDbClient, QExpr, RelationMap } from '../index.js';
+import { CommandResponse, getDbClient, qe, RelationMap } from '../index.js';
 import { Fields } from './field.js';
 import { SQLExecutor, SqlValueType } from '../db/connectors/dbClient.js';
 import {
@@ -202,15 +202,12 @@ export abstract class SasatDBDatasource<
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const value = (entity as any)[it];
       if (!value) throw new Error(`field ${it} is required`);
-      return QExpr.conditions.eq(
-        QExpr.field(
-          this.tableName,
-          this.tableInfo[this.tableName].columnMap[it],
-        ),
-        QExpr.value(value),
+      return qe.eq(
+        qe.field(this.tableName, this.tableInfo[this.tableName].columnMap[it]),
+        qe.value(value),
       );
     });
-    return QExpr.conditions.and(...expr);
+    return qe.and(...expr);
   }
   getRelationMap() {
     return this.relationMap[this.tableName];

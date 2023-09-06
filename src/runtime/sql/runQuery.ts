@@ -65,7 +65,7 @@ export const createQuery = (
           if (!rel) return undefined;
           return QExpr.join(
             resolveFields(rel.table, table as Fields<unknown>),
-            QExpr.conditions.and(
+            QExpr.and(
               rel.condition({
                 parentTableAlias: tableAlias,
                 childTableAlias:

@@ -1,7 +1,7 @@
 import { TsExpression, tsg } from '../../../../tsg/index.js';
 import { QueryConditionValue } from '../../../nodes/QueryConditionNode.js';
 
-const qExpr = tsg.identifier('QExpr').importFrom('sasat');
+const qExpr = tsg.identifier('qe').importFrom('sasat');
 export const makeConditionValueQExpr = (
   cv: QueryConditionValue,
 ): TsExpression => {

@@ -126,12 +126,11 @@ const makeDefaultValueMethod = (node: EntityNode) => {
 };
 
 const makeFindMethods = (node: EntityNode) => {
-  const qExpr = tsg.identifier('QExpr').importFrom('sasat');
+  const qExpr = tsg.identifier('qe').importFrom('sasat');
   return node.findMethods.map(it => {
     const bve = it.params.flatMap(it => {
       if (!it.entity)
         return qExpr
-          .property('conditions')
           .property('eq')
           .call(
             qExpr
@@ -146,7 +145,6 @@ const makeFindMethods = (node: EntityNode) => {
           );
       return it.fields.map(field => {
         return qExpr
-          .property('conditions')
           .property('eq')
           .call(
             qExpr
@@ -165,20 +163,23 @@ const makeFindMethods = (node: EntityNode) => {
         tsg.identifier('fields?.tableAlias || "t0"'),
       ),
       tsg.return(
-        tsg.identifier(it.isArray ? 'this.find' : 'this.first').call(
-          tsg.identifier('fields'),
-          tsg.object().addProperties(
-            tsg.spreadAssign(tsg.identifier('options')),
-            tsg.propertyAssign(
-              'where',
-              qExpr
-                .property('conditions')
-                .property('and')
-                .call(...bve, tsg.identifier('options?').property('where')),
-            ),
+        tsg
+          .identifier(it.isArray ? 'this.find' : 'this.first')
+          .call(
+            tsg.identifier('fields'),
+            tsg
+              .object()
+              .addProperties(
+                tsg.spreadAssign(tsg.identifier('options')),
+                tsg.propertyAssign(
+                  'where',
+                  qExpr
+                    .property('and')
+                    .call(...bve, tsg.identifier('options?').property('where')),
+                ),
+              ),
+            tsg.identifier('context'),
           ),
-          tsg.identifier('context'),
-        ),
       ),
     ];
     const returnType = tsg.typeRef('QueryResult');

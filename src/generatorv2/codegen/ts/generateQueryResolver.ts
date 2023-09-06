@@ -201,7 +201,7 @@ const makeTypeArgs = (args: ArgQueryConditionValue[]): TsType[] => {
   ];
 };
 
-const qExpr = tsg.identifier('QExpr').importFrom('sasat');
+const qExpr = tsg.identifier('qe').importFrom('sasat');
 
 const makeGQLQueryBody = (entity: EntityNode, query: GQLQuery) => {
   const fields = tsg.variable(
@@ -219,7 +219,6 @@ const makeGQLQueryBody = (entity: EntityNode, query: GQLQuery) => {
           'const',
           'where',
           qExpr
-            .property('conditions')
             .property('and')
             .call(...(query.conditions || []).map(makeQueryConditionExpr)),
         )
