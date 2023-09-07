@@ -133,8 +133,14 @@ export type InExpression = {
   kind: QueryNodeKind.InExpr;
   left: Value;
   operator: 'IN' | 'NOT IN';
-  right: Value[];
-};
+} & (
+  | {
+      query: Query | RawExpression;
+    }
+  | {
+      right: Value[];
+    }
+);
 
 export type BetweenExpression = {
   kind: QueryNodeKind.BetweenExpr;

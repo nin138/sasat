@@ -14,8 +14,10 @@ import {
   Join,
   Literal,
   ParenthesisExpression,
+  Query,
   QueryNodeKind,
   QueryTable,
+  RawExpression,
   SelectExpr,
   Sort,
   Value,
@@ -70,10 +72,15 @@ export const Sql = {
       val(expr.right, expr.type),
     )}`;
   },
-  in: (expr: InExpression): string =>
-    `${Sql.value(expr.left)} ${expr.operator} (${expr.right
-      .map(Sql.value)
-      .join(', ')})`,
+  in: (expr: InExpression): string => {
+    if ('right' in expr)
+      return `${Sql.value(expr.left)} ${expr.operator} (${expr.right
+        .map(Sql.value)
+        .join(', ')})`;
+    return `${Sql.value(expr.left)} ${expr.operator} (${Sql.queryOrRaw(
+      expr.query,
+    )})`;
+  },
   comparison: (expr: ComparisonExpression): string =>
     `${Sql.value(expr.left)}  ${expr.operator} ${Sql.value(expr.right)}`,
   compound: (expr: CompoundExpression): string =>
@@ -119,13 +126,7 @@ export const Sql = {
     }
   },
   exists: (expr: ExistsExpression): string => {
-    const inner = () => {
-      if ('kind' in expr.query) {
-        return expr.query.expr;
-      }
-      return queryToSql(expr.query);
-    };
-    return `EXISTS (${inner()})`;
+    return `EXISTS (${Sql.queryOrRaw(expr.query)})`;
   },
   sort: (expr: Sort): string => {
     const field = () => {
@@ -143,4 +144,10 @@ export const Sql = {
     return field();
   },
   sorts: (sorts: Sort[]): string => sorts.map(Sql.sort).join(', '),
+  queryOrRaw: (expr: Query | RawExpression) => {
+    if ('kind' in expr) {
+      return expr.expr;
+    }
+    return queryToSql(expr);
+  },
 };

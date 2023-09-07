@@ -4,6 +4,7 @@ import {
   ComparisonExpression,
   CompoundOperator,
   ContainType,
+  ExistsExpression,
   Field,
   Fn,
   Identifier,
@@ -16,6 +17,7 @@ import {
   Query,
   QueryNodeKind,
   QueryTable,
+  RawExpression,
   Sort,
   SortDirection,
   Value,
@@ -80,17 +82,28 @@ const paren = (expression: BooleanValueExpression): ParenthesisExpression => ({
 });
 
 type StrOrNum = string | number;
-const In = (left: Value, values: StrOrNum[]): BooleanValueExpression => {
-  if (values.length === 0) return conditions.eq(literal(0), literal(1));
+const In = (
+  left: Value,
+  right: StrOrNum[] | Query | RawExpression,
+): BooleanValueExpression => {
+  if (Array.isArray(right)) {
+    if (right.length === 0) return conditions.eq(literal(0), literal(1));
+    return {
+      kind: QueryNodeKind.InExpr,
+      left,
+      operator: 'IN',
+      right: right.map(literal),
+    };
+  }
   return {
     kind: QueryNodeKind.InExpr,
     left,
     operator: 'IN',
-    right: values.map(literal),
+    query: right,
   };
 };
 
-const notIn = (left: Value, values: (string | number)[]): InExpression => ({
+const notIn = (left: Value, values: StrOrNum[]): InExpression => ({
   kind: QueryNodeKind.InExpr,
   left,
   operator: 'NOT IN',
@@ -128,6 +141,16 @@ const simpleWhere = (
   );
 };
 
+const exists = (query: RawExpression | Query): ExistsExpression => ({
+  kind: QueryNodeKind.Exists,
+  query,
+});
+
+const raw = (sql: string): RawExpression => ({
+  kind: QueryNodeKind.Raw,
+  expr: sql,
+});
+
 const conditions = {
   simpleWhere,
   and,
@@ -151,6 +174,7 @@ const conditions = {
   between,
   isNull: isNull(false),
   isNotNull: isNull(true),
+  exists,
 };
 
 const table = (name: string, joins: Join[], alias: string): QueryTable => ({
@@ -214,4 +238,5 @@ export const QExpr = {
   sort,
   order: sort,
   ident,
+  raw,
 } as const;
