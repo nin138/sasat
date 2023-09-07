@@ -8,7 +8,7 @@ import {
 } from "../../entities/Post.js";
 import { PostFields } from "../../fields.js";
 import { BaseDBDataSource } from "../../../baseDBDataSource.js";
-import { QueryOptions, QExpr } from "sasat";
+import { QueryOptions, qe } from "sasat";
 import { GQLContext } from "../../../context.js";
 type QueryResult = Partial<PostWithRelations> & PostIdentifiable;
 export abstract class GeneratedPostDBDataSource extends BaseDBDataSource<
@@ -38,11 +38,8 @@ export abstract class GeneratedPostDBDataSource extends BaseDBDataSource<
       fields,
       {
         ...options,
-        where: QExpr.conditions.and(
-          QExpr.conditions.eq(
-            QExpr.field(tableName, "postId"),
-            QExpr.value(postId),
-          ),
+        where: qe.and(
+          qe.eq(qe.field(tableName, "postId"), qe.value(postId)),
           options?.where,
         ),
       },

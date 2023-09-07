@@ -8,7 +8,7 @@ import {
 } from "../../entities/Stock.js";
 import { StockFields } from "../../fields.js";
 import { BaseDBDataSource } from "../../../baseDBDataSource.js";
-import { getCurrentDateTimeString, QueryOptions, QExpr } from "sasat";
+import { getCurrentDateTimeString, QueryOptions, qe } from "sasat";
 import { GQLContext } from "../../../context.js";
 type QueryResult = Partial<StockWithRelations> & StockIdentifiable;
 export abstract class GeneratedStockDBDataSource extends BaseDBDataSource<
@@ -47,8 +47,8 @@ export abstract class GeneratedStockDBDataSource extends BaseDBDataSource<
       fields,
       {
         ...options,
-        where: QExpr.conditions.and(
-          QExpr.conditions.eq(QExpr.field(tableName, "id"), QExpr.value(id)),
+        where: qe.and(
+          qe.eq(qe.field(tableName, "id"), qe.value(id)),
           options?.where,
         ),
       },

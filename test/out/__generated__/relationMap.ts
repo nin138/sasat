@@ -1,6 +1,6 @@
 /* eslint-disable */
 import {
-  QExpr,
+  qe,
   BooleanValueExpression,
   getDayRangeQExpr,
   RelationMap,
@@ -17,13 +17,13 @@ export const relationMap: RelationMap<GQLContext> = {
     uPost: {
       table: "post",
       condition: (arg): BooleanValueExpression => {
-        return QExpr.conditions.and(
-          QExpr.conditions.comparison(
-            QExpr.field(arg.childTableAlias, "uId"),
+        return qe.and(
+          qe.comparison(
+            qe.field(arg.childTableAlias, "uId"),
             "=",
             arg.parentTableAlias
-              ? QExpr.field(arg.parentTableAlias, "userId")
-              : QExpr.value(arg.parent?.userId),
+              ? qe.field(arg.parentTableAlias, "userId")
+              : qe.value(arg.parent?.userId),
           ),
         );
       },
@@ -34,12 +34,12 @@ export const relationMap: RelationMap<GQLContext> = {
     vP: {
       table: "post",
       condition: (arg): BooleanValueExpression => {
-        return QExpr.conditions.and(
+        return qe.and(
           hoge(arg),
-          QExpr.conditions.between(
+          qe.between(
             arg.parentTableAlias
-              ? QExpr.field(arg.parentTableAlias, "createdAt")
-              : QExpr.value(arg.parent?.createdAt),
+              ? qe.field(arg.parentTableAlias, "createdAt")
+              : qe.value(arg.parent?.createdAt),
             ...getDayRangeQExpr(new Date(), undefined),
           ),
         );
@@ -53,13 +53,13 @@ export const relationMap: RelationMap<GQLContext> = {
     pUser: {
       table: "user",
       condition: (arg): BooleanValueExpression => {
-        return QExpr.conditions.and(
-          QExpr.conditions.comparison(
-            QExpr.field(arg.childTableAlias, "userId"),
+        return qe.and(
+          qe.comparison(
+            qe.field(arg.childTableAlias, "userId"),
             "=",
             arg.parentTableAlias
-              ? QExpr.field(arg.parentTableAlias, "uId")
-              : QExpr.value(arg.parent?.uId),
+              ? qe.field(arg.parentTableAlias, "uId")
+              : qe.value(arg.parent?.uId),
           ),
         );
       },
@@ -70,10 +70,10 @@ export const relationMap: RelationMap<GQLContext> = {
     vC: {
       table: "user",
       condition: (arg): BooleanValueExpression => {
-        return QExpr.conditions.and(
+        return qe.and(
           hoge(arg),
-          QExpr.conditions.between(
-            QExpr.field(arg.childTableAlias, "createdAt"),
+          qe.between(
+            qe.field(arg.childTableAlias, "createdAt"),
             ...getDayRangeQExpr(new Date(), undefined),
           ),
         );

@@ -8,7 +8,7 @@ import {
 } from "../../entities/User.js";
 import { UserFields } from "../../fields.js";
 import { BaseDBDataSource } from "../../../baseDBDataSource.js";
-import { getCurrentDateTimeString, QueryOptions, QExpr } from "sasat";
+import { getCurrentDateTimeString, QueryOptions, qe } from "sasat";
 import { GQLContext } from "../../../context.js";
 type QueryResult = Partial<UserWithRelations> & UserIdentifiable;
 export abstract class GeneratedUserDBDataSource extends BaseDBDataSource<
@@ -53,11 +53,8 @@ export abstract class GeneratedUserDBDataSource extends BaseDBDataSource<
       fields,
       {
         ...options,
-        where: QExpr.conditions.and(
-          QExpr.conditions.eq(
-            QExpr.field(tableName, "userId"),
-            QExpr.value(userId),
-          ),
+        where: qe.and(
+          qe.eq(qe.field(tableName, "userId"), qe.value(userId)),
           options?.where,
         ),
       },

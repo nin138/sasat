@@ -4,7 +4,7 @@ import {
   gqlResolveInfoToField,
   pagingOption,
   PagingOption,
-  QExpr,
+  qe,
 } from "sasat";
 import { UserFields, PostFields } from "./fields.js";
 import { UserDBDataSource } from "../dataSources/db/User.js";
@@ -49,9 +49,7 @@ export const query = {
   www: makeResolver<GQLContext, { a1: number }>(
     async (_, { a1 }, context, info) => {
       const fields = gqlResolveInfoToField(info) as UserFields;
-      const where = QExpr.conditions.and(
-        QExpr.conditions.comparison(QExpr.value(1), "=", QExpr.value(a1)),
-      );
+      const where = qe.and(qe.comparison(qe.value(1), "=", qe.value(a1)));
       return new UserDBDataSource().first(fields, { where }, context);
     },
   ),
