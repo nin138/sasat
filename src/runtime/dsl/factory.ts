@@ -156,7 +156,7 @@ const conditions = {
   and,
   or,
   eq: comparison('='),
-  neq: comparison('<'),
+  neq: comparison('<>'),
   gt: comparison('>'),
   gte: comparison('>='),
   lt: comparison('<'),
