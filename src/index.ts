@@ -48,5 +48,6 @@ export {
 } from './runtime/date.js';
 export { pick } from './runtime/util.js';
 export { makeResolver } from './runtime/makeResolver.js';
-export type PagingOption = ListQueryOption;
+export type PagingOption = ListQueryOption; // TODO
+// export {PagingOption} from "./runtime/sql/runQuery.js";
 export { pagingOption } from './runtime/pagingOption.js';

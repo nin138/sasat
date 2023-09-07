@@ -7,6 +7,7 @@ import {
 } from './dsl/query/createQueryResolveInfo.js';
 import {
   BooleanValueExpression,
+  Join,
   LockMode,
   Query,
   Sort,
@@ -39,6 +40,7 @@ export type ListQueryOption = {
   offset?: number;
   order?: string;
   asc?: boolean;
+  join?: Join[];
 };
 
 export type QueryOptions = {

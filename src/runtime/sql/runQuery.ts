@@ -1,6 +1,7 @@
 import {
   BooleanValueExpression,
   Field,
+  Join,
   Query,
   QueryTable,
   Sort,
@@ -17,7 +18,7 @@ import {
   ResultRow,
 } from '../dsl/query/sql/hydrate.js';
 import { SELECT_ALIAS_SEPARATOR } from '../dsl/query/sql/nodeToSql.js';
-import { ListQueryOption, QueryOptions } from '../sasatDBDatasource.js';
+import { QueryOptions } from '../sasatDBDatasource.js';
 
 const notTypeName = (fieldName: string) => fieldName !== '__typename';
 
@@ -95,6 +96,7 @@ export type PagingOption = {
   where?: BooleanValueExpression;
   offset?: number; // TODO prev, next
   sort?: Sort[];
+  join?: Join[];
 };
 export const createPagingInnerQuery = (
   tableName: string,
@@ -115,7 +117,7 @@ export const createPagingInnerQuery = (
         .filter(it => notTypeName(it) && map[it])
         .map(it => map[it] || it),
     ]).map(it => QExpr.field(tableAlias, it)),
-    from: QExpr.table(tableName, [], tableAlias),
+    from: QExpr.table(tableName, option.join || [], tableAlias),
     limit: option.numberOfItem,
     offset: option.offset,
     where: option.where,
@@ -138,7 +140,7 @@ type CreatePagingFieldQueryArg = {
   tableInfo: TableInfo;
   relationMap: RelationMap;
   queryOption?: QueryOptions;
-  pagingOption: ListQueryOption & { where?: BooleanValueExpression };
+  pagingOption: PagingOption;
   context?: unknown;
 };
 
