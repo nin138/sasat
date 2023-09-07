@@ -5,6 +5,7 @@ import {
   CompoundExpression,
   ContainsExpression,
   ContainType,
+  ExistsExpression,
   Field,
   Fn,
   Identifier,
@@ -113,7 +114,18 @@ export const Sql = {
         return Sql.in(expr);
       case QueryNodeKind.IsNullExpr:
         return Sql.isNull(expr);
+      case QueryNodeKind.Exists:
+        return Sql.exists(expr);
     }
+  },
+  exists: (expr: ExistsExpression): string => {
+    const inner = () => {
+      if ('kind' in expr.query) {
+        return expr.query.expr;
+      }
+      return queryToSql(expr.query);
+    };
+    return `EXISTS (${inner()})`;
   },
   sort: (expr: Sort): string => {
     const field = () => {

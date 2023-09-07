@@ -15,6 +15,8 @@ export enum QueryNodeKind {
   Literal,
   Sort,
   Identifier,
+  Exists,
+  Raw,
 }
 
 export type LockMode = 'FOR UPDATE' | 'FOR SHARE';
@@ -77,6 +79,16 @@ export type ParenthesisExpression = {
   expression: BooleanValueExpression;
 };
 
+export type RawExpression = {
+  kind: QueryNodeKind.Raw;
+  expr: string;
+};
+
+export type ExistsExpression = {
+  kind: QueryNodeKind.Exists;
+  query: Query | RawExpression;
+};
+
 export type BooleanValueExpression =
   | CompoundExpression
   | ComparisonExpression
@@ -84,7 +96,8 @@ export type BooleanValueExpression =
   | ParenthesisExpression
   | InExpression
   | BetweenExpression
-  | ContainsExpression;
+  | ContainsExpression
+  | ExistsExpression;
 
 export type IsNullExpression = {
   kind: QueryNodeKind.IsNullExpr;
