@@ -80,7 +80,10 @@ export abstract class SasatDBDatasource<
 
   async create(
     entity: Creatable,
-    upsert?: { updateColumns: string[] },
+    option?: {
+      ignore?: boolean;
+      upsert?: { updateColumns: string[] };
+    },
   ): Promise<Entity> {
     const obj: Entity = {
       ...this.getDefaultValueString(),
@@ -92,7 +95,8 @@ export abstract class SasatDBDatasource<
         field: column,
         value,
       })),
-      upsert: upsert?.updateColumns,
+      upsert: option?.upsert?.updateColumns,
+      ignore: option?.ignore,
     };
     const sql = createToSql(dsl, this.tableInfo);
     this.commandLogger(sql);
@@ -109,7 +113,9 @@ export abstract class SasatDBDatasource<
     updateFields: (keyof T)[] = this.primaryKeys,
   ): Promise<Entity> {
     return this.create(entity, {
-      updateColumns: this.fieldToColumn(updateFields as string[]),
+      upsert: {
+        updateColumns: this.fieldToColumn(updateFields as string[]),
+      },
     });
   }
 

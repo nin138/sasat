@@ -13,6 +13,7 @@ export type Create = {
   table: string;
   values: ValueSet[];
   upsert?: string[];
+  ignore?: boolean;
 };
 
 export type Update = {
@@ -42,11 +43,11 @@ const onDuplicateKeyUpdate = (columns: Create['upsert']): string => {
 
 export const createToSql = (dsl: Create, tableInfo: TableInfo): string => {
   const map = tableInfo[dsl.table].columnMap;
-  return `INSERT INTO ${escapeId(dsl.table)}(${dsl.values.map(it =>
-    escapeId(map[it.field]),
-  )}) VALUES(${dsl.values.map(it => escape(it.value))})${onDuplicateKeyUpdate(
-    dsl.upsert,
-  )}`;
+  return `INSERT ${dsl.ignore ? 'IGNORE ' : ''}INTO ${escapeId(
+    dsl.table,
+  )}(${dsl.values.map(it => escapeId(map[it.field]))}) VALUES(${dsl.values.map(
+    it => escape(it.value),
+  )})${onDuplicateKeyUpdate(dsl.upsert)}`;
 };
 
 export const updateToSql = (dsl: Update, tableInfo: TableInfo): string => {
