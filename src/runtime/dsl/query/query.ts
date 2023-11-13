@@ -17,6 +17,7 @@ export enum QueryNodeKind {
   Identifier,
   Exists,
   Raw,
+  GroupBy,
 }
 
 export type LockMode = 'FOR UPDATE' | 'FOR SHARE';
@@ -25,10 +26,16 @@ export type Query = {
   select: Select;
   from: QueryTable;
   where?: BooleanValueExpression;
+  groupBy?: GroupByExpr;
   sort?: Sort[];
   limit?: number;
   offset?: number;
   lock?: LockMode;
+};
+
+export type GroupByExpr = {
+  kind: QueryNodeKind.GroupBy;
+  cols: (Field | Identifier)[];
 };
 
 type Select = SelectExpr[];

@@ -15,6 +15,9 @@ export const queryToSql = (query: Query): string => {
   const select = query.select.map(Sql.select).join(', ');
   const join = getJoin(query.from).map(Sql.join).join(' ');
   const where = query.where ? ' WHERE ' + Sql.booleanValue(query.where) : '';
+  const groupBy = query.groupBy
+    ? ' GROUP BY' + query.groupBy.cols.map(Sql.value).join(',')
+    : '';
   const sort =
     query.sort && query.sort.length !== 0
       ? ' ORDER BY ' + Sql.sorts(query.sort)
@@ -26,6 +29,7 @@ export const queryToSql = (query: Query): string => {
     `SELECT ${select} FROM ${Sql.table(query.from)}` +
     join +
     where +
+    groupBy +
     sort +
     limit +
     offset +
