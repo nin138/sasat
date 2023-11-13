@@ -1,6 +1,6 @@
 import { formatQuery } from '../formatQuery.js';
 
-export type QueryResponse = Array<{ [key: string]: string }>;
+export type QueryResponse = Array<{ [key: string]: SqlValueType }>;
 export interface CommandResponse {
   insertId: number;
   affectedRows: number;

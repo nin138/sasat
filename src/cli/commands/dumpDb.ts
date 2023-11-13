@@ -16,8 +16,8 @@ export const dumpDB = async (): Promise<void> => {
     const serialized = await Promise.all(
       tables.map(table => {
         return con
-          .rawQuery('show create table ' + SqlString.escapeId(table))
-          .then(it => it[0]['Create Table'])
+          .rawQuery('show create table ' + SqlString.escapeId(table as string))
+          .then(it => it[0]['Create Table'] as string)
           .then(serializeCreateTable);
       }),
     );
