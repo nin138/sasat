@@ -18,6 +18,7 @@ export const queryToSql = (query: Query): string => {
   const groupBy = query.groupBy
     ? ' GROUP BY' + query.groupBy.cols.map(Sql.value).join(',')
     : '';
+  const having = query.having ? 'HAVING ' + Sql.booleanValue(query.having) : '';
   const sort =
     query.sort && query.sort.length !== 0
       ? ' ORDER BY ' + Sql.sorts(query.sort)
@@ -30,6 +31,7 @@ export const queryToSql = (query: Query): string => {
     join +
     where +
     groupBy +
+    having +
     sort +
     limit +
     offset +

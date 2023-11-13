@@ -27,6 +27,7 @@ export type Query = {
   from: QueryTable;
   where?: BooleanValueExpression;
   groupBy?: GroupByExpr;
+  having?: BooleanValueExpression;
   sort?: Sort[];
   limit?: number;
   offset?: number;
