@@ -70,10 +70,11 @@ const field = (table: string, name: string, alias?: string): Field => ({
   alias,
 });
 
-const fn = (fnName: string, args: Value[]): Fn => ({
+const fn = (fnName: string, args: Value[], alias?: string): Fn => ({
   kind: QueryNodeKind.Function,
   fnName,
   args,
+  alias,
 });
 
 const paren = (expression: BooleanValueExpression): ParenthesisExpression => ({

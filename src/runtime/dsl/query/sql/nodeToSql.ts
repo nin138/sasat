@@ -50,7 +50,10 @@ export const Sql = {
   identifier: (ident: Identifier): string => {
     return SqlString.escapeId(ident.identifier);
   },
-  fn: (fn: Fn): string => `${fn.fnName}(${fn.args.map(Sql.value).join(',')})`,
+  fn: (fn: Fn): string =>
+    `${fn.fnName}(${fn.args.map(Sql.value).join(',')})${
+      fn.alias ? ` AS ${fn.alias}` : ''
+    }`,
   value: (v: Value): string => {
     if (v.kind === QueryNodeKind.Function) return Sql.fn(v);
     if (v.kind === QueryNodeKind.Field) return Sql.fieldInCondition(v);
