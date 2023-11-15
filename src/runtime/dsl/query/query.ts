@@ -57,7 +57,7 @@ export type Fn = {
   alias?: string;
 };
 
-export type SelectExpr = Field | Fn;
+export type SelectExpr = Field | Fn | Identifier;
 
 export type QueryTable = {
   kind: QueryNodeKind.Table;

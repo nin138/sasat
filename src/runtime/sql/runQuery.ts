@@ -7,7 +7,11 @@ import {
   Sort,
 } from '../dsl/query/query.js';
 import { SQLExecutor } from '../../db/connectors/dbClient.js';
-import { RelationMap, TableInfo } from '../dsl/query/createQueryResolveInfo.js';
+import {
+  createQueryResolveInfo,
+  RelationMap,
+  TableInfo,
+} from '../dsl/query/createQueryResolveInfo.js';
 import { Fields } from '../field.js';
 import { QExpr } from '../dsl/factory.js';
 import { nonNullable, unique } from '../util.js';

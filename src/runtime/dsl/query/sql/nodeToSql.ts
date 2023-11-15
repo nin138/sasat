@@ -28,8 +28,16 @@ import { queryToSql } from './queryToSql.js';
 
 export const SELECT_ALIAS_SEPARATOR = '__';
 export const Sql = {
-  select: (expr: SelectExpr): string =>
-    expr.kind === QueryNodeKind.Field ? Sql.fieldInSelect(expr) : Sql.fn(expr),
+  select: (expr: SelectExpr): string => {
+    switch (expr.kind) {
+      case QueryNodeKind.Field:
+        return Sql.fieldInSelect(expr);
+      case QueryNodeKind.Identifier:
+        return Sql.identifier(expr);
+      case QueryNodeKind.Function:
+        return Sql.fn(expr);
+    }
+  },
   literal: (literal: Literal): string => SqlString.escape(literal.value),
   fieldInCondition: (identifier: Field): string =>
     SqlString.escapeId(identifier.table) +

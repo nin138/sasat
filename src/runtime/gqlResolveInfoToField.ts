@@ -20,7 +20,7 @@ export const selectionSetToField = <T extends Fields<unknown>>(
       result.relations![it.name.value] = field[0];
       num = field[1];
     } else {
-      result.fields.push(it.name.value);
+      if (it.name.value !== '__typename') result.fields.push(it.name.value);
     }
   });
   return [result as T, num];
