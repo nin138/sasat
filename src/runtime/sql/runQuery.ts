@@ -7,11 +7,7 @@ import {
   Sort,
 } from '../dsl/query/query.js';
 import { SQLExecutor } from '../../db/connectors/dbClient.js';
-import {
-  createQueryResolveInfo,
-  RelationMap,
-  TableInfo,
-} from '../dsl/query/createQueryResolveInfo.js';
+import { RelationMap, TableInfo } from '../dsl/query/createQueryResolveInfo.js';
 import { Fields } from '../field.js';
 import { QExpr } from '../dsl/factory.js';
 import { nonNullable, unique } from '../util.js';
@@ -28,7 +24,8 @@ const notTypeName = (fieldName: string) => fieldName !== '__typename';
 
 export const createQuery = (
   baseTableName: string,
-  fields: Fields<unknown>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  fields: Fields<any>,
   options: QueryOptions | undefined,
   tableInfo: TableInfo,
   relationMap: RelationMap,

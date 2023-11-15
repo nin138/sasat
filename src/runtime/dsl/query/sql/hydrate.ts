@@ -16,13 +16,13 @@ type ParsedObjs = Record<string, Entity>;
 
 const rowToObjs = (row: ResultRow): ParsedObjs => {
   const objs: Record<string, ResultRow> = {};
-  Object.entries(row).forEach(([key, value]) => {
+  for (const [key, value] of Object.entries(row)) {
     const [table, column] = key.split(SELECT_ALIAS_SEPARATOR);
     if (!objs[table]) {
       objs[table] = {};
     }
     objs[table][column] = value;
-  });
+  }
   return objs;
 };
 
@@ -64,13 +64,13 @@ const execTable = (
     result = currentTarget;
   }
   if (currentTarget !== null) {
-    info.joins.forEach(it => {
+    for (const it of info.joins) {
       currentTarget![it.property] = execTable(
         it,
         objs,
         currentTarget![it.property] as Entity | Entity[],
       );
-    });
+    }
   }
   return result;
 };
@@ -86,7 +86,7 @@ export const hydrate = (
   // Record<uniqueValue, index of result>
   const t0mapper: Record<string, number> = {};
   info.isArray = false; // TODO skip t0 mapper & getUnique when isArray = false;
-  data.forEach(row => {
+  for (const row of data) {
     const objs: ParsedObjs = rowToObjs(row);
     const currentObj = objs[info.tableAlias];
     const unique = getUnique(currentObj, info);
@@ -94,11 +94,11 @@ export const hydrate = (
     if (t0mapper[unique] === undefined) {
       t0mapper[unique] = result.length;
       result.push(execTable(info, objs, currentObj) as Entity);
-      return;
+      continue;
     }
     const base = result[t0mapper[unique]];
     execTable(info, objs, base);
-  });
+  }
 
   return result;
 };

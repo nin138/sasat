@@ -67,10 +67,10 @@ const mergeWhereClause = (
   whereClauses: WhereClause<unknown>[],
 ): WhereClause<unknown> => {
   const result: WhereClause<unknown>[] = [];
-  whereClauses.forEach(it => {
+  for (const it of whereClauses) {
     if (Array.isArray(it)) result.push(...it);
     else result.push(it);
-  });
+  }
   return result;
 };
 

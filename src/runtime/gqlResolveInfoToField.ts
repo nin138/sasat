@@ -11,9 +11,9 @@ export const selectionSetToField = <T extends Fields<unknown>>(
     tableAlias: 't' + number,
   };
   let num = number;
-  selections.forEach(it => {
+  for (const it of selections) {
     // TODO 'fragmentNode'
-    if (it.kind !== 'Field') return;
+    if (it.kind !== 'Field') continue;
     if (it.selectionSet) {
       num += 1;
       const field = selectionSetToField(it.selectionSet.selections, num);
@@ -22,7 +22,7 @@ export const selectionSetToField = <T extends Fields<unknown>>(
     } else {
       if (it.name.value !== '__typename') result.fields.push(it.name.value);
     }
-  });
+  }
   return [result as T, num];
 };
 
