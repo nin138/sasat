@@ -13,6 +13,7 @@ const defaultConfig = { ...config().db, dateStrings: true };
 
 export class MysqlClient extends DBClient {
   private readonly pool: mysql.Pool;
+  logger: (sql: string) => void = () => {};
   constructor(
     readonly connectionOption?: Partial<mysql.ConnectionOptions>,
     poolOption?: Partial<mysql.PoolOptions>,
@@ -41,6 +42,7 @@ export class MysqlClient extends DBClient {
   }
 
   protected execSql(sql: string): Promise<QueryResponse | CommandResponse> {
+    this.logger(sql);
     return promisify(this.pool.query).bind(this.pool)(sql as never) as Promise<
       QueryResponse | CommandResponse
     >;

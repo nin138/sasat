@@ -23,7 +23,7 @@ export enum QueryNodeKind {
 export type LockMode = 'FOR UPDATE' | 'FOR SHARE';
 
 export type Query = {
-  select: Select;
+  select: SelectExpr[];
   from: QueryTable;
   where?: BooleanValueExpression;
   groupBy?: GroupByExpr;
@@ -39,15 +39,11 @@ export type GroupByExpr = {
   cols: (Field | Identifier)[];
 };
 
-type Select = SelectExpr[];
-
-export const NO_ALIAS = '__SASAT_NO_ALIAS' as const;
-
 export type Field = {
   kind: QueryNodeKind.Field;
   table: string;
   name: string;
-  alias?: string | typeof NO_ALIAS;
+  alias?: string;
 };
 
 export type Fn = {
@@ -65,7 +61,7 @@ export type QueryTable = {
   joins: Join[];
 } & (
   | {
-      subquery: false;
+      subquery?: false;
       name: string;
     }
   | {
