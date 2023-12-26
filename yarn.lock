@@ -1681,10 +1681,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/sqlstring@npm:2.3.0":
-  version: 2.3.0
-  resolution: "@types/sqlstring@npm:2.3.0"
-  checksum: 8f180c7bc0a34f9ce20be44fa8bc962ad402519a29c6e0309db39ed82f5f201c57ca03fbd5f15abb065496e88624adb9740200f77157661f090374fe4c23084d
+"@types/sqlstring@npm:2.3.2":
+  version: 2.3.2
+  resolution: "@types/sqlstring@npm:2.3.2"
+  checksum: 9c73ebd9c9205db63c6da0e5d362bf05e6f6bbba2e0b8196b84df066a33352826c833e3a669ad1edb68c0fc7d5d55ab1788289198c6cf64a87a97e8e64dba72b
   languageName: node
   linkType: hard
 
@@ -6560,7 +6560,7 @@ __metadata:
     "@types/node": 20.10.5
     "@types/pluralize": 0.0.30
     "@types/prettier": 2.7.3
-    "@types/sqlstring": 2.3.0
+    "@types/sqlstring": 2.3.2
     "@typescript-eslint/eslint-plugin": 6.0.0
     "@typescript-eslint/parser": 6.0.0
     cac: ^6.7.14
