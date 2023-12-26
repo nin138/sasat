@@ -1626,10 +1626,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/pluralize@npm:0.0.30":
-  version: 0.0.30
-  resolution: "@types/pluralize@npm:0.0.30"
-  checksum: 7a9a4a24aac1f74bd63e592a824ebec114486e0635a94496e92aa37fa388fac585be108d3ccfc7b2c490963679ec4900fbf394d22fa6cbf419f22cc499ab5a29
+"@types/pluralize@npm:0.0.33":
+  version: 0.0.33
+  resolution: "@types/pluralize@npm:0.0.33"
+  checksum: 282d42dc0187e5e0912f9f36ee0f5615bfd273a08d40afe5bf5881cb28daf1977abe10564543032aa0f42352ebba739ff3d86bf5562ac4691c6d1761fcc7cf39
   languageName: node
   linkType: hard
 
@@ -6558,7 +6558,7 @@ __metadata:
     "@types/jest": 29.5.11
     "@types/js-yaml": 4.0.5
     "@types/node": 20.10.5
-    "@types/pluralize": 0.0.30
+    "@types/pluralize": 0.0.33
     "@types/prettier": 2.7.3
     "@types/sqlstring": 2.3.0
     "@typescript-eslint/eslint-plugin": 6.0.0
