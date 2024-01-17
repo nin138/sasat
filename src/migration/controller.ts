@@ -15,7 +15,7 @@ export class MigrationController {
     currentMigration: string;
   }> {
     const fileNames = await compileMigrationFiles();
-    const currentMigration = await getCurrentMigration();
+    const currentMigration = await getCurrentMigration(options);
     Console.log('--current migration--: ' + currentMigration);
     let store = await createCurrentMigrationDataStore(currentMigration);
     const target = getMigrationTargets(fileNames, currentMigration);

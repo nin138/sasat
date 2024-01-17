@@ -1,6 +1,9 @@
 import { config } from '../../config/config.js';
 import { getDbClient } from '../../db/getDbClient.js';
 import { getMigrationFileNames } from './getMigrationFiles.js';
+import * as console from 'console';
+import { Console } from 'cli/console';
+import { MigrateCommandOption } from 'cli/commands/migrate';
 
 export enum Direction {
   Up = 'up',
@@ -29,15 +32,25 @@ const calcRunMigrationFileNames = (records: MigrationRecord[]) => {
   return result;
 };
 
-export const getCurrentMigration = async (): Promise<string | undefined> => {
+export const getCurrentMigration = async (
+  options: MigrateCommandOption,
+): Promise<string | undefined> => {
   const migrationTable = config().migration.table;
   const files = getMigrationFileNames();
   const client = getDbClient();
-  await client.rawQuery(
+  const query =
     `CREATE TABLE IF NOT EXISTS ${migrationTable} ` +
-      '(id int auto_increment primary key , name varchar(100) not null,' +
-      "direction enum('up', 'down') not null, migrated_at timestamp default current_timestamp)",
-  );
+    '(id int auto_increment primary key , name varchar(100) not null,' +
+    "direction enum('up', 'down') not null, migrated_at timestamp default current_timestamp)";
+  if (!options.silent) {
+    Console.log(
+      `creating migration table: ${migrationTable} :: ${Buffer.from(
+        migrationTable,
+      ).toString('base64')}`,
+    );
+    Console.log(query);
+  }
+  await client.rawQuery(query);
   const result = await client.rawQuery(
     `SELECT name, direction
      FROM ${migrationTable}
