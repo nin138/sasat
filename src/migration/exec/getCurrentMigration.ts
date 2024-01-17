@@ -1,9 +1,8 @@
 import { config } from '../../config/config.js';
 import { getDbClient } from '../../db/getDbClient.js';
 import { getMigrationFileNames } from './getMigrationFiles.js';
-import * as console from 'console';
-import { Console } from 'cli/console';
-import { MigrateCommandOption } from 'cli/commands/migrate';
+import { Console } from '../../cli/console.js';
+import { MigrateCommandOption } from '../../cli/commands/migrate.js';
 
 export enum Direction {
   Up = 'up',
