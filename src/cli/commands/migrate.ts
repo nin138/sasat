@@ -13,6 +13,7 @@ export type MigrateCommandOption = {
 
 export const migrate = async (options: MigrateCommandOption): Promise<void> => {
   let current;
+  Console.log('--migration started--');
   try {
     const migration = new MigrationController();
     const result = await migration.migrate(options);

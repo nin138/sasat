@@ -5,6 +5,7 @@ import { migrate } from './commands/migrate.js';
 import { init } from './commands/init.js';
 import { generate } from './commands/generate.js';
 import { dumpDB } from './commands/dumpDb.js';
+import * as console from 'console';
 
 const cli = cac();
 try {
@@ -15,7 +16,8 @@ try {
     .option('-d, --dry', 'dry run')
     .option('-s, --silent', 'do not print logs')
     .action(async options => {
-      await migrate(options).catch(() => {
+      await migrate(options).catch(e => {
+        console.error(e);
         process.exit(1);
       });
     });
