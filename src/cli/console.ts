@@ -1,4 +1,5 @@
 import chalk from 'chalk';
+import * as console from 'console';
 
 export const Console = {
   success: (msg: string): void => {
@@ -10,5 +11,8 @@ export const Console = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types
   log: (msg: any): void => {
     console.log(msg);
+  },
+  debug: (msg: string) => {
+    console.debug('debug:: ' + msg);
   },
 };

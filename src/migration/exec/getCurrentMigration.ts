@@ -3,6 +3,8 @@ import { getDbClient } from '../../db/getDbClient.js';
 import { getMigrationFileNames } from './getMigrationFiles.js';
 import { Console } from '../../cli/console.js';
 import { MigrateCommandOption } from '../../cli/commands/migrate.js';
+import { SqlString } from 'runtime/sql/sqlString';
+import * as console from 'console';
 
 export enum Direction {
   Up = 'up',
@@ -34,7 +36,7 @@ const calcRunMigrationFileNames = (records: MigrationRecord[]) => {
 export const getCurrentMigration = async (
   options: MigrateCommandOption,
 ): Promise<string | undefined> => {
-  const migrationTable = config().migration.table;
+  const migrationTable = SqlString.escapeId(config().migration.table);
   const files = getMigrationFileNames();
   const client = getDbClient();
   const query =
@@ -50,11 +52,12 @@ export const getCurrentMigration = async (
     Console.log(query);
   }
   await client.rawQuery(query);
-  const result = await client.rawQuery(
-    `SELECT name, direction
-     FROM ${migrationTable}
-     ORDER BY id ASC`,
-  );
+  const q = `SELECT name, direction FROM ${migrationTable} ORDER BY id ASC`;
+  if (!options.silent) {
+    Console.debug(q);
+  }
+  const result = await client.rawQuery(q);
+  console.debug(result);
   if (!result.length) return;
   const runs = calcRunMigrationFileNames(
     result as unknown as MigrationRecord[],
