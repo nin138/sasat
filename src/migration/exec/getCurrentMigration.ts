@@ -3,8 +3,7 @@ import { getDbClient } from '../../db/getDbClient.js';
 import { getMigrationFileNames } from './getMigrationFiles.js';
 import { Console } from '../../cli/console.js';
 import { MigrateCommandOption } from '../../cli/commands/migrate.js';
-import { SqlString } from 'runtime/sql/sqlString';
-import * as console from 'console';
+import { SqlString } from '../../runtime/sql/sqlString.js';
 
 export enum Direction {
   Up = 'up',
