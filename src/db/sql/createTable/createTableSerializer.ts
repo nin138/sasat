@@ -178,8 +178,8 @@ const startStrMap: {
         signed: keywords.includes('unsigned')
           ? false
           : keywords.includes('signed')
-          ? true
-          : undefined,
+            ? true
+            : undefined,
         autoIncrement: keywords.includes('AUTO_INCREMENT'),
         length: inPrenValues.length > 0 ? +inPrenValues[0].value : undefined,
         scale: inPrenValues.length > 1 ? +inPrenValues[1].value : undefined,

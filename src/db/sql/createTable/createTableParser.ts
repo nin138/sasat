@@ -157,8 +157,8 @@ export class CreateTableParser {
       signed: identifiers.some(it => it.value.toLowerCase() === 'unsigned')
         ? false
         : identifiers.some(it => it.value.toLowerCase() === 'signed')
-        ? true
-        : undefined,
+          ? true
+          : undefined,
       autoIncrement: tokens.some(it => it.kind === 'AUTO_INCREMENT'),
       length: length !== undefined ? +length : undefined,
       scale: scale !== undefined ? +scale : undefined,
