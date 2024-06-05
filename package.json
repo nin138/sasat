@@ -1,6 +1,6 @@
 {
   "name": "sasat",
-  "version": "0.19.44",
+  "version": "0.20.0",
   "repository": "https://github.com/nin138/sasat.git",
   "author": "nin138 <ninian138@gmail.com>",
   "license": "MIT",
@@ -78,5 +78,7 @@
   },
   "main": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
-  "files": ["dist"]
+  "files": [
+    "dist"
+  ]
 }
