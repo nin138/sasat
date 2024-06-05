@@ -4,15 +4,10 @@
   "repository": "https://github.com/nin138/sasat.git",
   "author": "nin138 <ninian138@gmail.com>",
   "license": "MIT",
-  "main": "lib/index.js",
-  "types": "lib/index.d.ts",
-  "files": [
-    "lib"
-  ],
-  "bin": "lib/cli/cli.js",
+  "bin": "dist/cli/cli.mjs",
   "scripts": {
     "start": "env-cmd .env ts-node ./index.ts",
-    "build": "yarn tsc",
+    "build": "unbuild",
     "lint": "eslint 'src/**/*.ts'",
     "format": "yarn lint --fix && yarn prettier",
     "prettier": "prettier --write './**/*.ts'",
@@ -61,7 +56,8 @@
     "sasat": "link:./lib",
     "ts-jest": "29.1.4",
     "ts-node": "10.9.2",
-    "tsconfig-paths": "4.2.0"
+    "tsconfig-paths": "4.2.0",
+    "unbuild": "^2.0.0"
   },
   "peerDependencies": {
     "@apollo/server": "^4.0.0",
@@ -73,5 +69,14 @@
     ]
   },
   "type": "module",
-  "packageManager": "yarn@3.6.1"
+  "packageManager": "yarn@3.6.1",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": ["dist"]
 }
