@@ -1,4 +1,4 @@
-import { ListQueryOption } from './runtime/sasatDBDatasource.js';
+import { ListQueryOption } from 'runtime/sasatDBDatasource';
 export { Sql } from 'runtime/dsl/query/sql/nodeToSql.js';
 export { SqlString } from 'runtime/sql/sqlString.js';
 export type { ResolverMiddleware } from './runtime/resolverMiddleware.js';
