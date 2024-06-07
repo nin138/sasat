@@ -35,6 +35,12 @@ export type JoinConditionNode =
       operator: 'BETWEEN';
       right: JoinConditionRangeValue;
     }
+  | {
+      kind: 'comparison';
+      left: JoinConditionValue;
+      operator: 'IN';
+      right: JoinConditionValue[];
+    }
   | JoinCustomConditionNode;
 
 export type JoinCustomConditionNode = {

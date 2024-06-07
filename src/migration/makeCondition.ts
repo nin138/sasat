@@ -132,6 +132,16 @@ const comparisonRel = (
   operator,
 });
 
+const inRel = (
+  left: JoinConditionValue,
+  right: JoinConditionValue[],
+): JoinConditionNode => ({
+  kind: 'comparison',
+  left,
+  right,
+  operator: 'IN',
+});
+
 const comparisonQuery = (
   left: QueryConditionValue,
   operator: ComparisonOperators,
@@ -150,6 +160,7 @@ export const Conditions = {
   rel: {
     between: betweenRel,
     comparison: comparisonRel,
+    in: inRel,
   },
   query: {
     between: betweenQuery,

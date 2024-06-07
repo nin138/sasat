@@ -93,6 +93,17 @@ const makeConditionExpr = (
         ...makeRangeCondition(entity, condition.right),
       );
   }
+  if (condition.operator === 'IN') {
+    return qExpr
+      .property('comparison')
+      .call(
+        makeJoinConditionValueQExpr(entity, condition.left),
+        tsg.string(condition.operator),
+        tsg.array(
+          condition.right.map(it => makeJoinConditionValueQExpr(entity, it)),
+        ),
+      );
+  }
   return qExpr
     .property('comparison')
     .call(

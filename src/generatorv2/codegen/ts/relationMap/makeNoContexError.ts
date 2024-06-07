@@ -48,6 +48,12 @@ export const makeThrowExpressions = (condition: JoinConditionNode) => {
         : []),
     ];
   }
+  if (condition.operator === 'IN') {
+    return [
+      makeJoinConditionThrowExpressions(condition.left),
+      ...condition.right.map(makeJoinConditionThrowExpressions),
+    ];
+  }
   return [
     makeJoinConditionThrowExpressions(condition.left),
     makeJoinConditionThrowExpressions(condition.right),

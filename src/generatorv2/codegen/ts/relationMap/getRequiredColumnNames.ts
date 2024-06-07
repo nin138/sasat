@@ -22,8 +22,14 @@ const getConditionChildColumnNames =
   (c: JoinConditionNode): (string | null)[] => {
     if (c.kind === 'custom') return c.childRequiredFields || [];
     const result = [getConditionValue(c.left)];
+    if (c.operator === 'IN') {
+      result.push(getConditionValue(c.left));
+      c.right.forEach(it => {
+        result.push(getConditionValue(it));
+      });
+    }
     if (c.operator !== 'BETWEEN') {
-      result.push(getConditionValue(c.right));
+      result.push(getConditionValue(c.right as JoinConditionValue));
     } else {
       if (c.right.kind === 'range') {
         result.push(

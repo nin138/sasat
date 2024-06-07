@@ -158,6 +158,12 @@ const reverseConditionNode = (
       reverseRangeCondition(condition.right),
     );
   }
+  if (condition.operator === 'IN') {
+    return Conditions.rel.in(
+      reverseConditionValue(condition.left),
+      condition.right.map(reverseConditionValue),
+    );
+  }
   return Conditions.rel.comparison(
     reverseConditionValue(condition.right),
     condition.operator,
