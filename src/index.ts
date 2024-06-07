@@ -1,6 +1,6 @@
-import { ListQueryOption } from 'runtime/sasatDBDatasource';
-export { Sql } from 'runtime/dsl/query/sql/nodeToSql.js';
-export { SqlString } from 'runtime/sql/sqlString.js';
+import { ListQueryOption } from './runtime/sasatDBDatasource.js';
+export { Sql } from './runtime/dsl/query/sql/nodeToSql.js';
+export { SqlString } from './runtime/sql/sqlString.js';
 export type { ResolverMiddleware } from './runtime/resolverMiddleware.js';
 export { makeParamsMiddleware } from './runtime/resolverMiddleware.js';
 export { makeNumberIdEncoder } from './runtime/id.js';

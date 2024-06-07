@@ -23,7 +23,7 @@ import {
   Value,
 } from '../query.js';
 
-import { SqlString } from 'runtime/sql/sqlString.js';
+import { SqlString } from '../../../../runtime/sql/sqlString.js';
 import { queryToSql } from './queryToSql.js';
 
 export const SELECT_ALIAS_SEPARATOR = '__';
