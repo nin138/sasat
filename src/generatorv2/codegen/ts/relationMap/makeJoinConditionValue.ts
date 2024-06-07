@@ -6,12 +6,16 @@ import {
 } from '../../../nodes/JoinConditionNode.js';
 import { TsExpression, tsg } from '../../../../tsg/index.js';
 import { makeThrowExpressions } from './makeNoContexError.js';
-import { makeConditionValueQExpr } from '../scripts/makeConditonValueExpr.js';
+import {
+  makeConditionValueQExpr,
+  makeConditionValueRaw,
+} from '../scripts/makeConditonValueExpr.js';
 import { nonNullable } from '../../../../runtime/util.js';
 import {
   ReferencedNode,
   ReferenceNode,
 } from '../../../nodes/ReferencedNode.js';
+import { QueryConditionValue } from 'generatorv2/nodes/QueryConditionNode';
 
 const qExpr = tsg.identifier('qe').importFrom('sasat');
 const parentTableAlias = 'parentTableAlias';
@@ -98,9 +102,7 @@ const makeConditionExpr = (
       .property('in')
       .call(
         makeJoinConditionValueQExpr(entity, condition.left),
-        tsg.array(
-          condition.right.map(it => makeJoinConditionValueQExpr(entity, it)),
-        ),
+        tsg.array(condition.right.map(it => makeConditionValueRaw(it))),
       );
   }
   return qExpr

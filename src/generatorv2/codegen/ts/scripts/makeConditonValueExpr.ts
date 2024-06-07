@@ -1,9 +1,10 @@
 import { TsExpression, tsg } from '../../../../tsg/index.js';
 import { QueryConditionValue } from '../../../nodes/QueryConditionNode.js';
+import { JoinConditionValue } from 'generatorv2/nodes/JoinConditionNode';
 
 const qExpr = tsg.identifier('qe').importFrom('sasat');
 
-export const makeConditionValue = (cv: QueryConditionValue): TsExpression => {
+export const makeConditionValueRaw = (cv: JoinConditionValue): TsExpression => {
   const arg = tsg.identifier('arg');
   const context = arg.property('context?');
   switch (cv.kind) {
@@ -40,9 +41,6 @@ export const makeConditionValue = (cv: QueryConditionValue): TsExpression => {
         .identifier('dateString')
         .importFrom('sasat')
         .call(tsg.new(tsg.identifier('Date')));
-    }
-    case 'arg': {
-      return tsg.identifier(cv.name);
     }
     default:
       throw Error(`not implemented: makeConditionValue.${cv.kind}`);
