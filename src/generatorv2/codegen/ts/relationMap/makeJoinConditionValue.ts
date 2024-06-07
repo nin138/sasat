@@ -95,10 +95,9 @@ const makeConditionExpr = (
   }
   if (condition.operator === 'IN') {
     return qExpr
-      .property('comparison')
+      .property('in')
       .call(
         makeJoinConditionValueQExpr(entity, condition.left),
-        tsg.string(condition.operator),
         tsg.array(
           condition.right.map(it => makeJoinConditionValueQExpr(entity, it)),
         ),
