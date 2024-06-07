@@ -2321,12 +2321,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:20.10.5":
-  version: 20.10.5
-  resolution: "@types/node@npm:20.10.5"
+"@types/node@npm:20.14.2":
+  version: 20.14.2
+  resolution: "@types/node@npm:20.14.2"
   dependencies:
     undici-types: ~5.26.4
-  checksum: e216b679f545a8356960ce985a0e53c3a58fff0eacd855e180b9e223b8db2b5bd07b744a002b8c1f0c37f9194648ab4578533b5c12df2ec10cc02f61d20948d2
+  checksum: 265362479b8f3b50fcd1e3f9e9af6121feb01a478dff0335ae67cccc3babfe45d0f12209d3d350595eebd7e67471762697b877c380513f8e5d27a238fa50c805
   languageName: node
   linkType: hard
 
@@ -8254,7 +8254,7 @@ __metadata:
     "@types/fs-extra": 11.0.4
     "@types/jest": 29.5.12
     "@types/js-yaml": 4.0.9
-    "@types/node": 20.10.5
+    "@types/node": 20.14.2
     "@types/pluralize": 0.0.33
     "@types/prettier": 2.7.3
     "@types/sqlstring": 2.3.2
@@ -8289,7 +8289,7 @@ __metadata:
     "@apollo/server": ^4.0.0
     typescript: ^3.7.4 || ^4.0.0 || ^5.0.0
   bin:
-    sasat: lib/cli/cli.js
+    sasat: dist/cli/cli.mjs
   languageName: unknown
   linkType: soft
 
