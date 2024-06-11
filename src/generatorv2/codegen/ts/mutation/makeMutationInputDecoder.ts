@@ -7,7 +7,6 @@ import {
   makeContextTypeRef,
   makeTypeRef,
 } from '../scripts/getEntityTypeRefs.js';
-import { ResolverMiddleware } from '../../../../runtime/resolverMiddleware.js';
 import { Directories, Directory } from '../../../directory.js';
 import { tsFileNames } from '../tsFileNames.js';
 

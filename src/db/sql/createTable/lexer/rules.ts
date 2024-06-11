@@ -74,7 +74,7 @@ const createKeywordRule = (
       if (ignoreCase)
         words = words.map(it => ({ ...it, value: it.value.toUpperCase() }));
       let v;
-      // eslint-disable-next-line no-constant-condition
+
       while (true) {
         v = next();
         if (v.terminated && words.find(it => it.value === str)) {

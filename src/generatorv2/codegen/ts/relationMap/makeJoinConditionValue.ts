@@ -15,7 +15,6 @@ import {
   ReferencedNode,
   ReferenceNode,
 } from '../../../nodes/ReferencedNode.js';
-import { QueryConditionValue } from 'generatorv2/nodes/QueryConditionNode';
 
 const qExpr = tsg.identifier('qe').importFrom('sasat');
 const parentTableAlias = 'parentTableAlias';

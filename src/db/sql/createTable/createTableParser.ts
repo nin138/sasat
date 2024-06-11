@@ -167,7 +167,6 @@ export class CreateTableParser {
       option: defaultColumnOption,
     };
 
-    // @ts-ignore
     if (column.default === '.nan' || Number.isNaN(column.default)) {
       console.error(column);
     }

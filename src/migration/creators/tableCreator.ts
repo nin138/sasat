@@ -7,13 +7,7 @@ import {
 import { NormalColumn, ReferenceColumn } from '../serializable/column.js';
 import { Reference } from '../serialized/serializedColumn.js';
 import { TableHandler } from '../serializable/table.js';
-import {
-  GqlFromContextParam,
-  GQLMutation,
-  GQLOption,
-  GQLQuery,
-  MutationOption,
-} from '../data/GQLOption.js';
+import { GQLMutation, GQLOption, GQLQuery } from '../data/GQLOption.js';
 import { DataStore } from '../dataStore.js';
 import { VirtualRelation } from '../data/virtualRelation.js';
 

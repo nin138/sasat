@@ -1,5 +1,4 @@
 import { TypeFieldDefinition } from '../generatorv2/codegen/ts/scripts/typeDefinition.js';
-import { validate } from 'graphql/validation';
 
 type TypeDef = Record<string, TypeFieldDefinition>;
 

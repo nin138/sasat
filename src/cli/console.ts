@@ -8,7 +8,7 @@ export const Console = {
   error: (msg: string): void => {
     console.error(chalk.bold.red(msg));
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   log: (msg: any): void => {
     console.log(msg);
   },

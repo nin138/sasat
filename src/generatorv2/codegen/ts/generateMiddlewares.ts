@@ -5,7 +5,6 @@ import { isImported } from './scripts/ast/isImported.js';
 import { getExportedVariables } from './scripts/ast/getExportedVariables.js';
 import { tsFileNames } from './tsFileNames.js';
 import { ImportDeclaration as TsgImport } from '../../../tsg/importDeclaration.js';
-import { ResolverMiddleware } from '../../../runtime/resolverMiddleware.js';
 import { unique } from '../../../runtime/util.js';
 
 const { createSourceFile, ScriptTarget } = typescript;

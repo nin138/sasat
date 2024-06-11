@@ -6,7 +6,6 @@ import {
   GQLMutation,
 } from '../../migration/data/GQLOption.js';
 import { EntityNode } from '../nodes/entityNode.js';
-import { TypeNode } from '../nodes/typeNode.js';
 
 export const makeEntityMutationNodes = (
   table: TableHandler,

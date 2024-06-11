@@ -15,22 +15,18 @@ export abstract class TsExpression extends TsCode {
   }
 
   call(...args: TsExpression[]): CallExpression {
-    // eslint-disable-next-line @typescript-eslint/no-use-before-define
     return new CallExpression(this, ...args);
   }
 
   nonNull(): NonNullExpression {
-    // eslint-disable-next-line @typescript-eslint/no-use-before-define
     return new NonNullExpression(this);
   }
 
   property(propertyName: string): PropertyAccessExpression {
-    // eslint-disable-next-line @typescript-eslint/no-use-before-define
     return new PropertyAccessExpression(this, propertyName);
   }
 
   as(type: TsType): AsExpression {
-    // eslint-disable-next-line @typescript-eslint/no-use-before-define
     return new AsExpression(this, type);
   }
 }
@@ -145,7 +141,6 @@ export class ArrowFunction extends Literal {
   }
 
   toAsync(): AsyncExpression {
-    // eslint-disable-next-line @typescript-eslint/no-use-before-define
     return new AsyncExpression(this);
   }
 }

@@ -111,8 +111,9 @@ const getHashIdArgs = (
     field: FieldQueryConditionValue,
   ) => {
     const columnName = field.column;
-    const hashIdOpt = entity.fields.find(e => e.columnName === columnName)
-      ?.hashId;
+    const hashIdOpt = entity.fields.find(
+      e => e.columnName === columnName,
+    )?.hashId;
     if (!hashIdOpt) return null;
     return {
       name: arg.name,

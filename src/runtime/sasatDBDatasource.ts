@@ -51,7 +51,6 @@ export type QueryOptions = {
   lock?: LockMode;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-empty-function
 export abstract class SasatDBDatasource<
   Entity extends EntityType,
   Identifiable extends object,
@@ -226,5 +225,4 @@ export abstract class SasatDBDatasource<
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-function
 const noop = () => {};

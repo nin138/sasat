@@ -22,7 +22,6 @@ export class StoreMigrator implements MigrationStore {
   protected tables: TableMigrator[] = [];
   protected migrationQueue: string[] = [];
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
   private constructor() {}
 
   static new(): StoreMigrator {
