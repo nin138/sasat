@@ -4,8 +4,8 @@ import {
   MigrationStore,
   Conditions,
   Mutations,
-} from '../../src/index.js';
-import { SqlString } from 'sasat/runtime/sql/sqlString.js';
+} from 'sasat';
+import { SqlString } from 'sasat';
 
 const a = 'a';
 

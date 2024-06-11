@@ -1,6 +1,6 @@
 export { TsStatement } from './abstruct/statement.js';
 export { KeywordTypeNode } from './node/type/typeKeyword.js';
-export { TsType } from './node/type/type.js';
+export type { TsType } from './node/type/type.js';
 export { TsFile } from './file.js';
 export { tsg } from './factory.js';
 export { Parameter } from './node/parameter.js';

@@ -1,4 +1,4 @@
-import { SasatMigration, MigrationStore } from 'sasat';
+import type { SasatMigration, MigrationStore } from 'sasat';
 
 export default class Add_column implements SasatMigration {
   up: (store: MigrationStore) => void = store => {

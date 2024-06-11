@@ -4,7 +4,7 @@ import {
   Conditions,
   Queries,
   Mutations,
-} from '../../src/index.js';
+} from 'sasat';
 
 export default class Post implements SasatMigration {
   up: (store: MigrationStore) => void = store => {
