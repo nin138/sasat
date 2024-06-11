@@ -69,8 +69,8 @@ __metadata:
   linkType: hard
 
 "@apollo/server@npm:^4.9.3":
-  version: 4.9.3
-  resolution: "@apollo/server@npm:4.9.3"
+  version: 4.10.4
+  resolution: "@apollo/server@npm:4.10.4"
   dependencies:
     "@apollo/cache-control-types": ^1.0.3
     "@apollo/server-gateway-interface": ^1.1.1
@@ -88,7 +88,6 @@ __metadata:
     "@types/express-serve-static-core": ^4.17.30
     "@types/node-fetch": ^2.6.1
     async-retry: ^1.2.1
-    body-parser: ^1.20.0
     cors: ^2.8.5
     express: ^4.17.1
     loglevel: ^1.6.8
@@ -100,7 +99,7 @@ __metadata:
     whatwg-mimetype: ^3.0.0
   peerDependencies:
     graphql: ^16.6.0
-  checksum: 28537d7646669a5dc1302cfd75d8a9bf473459ee585c6b778d174628a2cfb3f89a5ac742eca7de2a779b6c9e3f30da509a8787a71227520d009ac190aa7a9207
+  checksum: 28feeae48dca3ccff3c614df60ae5d6f736987bae9f1826f85b664cfded0a58d28929edd726f94c08c6ecf0eb6ba831d168dc7b753b8bccef2e928b5f7b5ee94
   languageName: node
   linkType: hard
 
@@ -3142,7 +3141,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"body-parser@npm:1.20.2, body-parser@npm:^1.20.0":
+"body-parser@npm:1.20.2":
   version: 1.20.2
   resolution: "body-parser@npm:1.20.2"
   dependencies:
