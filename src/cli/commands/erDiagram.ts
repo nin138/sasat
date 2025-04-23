@@ -1,12 +1,14 @@
-import { getCurrentStore } from 'cli/commands/getCurrentStore';
-import { config } from 'config/config';
+import { getCurrentStore } from '../commands/getCurrentStore.js';
+import { config } from '../../config/config.js';
 import fs from 'fs';
-import { Directory } from 'generatorv2/directory';
-import { Relation } from 'migration/data/relation';
-import { DataStoreHandler } from 'migration/dataStore';
-import { BaseColumn, ReferenceColumn } from 'migration/serializable/column';
-import { TableHandler } from 'migration/serializable/table';
-import * as console from 'node:console';
+import { Directory } from '../../generatorv2/directory.js';
+import { Relation } from '../../migration/data/relation.js';
+import { DataStoreHandler } from '../../migration/dataStore.js';
+import {
+  BaseColumn,
+  ReferenceColumn,
+} from '../../migration/serializable/column.js';
+import { TableHandler } from '../../migration/serializable/table.js';
 import path from 'path';
 import { Console } from '../console.js';
 

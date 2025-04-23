@@ -1,7 +1,7 @@
-import { config } from 'config/config';
-import { createCurrentMigrationDataStore } from 'migration/exec/createCurrentMigrationDataStore';
-import { getMigrationFileNames } from 'migration/exec/getMigrationFiles';
-import { compileMigrationFiles } from 'migration/exec/migrationFileCompiler';
+import { config } from '../../config/config.js';
+import { createCurrentMigrationDataStore } from '../../migration/exec/createCurrentMigrationDataStore.js';
+import { getMigrationFileNames } from '../../migration/exec/getMigrationFiles.js';
+import { compileMigrationFiles } from '../../migration/exec/migrationFileCompiler.js';
 
 export async function getCurrentStore() {
   await compileMigrationFiles();

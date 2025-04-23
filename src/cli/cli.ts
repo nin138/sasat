@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { cac } from 'cac';
-import { writeDiagram } from 'cli/commands/erDiagram';
+import { writeDiagram } from './commands/erDiagram.js';
 import { createMigration } from './commands/createMigration.js';
 import { migrate } from './commands/migrate.js';
 import { init } from './commands/init.js';
