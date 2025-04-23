@@ -1,4 +1,4 @@
-import { getCurrentStore } from 'cli/commands/getCurrentStore';
+import { getCurrentStore } from '../../cli/commands/getCurrentStore';
 import { Console } from '../console.js';
 import { DataStoreHandler } from '../../migration/dataStore.js';
 import { writeCurrentSchema } from '../../util/fsUtil.js';
