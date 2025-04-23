@@ -1,7 +1,7 @@
+import { getCurrentStore } from 'cli/commands/getCurrentStore';
 import { Console } from '../console.js';
 import { DataStoreHandler } from '../../migration/dataStore.js';
 import { writeCurrentSchema } from '../../util/fsUtil.js';
-import { createCurrentMigrationDataStore } from '../../migration/exec/createCurrentMigrationDataStore.js';
 import { compileMigrationFiles } from '../../migration/exec/migrationFileCompiler.js';
 import { config } from '../../config/config.js';
 import { getMigrationFileNames } from '../../migration/exec/getMigrationFiles.js';
@@ -14,9 +14,8 @@ export const generate = async (): Promise<void> => {
     const targetFile =
       files.find(it => it === config().migration.target) ||
       files[files.length - 1];
-    const store = (
-      await createCurrentMigrationDataStore(targetFile)
-    ).serialize();
+
+    const store = await getCurrentStore();
     const storeHandler = new DataStoreHandler(store);
     writeCurrentSchema(store);
     await new CodeGen_v2(storeHandler).generate();

@@ -8,6 +8,7 @@ test/outv1
 test/migrations/currentSchema.yml
 test/migrations/initialSchema.yml
 test/migrations/*.mjs
+er-diagram.mermaid
 
 # dependencies
 /node_modules

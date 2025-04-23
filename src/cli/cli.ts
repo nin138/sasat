@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { cac } from 'cac';
+import { writeDiagram } from 'cli/commands/erDiagram';
 import { createMigration } from './commands/createMigration.js';
 import { migrate } from './commands/migrate.js';
 import { init } from './commands/init.js';
@@ -26,6 +27,9 @@ try {
     .command('migration:build', 'compile migration files')
     .action(migrationBuild);
   cli.command('generate', 'generate files').action(generate);
+  cli
+    .command('generate:er', 'generate mermaid er diagram')
+    .action(writeDiagram);
   cli
     .command('migration:create [name]', 'generate new migration file')
     .action(createMigration);

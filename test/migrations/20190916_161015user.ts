@@ -5,11 +5,6 @@ import {
   Conditions,
   Mutations,
 } from 'sasat';
-import { SqlString } from 'sasat';
-
-const a = 'a';
-
-console.log(SqlString.escape(a));
 
 export default class CreateUser implements SasatMigration {
   up: (store: MigrationStore) => void = store => {
