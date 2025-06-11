@@ -1,6 +1,13 @@
-import { CommandResponse, getDbClient, qe, RelationMap } from '../index.js';
-import { Fields } from './field.js';
 import { SQLExecutor, SqlValueType } from '../db/connectors/dbClient.js';
+import { CommandResponse, getDbClient, qe, RelationMap } from '../index.js';
+import {
+  Create,
+  createToSql,
+  Delete,
+  deleteToSql,
+  Update,
+  updateToSql,
+} from './dsl/mutation/mutation.js';
 import {
   createQueryResolveInfo,
   TableInfo,
@@ -12,21 +19,14 @@ import {
   Query,
   Sort,
 } from './dsl/query/query.js';
-import {
-  Create,
-  createToSql,
-  Delete,
-  deleteToSql,
-  Update,
-  updateToSql,
-} from './dsl/mutation/mutation.js';
+import { hydrate, ResultRow } from './dsl/query/sql/hydrate.js';
+import { queryToSql } from './dsl/query/sql/queryToSql.js';
+import { Fields } from './field.js';
 import {
   createPagingFieldQuery,
   createQuery,
   PagingOption,
 } from './sql/runQuery.js';
-import { hydrate, ResultRow } from './dsl/query/sql/hydrate.js';
-import { queryToSql } from './dsl/query/sql/queryToSql.js';
 
 export type EntityType = Record<string, SqlValueType>;
 export type EntityResult<Entity, Identifiable> = Identifiable & Partial<Entity>;
@@ -88,12 +88,11 @@ export abstract class SasatDBDatasource<
       ...this.getDefaultValueString(),
       ...entity,
     } as unknown as Entity;
+    const fields = Object.keys(obj);
     const dsl: Create = {
       table: this.tableName,
-      values: Object.entries(obj).map(([column, value]) => ({
-        field: column,
-        value,
-      })),
+      fields: fields,
+      entities: [fields.map(key => obj[key])],
       upsert: option?.upsert?.updateColumns,
       ignore: option?.ignore,
     };
@@ -105,6 +104,32 @@ export abstract class SasatDBDatasource<
       ...obj,
       [this.autoIncrementColumn]: response.insertId,
     } as unknown as Entity;
+  }
+
+  async createBulk(
+    entities: Creatable[],
+    option?: {
+      ignore?: boolean;
+      upsert?: { updateColumns: string[] };
+    },
+  ): Promise<CommandResponse> {
+    const objects = entities.map(it => ({
+      ...this.getDefaultValueString(),
+      ...it,
+    })) as unknown[] as Entity[];
+    const keys = Object.keys(objects[0]);
+    const values = objects.map(it => keys.map(key => it[key]));
+
+    const dsl: Create = {
+      table: this.tableName,
+      fields: keys,
+      entities: values,
+      upsert: option?.upsert?.updateColumns,
+      ignore: option?.ignore,
+    };
+    const sql = createToSql(dsl, this.tableInfo);
+    this.commandLogger(sql);
+    return await this.client.rawCommand(sql);
   }
 
   async upsert<T extends Creatable & Partial<Entity>>(
@@ -128,6 +153,25 @@ export abstract class SasatDBDatasource<
           value: value as SqlValueType,
         })),
       where: this.createIdentifiableExpression(entity),
+    };
+    const sql = updateToSql(dsl, this.tableInfo);
+    this.commandLogger(sql);
+    return this.client.rawCommand(sql);
+  }
+
+  updateWhere(
+    update: Omit<Updatable, keyof Identifiable>,
+    condition: BooleanValueExpression,
+  ): Promise<CommandResponse> {
+    const dsl: Update = {
+      table: this.tableName,
+      values: Object.entries(update)
+        .filter(([, value]) => value !== undefined)
+        .map(([column, value]) => ({
+          field: column,
+          value: value as SqlValueType,
+        })),
+      where: condition,
     };
     const sql = updateToSql(dsl, this.tableInfo);
     this.commandLogger(sql);

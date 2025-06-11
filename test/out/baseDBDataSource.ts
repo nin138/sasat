@@ -1,5 +1,5 @@
 import { relationMap, tableInfo } from './__generated__/relationMap.js';
-import { EntityType, Fields, SasatDBDatasource } from '../../lib/index.js';
+import { EntityType, Fields, SasatDBDatasource } from '../../src/index.js';
 
 export abstract class BaseDBDataSource<
   Entity extends EntityType,
