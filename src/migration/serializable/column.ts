@@ -51,7 +51,6 @@ export class BaseColumn implements Column {
   }
 
   isNullableOnCreate(): boolean {
-    if (this.data.hasReference) return false;
     return (
       !this.data.notNull ||
       this.data.default !== undefined ||
