@@ -179,9 +179,15 @@ export abstract class SasatDBDatasource<
   }
 
   async delete(entity: Identifiable): Promise<CommandResponse> {
+    return this.deleteWhere(this.createIdentifiableExpression(entity));
+  }
+
+  async deleteWhere(
+    condition: BooleanValueExpression,
+  ): Promise<CommandResponse> {
     const dsl: Delete = {
       table: this.tableName,
-      where: this.createIdentifiableExpression(entity),
+      where: condition,
     };
     const sql = deleteToSql(dsl);
     this.commandLogger(sql);
