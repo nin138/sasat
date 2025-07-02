@@ -25,7 +25,7 @@ export class ReferenceNode {
       ref.parentTable,
       makeJoinCondition(ref.parentColumn, column.columnName()),
       false,
-      false,
+      column.isNullable(),
       column.isPrimary(),
       column.table.gqlOption.enabled && parentTable.gqlOption.enabled,
     );
