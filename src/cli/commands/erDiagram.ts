@@ -20,7 +20,6 @@ export const writeDiagram = async (): Promise<void> => {
     const result = `erDiagram
 ${entities.join('\n')}
 `;
-    console.log();
     fs.writeFileSync(
       path.join(
         config().migration.out,
@@ -63,7 +62,10 @@ function processTable(store: DataStoreHandler, table: TableHandler) {
       const rel = it as ReferenceColumn;
       const ref = rel.data.reference;
       const parent = store.table(ref.parentTable).column(ref.parentColumn);
-      return `${ref.parentTable} ${getRefType(parent, ref.relation)} ${table.tableName} : ${ref.relationName}`;
+      return `${ref.parentTable} ${getRefType(parent, ref.relation)} ${table.tableName} : ${
+        ref.relationName ??
+        rel.data.reference.parentTable + '<->' + rel.table.tableName
+      }`;
     });
   return `${table.tableName} {
 ${table.columns.map(it => `  ${it.columnName()} ${it.dataType()}`).join('\n')}
