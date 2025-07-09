@@ -41,6 +41,11 @@ export type JoinConditionNode =
       operator: 'IN';
       right: JoinConditionValue[];
     }
+  | {
+      kind: 'isNull';
+      value: JoinConditionValue;
+      not: boolean;
+    }
   | JoinCustomConditionNode;
 
 export type JoinCustomConditionNode = {

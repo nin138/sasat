@@ -142,6 +142,18 @@ const inRel = (
   operator: 'IN',
 });
 
+const isNullRel = (value: JoinConditionValue): JoinConditionNode => ({
+  kind: 'isNull',
+  value,
+  not: false,
+});
+
+const isNotNullRel = (value: JoinConditionValue): JoinConditionNode => ({
+  kind: 'isNull',
+  value,
+  not: true,
+});
+
 const comparisonQuery = (
   left: QueryConditionValue,
   operator: ComparisonOperators,
@@ -161,6 +173,8 @@ export const Conditions = {
     between: betweenRel,
     comparison: comparisonRel,
     in: inRel,
+    isNull: isNullRel,
+    isNotNull: isNotNullRel,
   },
   query: {
     between: betweenQuery,

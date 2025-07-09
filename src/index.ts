@@ -57,4 +57,8 @@ export type PagingOption = ListQueryOption; // TODO
 // export {PagingOption} from "./runtime/sql/runQuery.js";
 export { pagingOption } from './runtime/pagingOption.js';
 
-export type { SQLTransaction } from './db/connectors/dbClient';
+export type {
+  SQLTransaction,
+  SQLExecutor,
+  SQLClient,
+} from './db/connectors/dbClient';

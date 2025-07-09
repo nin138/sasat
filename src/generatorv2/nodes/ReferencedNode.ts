@@ -152,6 +152,12 @@ const reverseConditionNode = (
       parentRequiredFields: condition.childRequiredFields,
       childRequiredFields: condition.parentRequiredFields,
     };
+  if (condition.kind === 'isNull') {
+    if (condition.not) {
+      return Conditions.rel.isNotNull(reverseConditionValue(condition.value));
+    }
+    return Conditions.rel.isNull(reverseConditionValue(condition.value));
+  }
   if (condition.operator === 'BETWEEN') {
     return Conditions.rel.between(
       reverseConditionValue(condition.left),

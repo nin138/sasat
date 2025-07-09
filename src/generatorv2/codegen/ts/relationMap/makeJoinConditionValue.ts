@@ -88,6 +88,11 @@ const makeConditionExpr = (
       .importFrom('../conditions')
       .call(tsg.identifier('arg'));
   }
+  if (condition.kind === 'isNull') {
+    return qExpr
+      .property(condition.not ? 'isNotNull' : 'isNull')
+      .call(makeJoinConditionValueQExpr(entity, condition.value));
+  }
   if (condition.operator === 'BETWEEN') {
     return qExpr
       .property('between')
