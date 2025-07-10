@@ -145,7 +145,10 @@ const referenceRelationType = (ref: ReferenceNode) => {
       tsg.typeRef(parentEntityName.relationTypeName()),
     ])
     .importFrom('sasat');
-  return tsg.propertySignature(ref.fieldName, type);
+  return tsg.propertySignature(
+    ref.fieldName,
+    ref.isArray ? tsg.arrayType(type) : type,
+  );
 };
 
 const referencedRelationType = (node: ReferencedNode): PropertySignature => {
