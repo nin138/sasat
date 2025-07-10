@@ -64,7 +64,7 @@ function processTable(store: DataStoreHandler, table: TableHandler) {
       const parent = store.table(ref.parentTable).column(ref.parentColumn);
       return `${ref.parentTable} ${getRefType(parent, ref.relation)} ${table.tableName} : ${
         ref.relationName ??
-        rel.data.reference.parentTable + '<->' + rel.table.tableName
+        `"${rel.data.reference.parentTable}__${rel.table.tableName}"`
       }`;
     });
   return `${table.tableName} {
