@@ -95,13 +95,13 @@ export const Sql = {
   comparison: (expr: ComparisonExpression): string =>
     `${Sql.value(expr.left)}  ${expr.operator} ${Sql.value(expr.right)}`,
   compound: (expr: CompoundExpression): string =>
-    `${Sql.booleanValue(expr.left)}  ${expr.operator} ${Sql.booleanValue(
+    `${Sql.booleanValue(expr.left)} ${expr.operator} ${Sql.booleanValue(
       expr.right,
     )}`,
   isNull: (expr: IsNullExpression): string =>
     `${Sql.value(expr.expr)} ${expr.isNot ? 'IS NOT NULL' : 'IS NULL'}`,
   paren: (expr: ParenthesisExpression): string =>
-    '(' + Sql.booleanValue(expr) + ')',
+    '(' + Sql.booleanValue(expr.expression) + ')',
   table: (table: QueryTable): string => {
     if (!table.subquery) {
       if (table.alias === table.name) return SqlString.escapeId(table.name);
