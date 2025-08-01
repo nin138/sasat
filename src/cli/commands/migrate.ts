@@ -17,7 +17,9 @@ export const migrate = async (options: MigrateCommandOption): Promise<void> => {
   let current;
   Console.log('--migration started--');
   try {
-    await compileMigrationFiles();
+    if (!options.skipBuild) {
+      await compileMigrationFiles();
+    }
     const migration = new MigrationController();
     const result = await migration.migrate(options);
     current = result.currentMigration;
