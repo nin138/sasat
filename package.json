@@ -23,7 +23,7 @@
   "dependencies": {
     "cac": "^6.7.14",
     "chalk": "^5.3.0",
-    "esbuild": "^0.21.5",
+    "esbuild": "^0.25.8",
     "fs-extra": "^11.1.1",
     "graphql": "^16.8.1",
     "graphql-subscriptions": "^2.0.0",
@@ -58,9 +58,9 @@
     "ts-jest": "29.1.4",
     "ts-node": "10.9.2",
     "tsconfig-paths": "4.2.0",
-    "tsx": "^4.15.2",
+    "tsx": "^4.20.3",
     "typescript-eslint": "^7.13.0",
-    "unbuild": "^2.0.0"
+    "unbuild": "^3.6.0"
   },
   "peerDependencies": {
     "@apollo/server": "^4.0.0",
