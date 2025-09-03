@@ -1,3 +1,4 @@
+import { config, setConfig } from '../../config/config.js';
 import { MigrationController } from '../../migration/controller.js';
 import { Console } from '../console.js';
 import { DataStoreHandler } from '../../migration/dataStore.js';
@@ -19,6 +20,10 @@ export const migrate = async (options: MigrateCommandOption): Promise<void> => {
   try {
     if (!options.skipBuild) {
       await compileMigrationFiles();
+    }
+    const conf = config();
+    if (conf.migration.db) {
+      setConfig({ db: conf.migration.db });
     }
     const migration = new MigrationController();
     const result = await migration.migrate(options);

@@ -37,6 +37,7 @@ export interface SasatConfigMigration {
   dir: string;
   out: string;
   target?: string;
+  db?: SasatConfigDb;
 }
 
 const defaultConfMigration: SasatConfigMigration = {
