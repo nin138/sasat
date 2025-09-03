@@ -77,3 +77,11 @@ export const config = (): SasatConfig => {
   if (conf === undefined) conf = new SasatConfigLoader().getConfig();
   return conf;
 };
+
+export function setConfig(update: Partial<SasatConfig>): SasatConfig {
+  conf = {
+    ...config(),
+    ...update,
+  };
+  return conf;
+}

@@ -9,8 +9,6 @@ import { MySqlTransaction } from './transaction.js';
 import { config } from '../../../config/config.js';
 import { promisify } from 'util';
 
-const defaultConfig = { ...config().db, dateStrings: true };
-
 export class MysqlClient extends DBClient {
   private readonly pool: mysql.Pool;
   logger: (sql: string) => void = () => {};
@@ -20,7 +18,8 @@ export class MysqlClient extends DBClient {
   ) {
     super();
     this.pool = mysql.createPool({
-      ...defaultConfig,
+      ...config().db,
+      dateStrings: true,
       ...connectionOption,
       ...poolOption,
     });
@@ -29,7 +28,8 @@ export class MysqlClient extends DBClient {
 
   async transaction(): Promise<SQLTransaction> {
     const connection = mysql.createConnection({
-      ...defaultConfig,
+      ...config().db,
+      dateStrings: true,
       ...this.connectionOption,
     });
     await promisify(connection.beginTransaction).bind(connection)();
