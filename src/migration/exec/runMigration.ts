@@ -2,7 +2,7 @@ import { StoreMigrator } from '../front/storeMigrator.js';
 import { getDbClient } from '../../db/getDbClient.js';
 import { Console } from '../../cli/console.js';
 import { Direction } from './getCurrentMigration.js';
-import { config } from '../../config/config.js';
+import { config, setConfig } from '../../config/config.js';
 import { MigrateCommandOption } from '../../cli/commands/migrate.js';
 
 export const runMigration = async (
@@ -12,6 +12,10 @@ export const runMigration = async (
   options: MigrateCommandOption,
 ) => {
   const sqls = store.getSql();
+  const conf = store.getUpdateConfig();
+  if (conf) {
+    setConfig(conf);
+  }
   store.resetQueue();
   if (!options.silent) {
     sqls.forEach(Console.log);

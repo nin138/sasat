@@ -1,4 +1,4 @@
-import { config } from '../config/config.js';
+import { config, setConfig } from '../config/config.js';
 import { SerializedStore } from './serialized/serializedStore.js';
 import { getCurrentMigration } from './exec/getCurrentMigration.js';
 import { readMigration } from './exec/readMigrationFile.js';
@@ -18,6 +18,9 @@ export class MigrationController {
     const currentMigration = await getCurrentMigration(options);
     Console.log('--current migration--: ' + currentMigration);
     let store = await createCurrentMigrationDataStore(currentMigration);
+    if (store.getUpdateConfig()) {
+      setConfig(store.getUpdateConfig()!);
+    }
     const target = getMigrationTargets(fileNames, currentMigration);
 
     for (const tsFileName of target.files) {

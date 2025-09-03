@@ -1,3 +1,4 @@
+import { NestedPartial } from 'util/type';
 import { MigrationTable, TableMigrator } from './tableMigrator.js';
 import { DataStore } from '../dataStore.js';
 import { TableBuilder, TableCreator } from '../creators/tableCreator.js';
@@ -6,7 +7,7 @@ import { SerializedStore } from '../serialized/serializedStore.js';
 import fs from 'fs';
 import path from 'path';
 import { readInitialSchema } from '../../util/fsUtil.js';
-import { config } from '../../config/config.js';
+import { config, SasatConfig } from '../../config/config.js';
 
 export interface MigrationStore extends DataStore {
   createTable(
@@ -21,6 +22,7 @@ export interface MigrationStore extends DataStore {
 export class StoreMigrator implements MigrationStore {
   protected tables: TableMigrator[] = [];
   protected migrationQueue: string[] = [];
+  protected conf: NestedPartial<SasatConfig> | undefined;
 
   private constructor() {}
 
@@ -86,5 +88,12 @@ export class StoreMigrator implements MigrationStore {
     return {
       tables: this.tables.map(it => it.serialize()),
     };
+  }
+  setConfig(conf: NestedPartial<SasatConfig>): this {
+    this.conf = conf;
+    return this;
+  }
+  getUpdateConfig() {
+    return this.conf;
   }
 }
