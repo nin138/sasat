@@ -1,3 +1,4 @@
+import { assignDeep } from '../util/assignDeep.js';
 import { SasatConfigLoader } from './loader.js';
 import { NestedPartial } from '../util/type.js';
 
@@ -78,10 +79,7 @@ export const config = (): SasatConfig => {
   return conf;
 };
 
-export function setConfig(update: Partial<SasatConfig>): SasatConfig {
-  conf = {
-    ...config(),
-    ...update,
-  };
+export function setConfig(update: NestedPartial<SasatConfig>): SasatConfig {
+  conf = assignDeep(config(), update) as SasatConfig;
   return conf;
 }
