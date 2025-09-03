@@ -7,6 +7,9 @@ export interface SasatConfigDb {
   user: string;
   password?: string;
   database: string;
+  ssl?: {
+    ca?: string[];
+  };
 }
 
 const defaultConfDb: SasatConfigDb = {
