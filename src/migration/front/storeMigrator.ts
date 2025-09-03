@@ -17,6 +17,7 @@ export interface MigrationStore extends DataStore {
   dropTable(tableName: string): MigrationStore;
   table(tableName: string): MigrationTable;
   sql(...sql: string[]): MigrationStore;
+  setConfig(config: NestedPartial<SasatConfig>): MigrationStore;
 }
 
 export class StoreMigrator implements MigrationStore {

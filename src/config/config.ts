@@ -21,16 +21,16 @@ const defaultConfDb: SasatConfigDb = {
   password: '',
 };
 
-export interface SasatConfigRedis {
-  host: string;
-  port: number;
-  password?: string;
-}
+// export interface SasatConfigRedis {
+//   host: string;
+//   port: number;
+//   password?: string;
+// }
 
-const defaultCofRedis: SasatConfigRedis = {
-  host: '127.0.0.1',
-  port: 6379,
-};
+// const defaultCofRedis: SasatConfigRedis = {
+//   host: '127.0.0.1',
+//   port: 6379,
+// };
 
 export interface SasatConfigMigration {
   table: string;
@@ -57,7 +57,7 @@ export interface SasatConfig {
   db: SasatConfigDb;
   migration: SasatConfigMigration;
   generator: SasatConfigGenerator;
-  redis: SasatConfigRedis;
+  // redis: SasatConfigRedis;
 }
 
 export type PartialSasatConfig = NestedPartial<SasatConfig>;
@@ -71,7 +71,7 @@ export const defaultConf: SasatConfig = {
       subscription: true,
     },
   },
-  redis: defaultCofRedis,
+  // redis: defaultCofRedis,
 };
 
 let conf: SasatConfig | undefined;
