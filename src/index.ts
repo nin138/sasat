@@ -1,5 +1,6 @@
 export { queryToSql } from './runtime/dsl/query/sql/queryToSql.js';
 export { setConfig } from './config/config.js';
+export { formatQuery } from './db/formatQuery.js';
 import { ListQueryOption } from './runtime/sasatDBDatasource.js';
 export { Sql } from './runtime/dsl/query/sql/nodeToSql.js';
 export { SqlString } from './runtime/sql/sqlString.js';

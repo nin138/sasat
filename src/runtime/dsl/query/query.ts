@@ -53,7 +53,7 @@ export type Fn = {
   alias?: string;
 };
 
-export type SelectExpr = Field | Fn | Identifier;
+export type SelectExpr = Field | Fn | Identifier | RawExpression;
 
 export type QueryTable = {
   kind: QueryNodeKind.Table;

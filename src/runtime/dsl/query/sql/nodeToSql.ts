@@ -30,6 +30,8 @@ export const SELECT_ALIAS_SEPARATOR = '__';
 export const Sql = {
   select: (expr: SelectExpr): string => {
     switch (expr.kind) {
+      case QueryNodeKind.Raw:
+        return expr.expr;
       case QueryNodeKind.Field:
         return Sql.fieldInSelect(expr);
       case QueryNodeKind.Identifier:
