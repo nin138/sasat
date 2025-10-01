@@ -11,12 +11,12 @@ import { promisify } from 'util';
 
 export class MysqlClient extends DBClient {
   private readonly pool: mysql.Pool;
-  logger: (sql: string) => void = () => {};
   constructor(
     readonly connectionOption?: Partial<mysql.ConnectionOptions>,
     poolOption?: Partial<mysql.PoolOptions>,
+    logger?: (query: string) => void,
   ) {
-    super();
+    super(logger);
     this.pool = mysql.createPool({
       ...config().db,
       dateStrings: true,

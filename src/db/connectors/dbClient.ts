@@ -14,12 +14,16 @@ export interface SQLExecutor {
   rawCommand(sql: string): Promise<CommandResponse>;
 }
 
+const noop = () => {};
 export abstract class SQLClient implements SQLExecutor {
+  protected logger: (query: string) => void = noop;
   rawQuery(sql: string): Promise<QueryResponse> {
+    this.logger(sql);
     return this.execSql(sql) as Promise<QueryResponse>;
   }
 
   rawCommand(sql: string): Promise<CommandResponse> {
+    this.logger(sql);
     return this.execSql(sql) as Promise<CommandResponse>;
   }
 
@@ -51,9 +55,10 @@ export abstract class SQLTransaction extends SQLClient {
 
 export abstract class DBClient extends SQLClient {
   protected _released: boolean;
-  protected constructor() {
+  protected constructor(logger: (query: string) => void = noop) {
     super();
     this._released = false;
+    this.logger = logger;
   }
   public isReleased(): boolean {
     return this._released;
