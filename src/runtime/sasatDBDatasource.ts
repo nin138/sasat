@@ -196,7 +196,7 @@ export abstract class SasatDBDatasource<
 
   async first(
     fields?: EntityFields,
-    option?: Omit<QueryOptions, 'limit' | 'offset'>,
+    option?: QueryOptions,
     context?: unknown,
   ): Promise<QueryResult | null> {
     const result = await this.find(fields, option, context);
