@@ -13,6 +13,7 @@ import {
   IsNullExpression,
   Join,
   Literal,
+  Over,
   ParenthesisExpression,
   Query,
   QueryNodeKind,
@@ -21,10 +22,40 @@ import {
   SelectExpr,
   Sort,
   Value,
+  Window,
+  WindowContent,
 } from '../query.js';
 
 import { SqlString } from '../../../../runtime/sql/sqlString.js';
 import { queryToSql } from './queryToSql.js';
+
+function partitionBy(ids?: Identifier[]) {
+  if (!ids || ids.length === 0) return '';
+  return `PARTITION BY ${ids.map(Sql.identifier).join(',')} `;
+}
+function orderBy(sorts?: Sort[]) {
+  if (!sorts || sorts.length === 0) return '';
+  return `ORDER BY ${sorts.map(Sql.sort).join(',')} `;
+}
+
+function windowValue(value: WindowContent) {
+  if (value.type === 'FOLLOWING' || value.type === 'PRECEDING') {
+    return `${value.value} ${value.type}`;
+  }
+  return value.type;
+}
+function window(window?: Window) {
+  if (!window) return '';
+  if (window.between) {
+    return `${window.type} BETWEEN ${windowValue(window.start)} AND ${window.end}`;
+  }
+  return `${window.type} ${windowValue(window.value)}`;
+}
+
+function over(v?: Over) {
+  if (!v) return '';
+  return `OVER (${partitionBy(v.partitionBy)}${orderBy(v.orderBy)}${window(v.window)})`;
+}
 
 export const SELECT_ALIAS_SEPARATOR = '__';
 export const Sql = {
@@ -61,7 +92,7 @@ export const Sql = {
     return SqlString.escapeId(ident.identifier);
   },
   fn: (fn: Fn): string =>
-    `${fn.fnName}(${fn.args.map(Sql.value).join(',')})${
+    `${fn.fnName}(${fn.args.map(Sql.value).join(',')})${over(fn.over)}${
       fn.alias ? ` AS ${fn.alias}` : ''
     }`,
   value: (v: Value): string => {

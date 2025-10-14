@@ -21,6 +21,8 @@ import {
   Sort,
   SortDirection,
   Value,
+  Window,
+  WindowContent,
 } from './query/query.js';
 import { ComparisonOperators } from '../../db/sql/expression/comparison.js';
 import { nonNullable } from '../util.js';
@@ -75,6 +77,25 @@ const fn = (fnName: string, args: Value[], alias?: string): Fn => ({
   fnName,
   args,
   alias,
+});
+
+const window = (type: 'ROWS' | 'RANGE', value: WindowContent): Window => ({
+  kind: QueryNodeKind.Window,
+  type,
+  between: false,
+  value,
+});
+
+const windowBetween = (
+  type: 'ROWS' | 'RANGE',
+  start: WindowContent,
+  end: WindowContent,
+): Window => ({
+  kind: QueryNodeKind.Window,
+  type,
+  between: true,
+  start,
+  end,
 });
 
 const paren = (expression: BooleanValueExpression): ParenthesisExpression => ({
@@ -234,6 +255,8 @@ export const QExpr = {
   ...conditions,
   field,
   fn,
+  window,
+  windowBetween,
   paren,
   table,
   subQueryTable,

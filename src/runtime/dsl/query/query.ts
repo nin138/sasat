@@ -18,6 +18,8 @@ export enum QueryNodeKind {
   Exists,
   Raw,
   GroupBy,
+  Over,
+  Window,
 }
 
 export type LockMode = 'FOR UPDATE' | 'FOR SHARE';
@@ -50,8 +52,46 @@ export type Fn = {
   kind: QueryNodeKind.Function;
   fnName: string;
   args: Value[];
+  over?: Over;
   alias?: string;
 };
+
+export type Over = {
+  kind: QueryNodeKind.Over;
+  orderBy?: Sort[];
+  partitionBy?: Identifier[];
+  window?: Window;
+};
+
+export type Window =
+  | {
+      kind: QueryNodeKind.Window;
+      type: 'ROWS' | 'RANGE';
+      between: true;
+      start: WindowContent;
+      end: WindowContent;
+    }
+  | {
+      kind: QueryNodeKind.Window;
+      type: 'ROWS' | 'RANGE';
+      between: false;
+      value: WindowContent;
+    };
+
+type WINDOW_TYPES_NO_ARG =
+  | 'UNBOUNDED PRECEDING'
+  | 'UNBOUNDED FOLLOWING'
+  | 'CURRENT ROW';
+type WINDOW_TYPES_ARG = 'PRECEDING' | 'FOLLOWING';
+
+export type WindowContent =
+  | {
+      type: WINDOW_TYPES_NO_ARG;
+    }
+  | {
+      type: WINDOW_TYPES_ARG;
+      value: number;
+    };
 
 export type SelectExpr = Field | Fn | Identifier | RawExpression;
 
