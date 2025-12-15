@@ -42,7 +42,6 @@ export class MysqlClient extends DBClient {
   }
 
   protected execSql(sql: string): Promise<QueryResponse | CommandResponse> {
-    this.logger(sql);
     return promisify(this.pool.query).bind(this.pool)(sql as never) as Promise<
       QueryResponse | CommandResponse
     >;
