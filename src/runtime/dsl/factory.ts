@@ -31,7 +31,9 @@ const compound = (
   expr: Array<BooleanValueExpression | undefined | null>,
   operator: CompoundOperator,
 ): BooleanValueExpression => {
-  return expr.filter(nonNullable).reduce((acc, current) => ({
+  const active = expr.filter(nonNullable);
+  if (active.length === 0) return conditions.eq(literal(1), literal(1));
+  return active.reduce((acc, current) => ({
     kind: QueryNodeKind.CompoundExpr,
     left: acc,
     operator: operator,
@@ -265,5 +267,6 @@ export const QExpr = {
   sort,
   order: sort,
   ident,
+  id: ident,
   raw,
 } as const;
