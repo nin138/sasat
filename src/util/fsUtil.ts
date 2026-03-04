@@ -1,4 +1,4 @@
-import * as yaml from 'js-yaml';
+import yaml from 'js-yaml';
 import fs from 'fs-extra';
 import { join } from 'path';
 import { config } from '../config/config.js';
