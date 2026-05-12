@@ -123,7 +123,7 @@ export type UserWithRelations = User & UserRelations;
 export type UserResult = EntityResult<UserWithRelations, UserIdentifiable>;
 export type PostRelations = {
   pUser: EntityResult<UserWithRelations, UserRelations>;
-  vC: EntityResult<UserWithRelations, UserRelations>;
+  vC: Array<EntityResult<UserWithRelations, UserRelations>>;
 };
 export type PostWithRelations = Post & PostRelations;
 export type PostResult = EntityResult<PostWithRelations, PostIdentifiable>;

@@ -67,8 +67,6 @@ export abstract class SasatDBDatasource<
   protected abstract readonly primaryKeys: string[];
   protected abstract readonly identifyFields: string[];
   protected abstract readonly autoIncrementColumn?: string | undefined;
-  protected queryLogger: (sql: string) => void = noop;
-  protected commandLogger: (sql: string) => void = noop;
 
   constructor(protected client: SQLExecutor = getDbClient()) {}
   protected abstract getDefaultValueString():
@@ -97,7 +95,6 @@ export abstract class SasatDBDatasource<
       ignore: option?.ignore,
     };
     const sql = createToSql(dsl, this.tableInfo);
-    this.commandLogger(sql);
     const response = await this.client.rawCommand(sql);
     if (!this.autoIncrementColumn) return obj;
     return {
@@ -128,7 +125,6 @@ export abstract class SasatDBDatasource<
       ignore: option?.ignore,
     };
     const sql = createToSql(dsl, this.tableInfo);
-    this.commandLogger(sql);
     return await this.client.rawCommand(sql);
   }
 
@@ -155,7 +151,6 @@ export abstract class SasatDBDatasource<
       where: this.createIdentifiableExpression(entity),
     };
     const sql = updateToSql(dsl, this.tableInfo);
-    this.commandLogger(sql);
     return this.client.rawCommand(sql);
   }
 
@@ -174,7 +169,6 @@ export abstract class SasatDBDatasource<
       where: condition,
     };
     const sql = updateToSql(dsl, this.tableInfo);
-    this.commandLogger(sql);
     return this.client.rawCommand(sql);
   }
 
@@ -190,7 +184,6 @@ export abstract class SasatDBDatasource<
       where: condition,
     };
     const sql = deleteToSql(dsl);
-    this.commandLogger(sql);
     return this.client.rawCommand(sql);
   }
 
@@ -249,7 +242,6 @@ export abstract class SasatDBDatasource<
       this.tableInfo,
     );
     const sql = queryToSql(query);
-    this.queryLogger(sql);
     const resultRows: ResultRow[] = await this.client.rawQuery(sql);
     return hydrate(resultRows, info) as QueryResult[];
   }
@@ -274,5 +266,3 @@ export abstract class SasatDBDatasource<
     return fields.map(it => this.tableInfo[this.tableName].columnMap[it] || it);
   }
 }
-
-const noop = () => {};
