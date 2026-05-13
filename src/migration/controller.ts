@@ -19,26 +19,20 @@ export class MigrationController {
     currentMigration: string;
   }> {
     const fileNames = getMigrationFileNames();
-    console.log(4, options);
     const currentMigration = await getCurrentMigration(options);
     if (!options.silent) {
       Console.log("--current migration--: " + currentMigration);
     }
-    console.log(2);
     let store = await createCurrentMigrationDataStore(currentMigration);
     if (store.getUpdateConfig()) {
       setConfig(store.getUpdateConfig()!);
     }
-    console.log(1);
     const target = getMigrationTargets(fileNames, currentMigration);
-    console.log(2);
     for (const tsFileName of target.files) {
       if (!options.silent) {
         Console.log("---------\n" + tsFileName);
       }
-      console.log(3, tsFileName);
       store = await readMigration(store, tsFileName, target.direction);
-      console.log(4);
       await runMigration(client, store, tsFileName, target.direction, options);
       store.resetQueue();
     }

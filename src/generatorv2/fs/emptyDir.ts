@@ -8,6 +8,7 @@ export async function emptyDir(dir: string) {
   } catch {
     return mkdir(dir, {
       mode: 0o777,
+      recursive: true,
     });
   }
 

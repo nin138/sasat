@@ -10,7 +10,10 @@ export const readYmlFile = (filepath: string): any =>
   yaml.load(readFileSync(filepath, "utf8"));
 
 export const mkDirIfNotExist = (path: string): void => {
-  if (!existsSync(path)) mkdirSync(path);
+  if (!existsSync(path))
+    mkdirSync(path, {
+      recursive: true,
+    });
 };
 
 export const writeFileIfNotExist = (
