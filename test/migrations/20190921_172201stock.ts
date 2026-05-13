@@ -1,4 +1,4 @@
-import { MigrationStore, SasatMigration, Queries, Mutations } from 'sasat';
+import { type MigrationStore, type SasatMigration, Queries, Mutations } from 'sasat/migration';
 
 export default class Stock implements SasatMigration {
   up: (store: MigrationStore) => void = store => {

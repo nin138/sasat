@@ -4,7 +4,7 @@ import {
   MigrationStore,
   Conditions,
   Mutations,
-} from 'sasat';
+} from 'sasat/migration';
 
 export default class CreateUser implements SasatMigration {
   up: (store: MigrationStore) => void = store => {

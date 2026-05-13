@@ -1,4 +1,3 @@
-export { migrate } from "@/cli/commands/migrate.js";
 export { setConfig } from "./config/config.js";
 export { MysqlClient } from "./db/connectors/mysql/client.js";
 export { formatQuery } from "./db/formatQuery.js";
@@ -14,12 +13,6 @@ export { getDbClient } from "./db/getDbClient.js";
 export type { ComparisonOperators } from "./db/sql/expression/comparison.js";
 export { CompositeCondition } from "./db/sql/expression/compositeCondition.js";
 export type { TypeFieldDefinition } from "./generatorv2/codegen/ts/scripts/typeDefinition.js";
-export type { Relation } from "./migration/data/relation.js";
-export type { SasatMigration } from "./migration/front/migration.js";
-export type { MigrationStore } from "./migration/front/storeMigrator.js";
-export { Conditions } from "./migration/makeCondition.js";
-export { Mutations } from "./migration/makeMutaion.js";
-export { Queries } from "./migration/makeQuery.js";
 export { createTypeDef } from "./runtime/createTypeDef.js";
 export {
   dateOffset,

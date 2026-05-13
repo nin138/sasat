@@ -65,6 +65,14 @@
     ".": {
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
+    },
+    "./migration": {
+      "import": "./dist/migration/index.mjs",
+      "require": "./dist/migration/index.cjs"
+    },
+    "./testing": {
+      "import": "./dist/testing/index.mjs",
+      "require": "./dist/testing/index.cjs"
     }
   },
   "main": "dist/index.mjs",
