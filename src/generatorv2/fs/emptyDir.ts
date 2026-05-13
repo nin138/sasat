@@ -1,4 +1,4 @@
-import { readdir, mkdir, rm } from 'node:fs/promises';
+import { mkdir, readdir, rm } from 'node:fs/promises';
 import path from 'path';
 
 export async function emptyDir(dir: string) {

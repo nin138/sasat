@@ -1,14 +1,14 @@
 import { DBClient } from '@/db/connectors/dbClient.js';
-import { config, setConfig } from '../config/config.js';
-import { SerializedStore } from './serialized/serializedStore.js';
-import { getCurrentMigration } from './exec/getCurrentMigration.js';
-import { readMigration } from './exec/readMigrationFile.js';
-import { runMigration } from './exec/runMigration.js';
-import { getMigrationTargets } from './exec/getMigrationTarget.js';
-import { createCurrentMigrationDataStore } from './exec/createCurrentMigrationDataStore.js';
 import { MigrateCommandOption } from '../cli/commands/migrate.js';
 import { Console } from '../cli/console.js';
+import { config, setConfig } from '../config/config.js';
 import { getMigrationFileNames } from '../migration/exec/getMigrationFiles.js';
+import { createCurrentMigrationDataStore } from './exec/createCurrentMigrationDataStore.js';
+import { getCurrentMigration } from './exec/getCurrentMigration.js';
+import { getMigrationTargets } from './exec/getMigrationTarget.js';
+import { readMigration } from './exec/readMigrationFile.js';
+import { runMigration } from './exec/runMigration.js';
+import { SerializedStore } from './serialized/serializedStore.js';
 
 export class MigrationController {
   async migrate(

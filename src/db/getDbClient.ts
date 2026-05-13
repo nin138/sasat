@@ -1,5 +1,5 @@
-import { config } from '@/config/config.js';
 import { PoolOptions } from 'mysql2/promise';
+import { config } from '@/config/config.js';
 import { DBClient } from './connectors/dbClient.js';
 import { MysqlPoolClient } from './connectors/mysql/poolClient.js';
 

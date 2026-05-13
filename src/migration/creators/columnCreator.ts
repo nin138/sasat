@@ -1,3 +1,4 @@
+import { DBColumnTypes } from '../column/columnTypes.js';
 import {
   ColumnBuilder,
   DateColumnBuilder,
@@ -9,7 +10,6 @@ import {
   TimeStampColumnBuilder,
 } from './columnBuilder.js';
 import { TableCreator } from './tableCreator.js';
-import { DBColumnTypes } from '../column/columnTypes.js';
 
 export class ColumnCreator {
   constructor(

@@ -1,8 +1,8 @@
 import { SqlValueType } from '../../../db/connectors/dbClient.js';
 import { SqlString } from '../../sql/sqlString.js';
 import { TableInfo } from '../query/createQueryResolveInfo.js';
-import { Sql } from '../query/sql/nodeToSql.js';
 import { BooleanValueExpression } from '../query/query.js';
+import { Sql } from '../query/sql/nodeToSql.js';
 
 type ValueSet = {
   field: string;

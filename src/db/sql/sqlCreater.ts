@@ -1,8 +1,8 @@
-import { columnToSql } from './columnToSql.js';
 import {
   Reference,
   SerializedNormalColumn,
 } from '../../migration/serialized/serializedColumn.js';
+import { columnToSql } from './columnToSql.js';
 
 export const SqlCreator = {
   addColumn: (tableName: string, column: SerializedNormalColumn): string =>

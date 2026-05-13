@@ -1,5 +1,5 @@
-import { isCode, TsType } from './type.js';
 import { ExportableDeclaration } from '../../abstruct/exportableDeclaration.js';
+import { isCode, TsType } from './type.js';
 
 export class TypeAliasDeclaration extends ExportableDeclaration {
   constructor(

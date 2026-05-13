@@ -1,21 +1,21 @@
 import { DBColumnTypes } from '../../migration/column/columnTypes.js';
+import { GQLQuery } from '../../migration/data/GQLOption.js';
 import { DataStoreHandler } from '../../migration/dataStore.js';
 import { TableHandler } from '../../migration/serializable/table.js';
+import { nonNullable } from '../../runtime/util.js';
 import { makeFindQueryName } from '../codegen/names.js';
-import { EntityName } from './entityName.js';
+import { makeEntityMutationNodes } from '../parser/makeMutationNodes.js';
 import { columnTypeToGqlPrimitive } from '../scripts/columnToGqlType.js';
 import { GQLPrimitive } from '../scripts/gqlTypes.js';
-import { nonNullable } from '../../runtime/util.js';
-import { GQLQuery } from '../../migration/data/GQLOption.js';
-import { MutationNode } from './mutationNode.js';
-import { makeEntityMutationNodes } from '../parser/makeMutationNodes.js';
-import { ReferencedNode, ReferenceNode } from './ReferencedNode.js';
+import { EntityName } from './entityName.js';
 import {
   FieldNode,
   makeCreatableFieldNode,
   makeFieldNode,
   makeUpdatableFieldNode,
 } from './FieldNode.js';
+import { MutationNode } from './mutationNode.js';
+import { ReferencedNode, ReferenceNode } from './ReferencedNode.js';
 
 export class EntityNode {
   readonly name: EntityName;

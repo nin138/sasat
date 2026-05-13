@@ -1,13 +1,13 @@
+import { columnTypeToTsType } from '../../../migration/column/columnTypes.js';
 import { KeywordTypeNode, TsFile, tsg } from '../../../tsg/index.js';
+import { Directories, Directory } from '../../directory.js';
 import { EntityNode } from '../../nodes/entityNode.js';
 import { FieldNode } from '../../nodes/FieldNode.js';
 import {
   makeContextTypeRef,
   makeTypeRef,
 } from './scripts/getEntityTypeRefs.js';
-import { Directories, Directory } from '../../directory.js';
 import { sqlValueToTsExpression } from './scripts/sqlValueToTsExpression.js';
-import { columnTypeToTsType } from '../../../migration/column/columnTypes.js';
 
 const DIR: Directories = 'GENERATED_DS';
 

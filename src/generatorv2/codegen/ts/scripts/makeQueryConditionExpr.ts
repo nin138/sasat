@@ -1,5 +1,5 @@
-import { QueryConditionNode } from '../../../nodes/QueryConditionNode.js';
 import { tsg } from '../../../../tsg/index.js';
+import { QueryConditionNode } from '../../../nodes/QueryConditionNode.js';
 import { makeConditionValueQExpr } from './makeConditonValueExpr.js';
 
 const qExpr = tsg.identifier('qe').importFrom('sasat');

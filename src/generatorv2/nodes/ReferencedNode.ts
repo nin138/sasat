@@ -1,14 +1,14 @@
-import { Table, TableHandler } from '../../migration/serializable/table.js';
-import { ReferenceColumn } from '../../migration/serializable/column.js';
-import { DataStoreHandler } from '../../migration/dataStore.js';
 import { VirtualRelation } from '../../migration/data/virtualRelation.js';
+import { DataStoreHandler } from '../../migration/dataStore.js';
+import { Conditions } from '../../migration/makeCondition.js';
+import { ReferenceColumn } from '../../migration/serializable/column.js';
+import { Table, TableHandler } from '../../migration/serializable/table.js';
+import { EntityNode } from './entityNode.js';
 import {
   JoinConditionNode,
   JoinConditionRangeValue,
   JoinConditionValue,
 } from './JoinConditionNode.js';
-import { EntityNode } from './entityNode.js';
-import { Conditions } from '../../migration/makeCondition.js';
 
 export class ReferenceNode {
   static fromReference(

@@ -1,7 +1,7 @@
-import yaml from 'js-yaml';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import yaml from 'js-yaml';
 import { config } from '../config/config.js';
 import { SerializedStore } from '../migration/serialized/serializedStore.js';
 

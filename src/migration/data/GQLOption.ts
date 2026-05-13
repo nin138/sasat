@@ -1,8 +1,8 @@
+import { EntityNode } from '../../generatorv2/nodes/entityNode.js';
 import {
   ArgQueryConditionValue,
   QueryConditionNode,
 } from '../../generatorv2/nodes/QueryConditionNode.js';
-import { EntityNode } from '../../generatorv2/nodes/entityNode.js';
 
 export interface GqlFromContextParam {
   column: string;

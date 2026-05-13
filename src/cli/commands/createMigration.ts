@@ -1,8 +1,8 @@
 import * as fs from 'fs';
 import { join } from 'path';
 import { config } from '../../config/config.js';
-import { capitalizeFirstLetter } from '../../util/stringUtil.js';
 import { mkDirIfNotExist } from '../../util/fsUtil.js';
+import { capitalizeFirstLetter } from '../../util/stringUtil.js';
 import { Console } from '../console.js';
 
 const getMigrationFile = (className: string) =>

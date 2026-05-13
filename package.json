@@ -8,8 +8,10 @@
   "scripts": {
     "start": "env-cmd .env ts-node ./index.ts",
     "build": "tsdown",
-    "lint": "eslint 'src/**/*.ts'",
     "format": "yarn prettier",
+    "check": "biome check",
+    "lint": "biome lint",
+    "fix:order": "biome check --only=assist/source/organizeImports --write",
     "prettier": "prettier --write './**/*.ts'",
     "pretest": "yarn resetdb && yarn sasat migrate",
     "test": "env-cmd jest --coverage --silent=false --verbose false",
@@ -21,6 +23,7 @@
     "server": "yarn env-cmd ts-node-esm -r tsconfig-paths/register ./test/testServer.ts"
   },
   "dependencies": {
+    "@biomejs/biome": "^2.4.15",
     "cac": "^6.7.14",
     "chalk": "^5.3.0",
     "esbuild": "^0.28.0",

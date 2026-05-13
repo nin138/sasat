@@ -1,5 +1,5 @@
-import { ConditionValue } from './ConditionValues.js';
 import { ComparisonOperators } from '../../db/sql/expression/comparison.js';
+import { ConditionValue } from './ConditionValues.js';
 
 export type QueryConditionValue =
   | ConditionValue

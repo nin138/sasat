@@ -1,6 +1,6 @@
 import { TsCode } from '../../abstruct/tsCode.js';
-import { pickCode, TsType } from './type.js';
 import { Identifier } from '../expressions.js';
+import { pickCode, TsType } from './type.js';
 
 export class TypeReference extends TsCode {
   constructor(

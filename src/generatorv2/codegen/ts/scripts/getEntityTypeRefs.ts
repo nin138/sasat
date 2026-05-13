@@ -1,6 +1,6 @@
-import { EntityName } from '../../../nodes/entityName.js';
+import { TypeReference, tsg } from '../../../../tsg/index.js';
 import { Directories, Directory } from '../../../directory.js';
-import { tsg, TypeReference } from '../../../../tsg/index.js';
+import { EntityName } from '../../../nodes/entityName.js';
 
 type TypeRefs =
   | 'creatable'

@@ -1,6 +1,6 @@
 import { assignDeep } from '../util/assignDeep.js';
-import { SasatConfigLoader } from './loader.js';
 import { NestedPartial } from '../util/type.js';
+import { SasatConfigLoader } from './loader.js';
 
 export interface SasatConfigDb {
   host: string;

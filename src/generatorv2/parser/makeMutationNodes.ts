@@ -1,11 +1,11 @@
-import { TableHandler } from '../../migration/serializable/table.js';
 import { DBColumnTypes } from '../../migration/column/columnTypes.js';
-import { ContextField, MutationNode } from '../nodes/mutationNode.js';
 import {
-  GqlFromContextParam,
   GQLMutation,
+  GqlFromContextParam,
 } from '../../migration/data/GQLOption.js';
+import { TableHandler } from '../../migration/serializable/table.js';
 import { EntityNode } from '../nodes/entityNode.js';
+import { ContextField, MutationNode } from '../nodes/mutationNode.js';
 
 export const makeEntityMutationNodes = (
   table: TableHandler,

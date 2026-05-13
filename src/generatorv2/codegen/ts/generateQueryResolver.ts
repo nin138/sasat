@@ -1,29 +1,29 @@
-import { RootNode } from '../../nodes/rootNode.js';
+import { Console } from '../../../cli/console.js';
+import { GQLQuery, getArgs } from '../../../migration/data/GQLOption.js';
+import { nonNullable } from '../../../runtime/util.js';
 import {
   PropertyAssignment,
   TsExpression,
   TsFile,
-  tsg,
   TsType,
+  tsg,
 } from '../../../tsg/index.js';
+import { RawCodeStatement } from '../../../tsg/node/rawCodeStatement.js';
+import { Directories, Directory } from '../../directory.js';
+import { EntityNode } from '../../nodes/entityNode.js';
+import {
+  ArgQueryConditionValue,
+  FieldQueryConditionValue,
+} from '../../nodes/QueryConditionNode.js';
+import { RootNode } from '../../nodes/rootNode.js';
+import { toTsType } from '../../scripts/gqlTypes.js';
 import {
   makeContextTypeRef,
   makeTypeRef,
 } from './scripts/getEntityTypeRefs.js';
 import { makeDatasource } from './scripts/makeDatasource.js';
-import { Directories, Directory } from '../../directory.js';
-import { nonNullable } from '../../../runtime/util.js';
-import { EntityNode } from '../../nodes/entityNode.js';
-import { getArgs, GQLQuery } from '../../../migration/data/GQLOption.js';
-import { toTsType } from '../../scripts/gqlTypes.js';
 import { makeQueryConditionExpr } from './scripts/makeQueryConditionExpr.js';
-import {
-  ArgQueryConditionValue,
-  FieldQueryConditionValue,
-} from '../../nodes/QueryConditionNode.js';
-import { RawCodeStatement } from '../../../tsg/node/rawCodeStatement.js';
 import { tsFileNames } from './tsFileNames.js';
-import { Console } from '../../../cli/console.js';
 
 const DIR: Directories = 'GENERATED';
 

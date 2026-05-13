@@ -1,7 +1,7 @@
+import { VirtualRelation } from './data/virtualRelation.js';
+import { ReferenceColumn } from './serializable/column.js';
 import { Table, TableHandler } from './serializable/table.js';
 import { SerializedStore } from './serialized/serializedStore.js';
-import { ReferenceColumn } from './serializable/column.js';
-import { VirtualRelation } from './data/virtualRelation.js';
 
 export interface DataStore {
   table(tableName: string): Table;

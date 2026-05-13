@@ -1,7 +1,7 @@
-import { writeYmlFile } from '../../util/fsUtil.js';
-import { defaultConf } from '../../config/config.js';
-import { Console } from '../console.js';
 import * as fs from 'fs';
+import { defaultConf } from '../../config/config.js';
+import { writeYmlFile } from '../../util/fsUtil.js';
+import { Console } from '../console.js';
 
 export const init = (): void => {
   if (fs.existsSync('./sasat.yml')) {

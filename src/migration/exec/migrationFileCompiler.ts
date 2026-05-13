@@ -1,9 +1,9 @@
+import { build } from 'esbuild';
 import path from 'path';
 import {
   getMigrationFileDir,
   getMigrationFileNames,
 } from './getMigrationFiles.js';
-import { build } from 'esbuild';
 
 export const changeExtTsToJs = (fileName: string) =>
   fileName.slice(0, -3) + '.mjs';

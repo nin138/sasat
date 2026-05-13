@@ -1,6 +1,6 @@
-import { ArgNode, TypeNode } from './typeNode.js';
 import { EntityName } from './entityName.js';
 import { EntityNode } from './entityNode.js';
+import { ArgNode, TypeNode } from './typeNode.js';
 
 export type MutationType = 'create' | 'delete' | 'update';
 

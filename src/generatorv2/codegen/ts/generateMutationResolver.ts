@@ -1,4 +1,4 @@
-import { RootNode } from '../../nodes/rootNode.js';
+import { nonNullable } from '../../../runtime/util.js';
 import {
   Block,
   Identifier,
@@ -6,16 +6,16 @@ import {
   NumericLiteral,
   PropertyAssignment,
   TsFile,
-  tsg,
   TsStatement,
+  tsg,
 } from '../../../tsg/index.js';
-import { ContextField, MutationNode } from '../../nodes/mutationNode.js';
 import { Directory } from '../../directory.js';
+import { ContextField, MutationNode } from '../../nodes/mutationNode.js';
+import { RootNode } from '../../nodes/rootNode.js';
+import { makeFindQueryName, publishFunctionName } from '../names.js';
+import { makeMutationMiddlewareAndTypes } from './mutation/makeMutationInputDecoder.js';
 import { makeTypeRef } from './scripts/getEntityTypeRefs.js';
 import { makeDatasource } from './scripts/makeDatasource.js';
-import { makeFindQueryName, publishFunctionName } from '../names.js';
-import { nonNullable } from '../../../runtime/util.js';
-import { makeMutationMiddlewareAndTypes } from './mutation/makeMutationInputDecoder.js';
 
 export const generateMutationResolver = (root: RootNode) => {
   return new TsFile(

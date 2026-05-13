@@ -1,7 +1,7 @@
-import { BooleanValueExpression } from './query.js';
-import { QueryResolveInfo } from './sql/hydrate.js';
 import { Fields } from '../../field.js';
 import { nonNullable } from '../../util.js';
+import { BooleanValueExpression } from './query.js';
+import { QueryResolveInfo } from './sql/hydrate.js';
 
 export type MakeConditionArg<Context = unknown, Entity = unknown> = {
   childTableAlias: string;

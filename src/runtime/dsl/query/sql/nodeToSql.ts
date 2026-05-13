@@ -1,3 +1,4 @@
+import { SqlString } from '../../../../runtime/sql/sqlString.js';
 import {
   BetweenExpression,
   BooleanValueExpression,
@@ -25,8 +26,6 @@ import {
   Window,
   WindowContent,
 } from '../query.js';
-
-import { SqlString } from '../../../../runtime/sql/sqlString.js';
 import { queryToSql } from './queryToSql.js';
 
 function partitionBy(ids?: Identifier[]) {

@@ -1,8 +1,8 @@
-import { DataStoreHandler } from '../../migration/dataStore.js';
-import { SubscriptionNode } from '../nodes/subscriptionNode.js';
-import { TableHandler } from '../../migration/serializable/table.js';
 import { GQLMutation } from '../../migration/data/GQLOption.js';
+import { DataStoreHandler } from '../../migration/dataStore.js';
+import { TableHandler } from '../../migration/serializable/table.js';
 import { nonNullable } from '../../runtime/util.js';
+import { SubscriptionNode } from '../nodes/subscriptionNode.js';
 
 export const makeSubscriptionNodes = (
   store: DataStoreHandler,

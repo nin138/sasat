@@ -1,18 +1,18 @@
-import { RootNode } from '../../../nodes/rootNode.js';
-import { PropertySignature, TsFile, tsg } from '../../../../tsg/index.js';
-import { EntityNode } from '../../../nodes/entityNode.js';
-import { EntityName } from '../../../nodes/entityName.js';
-import {
-  makeContextTypeRef,
-  makeTypeRef,
-} from './../scripts/getEntityTypeRefs.js';
-import { makeJoinConditionValue } from './makeJoinConditionValue.js';
-import { getChildRequiredNames } from './getRequiredColumnNames.js';
 import { nonNullable } from '../../../../runtime/util.js';
+import { PropertySignature, TsFile, tsg } from '../../../../tsg/index.js';
+import { EntityName } from '../../../nodes/entityName.js';
+import { EntityNode } from '../../../nodes/entityNode.js';
 import {
   ReferencedNode,
   ReferenceNode,
 } from '../../../nodes/ReferencedNode.js';
+import { RootNode } from '../../../nodes/rootNode.js';
+import {
+  makeContextTypeRef,
+  makeTypeRef,
+} from './../scripts/getEntityTypeRefs.js';
+import { getChildRequiredNames } from './getRequiredColumnNames.js';
+import { makeJoinConditionValue } from './makeJoinConditionValue.js';
 
 export const generateRelationMap = (root: RootNode) => {
   return new TsFile(

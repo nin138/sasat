@@ -1,11 +1,11 @@
-import { Console } from '../console.js';
+import { config } from '../../config/config.js';
+import { getDbClient } from '../../db/getDbClient.js';
 import { serializeCreateTable } from '../../db/sql/createTable/createTableSerializer.js';
+import { DBColumnTypes } from '../../migration/column/columnTypes.js';
 import { SerializedStore } from '../../migration/serialized/serializedStore.js';
 import { SqlString } from '../../runtime/sql/sqlString.js';
 import { writeYmlFile } from '../../util/fsUtil.js';
-import { DBColumnTypes } from '../../migration/column/columnTypes.js';
-import { config } from '../../config/config.js';
-import { getDbClient } from '../../db/getDbClient.js';
+import { Console } from '../console.js';
 
 export const dumpDB = async (): Promise<void> => {
   const con = getDbClient();

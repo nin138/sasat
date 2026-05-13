@@ -1,7 +1,7 @@
-import { SerializedColumn } from './serializedColumn.js';
-import { Index } from '../data/index.js';
 import { GQLOption } from '../data/GQLOption.js';
+import { Index } from '../data/index.js';
 import { VirtualRelation } from '../data/virtualRelation.js';
+import { SerializedColumn } from './serializedColumn.js';
 
 export interface SerializedStore {
   tables: SerializedTable[];

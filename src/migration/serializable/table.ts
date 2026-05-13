@@ -1,8 +1,12 @@
-import { Serializable } from './serializable.js';
-import { SerializedTable } from '../serialized/serializedStore.js';
-import { BaseColumn, NormalColumn, ReferenceColumn } from './column.js';
-import { SqlString } from '../../runtime/sql/sqlString.js';
 import { SasatError } from '../../error.js';
+import { EntityName } from '../../generatorv2/nodes/entityName.js';
+import { SqlString } from '../../runtime/sql/sqlString.js';
+import { DBColumnTypes } from '../column/columnTypes.js';
+import { defaultGQLOption, GQLOption } from '../data/GQLOption.js';
+import { DBIndex } from '../data/index.js';
+import { VirtualRelation } from '../data/virtualRelation.js';
+import { DataStore } from '../dataStore.js';
+import { assembleColumn } from '../functions/assembleColumn.js';
 import {
   Reference,
   referenceToSql,
@@ -10,13 +14,9 @@ import {
   SerializedNormalColumn,
   SerializedReferenceColumn,
 } from '../serialized/serializedColumn.js';
-import { DBIndex } from '../data/index.js';
-import { defaultGQLOption, GQLOption } from '../data/GQLOption.js';
-import { assembleColumn } from '../functions/assembleColumn.js';
-import { EntityName } from '../../generatorv2/nodes/entityName.js';
-import { DataStore } from '../dataStore.js';
-import { DBColumnTypes } from '../column/columnTypes.js';
-import { VirtualRelation } from '../data/virtualRelation.js';
+import { SerializedTable } from '../serialized/serializedStore.js';
+import { BaseColumn, NormalColumn, ReferenceColumn } from './column.js';
+import { Serializable } from './serializable.js';
 
 export interface Table extends Serializable<SerializedTable> {
   column(columnName: string): BaseColumn;

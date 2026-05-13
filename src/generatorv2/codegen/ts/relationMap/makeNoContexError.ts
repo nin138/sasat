@@ -1,9 +1,9 @@
+import { IfStatement, tsg } from '../../../../tsg/index.js';
 import {
   JoinConditionNode,
-  JoinConditionValue,
   JoinConditionRangeValue,
+  JoinConditionValue,
 } from '../../../nodes/JoinConditionNode.js';
-import { IfStatement, tsg } from '../../../../tsg/index.js';
 
 const makeJoinRangeConditionThrowExpressions = (
   cv: JoinConditionRangeValue,

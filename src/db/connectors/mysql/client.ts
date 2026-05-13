@@ -1,10 +1,10 @@
+import { ConnectionOptions, createConnection } from 'mysql2/promise';
 import {
   CommandResponse,
   DBClient,
   QueryResponse,
   SQLTransaction,
 } from '../dbClient.js';
-import { ConnectionOptions, createConnection } from 'mysql2/promise';
 import { MySqlTransaction } from './transaction.js';
 
 export class MysqlClient extends DBClient {

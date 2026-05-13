@@ -1,3 +1,4 @@
+import { SqlValueType } from '../../db/connectors/dbClient.js';
 import {
   DBColumnTypes,
   DBDateTypes,
@@ -7,7 +8,7 @@ import {
   DBStringTypes,
   DBTextTypes,
 } from '../column/columnTypes.js';
-import { SqlValueType } from '../../db/connectors/dbClient.js';
+import { Column } from '../serializable/column.js';
 import {
   ColumnOptions,
   defaultColumnOption,
@@ -16,7 +17,6 @@ import {
   SerializedNormalColumn,
   SerializedReferenceColumn,
 } from '../serialized/serializedColumn.js';
-import { Column } from '../serializable/column.js';
 
 export abstract class ColumnBuilderBase {
   protected _primary = false;

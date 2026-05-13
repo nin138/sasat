@@ -1,13 +1,13 @@
-import { NestedPartial } from '@/util/type.js';
-import { MigrationTable, TableMigrator } from './tableMigrator.js';
-import { DataStore } from '../dataStore.js';
-import { TableBuilder, TableCreator } from '../creators/tableCreator.js';
-import { SasatError } from '../../error.js';
-import { SerializedStore } from '../serialized/serializedStore.js';
 import fs from 'fs';
 import path from 'path';
-import { readInitialSchema } from '../../util/fsUtil.js';
+import { NestedPartial } from '@/util/type.js';
 import { config, SasatConfig } from '../../config/config.js';
+import { SasatError } from '../../error.js';
+import { readInitialSchema } from '../../util/fsUtil.js';
+import { TableBuilder, TableCreator } from '../creators/tableCreator.js';
+import { DataStore } from '../dataStore.js';
+import { SerializedStore } from '../serialized/serializedStore.js';
+import { MigrationTable, TableMigrator } from './tableMigrator.js';
 
 export interface MigrationStore extends DataStore {
   createTable(

@@ -1,14 +1,14 @@
-import { Token, TokenKind } from './lexer/lexer.js';
-import { SerializedTable } from '../../../migration/serialized/serializedStore.js';
-import { camelize } from '../../../util/stringUtil.js';
+import { columnTypeToGqlPrimitive } from '../../../generatorv2/scripts/columnToGqlType.js';
 import { DBColumnTypes } from '../../../migration/column/columnTypes.js';
+import { defaultGQLOption } from '../../../migration/data/GQLOption.js';
 import {
   defaultColumnOption,
   Reference,
   SerializedNormalColumn,
 } from '../../../migration/serialized/serializedColumn.js';
-import { defaultGQLOption } from '../../../migration/data/GQLOption.js';
-import { columnTypeToGqlPrimitive } from '../../../generatorv2/scripts/columnToGqlType.js';
+import { SerializedTable } from '../../../migration/serialized/serializedStore.js';
+import { camelize } from '../../../util/stringUtil.js';
+import { Token, TokenKind } from './lexer/lexer.js';
 
 const splitArray = <T>(array: T[], callback: (item: T) => boolean): T[][] => {
   const indexes: number[] = [];

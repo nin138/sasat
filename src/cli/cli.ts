@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-import { getDbClient } from '@/db/getDbClient.js';
 import { cac } from 'cac';
-import { writeDiagram } from './commands/erDiagram.js';
+import { getDbClient } from '@/db/getDbClient.js';
 import { createMigration } from './commands/createMigration.js';
-import { migrate } from './commands/migrate.js';
-import { init } from './commands/init.js';
-import { generate } from './commands/generate.js';
 import { dumpDB } from './commands/dumpDb.js';
+import { writeDiagram } from './commands/erDiagram.js';
+import { generate } from './commands/generate.js';
+import { init } from './commands/init.js';
+import { migrate } from './commands/migrate.js';
 import { migrationBuild } from './commands/migrationBuild.js';
 
 const cli = cac();

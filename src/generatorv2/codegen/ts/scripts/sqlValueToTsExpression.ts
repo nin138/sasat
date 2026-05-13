@@ -1,5 +1,5 @@
-import { TsExpression, tsg } from '../../../../tsg/index.js';
 import { SqlValueType } from '../../../../db/connectors/dbClient.js';
+import { TsExpression, tsg } from '../../../../tsg/index.js';
 
 export const sqlValueToTsExpression = (value: SqlValueType): TsExpression => {
   if (typeof value === 'string') {

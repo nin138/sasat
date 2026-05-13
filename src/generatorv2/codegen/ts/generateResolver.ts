@@ -1,17 +1,17 @@
-import { RootNode } from '../../nodes/rootNode.js';
+import { nonNullable } from '../../../runtime/util.js';
 import { PropertyAssignment, TsFile, tsg } from '../../../tsg/index.js';
-import { EntityNode } from '../../nodes/entityNode.js';
-import { ReferencedNode, ReferenceNode } from '../../nodes/ReferencedNode.js';
+import { Directory } from '../../directory.js';
 import { EntityName } from '../../nodes/entityName.js';
-import { makeDatasource } from './scripts/makeDatasource.js';
+import { EntityNode } from '../../nodes/entityNode.js';
+import { FieldNode } from '../../nodes/FieldNode.js';
+import { ReferencedNode, ReferenceNode } from '../../nodes/ReferencedNode.js';
+import { RootNode } from '../../nodes/rootNode.js';
 import {
   makeContextTypeRef,
   makeTypeRef,
 } from './scripts/getEntityTypeRefs.js';
-import { Directory } from '../../directory.js';
+import { makeDatasource } from './scripts/makeDatasource.js';
 import { tsFileNames } from './tsFileNames.js';
-import { nonNullable } from '../../../runtime/util.js';
-import { FieldNode } from '../../nodes/FieldNode.js';
 
 export const generateResolver = (root: RootNode): TsFile => {
   const hasSubscription = root.subscriptions.some(it => it.gqlEnabled);

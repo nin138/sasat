@@ -1,9 +1,9 @@
+import { nonNullable } from '../../../../runtime/util.js';
 import {
   ObjectLiteral,
   PropertyAssignment,
   tsg,
 } from '../../../../tsg/index.js';
-import { nonNullable } from '../../../../runtime/util.js';
 
 export type TypeFieldDefinition = {
   return: string;

@@ -4,6 +4,7 @@ import {
   Pool,
   PoolOptions,
 } from 'mysql2/promise';
+import { config } from '@/config/config.js';
 import {
   CommandResponse,
   DBClient,
@@ -11,7 +12,6 @@ import {
   SQLTransaction,
 } from '../dbClient.js';
 import { MySqlTransaction } from './transaction.js';
-import { config } from '@/config/config.js';
 
 export class MysqlPoolClient extends DBClient {
   private readonly pool: Pool;

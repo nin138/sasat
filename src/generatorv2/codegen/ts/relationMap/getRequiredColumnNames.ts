@@ -1,12 +1,12 @@
-import {
-  ReferencedNode,
-  ReferenceNode,
-} from '../../../nodes/ReferencedNode.js';
+import { nonNullable } from '../../../../runtime/util.js';
 import {
   JoinConditionNode,
   JoinConditionValue,
 } from '../../../nodes/JoinConditionNode.js';
-import { nonNullable } from '../../../../runtime/util.js';
+import {
+  ReferencedNode,
+  ReferenceNode,
+} from '../../../nodes/ReferencedNode.js';
 
 type GetConditionValue = (cv: JoinConditionValue) => string | null;
 

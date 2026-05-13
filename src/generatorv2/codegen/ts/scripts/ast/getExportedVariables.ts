@@ -1,4 +1,5 @@
 import typescript, { SourceFile, VariableStatement } from 'typescript';
+
 const { SyntaxKind } = typescript;
 export const getExportedVariables = (
   sourceFile: SourceFile,

@@ -1,0 +1,182 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.4.15/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    "ignoreUnknown": false,
+    "includes": ["src/**", "!node_modules", "!.next", "!dist", "!build"]
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2
+  },
+  "linter": {
+    "enabled": true,
+    "domains": {
+      "next": "recommended",
+      "react": "recommended"
+    },
+    "rules": {
+      "recommended": true,
+      "complexity": {
+        "noArguments": "error",
+        "noUselessTypeConstraint": "error"
+      },
+      "correctness": {
+        "noChildrenProp": "error",
+        "noUnusedVariables": "error",
+        "useJsxKeyInIterable": "error"
+      },
+      "security": { "noDangerouslySetInnerHtmlWithChildren": "error" },
+      "style": {
+        "noCommonJs": "error",
+        "noNamespace": "error",
+        "noNonNullAssertion": "off",
+        "useArrayLiterals": "error",
+        "useAsConstAssertion": "error",
+        "useConst": "error",
+        "useTemplate": "off"
+      },
+      "suspicious": {
+        "noCommentText": "error",
+        "noDuplicateJsxProps": "error",
+        "noExplicitAny": "error",
+        "noExtraNonNullAssertion": "error",
+        "noMisleadingInstantiator": "error",
+        "noNonNullAssertedOptionalChain": "error",
+        "noUnsafeDeclarationMerging": "error",
+        "noVar": "error",
+        "useNamespaceKeyword": "error",
+        "useIterableCallbackReturn": {
+          "level": "error",
+          "options": {
+            "checkForEach": false
+          }
+        }
+      },
+      "a11y": "off"
+    },
+    "includes": [
+      "**",
+      "!**/*.mjs",
+      "!.next/**",
+      "!src/front/graphql/__generated__/**",
+      "!src/sasat/__generated__/context.ts",
+      "!src/sasat/__generated__/fields.ts",
+      "!scripts/out/**",
+      "!next-env.d.ts"
+    ]
+  },
+  "javascript": {
+    "formatter": { "quoteStyle": "double" },
+    "globals": [
+      "onanimationend",
+      "onstorage",
+      "ondragend",
+      "exports",
+      "onloadeddata",
+      "onlostpointercapture",
+      "onanimationiteration",
+      "onfocus",
+      "onkeyup",
+      "onmousedown",
+      "onoffline",
+      "onplay",
+      "onafterprint",
+      "onanimationstart",
+      "onprogress",
+      "onpause",
+      "onended",
+      "onclick",
+      "onpointerover",
+      "onmouseout",
+      "onloadstart",
+      "oncanplay",
+      "ondblclick",
+      "onappinstalled",
+      "onpointermove",
+      "ontoggle",
+      "ondrag",
+      "onchange",
+      "oncontextmenu",
+      "onmessage",
+      "onblur",
+      "onabort",
+      "onpointerdown",
+      "onbeforeinstallprompt",
+      "oncancel",
+      "onbeforeprint",
+      "onpointerout",
+      "oncuechange",
+      "ongotpointercapture",
+      "onsearch",
+      "onsubmit",
+      "onloadedmetadata",
+      "onpointerup",
+      "onstalled",
+      "onlanguagechange",
+      "onreset",
+      "onsuspend",
+      "onerror",
+      "onmouseenter",
+      "onscroll",
+      "onload",
+      "onresize",
+      "onmouseover",
+      "ondragover",
+      "ondragstart",
+      "oninput",
+      "onpagehide",
+      "oncanplaythrough",
+      "onmousemove",
+      "oninvalid",
+      "ontimeupdate",
+      "onratechange",
+      "ondurationchange",
+      "onmouseup",
+      "onmessageerror",
+      "ondevicemotion",
+      "onkeypress",
+      "onwheel",
+      "onpointerleave",
+      "location",
+      "onauxclick",
+      "ononline",
+      "onselect",
+      "ondrop",
+      "onkeydown",
+      "onclose",
+      "ondeviceorientationabsolute",
+      "ontransitionend",
+      "onpageshow",
+      "ondeviceorientation",
+      "onseeking",
+      "OffscreenCanvas",
+      "onpointercancel",
+      "onunload",
+      "onmouseleave",
+      "onrejectionhandled",
+      "ondragleave",
+      "onseeked",
+      "onhashchange",
+      "onwaiting",
+      "onpointerenter",
+      "onunhandledrejection",
+      "ondragenter",
+      "onpopstate",
+      "onmousewheel",
+      "onemptied",
+      "onbeforeunload",
+      "onplaying",
+      "onvolumechange"
+    ]
+  },
+  "assist": {
+    "enabled": true,
+    "actions": { "source": { "organizeImports": "on" } }
+  }
+}

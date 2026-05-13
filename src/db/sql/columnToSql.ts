@@ -1,6 +1,6 @@
 import { DBColumnTypes } from '../../migration/column/columnTypes.js';
-import { SqlString } from '../../runtime/sql/sqlString.js';
 import { SerializedColumn } from '../../migration/serialized/serializedColumn.js';
+import { SqlString } from '../../runtime/sql/sqlString.js';
 
 export const columnToSql = (column: SerializedColumn): string => {
   const words = [SqlString.escapeId(column.columnName), column.type];

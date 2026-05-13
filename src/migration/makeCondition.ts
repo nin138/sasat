@@ -1,14 +1,14 @@
+import { ComparisonOperators } from '../db/sql/expression/comparison.js';
+import { ConditionValue } from '../generatorv2/nodes/ConditionValues.js';
 import {
   JoinConditionNode,
-  JoinConditionValue,
   JoinConditionRangeValue,
+  JoinConditionValue,
 } from '../generatorv2/nodes/JoinConditionNode.js';
-import { ComparisonOperators } from '../db/sql/expression/comparison.js';
 import {
   QueryConditionNode,
   QueryConditionValue,
 } from '../generatorv2/nodes/QueryConditionNode.js';
-import { ConditionValue } from '../generatorv2/nodes/ConditionValues.js';
 
 const parent = (field: string): JoinConditionValue => ({
   kind: 'parent',

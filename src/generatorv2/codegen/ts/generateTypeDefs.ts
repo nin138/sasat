@@ -1,14 +1,14 @@
-import { TsFile, PropertyAssignment, tsg } from '../../../tsg/index.js';
+import { GQLQuery, getArgs } from '../../../migration/data/GQLOption.js';
+import { nonNullable } from '../../../runtime/util.js';
+import { PropertyAssignment, TsFile, tsg } from '../../../tsg/index.js';
+import { EntityName } from '../../nodes/entityName.js';
 import { EntityNode } from '../../nodes/entityNode.js';
 import { FieldNode } from '../../nodes/FieldNode.js';
-import { RootNode } from '../../nodes/rootNode.js';
 import { MutationNode } from '../../nodes/mutationNode.js';
+import { RootNode } from '../../nodes/rootNode.js';
 import { SubscriptionNode } from '../../nodes/subscriptionNode.js';
 import { GQLString, makeGQLType } from './scripts/gqlString.js';
 import { typeFieldDefinitionToTsg } from './scripts/typeDefinition.js';
-import { EntityName } from '../../nodes/entityName.js';
-import { getArgs, GQLQuery } from '../../../migration/data/GQLOption.js';
-import { nonNullable } from '../../../runtime/util.js';
 
 export const generateTypeDefs = (root: RootNode) => {
   const types = [

@@ -1,3 +1,4 @@
+import { DBColumnTypes } from '../column/columnTypes.js';
 import {
   DateColumnBuilder,
   DecimalColumnBuilder,
@@ -7,7 +8,6 @@ import {
   TextColumnBuilder,
   TimeStampColumnBuilder,
 } from './columnBuilder.js';
-import { DBColumnTypes } from '../column/columnTypes.js';
 
 export type CreateColumn = {
   char: (length: number) => StringColumnBuilder;

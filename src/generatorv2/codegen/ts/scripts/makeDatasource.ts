@@ -1,6 +1,6 @@
-import { EntityName } from '../../../nodes/entityName.js';
 import { TsExpression, tsg } from '../../../../tsg/index.js';
 import { Directories, Directory } from '../../../directory.js';
+import { EntityName } from '../../../nodes/entityName.js';
 
 export const makeDatasource = (
   entity: EntityName,

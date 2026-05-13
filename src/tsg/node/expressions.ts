@@ -1,11 +1,11 @@
 import { TsCode } from '../abstruct/tsCode.js';
-import { ExpressionStatement } from './expressionStatement.js';
-import { SpreadAssignment } from './spreadAssignment.js';
-import { PropertyAssignment } from './propertyAssignment.js';
-import { Parameter } from './parameter.js';
-import { TsType } from './type/type.js';
-import { Block } from './block.js';
 import { tsValueString } from '../tsValueString.js';
+import { Block } from './block.js';
+import { ExpressionStatement } from './expressionStatement.js';
+import { Parameter } from './parameter.js';
+import { PropertyAssignment } from './propertyAssignment.js';
+import { SpreadAssignment } from './spreadAssignment.js';
+import { TsType } from './type/type.js';
 
 export abstract class TsExpression extends TsCode {
   private readonly _codeType = 'expression';

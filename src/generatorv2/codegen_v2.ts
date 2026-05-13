@@ -1,16 +1,16 @@
-import { emptyDir } from '@/generatorv2/fs/emptyDir.js';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
-import { config } from '../config/config.js';
 import * as path from 'path';
-import { mkDirIfNotExist, writeFileIfNotExist } from '../util/fsUtil.js';
-import { RootNode } from './nodes/rootNode.js';
-import { EntityNode } from './nodes/entityNode.js';
-import { TsCodegen_v2 } from './codegen/tscodegen_v2.js';
+import { emptyDir } from '@/generatorv2/fs/emptyDir.js';
+import { config } from '../config/config.js';
 import { DataStoreHandler } from '../migration/dataStore.js';
-import { parse } from './parse.js';
-import { Directory } from './directory.js';
+import { mkDirIfNotExist, writeFileIfNotExist } from '../util/fsUtil.js';
 import { tsFileNames } from './codegen/ts/tsFileNames.js';
+import { TsCodegen_v2 } from './codegen/tscodegen_v2.js';
+import { Directory } from './directory.js';
+import { EntityNode } from './nodes/entityNode.js';
+import { RootNode } from './nodes/rootNode.js';
+import { parse } from './parse.js';
 
 // const { emptyDir, writeFile } = fs;
 

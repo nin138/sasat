@@ -1,9 +1,9 @@
 import * as SqlString from 'sqlstring';
+import { ComparisonOperators } from './expression/comparison.js';
 import {
   conditionExpressionToSql,
   WhereClause,
 } from './expression/conditionExpression.js';
-import { ComparisonOperators } from './expression/comparison.js';
 
 export interface SQL<T, Join = unknown> {
   select: Array<keyof T | [keyof T, string]>;

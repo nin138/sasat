@@ -1,3 +1,5 @@
+import { ComparisonOperators } from '../../db/sql/expression/comparison.js';
+import { nonNullable } from '../util.js';
 import {
   BetweenExpression,
   BooleanValueExpression,
@@ -24,8 +26,6 @@ import {
   Window,
   WindowContent,
 } from './query/query.js';
-import { ComparisonOperators } from '../../db/sql/expression/comparison.js';
-import { nonNullable } from '../util.js';
 
 const compound = (
   expr: Array<BooleanValueExpression | undefined | null>,

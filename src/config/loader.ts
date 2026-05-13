@@ -1,7 +1,7 @@
 import { existsSync } from 'node:fs';
 import path from 'node:path';
-import { defaultConf, PartialSasatConfig, SasatConfig } from './config.js';
 import { readYmlFile } from '../util/fsUtil.js';
+import { defaultConf, PartialSasatConfig, SasatConfig } from './config.js';
 
 export class SasatConfigLoader {
   private static loadConfig(): PartialSasatConfig {

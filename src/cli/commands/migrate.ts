@@ -1,11 +1,11 @@
-import { DBClient } from '@/db/connectors/dbClient.js';
 import { config, setConfig } from '@/config/config.js';
-import { MigrationController } from '@/migration/controller.js';
-import { Console } from '../console.js';
-import { DataStoreHandler } from '@/migration/dataStore.js';
-import { writeCurrentSchema } from '@/util/fsUtil.js';
+import { DBClient } from '@/db/connectors/dbClient.js';
 import { CodeGen_v2 } from '@/generatorv2/codegen_v2.js';
+import { MigrationController } from '@/migration/controller.js';
+import { DataStoreHandler } from '@/migration/dataStore.js';
 import { compileMigrationFiles } from '@/migration/exec/migrationFileCompiler.js';
+import { writeCurrentSchema } from '@/util/fsUtil.js';
+import { Console } from '../console.js';
 
 export type MigrateCommandOption = {
   generateFiles: boolean;

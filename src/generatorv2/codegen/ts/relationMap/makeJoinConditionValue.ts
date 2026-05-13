@@ -1,20 +1,20 @@
+import { nonNullable } from '../../../../runtime/util.js';
+import { TsExpression, tsg } from '../../../../tsg/index.js';
 import { EntityNode } from '../../../nodes/entityNode.js';
 import {
   JoinConditionNode,
   JoinConditionRangeValue,
   JoinConditionValue,
 } from '../../../nodes/JoinConditionNode.js';
-import { TsExpression, tsg } from '../../../../tsg/index.js';
-import { makeThrowExpressions } from './makeNoContexError.js';
-import {
-  makeConditionValueQExpr,
-  makeConditionValueRaw,
-} from '../scripts/makeConditonValueExpr.js';
-import { nonNullable } from '../../../../runtime/util.js';
 import {
   ReferencedNode,
   ReferenceNode,
 } from '../../../nodes/ReferencedNode.js';
+import {
+  makeConditionValueQExpr,
+  makeConditionValueRaw,
+} from '../scripts/makeConditonValueExpr.js';
+import { makeThrowExpressions } from './makeNoContexError.js';
 
 const qExpr = tsg.identifier('qe').importFrom('sasat');
 const parentTableAlias = 'parentTableAlias';

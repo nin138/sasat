@@ -1,8 +1,8 @@
 import { DataStoreHandler } from '../migration/dataStore.js';
 import { RootNode } from './nodes/rootNode.js';
+import { makeContextNodes } from './parser/makeContextNodes.js';
 import { makeEntityNodes } from './parser/makeEntityNodes.js';
 import { makeSubscriptionNodes } from './parser/makeSubscriptionNode.js';
-import { makeContextNodes } from './parser/makeContextNodes.js';
 
 export const parse = (store: DataStoreHandler): RootNode => {
   store.tables.forEach(it => {

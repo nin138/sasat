@@ -1,10 +1,10 @@
-import { TypeReference } from './typeReference.js';
-import { TypeLiteral } from './typeLiteral.js';
-import { IntersectionType } from './intersectionType.js';
-import { ArrayType } from './arrayType.js';
 import { TsCode } from '../../abstruct/tsCode.js';
-import { UnionType } from './unionType.js';
 import { Identifier } from '../expressions.js';
+import { ArrayType } from './arrayType.js';
+import { IntersectionType } from './intersectionType.js';
+import { TypeLiteral } from './typeLiteral.js';
+import { TypeReference } from './typeReference.js';
+import { UnionType } from './unionType.js';
 
 export type TsType =
   | TypeReference
