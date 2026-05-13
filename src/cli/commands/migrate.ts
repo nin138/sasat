@@ -19,7 +19,7 @@ export const migrate = async (
   options: MigrateCommandOption,
 ): Promise<void> => {
   let current;
-  Console.log('--migration started--');
+  if (!options.silent) Console.log('--migration started--');
   try {
     if (!options.skipBuild) {
       await compileMigrationFiles();
@@ -36,7 +36,7 @@ export const migrate = async (
       writeCurrentSchema(result.store);
       await new CodeGen_v2(storeHandler).generate();
     }
-    Console.success(`current migration is ${current}`);
+    if (!options.silent) Console.success(`current migration is ${current}`);
   } catch (e: unknown) {
     Console.error((e as Error).message);
     throw e;

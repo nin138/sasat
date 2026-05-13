@@ -1,4 +1,3 @@
-import * as prettier from 'prettier';
 import { TsStatement } from './abstruct/statement.js';
 import { TsCode } from './abstruct/tsCode.js';
 import { ImportDeclaration } from './importDeclaration.js';
@@ -44,11 +43,7 @@ export class TsFile extends TsCode {
     return this;
   }
 
-  private static prettier(code: string): Promise<string> {
-    return prettier.format(code, { parser: 'typescript' });
-  }
-
-  generate(): Promise<string> {
-    return TsFile.prettier(this.toString());
+  async generate(): Promise<string> {
+    return this.toString();
   }
 }

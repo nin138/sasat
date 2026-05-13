@@ -2,6 +2,7 @@ export { queryToSql } from './runtime/dsl/query/sql/queryToSql.js';
 export { setConfig } from './config/config.js';
 export { formatQuery } from './db/formatQuery.js';
 export { MysqlClient } from './db/connectors/mysql/client.js';
+export { migrate } from '@/cli/commands/migrate.js';
 import { ListQueryOption } from './runtime/sasatDBDatasource.js';
 export { Sql } from './runtime/dsl/query/sql/nodeToSql.js';
 export { SqlString } from './runtime/sql/sqlString.js';

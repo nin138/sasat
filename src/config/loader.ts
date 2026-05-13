@@ -1,5 +1,5 @@
-import path from 'path';
-import fs from 'fs-extra';
+import { existsSync } from 'node:fs';
+import path from 'node:path';
 import { defaultConf, PartialSasatConfig, SasatConfig } from './config.js';
 import { readYmlFile } from '../util/fsUtil.js';
 
@@ -7,7 +7,7 @@ export class SasatConfigLoader {
   private static loadConfig(): PartialSasatConfig {
     const fileName = 'sasat.yml';
     const filepath = path.join(process.cwd(), fileName);
-    if (!fs.existsSync(filepath)) return defaultConf;
+    if (!existsSync(filepath)) return defaultConf;
     return readYmlFile(filepath);
   }
 

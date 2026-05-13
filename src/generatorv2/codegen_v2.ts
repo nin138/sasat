@@ -1,6 +1,8 @@
+import { emptyDir } from '@/generatorv2/fs/emptyDir.js';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { writeFile } from 'node:fs/promises';
 import { config } from '../config/config.js';
 import * as path from 'path';
-import fs from 'fs-extra';
 import { mkDirIfNotExist, writeFileIfNotExist } from '../util/fsUtil.js';
 import { RootNode } from './nodes/rootNode.js';
 import { EntityNode } from './nodes/entityNode.js';
@@ -10,7 +12,7 @@ import { parse } from './parse.js';
 import { Directory } from './directory.js';
 import { tsFileNames } from './codegen/ts/tsFileNames.js';
 
-const { emptyDir, writeFile } = fs;
+// const { emptyDir, writeFile } = fs;
 
 export class CodeGen_v2 {
   private codeGen = new TsCodegen_v2();
@@ -128,28 +130,28 @@ export class CodeGen_v2 {
 
   private async generateCondition(rootNode: RootNode) {
     const filePath = this.getFullPath(this.outDir, tsFileNames.conditions);
-    const content = fs.existsSync(filePath)
-      ? fs.readFileSync(filePath).toString()
+    const content = existsSync(filePath)
+      ? readFileSync(filePath).toString()
       : '';
     const nextContent = this.codeGen.generateConditions(rootNode, content);
-    if (nextContent) fs.writeFileSync(filePath, nextContent);
+    if (nextContent) writeFileSync(filePath, nextContent);
   }
 
   private async generateIDEncoders(rootNode: RootNode) {
     const filePath = this.getFullPath(this.outDir, tsFileNames.encoder);
-    const content = fs.existsSync(filePath)
-      ? fs.readFileSync(filePath).toString()
+    const content = existsSync(filePath)
+      ? readFileSync(filePath).toString()
       : '';
     const nextContent = this.codeGen.generateIDEncoders(rootNode, content);
-    if (nextContent) fs.writeFileSync(filePath, nextContent);
+    if (nextContent) writeFileSync(filePath, nextContent);
   }
 
   private async generateMiddleware(rootNode: RootNode) {
     const filePath = this.getFullPath(this.outDir, tsFileNames.middleware);
-    const content = fs.existsSync(filePath)
-      ? fs.readFileSync(filePath).toString()
+    const content = existsSync(filePath)
+      ? readFileSync(filePath).toString()
       : '';
     const nextContent = this.codeGen.generateMiddlewares(rootNode, content);
-    if (nextContent) fs.writeFileSync(filePath, nextContent);
+    if (nextContent) writeFileSync(filePath, nextContent);
   }
 }
