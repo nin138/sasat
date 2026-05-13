@@ -771,6 +771,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@commander-js/extra-typings@npm:^13.1.0":
+  version: 13.1.0
+  resolution: "@commander-js/extra-typings@npm:13.1.0"
+  peerDependencies:
+    commander: ~13.1.0
+  checksum: c4c9b0bd3bd62a0d4b713d2e5a543986134ef87d29edfd15298a8c51de74df25265814789d49371ce28d84282b0abfed53452fe6dfdb939219343bb64a0dfb2c
+  languageName: node
+  linkType: hard
+
 "@emnapi/core@npm:1.10.0, @emnapi/core@npm:^1.4.3":
   version: 1.10.0
   resolution: "@emnapi/core@npm:1.10.0"
@@ -2594,10 +2603,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"commander@npm:^4.0.0":
-  version: 4.1.1
-  resolution: "commander@npm:4.1.1"
-  checksum: d7b9913ff92cae20cb577a4ac6fcc121bd6223319e54a40f51a14740a681ad5c574fd29a57da478a5f234a6fa6c52cbf0b7c641353e03c648b1ae85ba670b977
+"commander@npm:^13.1.0":
+  version: 13.1.0
+  resolution: "commander@npm:13.1.0"
+  checksum: 8ca2fcb33caf2aa06fba3722d7a9440921331d54019dabf906f3603313e7bf334b009b862257b44083ff65d5a3ab19e83ad73af282bd5319f01dc228bdf87ef0
   languageName: node
   linkType: hard
 
@@ -2641,7 +2650,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cross-spawn@npm:^7.0.0, cross-spawn@npm:^7.0.3":
+"cross-spawn@npm:^7.0.3":
   version: 7.0.3
   resolution: "cross-spawn@npm:7.0.3"
   dependencies:
@@ -2820,15 +2829,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"env-cmd@npm:10.1.0":
-  version: 10.1.0
-  resolution: "env-cmd@npm:10.1.0"
+"env-cmd@npm:11.0.0":
+  version: 11.0.0
+  resolution: "env-cmd@npm:11.0.0"
   dependencies:
-    commander: ^4.0.0
-    cross-spawn: ^7.0.0
+    "@commander-js/extra-typings": ^13.1.0
+    commander: ^13.1.0
+    cross-spawn: ^7.0.6
   bin:
     env-cmd: bin/env-cmd.js
-  checksum: efef55074250f14cfc0b80c98dd98f1f056a80e1f3c7db14097ceefdd2d56c766bbb83b54c22932112707f41b36ce2e923f8015d69e62a75c12d98640b972e75
+  checksum: 7df6b27f1468d4e9f9b973f8c176107b70b96fc437fdde91235f6929e4344b2f996475f0f462c642e04cd84ab79dab77f509b9eadfa100a5db637ab69cbaa1ae
   languageName: node
   linkType: hard
 
@@ -5099,7 +5109,7 @@ __metadata:
     "@types/sqlstring": 2.3.2
     cac: ^6.7.14
     chalk: ^5.3.0
-    env-cmd: 10.1.0
+    env-cmd: 11.0.0
     esbuild: ^0.28.0
     globals: ^17.4.0
     graphql: ^16.8.1
