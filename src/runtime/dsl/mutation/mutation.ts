@@ -1,4 +1,4 @@
-import type { SqlValueType } from '../../../db/connectors/dbClient.js';
+import type { SqlValueType } from '@/db/connectors/dbClient.js';
 import { SqlString } from '../../sql/sqlString.js';
 import type { TableInfo } from '../query/createQueryResolveInfo.js';
 import type { BooleanValueExpression } from '../query/query.js';
@@ -28,7 +28,6 @@ export type Delete = {
   where: BooleanValueExpression;
 };
 
-const escape = SqlString.escape;
 const escapeId = SqlString.escapeId;
 
 const onDuplicateKeyUpdate = (columns: Create['upsert']): string => {
@@ -45,7 +44,7 @@ const onDuplicateKeyUpdate = (columns: Create['upsert']): string => {
 export const createToSql = (dsl: Create, tableInfo: TableInfo): string => {
   const map = tableInfo[dsl.table].columnMap;
   const values = dsl.entities
-    .map(it => `(${it.map(it => escape(it)).join(',')})`)
+    .map(it => `(${it.map(it => SqlString.escape(it)).join(',')})`)
     .join(',');
   return `INSERT ${dsl.ignore ? 'IGNORE ' : ''}INTO ${escapeId(
     dsl.table,
@@ -56,7 +55,7 @@ export const updateToSql = (dsl: Update, tableInfo: TableInfo): string => {
   const map = tableInfo[dsl.table].columnMap;
 
   return `UPDATE ${escapeId(dsl.table)} SET ${dsl.values
-    .map(it => escapeId(map[it.field]) + ' = ' + escape(it.value))
+    .map(it => escapeId(map[it.field]) + ' = ' + SqlString.escape(it.value))
     .join(', ')} WHERE ${Sql.booleanValue(dsl.where)}`;
 };
 

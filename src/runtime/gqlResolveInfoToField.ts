@@ -26,8 +26,9 @@ export const selectionSetToField = <T extends Fields<unknown>>(
   return [result as T, num];
 };
 
-// eslint-disable-next-line  @typescript-eslint/no-explicit-any
-export const gqlResolveInfoToField = <T extends Fields<any> = Fields<unknown>>(
+export const gqlResolveInfoToField = <
+  T extends Fields<unknown> = Fields<unknown>,
+>(
   info: GraphQLResolveInfo,
 ): T => {
   return selectionSetToField<T>(

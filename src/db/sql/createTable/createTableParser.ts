@@ -1,3 +1,4 @@
+import type { ForeignKeyReferentialAction } from '@/migration/data/foreignKey.js';
 import { columnTypeToGqlPrimitive } from '../../../generatorv2/scripts/columnToGqlType.js';
 import type { DBColumnTypes } from '../../../migration/column/columnTypes.js';
 import { defaultGQLOption } from '../../../migration/data/GQLOption.js';
@@ -217,18 +218,18 @@ export class CreateTableParser {
     const targetTable = tokens[refIndex + 1].value;
     const targetColumn = (tokens[refIndex + 2] as ParenToken).tokens[0].value;
 
-    let onDelete;
-    let onUpdate;
+    let onDelete: ForeignKeyReferentialAction | undefined;
+    let onUpdate: ForeignKeyReferentialAction | undefined;
     const on = tokens
       .map((it, i) => (it.kind === 'ON' ? i : 0))
       .filter(it => it !== 0);
     on.forEach(it => {
-      const action = () => {
+      const action = (): ForeignKeyReferentialAction => {
         let name = tokens[it + 2].value.toUpperCase();
         if (name === 'SET' || name === 'NO') {
           name += tokens[it + 3].value.toUpperCase();
         }
-        return name;
+        return name as ForeignKeyReferentialAction;
       };
       if (tokens[it + 1].kind === 'DELETE') {
         onDelete = action();
@@ -273,7 +274,7 @@ export class CreateTableParser {
   };
 
   private findIndex(kind: TokenKind, value: string, tokens: Token[]) {
-    return tokens.findIndex(it => it.kind === kind && value === value);
+    return tokens.findIndex(it => it.kind === kind && value === it.value);
   }
 
   private findEndOfParenIndex(

@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
-import * as path from 'path';
+import * as path from 'node:path';
 import { emptyDir } from '@/generatorv2/fs/emptyDir.js';
 import { config } from '../config/config.js';
 import type { DataStoreHandler } from '../migration/dataStore.js';
@@ -79,7 +79,7 @@ export class CodeGen_v2 {
     );
   }
 
-  private async generateGql(rootNode: RootNode): Promise<void[]> {
+  private async generateGql(rootNode: RootNode): Promise<unknown[]> {
     return Promise.all([
       writeFile(
         this.getFullPath(this.generateDir, 'typeDefs'),
@@ -108,7 +108,7 @@ export class CodeGen_v2 {
     ]);
   }
 
-  private async generateFiles(rootNode: RootNode): Promise<void[]> {
+  private async generateFiles(rootNode: RootNode): Promise<unknown[]> {
     const files = await this.codeGen.generateFiles(rootNode);
     return Promise.all(
       files.map(it =>

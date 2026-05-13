@@ -1,9 +1,9 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import type { NestedPartial } from '@/util/type.js';
-import { config, type SasatConfig } from '../../config/config.js';
-import { SasatError } from '../../error.js';
-import { readInitialSchema } from '../../util/fsUtil.js';
+import { config, type SasatConfig } from '@/config/config.js';
+import { SasatError } from '@/error.js';
+import { readInitialSchema } from '@/util/fsUtil.js';
 import { type TableBuilder, TableCreator } from '../creators/tableCreator.js';
 import type { DataStore } from '../dataStore.js';
 import type { SerializedStore } from '../serialized/serializedStore.js';

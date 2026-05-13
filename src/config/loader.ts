@@ -31,7 +31,7 @@ export class SasatConfigLoader {
     return this.conf;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // biome-ignore lint/suspicious/noExplicitAny: <>
   private readValue(value: any): any {
     if (!value) return value;
     if (Array.isArray(value)) return value.map(it => this.readValue(it));

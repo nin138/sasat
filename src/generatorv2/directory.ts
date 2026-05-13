@@ -1,4 +1,4 @@
-import * as path from 'path';
+import * as path from 'node:path';
 
 const GeneratedDirName = '__generated__';
 const EntityDirName = 'entities';

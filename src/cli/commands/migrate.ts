@@ -18,7 +18,7 @@ export const migrate = async (
   client: DBClient,
   options: MigrateCommandOption,
 ): Promise<void> => {
-  let current;
+  let current: string | undefined;
   if (!options.silent) Console.log('--migration started--');
   try {
     if (!options.skipBuild) {

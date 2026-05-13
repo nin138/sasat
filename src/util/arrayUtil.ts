@@ -1,4 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// biome-ignore lint/suspicious/noExplicitAny: <>
 export const arrayEq = (arr1: any[], arr2: any[]): boolean => {
   if (arr1.length !== arr2.length) return false;
   for (let i = 0; i < arr1.length; i++) {

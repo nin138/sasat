@@ -29,7 +29,7 @@ export abstract class SQLClient implements SQLExecutor {
 
   query(
     templateString: TemplateStringsArray,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // biome-ignore lint/suspicious/noExplicitAny: <>
     ...params: any[]
   ): Promise<QueryResponse> {
     return this.rawQuery(formatQuery(templateString, ...params));
@@ -37,7 +37,7 @@ export abstract class SQLClient implements SQLExecutor {
 
   command(
     templateString: TemplateStringsArray,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // biome-ignore lint/suspicious/noExplicitAny: <>
     ...params: any[]
   ): Promise<CommandResponse> {
     return this.rawCommand(formatQuery(templateString, ...params));

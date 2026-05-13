@@ -33,6 +33,8 @@ export class Lexer2 {
           return separator(value);
         case 'whitespace':
           return whiteSpace(value);
+        default:
+          return false;
       }
     });
   }

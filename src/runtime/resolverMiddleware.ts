@@ -2,7 +2,7 @@ import type { ResolverArgs } from './makeResolver.js';
 
 export type ResolverMiddleware<
   Context,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // biome-ignore lint/suspicious/noExplicitAny: <>
   RequiredParams = any,
   IncomingParams = RequiredParams,
 > = (

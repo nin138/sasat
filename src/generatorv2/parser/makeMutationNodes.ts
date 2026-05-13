@@ -20,6 +20,8 @@ export const makeEntityMutationNodes = (
         return makeUpdateMutationNode(table, entity, mutation);
       case 'delete':
         return makeDeleteMutationNode(table, entity, mutation);
+      default:
+        throw new Error(`invalid mutation type: ${mutation.type}`);
     }
   });
 };

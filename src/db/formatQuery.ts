@@ -3,7 +3,7 @@ import type { SqlValueType } from './connectors/dbClient.js';
 
 export const formatQuery = (
   str: TemplateStringsArray,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // biome-ignore lint/suspicious/noExplicitAny: <>
   ...params: any[]
 ): string => {
   let ret = str[0];

@@ -27,7 +27,7 @@ import { TypeReference } from './node/type/typeReference.js';
 import { UnionType } from './node/type/unionType.js';
 import { VariableDeclaration } from './node/variableDeclaration.js';
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+// biome-ignore lint/suspicious/noExplicitAny: <>
 const createFactory = <T extends new (...args: any[]) => InstanceType<T>>(
   Constructor: T,
 ) => {

@@ -1,6 +1,6 @@
-import * as fs from 'fs';
-import { defaultConf } from '../../config/config.js';
-import { writeYmlFile } from '../../util/fsUtil.js';
+import * as fs from 'node:fs';
+import { defaultConf } from '@/config/config.js';
+import { writeYmlFile } from '@/util/fsUtil.js';
 import { Console } from '../console.js';
 
 export const init = (): void => {

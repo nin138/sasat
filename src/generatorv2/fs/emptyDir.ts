@@ -1,8 +1,8 @@
 import { mkdir, readdir, rm } from 'node:fs/promises';
-import path from 'path';
+import path from 'node:path';
 
 export async function emptyDir(dir: string) {
-  let items;
+  let items: string[];
   try {
     items = await readdir(dir);
   } catch {

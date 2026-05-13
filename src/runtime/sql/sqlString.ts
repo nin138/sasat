@@ -1,6 +1,7 @@
 import pkg from 'sqlstring';
 
-const { escapeId, escape } = pkg;
+// biome-ignore lint/suspicious/noShadowRestrictedNames: <>
+const { escape, escapeId } = pkg;
 
 export const SqlString = {
   escape: (value: Parameters<typeof escape>[0]) => escape(value, true),

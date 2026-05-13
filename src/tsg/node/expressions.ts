@@ -1,13 +1,14 @@
 import { TsCode } from '../abstruct/tsCode.js';
 import { tsValueString } from '../tsValueString.js';
 import type { Block } from './block.js';
-import { ExpressionStatement } from './expressionStatement.js';
+import { ExpressionStatement } from '@/tsg/index.js';
 import { Parameter } from './parameter.js';
-import type { PropertyAssignment } from './propertyAssignment.js';
-import type { SpreadAssignment } from './spreadAssignment.js';
+import type { PropertyAssignment } from '@/tsg/index.js';
+import type { SpreadAssignment } from '@/tsg/index.js';
 import type { TsType } from './type/type.js';
 
 export abstract class TsExpression extends TsCode {
+  // biome-ignore lint/correctness/noUnusedPrivateClassMembers: <>
   private readonly _codeType = 'expression';
 
   toStatement(): ExpressionStatement {
@@ -82,6 +83,7 @@ export class NumericLiteral extends Literal {
   }
 }
 
+// biome-ignore lint/suspicious/noShadowRestrictedNames: <>
 export class Boolean extends Literal {
   constructor(private value: boolean) {
     super();

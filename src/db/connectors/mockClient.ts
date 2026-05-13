@@ -15,9 +15,6 @@ class MockDBTransaction extends SQLTransaction {
 }
 
 export class MockDBClient extends DBClient {
-  constructor() {
-    super();
-  }
   protected execSql() {
     return Promise.resolve([]);
   }

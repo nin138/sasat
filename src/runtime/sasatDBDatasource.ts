@@ -65,7 +65,7 @@ export abstract class SasatDBDatasource<
   QueryResult extends Partial<Entity> & Identifiable,
 > implements Repository<Entity, Identifiable, Creatable, Updatable>
 {
-  protected abstract relationMap: RelationMap<any>; // eslint-disable-line  @typescript-eslint/no-explicit-any
+  protected abstract relationMap: RelationMap<unknown>;
   protected abstract tableInfo: TableInfo;
   abstract readonly tableName: string;
   abstract readonly fields: string[];
@@ -253,7 +253,7 @@ export abstract class SasatDBDatasource<
 
   private createIdentifiableExpression(entity: Identifiable) {
     const expr = this.identifyFields.map(it => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // biome-ignore lint/suspicious/noExplicitAny: <>
       const value = (entity as any)[it];
       if (!value) throw new Error(`field ${it} is required`);
       return qe.eq(

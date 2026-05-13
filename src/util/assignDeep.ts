@@ -1,8 +1,8 @@
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// biome-ignore lint/suspicious/noExplicitAny: <>
 type Obj = { [key: string]: any };
 
 export const assignDeep = (base: Obj, ...objects: Obj[]): Obj => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // biome-ignore lint/suspicious/noExplicitAny: <>
   const assign = (target: Obj, key: string, value: any) => {
     if (key === '__proto__' || key === 'constructor') {
       return;

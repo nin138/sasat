@@ -18,7 +18,7 @@ export type MakeConditionArg<Context = unknown, Entity = unknown> = {
 );
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type MakeCondition<Context, Entity = any> = (
+export type MakeCondition<Context, Entity = unknown> = (
   arg: MakeConditionArg<Context, Entity>,
 ) => BooleanValueExpression;
 

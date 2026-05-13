@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import { config } from '../../config/config.js';
 import { Directory } from '../../generatorv2/directory.js';
 import type { Relation } from '../../migration/data/relation.js';

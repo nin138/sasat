@@ -1,5 +1,5 @@
 import { build } from 'esbuild';
-import path from 'path';
+import path from 'node:path';
 import {
   getMigrationFileDir,
   getMigrationFileNames,

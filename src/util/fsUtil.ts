@@ -5,7 +5,7 @@ import yaml from 'js-yaml';
 import { config } from '../config/config.js';
 import type { SerializedStore } from '../migration/serialized/serializedStore.js';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// biome-ignore lint/suspicious/noExplicitAny: <>
 export const readYmlFile = (filepath: string): any =>
   yaml.load(readFileSync(filepath, 'utf8'));
 
@@ -24,7 +24,7 @@ export const writeFileIfNotExist = (
 export const writeYmlFile = (
   path: string,
   fileName: string,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // biome-ignore lint/suspicious/noExplicitAny: <>
   obj: Record<string, any>,
 ): void => {
   mkDirIfNotExist(path);

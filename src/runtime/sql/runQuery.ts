@@ -27,8 +27,7 @@ const notTypeName = (fieldName: string) => fieldName !== '__typename';
 
 export const createQuery = (
   baseTableName: string,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  fields: Fields<any>,
+  fields: Fields<unknown>,
   options: QueryOptions | undefined,
   tableInfo: TableInfo,
   relationMap: RelationMap,

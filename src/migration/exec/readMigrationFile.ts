@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import { config } from '@/config/config.js';
 import type { StoreMigrator } from '../front/storeMigrator.js';
 import { Direction } from './getCurrentMigration.js';

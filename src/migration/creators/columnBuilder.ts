@@ -1,10 +1,9 @@
-import type { SqlValueType } from '../../db/connectors/dbClient.js';
+import type { SqlValueType } from '@/db/connectors/dbClient.js';
 import {
   DBColumnTypes,
   type DBDateTypes,
   type DBFloatingTypes,
   type DBIntegerTypes,
-  type DBNumberTypes,
   type DBStringTypes,
   type DBTextTypes,
 } from '../column/columnTypes.js';
@@ -143,14 +142,6 @@ export class TextColumnBuilder extends ColumnBuilder {
 }
 
 export class NumberColumnBuilder extends ColumnBuilder {
-  constructor(
-    name: string,
-    type: DBNumberTypes,
-    length?: number,
-    scale?: number,
-  ) {
-    super(name, type, length, scale);
-  }
   signed(): this {
     this._signed = true;
     return this;

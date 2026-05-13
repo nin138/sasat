@@ -1,5 +1,4 @@
 import chalk from 'chalk';
-import * as console from 'console';
 
 export const Console = {
   success: (msg: string): void => {
@@ -8,7 +7,7 @@ export const Console = {
   error: (msg: string): void => {
     console.error(chalk.bold.red(msg));
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // biome-ignore lint/suspicious/noExplicitAny: <>
   log: (msg: any): void => {
     console.log(msg);
   },

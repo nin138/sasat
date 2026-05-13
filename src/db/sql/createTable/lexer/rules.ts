@@ -1,14 +1,11 @@
 import { type Token, TokenKind } from './lexer.js';
 
 export type Terminator = 'separator' | 'whitespace' | 'operator';
-
+type Res = { hasNext: boolean; value: string; terminated: boolean };
 export type Rule = {
   start: RegExp;
   terminator: Terminator[];
-  fn: (
-    char: string,
-    next: () => { hasNext: boolean; value: string; terminated: boolean },
-  ) => Token | undefined;
+  fn: (char: string, next: () => Res) => Token | undefined;
 };
 
 const createStringLiteralRule = (literalInitializer: RegExp): Rule => {
@@ -18,7 +15,7 @@ const createStringLiteralRule = (literalInitializer: RegExp): Rule => {
     fn: (start, next) => {
       let literal = '';
       let isEscape = false;
-      let v;
+      let v: Res;
       do {
         v = next();
         if (!isEscape && v.value === start) {
@@ -37,7 +34,7 @@ const numberLiteral: Rule = {
   terminator: ['separator', 'whitespace', 'operator'],
   fn: (start, next) => {
     let literal = start;
-    let v;
+    let v: { hasNext: boolean; value: string; terminated: boolean };
     do {
       v = next();
       if (v.terminated) break;
@@ -73,7 +70,7 @@ const createKeywordRule = (
       );
       if (ignoreCase)
         words = words.map(it => ({ ...it, value: it.value.toUpperCase() }));
-      let v;
+      let v: Res;
 
       while (true) {
         v = next();
@@ -96,7 +93,7 @@ const identifier: Rule = {
   terminator: ['separator', 'whitespace', 'operator'],
   fn: (start, next) => {
     let value = start;
-    let v;
+    let v: Res;
     do {
       v = next();
       if (v.terminated) break;
