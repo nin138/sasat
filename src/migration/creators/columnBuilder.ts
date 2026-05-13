@@ -1,21 +1,21 @@
-import { SqlValueType } from '../../db/connectors/dbClient.js';
+import type { SqlValueType } from '../../db/connectors/dbClient.js';
 import {
   DBColumnTypes,
-  DBDateTypes,
-  DBFloatingTypes,
-  DBIntegerTypes,
-  DBNumberTypes,
-  DBStringTypes,
-  DBTextTypes,
+  type DBDateTypes,
+  type DBFloatingTypes,
+  type DBIntegerTypes,
+  type DBNumberTypes,
+  type DBStringTypes,
+  type DBTextTypes,
 } from '../column/columnTypes.js';
-import { Column } from '../serializable/column.js';
+import type { Column } from '../serializable/column.js';
 import {
-  ColumnOptions,
+  type ColumnOptions,
   defaultColumnOption,
-  Reference,
-  SerializedColumn,
-  SerializedNormalColumn,
-  SerializedReferenceColumn,
+  type Reference,
+  type SerializedColumn,
+  type SerializedNormalColumn,
+  type SerializedReferenceColumn,
 } from '../serialized/serializedColumn.js';
 
 export abstract class ColumnBuilderBase {

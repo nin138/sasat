@@ -1,5 +1,5 @@
 import { QExpr } from './dsl/factory.js';
-import { Literal } from './dsl/query/query.js';
+import type { Literal } from './dsl/query/query.js';
 
 export const dateOffset = (date: Date, timeZoneHour?: number): Date => {
   const offset = timeZoneHour

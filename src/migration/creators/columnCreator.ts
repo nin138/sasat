@@ -1,6 +1,6 @@
 import { DBColumnTypes } from '../column/columnTypes.js';
 import {
-  ColumnBuilder,
+  type ColumnBuilder,
   DateColumnBuilder,
   DecimalColumnBuilder,
   FloatColumnBuilder,
@@ -9,7 +9,7 @@ import {
   TextColumnBuilder,
   TimeStampColumnBuilder,
 } from './columnBuilder.js';
-import { TableCreator } from './tableCreator.js';
+import type { TableCreator } from './tableCreator.js';
 
 export class ColumnCreator {
   constructor(

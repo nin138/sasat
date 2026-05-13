@@ -1,10 +1,13 @@
-import { VirtualRelation } from '../../migration/data/virtualRelation.js';
-import { DataStoreHandler } from '../../migration/dataStore.js';
+import type { VirtualRelation } from '../../migration/data/virtualRelation.js';
+import type { DataStoreHandler } from '../../migration/dataStore.js';
 import { Conditions } from '../../migration/makeCondition.js';
-import { ReferenceColumn } from '../../migration/serializable/column.js';
-import { Table, TableHandler } from '../../migration/serializable/table.js';
-import { EntityNode } from './entityNode.js';
-import {
+import type { ReferenceColumn } from '../../migration/serializable/column.js';
+import type {
+  Table,
+  TableHandler,
+} from '../../migration/serializable/table.js';
+import type { EntityNode } from './entityNode.js';
+import type {
   JoinConditionNode,
   JoinConditionRangeValue,
   JoinConditionValue,

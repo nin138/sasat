@@ -1,13 +1,13 @@
-import { DBColumnTypes } from '../../migration/column/columnTypes.js';
-import { DataStoreHandler } from '../../migration/dataStore.js';
-import { BaseColumn } from '../../migration/serializable/column.js';
-import {
+import type { DBColumnTypes } from '../../migration/column/columnTypes.js';
+import type { DataStoreHandler } from '../../migration/dataStore.js';
+import type { BaseColumn } from '../../migration/serializable/column.js';
+import type {
   ColumnOptions,
   SerializedColumn,
 } from '../../migration/serialized/serializedColumn.js';
-import { GQLPrimitive } from '../scripts/gqlTypes.js';
-import { EntityName } from './entityName.js';
-import { EntityNode } from './entityNode.js';
+import type { GQLPrimitive } from '../scripts/gqlTypes.js';
+import type { EntityName } from './entityName.js';
+import type { EntityNode } from './entityNode.js';
 
 export type FieldNode = {
   entity: EntityNode;

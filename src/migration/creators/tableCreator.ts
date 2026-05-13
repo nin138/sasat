@@ -1,12 +1,12 @@
-import { GQLMutation, GQLOption, GQLQuery } from '../data/GQLOption.js';
-import { VirtualRelation } from '../data/virtualRelation.js';
-import { DataStore } from '../dataStore.js';
+import type { GQLMutation, GQLOption, GQLQuery } from '../data/GQLOption.js';
+import type { VirtualRelation } from '../data/virtualRelation.js';
+import type { DataStore } from '../dataStore.js';
 import { NormalColumn, ReferenceColumn } from '../serializable/column.js';
 import { TableHandler } from '../serializable/table.js';
-import { Reference } from '../serialized/serializedColumn.js';
+import type { Reference } from '../serialized/serializedColumn.js';
 import {
   AutoIncrementIDColumnBuilder,
-  ColumnBuilderBase,
+  type ColumnBuilderBase,
   ReferenceColumnBuilder,
 } from './columnBuilder.js';
 import { ColumnCreator } from './columnCreator.js';

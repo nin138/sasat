@@ -1,11 +1,11 @@
-import { ComparisonOperators } from '../db/sql/expression/comparison.js';
-import { ConditionValue } from '../generatorv2/nodes/ConditionValues.js';
-import {
+import type { ComparisonOperators } from '../db/sql/expression/comparison.js';
+import type { ConditionValue } from '../generatorv2/nodes/ConditionValues.js';
+import type {
   JoinConditionNode,
   JoinConditionRangeValue,
   JoinConditionValue,
 } from '../generatorv2/nodes/JoinConditionNode.js';
-import {
+import type {
   QueryConditionNode,
   QueryConditionValue,
 } from '../generatorv2/nodes/QueryConditionNode.js';

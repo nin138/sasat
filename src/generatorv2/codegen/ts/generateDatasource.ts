@@ -1,6 +1,6 @@
 import { TsFile, tsg } from '../../../tsg/index.js';
 import { Directory } from '../../directory.js';
-import { EntityNode } from '../../nodes/entityNode.js';
+import type { EntityNode } from '../../nodes/entityNode.js';
 
 export const generateDatasource = (node: EntityNode): TsFile => {
   return new TsFile(

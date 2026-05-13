@@ -1,8 +1,8 @@
-import { SqlValueType } from '../../db/connectors/dbClient.js';
+import type { SqlValueType } from '../../db/connectors/dbClient.js';
 import { SqlString } from '../../runtime/sql/sqlString.js';
-import { DBColumnTypes } from '../column/columnTypes.js';
-import { ForeignKeyReferentialAction } from '../data/foreignKey.js';
-import { Relation } from '../data/relation.js';
+import type { DBColumnTypes } from '../column/columnTypes.js';
+import type { ForeignKeyReferentialAction } from '../data/foreignKey.js';
+import type { Relation } from '../data/relation.js';
 
 export type ColumnOptions = {
   updatable: boolean;

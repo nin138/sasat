@@ -1,5 +1,5 @@
-import { QueryConditionNode } from '../generatorv2/nodes/QueryConditionNode.js';
-import { GQLQuery } from './data/GQLOption.js';
+import type { QueryConditionNode } from '../generatorv2/nodes/QueryConditionNode.js';
+import type { GQLQuery } from './data/GQLOption.js';
 
 const single = (
   name: string,

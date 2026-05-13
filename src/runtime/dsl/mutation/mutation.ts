@@ -1,7 +1,7 @@
-import { SqlValueType } from '../../../db/connectors/dbClient.js';
+import type { SqlValueType } from '../../../db/connectors/dbClient.js';
 import { SqlString } from '../../sql/sqlString.js';
-import { TableInfo } from '../query/createQueryResolveInfo.js';
-import { BooleanValueExpression } from '../query/query.js';
+import type { TableInfo } from '../query/createQueryResolveInfo.js';
+import type { BooleanValueExpression } from '../query/query.js';
 import { Sql } from '../query/sql/nodeToSql.js';
 
 type ValueSet = {

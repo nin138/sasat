@@ -1,7 +1,7 @@
 import { ExportableDeclaration } from '../abstruct/exportableDeclaration.js';
-import { ExtendsClause } from './extendsClause.js';
+import type { ExtendsClause } from './extendsClause.js';
 import { PropertySignature } from './propertySignature.js';
-import { TsType } from './type/type.js';
+import type { TsType } from './type/type.js';
 
 export class TsInterface extends ExportableDeclaration {
   private properties: PropertySignature[] = [];

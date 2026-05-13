@@ -1,9 +1,9 @@
 import { nonNullable } from '../../../../runtime/util.js';
-import {
+import type {
   JoinConditionNode,
   JoinConditionValue,
 } from '../../../nodes/JoinConditionNode.js';
-import {
+import type {
   ReferencedNode,
   ReferenceNode,
 } from '../../../nodes/ReferencedNode.js';

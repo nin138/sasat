@@ -1,6 +1,6 @@
 import { columnTypeToTsType } from '../../../migration/column/columnTypes.js';
 import { TsFile, tsg } from '../../../tsg/index.js';
-import { RootNode } from '../../nodes/rootNode.js';
+import type { RootNode } from '../../nodes/rootNode.js';
 
 export const generateContext = (root: RootNode) => {
   return new TsFile(

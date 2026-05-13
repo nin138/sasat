@@ -1,10 +1,10 @@
 import { TsCode } from '../../abstruct/tsCode.js';
-import { Identifier } from '../expressions.js';
-import { ArrayType } from './arrayType.js';
-import { IntersectionType } from './intersectionType.js';
-import { TypeLiteral } from './typeLiteral.js';
-import { TypeReference } from './typeReference.js';
-import { UnionType } from './unionType.js';
+import type { Identifier } from '../expressions.js';
+import type { ArrayType } from './arrayType.js';
+import type { IntersectionType } from './intersectionType.js';
+import type { TypeLiteral } from './typeLiteral.js';
+import type { TypeReference } from './typeReference.js';
+import type { UnionType } from './unionType.js';
 
 export type TsType =
   | TypeReference

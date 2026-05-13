@@ -1,4 +1,4 @@
-import { SqlValueType } from '../../../../db/connectors/dbClient.js';
+import type { SqlValueType } from '../../../../db/connectors/dbClient.js';
 import { SELECT_ALIAS_SEPARATOR } from './nodeToSql.js';
 
 export type QueryResolveInfo = {

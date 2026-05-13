@@ -1,4 +1,4 @@
-import { JoinConditionNode } from '../../generatorv2/nodes/JoinConditionNode.js';
+import type { JoinConditionNode } from '../../generatorv2/nodes/JoinConditionNode.js';
 
 export type VirtualRelation = {
   parentTable: string;

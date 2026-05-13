@@ -1,5 +1,5 @@
 import { TsCode } from '../abstruct/tsCode.js';
-import {
+import type {
   ArrayLiteral,
   Identifier,
   ObjectLiteral,

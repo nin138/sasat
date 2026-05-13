@@ -1,8 +1,8 @@
 import typescript from 'typescript';
 import { nonNullable } from '../../../runtime/util.js';
 import { ImportDeclaration } from '../../../tsg/importDeclaration.js';
-import { TsFile, TsStatement, tsg } from '../../../tsg/index.js';
-import { RootNode } from '../../nodes/rootNode.js';
+import { TsFile, type TsStatement, tsg } from '../../../tsg/index.js';
+import type { RootNode } from '../../nodes/rootNode.js';
 import { getExportedVariables } from './scripts/ast/getExportedVariables.js';
 import { isImported } from './scripts/ast/isImported.js';
 import { tsFileNames } from './tsFileNames.js';

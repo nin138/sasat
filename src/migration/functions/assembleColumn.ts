@@ -1,10 +1,10 @@
 import {
-  BaseColumn,
+  type BaseColumn,
   NormalColumn,
   ReferenceColumn,
 } from '../serializable/column.js';
-import { TableHandler } from '../serializable/table.js';
-import { SerializedColumn } from '../serialized/serializedColumn.js';
+import type { TableHandler } from '../serializable/table.js';
+import type { SerializedColumn } from '../serialized/serializedColumn.js';
 
 export const assembleColumn = (
   data: SerializedColumn,

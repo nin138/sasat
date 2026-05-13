@@ -31,9 +31,7 @@ export type ComparisonExpression<T> = Partial<{
 export const comparisonExpressionToSql = (
   exp: ComparisonExpression<unknown>,
 ): string => {
-  const type = Object.prototype.hasOwnProperty.call(exp, '__type')
-    ? exp.__type || 'AND'
-    : 'AND';
+  const type = Object.hasOwn(exp, '__type') ? exp.__type || 'AND' : 'AND';
   return Object.entries(exp)
     .map(([key, value]) => {
       const column = SqlString.escapeId(key);

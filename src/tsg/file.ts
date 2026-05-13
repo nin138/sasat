@@ -1,4 +1,4 @@
-import { TsStatement } from './abstruct/statement.js';
+import type { TsStatement } from './abstruct/statement.js';
 import { TsCode } from './abstruct/tsCode.js';
 import { ImportDeclaration } from './importDeclaration.js';
 

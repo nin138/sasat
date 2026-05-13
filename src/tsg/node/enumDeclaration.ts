@@ -1,6 +1,6 @@
 import { ExportableDeclaration } from '../abstruct/exportableDeclaration.js';
-import { EnumMember } from './enumMember.js';
-import { Identifier } from './expressions.js';
+import type { EnumMember } from './enumMember.js';
+import type { Identifier } from './expressions.js';
 
 export class EnumDeclaration extends ExportableDeclaration {
   constructor(

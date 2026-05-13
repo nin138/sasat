@@ -1,5 +1,5 @@
-import { Token, TokenKind } from './lexer.js';
-import { Rule, Terminator } from './rules.js';
+import { type Token, TokenKind } from './lexer.js';
+import type { Rule, Terminator } from './rules.js';
 
 type Current = {
   hasNext: boolean;
@@ -91,7 +91,7 @@ export class Lexer2 {
       const rule = this.rules[i];
       if (!rule.start.test(current.value)) continue;
       let terminated = false;
-      let value: Current | undefined = undefined;
+      let value: Current | undefined;
       const next = () => {
         value = this.read();
         terminated = this.isTerminated(value.value, rule.terminator);

@@ -1,4 +1,4 @@
-import { Join, LockMode, Query, QueryTable } from '../query.js';
+import type { Join, LockMode, Query, QueryTable } from '../query.js';
 import { Sql } from './nodeToSql.js';
 
 const getJoin = (from: QueryTable): Join[] => {

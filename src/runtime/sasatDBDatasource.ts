@@ -1,31 +1,36 @@
-import { SQLExecutor, SqlValueType } from '../db/connectors/dbClient.js';
-import { CommandResponse, getDbClient, qe, RelationMap } from '../index.js';
+import type { SQLExecutor, SqlValueType } from '../db/connectors/dbClient.js';
 import {
-  Create,
+  type CommandResponse,
+  getDbClient,
+  qe,
+  type RelationMap,
+} from '../index.js';
+import {
+  type Create,
   createToSql,
-  Delete,
+  type Delete,
   deleteToSql,
-  Update,
+  type Update,
   updateToSql,
 } from './dsl/mutation/mutation.js';
 import {
   createQueryResolveInfo,
-  TableInfo,
+  type TableInfo,
 } from './dsl/query/createQueryResolveInfo.js';
-import {
+import type {
   BooleanValueExpression,
   Join,
   LockMode,
   Query,
   Sort,
 } from './dsl/query/query.js';
-import { hydrate, ResultRow } from './dsl/query/sql/hydrate.js';
+import { hydrate, type ResultRow } from './dsl/query/sql/hydrate.js';
 import { queryToSql } from './dsl/query/sql/queryToSql.js';
-import { Fields } from './field.js';
+import type { Fields } from './field.js';
 import {
   createPagingFieldQuery,
   createQuery,
-  PagingOption,
+  type PagingOption,
 } from './sql/runQuery.js';
 
 export type EntityType = Record<string, SqlValueType>;

@@ -4,7 +4,7 @@ export { MysqlClient } from './db/connectors/mysql/client.js';
 export { formatQuery } from './db/formatQuery.js';
 export { queryToSql } from './runtime/dsl/query/sql/queryToSql.js';
 
-import { ListQueryOption } from './runtime/sasatDBDatasource.js';
+import type { ListQueryOption } from './runtime/sasatDBDatasource.js';
 
 export type {
   CommandResponse,

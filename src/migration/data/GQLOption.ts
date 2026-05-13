@@ -1,5 +1,5 @@
-import { EntityNode } from '../../generatorv2/nodes/entityNode.js';
-import {
+import type { EntityNode } from '../../generatorv2/nodes/entityNode.js';
+import type {
   ArgQueryConditionValue,
   QueryConditionNode,
 } from '../../generatorv2/nodes/QueryConditionNode.js';

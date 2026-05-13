@@ -3,13 +3,13 @@ import { writeFile } from 'node:fs/promises';
 import * as path from 'path';
 import { emptyDir } from '@/generatorv2/fs/emptyDir.js';
 import { config } from '../config/config.js';
-import { DataStoreHandler } from '../migration/dataStore.js';
+import type { DataStoreHandler } from '../migration/dataStore.js';
 import { mkDirIfNotExist, writeFileIfNotExist } from '../util/fsUtil.js';
 import { tsFileNames } from './codegen/ts/tsFileNames.js';
 import { TsCodegen_v2 } from './codegen/tscodegen_v2.js';
 import { Directory } from './directory.js';
-import { EntityNode } from './nodes/entityNode.js';
-import { RootNode } from './nodes/rootNode.js';
+import type { EntityNode } from './nodes/entityNode.js';
+import type { RootNode } from './nodes/rootNode.js';
 import { parse } from './parse.js';
 
 // const { emptyDir, writeFile } = fs;

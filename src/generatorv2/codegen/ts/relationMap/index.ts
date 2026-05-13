@@ -1,12 +1,12 @@
 import { nonNullable } from '../../../../runtime/util.js';
-import { PropertySignature, TsFile, tsg } from '../../../../tsg/index.js';
+import { type PropertySignature, TsFile, tsg } from '../../../../tsg/index.js';
 import { EntityName } from '../../../nodes/entityName.js';
-import { EntityNode } from '../../../nodes/entityNode.js';
-import {
+import type { EntityNode } from '../../../nodes/entityNode.js';
+import type {
   ReferencedNode,
   ReferenceNode,
 } from '../../../nodes/ReferencedNode.js';
-import { RootNode } from '../../../nodes/rootNode.js';
+import type { RootNode } from '../../../nodes/rootNode.js';
 import {
   makeContextTypeRef,
   makeTypeRef,

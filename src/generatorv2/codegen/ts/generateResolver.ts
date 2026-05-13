@@ -1,11 +1,14 @@
 import { nonNullable } from '../../../runtime/util.js';
-import { PropertyAssignment, TsFile, tsg } from '../../../tsg/index.js';
+import { type PropertyAssignment, TsFile, tsg } from '../../../tsg/index.js';
 import { Directory } from '../../directory.js';
 import { EntityName } from '../../nodes/entityName.js';
-import { EntityNode } from '../../nodes/entityNode.js';
-import { FieldNode } from '../../nodes/FieldNode.js';
-import { ReferencedNode, ReferenceNode } from '../../nodes/ReferencedNode.js';
-import { RootNode } from '../../nodes/rootNode.js';
+import type { EntityNode } from '../../nodes/entityNode.js';
+import type { FieldNode } from '../../nodes/FieldNode.js';
+import type {
+  ReferencedNode,
+  ReferenceNode,
+} from '../../nodes/ReferencedNode.js';
+import type { RootNode } from '../../nodes/rootNode.js';
 import {
   makeContextTypeRef,
   makeTypeRef,

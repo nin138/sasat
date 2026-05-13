@@ -1,15 +1,15 @@
 import {
   createConnection,
   createPool,
-  Pool,
-  PoolOptions,
+  type Pool,
+  type PoolOptions,
 } from 'mysql2/promise';
 import { config } from '@/config/config.js';
 import {
-  CommandResponse,
+  type CommandResponse,
   DBClient,
-  QueryResponse,
-  SQLTransaction,
+  type QueryResponse,
+  type SQLTransaction,
 } from '../dbClient.js';
 import { MySqlTransaction } from './transaction.js';
 

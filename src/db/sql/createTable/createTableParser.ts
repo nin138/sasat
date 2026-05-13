@@ -1,14 +1,14 @@
 import { columnTypeToGqlPrimitive } from '../../../generatorv2/scripts/columnToGqlType.js';
-import { DBColumnTypes } from '../../../migration/column/columnTypes.js';
+import type { DBColumnTypes } from '../../../migration/column/columnTypes.js';
 import { defaultGQLOption } from '../../../migration/data/GQLOption.js';
 import {
   defaultColumnOption,
-  Reference,
-  SerializedNormalColumn,
+  type Reference,
+  type SerializedNormalColumn,
 } from '../../../migration/serialized/serializedColumn.js';
-import { SerializedTable } from '../../../migration/serialized/serializedStore.js';
+import type { SerializedTable } from '../../../migration/serialized/serializedStore.js';
 import { camelize } from '../../../util/stringUtil.js';
-import { Token, TokenKind } from './lexer/lexer.js';
+import { type Token, TokenKind } from './lexer/lexer.js';
 
 const splitArray = <T>(array: T[], callback: (item: T) => boolean): T[][] => {
   const indexes: number[] = [];
@@ -217,8 +217,8 @@ export class CreateTableParser {
     const targetTable = tokens[refIndex + 1].value;
     const targetColumn = (tokens[refIndex + 2] as ParenToken).tokens[0].value;
 
-    let onDelete = undefined;
-    let onUpdate = undefined;
+    let onDelete;
+    let onUpdate;
     const on = tokens
       .map((it, i) => (it.kind === 'ON' ? i : 0))
       .filter(it => it !== 0);

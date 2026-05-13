@@ -1,4 +1,4 @@
-import { ComparisonOperators } from '../../../db/sql/expression/comparison.js';
+import type { ComparisonOperators } from '../../../db/sql/expression/comparison.js';
 
 export enum QueryNodeKind {
   Field,

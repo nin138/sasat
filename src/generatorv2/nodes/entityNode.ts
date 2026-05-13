@@ -1,20 +1,20 @@
-import { DBColumnTypes } from '../../migration/column/columnTypes.js';
-import { GQLQuery } from '../../migration/data/GQLOption.js';
-import { DataStoreHandler } from '../../migration/dataStore.js';
-import { TableHandler } from '../../migration/serializable/table.js';
+import type { DBColumnTypes } from '../../migration/column/columnTypes.js';
+import type { GQLQuery } from '../../migration/data/GQLOption.js';
+import type { DataStoreHandler } from '../../migration/dataStore.js';
+import type { TableHandler } from '../../migration/serializable/table.js';
 import { nonNullable } from '../../runtime/util.js';
 import { makeFindQueryName } from '../codegen/names.js';
 import { makeEntityMutationNodes } from '../parser/makeMutationNodes.js';
 import { columnTypeToGqlPrimitive } from '../scripts/columnToGqlType.js';
-import { GQLPrimitive } from '../scripts/gqlTypes.js';
+import type { GQLPrimitive } from '../scripts/gqlTypes.js';
 import { EntityName } from './entityName.js';
 import {
-  FieldNode,
+  type FieldNode,
   makeCreatableFieldNode,
   makeFieldNode,
   makeUpdatableFieldNode,
 } from './FieldNode.js';
-import { MutationNode } from './mutationNode.js';
+import type { MutationNode } from './mutationNode.js';
 import { ReferencedNode, ReferenceNode } from './ReferencedNode.js';
 
 export class EntityNode {

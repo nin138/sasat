@@ -1,9 +1,9 @@
-import { ConnectionOptions, createConnection } from 'mysql2/promise';
+import { type ConnectionOptions, createConnection } from 'mysql2/promise';
 import {
-  CommandResponse,
+  type CommandResponse,
   DBClient,
-  QueryResponse,
-  SQLTransaction,
+  type QueryResponse,
+  type SQLTransaction,
 } from '../dbClient.js';
 import { MySqlTransaction } from './transaction.js';
 

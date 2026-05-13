@@ -1,7 +1,11 @@
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { readYmlFile } from '../util/fsUtil.js';
-import { defaultConf, PartialSasatConfig, SasatConfig } from './config.js';
+import {
+  defaultConf,
+  type PartialSasatConfig,
+  type SasatConfig,
+} from './config.js';
 
 export class SasatConfigLoader {
   private static loadConfig(): PartialSasatConfig {
@@ -35,8 +39,7 @@ export class SasatConfigLoader {
       return process.env[value.slice(1)];
     if (typeof value === 'object') {
       for (const key in value) {
-        if (Object.prototype.hasOwnProperty.call(value, key))
-          value[key] = this.readValue(value[key]);
+        if (Object.hasOwn(value, key)) value[key] = this.readValue(value[key]);
       }
       return value;
     }

@@ -1,5 +1,5 @@
 import { ImportDeclaration } from '../../../tsg/importDeclaration.js';
-import { FileData } from '../tscodegen_v2.js';
+import type { FileData } from '../tscodegen_v2.js';
 
 const contextFile = `\
 ${new ImportDeclaration(

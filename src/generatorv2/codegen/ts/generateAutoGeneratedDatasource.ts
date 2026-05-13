@@ -1,8 +1,8 @@
 import { columnTypeToTsType } from '../../../migration/column/columnTypes.js';
 import { KeywordTypeNode, TsFile, tsg } from '../../../tsg/index.js';
-import { Directories, Directory } from '../../directory.js';
-import { EntityNode } from '../../nodes/entityNode.js';
-import { FieldNode } from '../../nodes/FieldNode.js';
+import { type Directories, Directory } from '../../directory.js';
+import type { EntityNode } from '../../nodes/entityNode.js';
+import type { FieldNode } from '../../nodes/FieldNode.js';
 import {
   makeContextTypeRef,
   makeTypeRef,

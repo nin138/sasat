@@ -2,7 +2,7 @@ import { config } from '../../config/config.js';
 import { getDbClient } from '../../db/getDbClient.js';
 import { serializeCreateTable } from '../../db/sql/createTable/createTableSerializer.js';
 import { DBColumnTypes } from '../../migration/column/columnTypes.js';
-import { SerializedStore } from '../../migration/serialized/serializedStore.js';
+import type { SerializedStore } from '../../migration/serialized/serializedStore.js';
 import { SqlString } from '../../runtime/sql/sqlString.js';
 import { writeYmlFile } from '../../util/fsUtil.js';
 import { Console } from '../console.js';

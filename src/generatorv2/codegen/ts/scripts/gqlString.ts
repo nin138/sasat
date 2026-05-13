@@ -1,13 +1,13 @@
 import { EntityName } from '../../../nodes/entityName.js';
-import { FieldNode } from '../../../nodes/FieldNode.js';
-import { MutationNode } from '../../../nodes/mutationNode.js';
-import { QueryNode } from '../../../nodes/queryNode.js';
-import {
+import type { FieldNode } from '../../../nodes/FieldNode.js';
+import type { MutationNode } from '../../../nodes/mutationNode.js';
+import type { QueryNode } from '../../../nodes/queryNode.js';
+import type {
   ReferencedNode,
   ReferenceNode,
 } from '../../../nodes/ReferencedNode.js';
-import { SubscriptionNode } from '../../../nodes/subscriptionNode.js';
-import { ArgNode, TypeNode } from '../../../nodes/typeNode.js';
+import type { SubscriptionNode } from '../../../nodes/subscriptionNode.js';
+import type { ArgNode, TypeNode } from '../../../nodes/typeNode.js';
 
 export const GQLString = {
   args: (args: ArgNode[]): string => {

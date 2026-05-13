@@ -2,13 +2,13 @@ import fs from 'fs';
 import path from 'path';
 import { config } from '../../config/config.js';
 import { Directory } from '../../generatorv2/directory.js';
-import { Relation } from '../../migration/data/relation.js';
+import type { Relation } from '../../migration/data/relation.js';
 import { DataStoreHandler } from '../../migration/dataStore.js';
-import {
+import type {
   BaseColumn,
   ReferenceColumn,
 } from '../../migration/serializable/column.js';
-import { TableHandler } from '../../migration/serializable/table.js';
+import type { TableHandler } from '../../migration/serializable/table.js';
 import { getCurrentStore } from '../commands/getCurrentStore.js';
 import { Console } from '../console.js';
 

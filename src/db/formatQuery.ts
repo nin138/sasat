@@ -1,5 +1,5 @@
 import { SqlString } from '../runtime/sql/sqlString.js';
-import { SqlValueType } from './connectors/dbClient.js';
+import type { SqlValueType } from './connectors/dbClient.js';
 
 export const formatQuery = (
   str: TemplateStringsArray,

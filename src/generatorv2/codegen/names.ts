@@ -1,6 +1,6 @@
 import { capitalizeFirstLetter } from '../../util/stringUtil.js';
-import { EntityName } from '../nodes/entityName.js';
-import { MutationType } from '../nodes/mutationNode.js';
+import type { EntityName } from '../nodes/entityName.js';
+import type { MutationType } from '../nodes/mutationNode.js';
 
 const map: Record<MutationType, string> = {
   create: 'Created',

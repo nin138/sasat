@@ -1,4 +1,4 @@
-import {
+import type {
   Reference,
   SerializedNormalColumn,
 } from '../../migration/serialized/serializedColumn.js';

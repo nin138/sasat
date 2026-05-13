@@ -1,7 +1,10 @@
-import { SQLExecutor } from '../../db/connectors/dbClient.js';
+import type { SQLExecutor } from '../../db/connectors/dbClient.js';
 import { QExpr } from '../dsl/factory.js';
-import { RelationMap, TableInfo } from '../dsl/query/createQueryResolveInfo.js';
-import {
+import type {
+  RelationMap,
+  TableInfo,
+} from '../dsl/query/createQueryResolveInfo.js';
+import type {
   BooleanValueExpression,
   Field,
   Join,
@@ -11,13 +14,13 @@ import {
 } from '../dsl/query/query.js';
 import {
   hydrate,
-  QueryResolveInfo,
-  ResultRow,
+  type QueryResolveInfo,
+  type ResultRow,
 } from '../dsl/query/sql/hydrate.js';
 import { SELECT_ALIAS_SEPARATOR } from '../dsl/query/sql/nodeToSql.js';
 import { queryToSql } from '../dsl/query/sql/queryToSql.js';
-import { Fields } from '../field.js';
-import { QueryOptions } from '../sasatDBDatasource.js';
+import type { Fields } from '../field.js';
+import type { QueryOptions } from '../sasatDBDatasource.js';
 import { nonNullable, unique } from '../util.js';
 
 const notTypeName = (fieldName: string) => fieldName !== '__typename';

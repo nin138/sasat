@@ -1,9 +1,9 @@
 import typescript from 'typescript';
 import { unique } from '../../../runtime/util.js';
 import { ImportDeclaration as TsgImport } from '../../../tsg/importDeclaration.js';
-import { TsFile, TsStatement, tsg } from '../../../tsg/index.js';
-import { JoinCustomConditionNode } from '../../nodes/JoinConditionNode.js';
-import { RootNode } from '../../nodes/rootNode.js';
+import { TsFile, type TsStatement, tsg } from '../../../tsg/index.js';
+import type { JoinCustomConditionNode } from '../../nodes/JoinConditionNode.js';
+import type { RootNode } from '../../nodes/rootNode.js';
 import { getExportedVariables } from './scripts/ast/getExportedVariables.js';
 import { isImported } from './scripts/ast/isImported.js';
 import { tsFileNames } from './tsFileNames.js';

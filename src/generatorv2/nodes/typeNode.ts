@@ -1,4 +1,4 @@
-import { DBColumnTypes } from '../../migration/column/columnTypes.js';
+import type { DBColumnTypes } from '../../migration/column/columnTypes.js';
 
 export type ArgNode = {
   name: string;

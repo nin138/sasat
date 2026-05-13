@@ -1,5 +1,5 @@
-import { IfStatement, tsg } from '../../../../tsg/index.js';
-import {
+import { type IfStatement, tsg } from '../../../../tsg/index.js';
+import type {
   JoinConditionNode,
   JoinConditionRangeValue,
   JoinConditionValue,

@@ -1,5 +1,5 @@
-import { DataStoreHandler } from '../migration/dataStore.js';
-import { RootNode } from './nodes/rootNode.js';
+import type { DataStoreHandler } from '../migration/dataStore.js';
+import type { RootNode } from './nodes/rootNode.js';
 import { makeContextNodes } from './parser/makeContextNodes.js';
 import { makeEntityNodes } from './parser/makeEntityNodes.js';
 import { makeSubscriptionNodes } from './parser/makeSubscriptionNode.js';

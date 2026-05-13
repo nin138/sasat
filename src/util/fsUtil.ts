@@ -3,7 +3,7 @@ import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import yaml from 'js-yaml';
 import { config } from '../config/config.js';
-import { SerializedStore } from '../migration/serialized/serializedStore.js';
+import type { SerializedStore } from '../migration/serialized/serializedStore.js';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const readYmlFile = (filepath: string): any =>

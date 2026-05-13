@@ -1,12 +1,12 @@
-import { GQLQuery, getArgs } from '../../../migration/data/GQLOption.js';
+import { type GQLQuery, getArgs } from '../../../migration/data/GQLOption.js';
 import { nonNullable } from '../../../runtime/util.js';
-import { PropertyAssignment, TsFile, tsg } from '../../../tsg/index.js';
+import { type PropertyAssignment, TsFile, tsg } from '../../../tsg/index.js';
 import { EntityName } from '../../nodes/entityName.js';
-import { EntityNode } from '../../nodes/entityNode.js';
-import { FieldNode } from '../../nodes/FieldNode.js';
-import { MutationNode } from '../../nodes/mutationNode.js';
-import { RootNode } from '../../nodes/rootNode.js';
-import { SubscriptionNode } from '../../nodes/subscriptionNode.js';
+import type { EntityNode } from '../../nodes/entityNode.js';
+import type { FieldNode } from '../../nodes/FieldNode.js';
+import type { MutationNode } from '../../nodes/mutationNode.js';
+import type { RootNode } from '../../nodes/rootNode.js';
+import type { SubscriptionNode } from '../../nodes/subscriptionNode.js';
 import { GQLString, makeGQLType } from './scripts/gqlString.js';
 import { typeFieldDefinitionToTsg } from './scripts/typeDefinition.js';
 

@@ -1,8 +1,8 @@
 import * as SqlString from 'sqlstring';
-import { ComparisonOperators } from './expression/comparison.js';
+import type { ComparisonOperators } from './expression/comparison.js';
 import {
   conditionExpressionToSql,
-  WhereClause,
+  type WhereClause,
 } from './expression/conditionExpression.js';
 
 export interface SQL<T, Join = unknown> {

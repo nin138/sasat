@@ -1,9 +1,9 @@
-import { MigrateCommandOption } from '@/cli/commands/migrate.js';
+import type { MigrateCommandOption } from '@/cli/commands/migrate.js';
 import { Console } from '@/cli/console.js';
 import { config, setConfig } from '@/config/config.js';
-import { DBClient } from '@/db/connectors/dbClient.js';
-import { StoreMigrator } from '../front/storeMigrator.js';
-import { Direction } from './getCurrentMigration.js';
+import type { DBClient } from '@/db/connectors/dbClient.js';
+import type { StoreMigrator } from '../front/storeMigrator.js';
+import type { Direction } from './getCurrentMigration.js';
 
 export const runMigration = async (
   client: DBClient,

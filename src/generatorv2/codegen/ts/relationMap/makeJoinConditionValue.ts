@@ -1,12 +1,12 @@
 import { nonNullable } from '../../../../runtime/util.js';
-import { TsExpression, tsg } from '../../../../tsg/index.js';
-import { EntityNode } from '../../../nodes/entityNode.js';
-import {
+import { type TsExpression, tsg } from '../../../../tsg/index.js';
+import type { EntityNode } from '../../../nodes/entityNode.js';
+import type {
   JoinConditionNode,
   JoinConditionRangeValue,
   JoinConditionValue,
 } from '../../../nodes/JoinConditionNode.js';
-import {
+import type {
   ReferencedNode,
   ReferenceNode,
 } from '../../../nodes/ReferencedNode.js';

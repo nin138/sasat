@@ -1,8 +1,8 @@
 import { ExportableDeclaration } from '../abstruct/exportableDeclaration.js';
-import { ExtendsClause } from './extendsClause.js';
-import { ImplementsClause } from './implementsClause.js';
-import { MethodDeclaration } from './methodDeclaration.js';
-import { PropertyDeclaration } from './propertyDeclaration.js';
+import type { ExtendsClause } from './extendsClause.js';
+import type { ImplementsClause } from './implementsClause.js';
+import type { MethodDeclaration } from './methodDeclaration.js';
+import type { PropertyDeclaration } from './propertyDeclaration.js';
 
 export class Class extends ExportableDeclaration {
   private properties: PropertyDeclaration[] = [];

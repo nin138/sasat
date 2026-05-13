@@ -1,6 +1,6 @@
-import { JoinConditionValue } from '@/generatorv2/nodes/JoinConditionNode.js';
-import { TsExpression, tsg } from '@/tsg/index.js';
-import { QueryConditionValue } from '../../../nodes/QueryConditionNode.js';
+import type { JoinConditionValue } from '@/generatorv2/nodes/JoinConditionNode.js';
+import { type TsExpression, tsg } from '@/tsg/index.js';
+import type { QueryConditionValue } from '../../../nodes/QueryConditionNode.js';
 
 const qExpr = tsg.identifier('qe').importFrom('sasat');
 

@@ -1,6 +1,6 @@
-import { PoolOptions } from 'mysql2/promise';
+import type { PoolOptions } from 'mysql2/promise';
 import { config } from '@/config/config.js';
-import { DBClient } from './connectors/dbClient.js';
+import type { DBClient } from './connectors/dbClient.js';
 import { MysqlPoolClient } from './connectors/mysql/poolClient.js';
 
 let client: DBClient | undefined;

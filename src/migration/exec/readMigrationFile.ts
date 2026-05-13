@@ -1,6 +1,6 @@
 import path from 'path';
 import { config } from '@/config/config.js';
-import { StoreMigrator } from '../front/storeMigrator.js';
+import type { StoreMigrator } from '../front/storeMigrator.js';
 import { Direction } from './getCurrentMigration.js';
 import { changeExtTsToJs } from './migrationFileCompiler.js';
 

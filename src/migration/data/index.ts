@@ -1,4 +1,4 @@
-import { Serializable } from '../serializable/serializable.js';
+import type { Serializable } from '../serializable/serializable.js';
 
 export interface Index {
   constraintName: string;

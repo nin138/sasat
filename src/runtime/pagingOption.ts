@@ -1,5 +1,9 @@
-import { BooleanValueExpression, ListQueryOption, QExpr } from '../index.js';
-import { Sort } from './dsl/query/query.js';
+import {
+  type BooleanValueExpression,
+  type ListQueryOption,
+  QExpr,
+} from '../index.js';
+import type { Sort } from './dsl/query/query.js';
 
 type DsPagingOption = {
   numberOfItem: number;

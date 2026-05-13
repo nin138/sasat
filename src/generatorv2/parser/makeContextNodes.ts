@@ -1,5 +1,5 @@
-import { DataStoreHandler } from '../../migration/dataStore.js';
-import { ContextNode } from '../nodes/contextNode.js';
+import type { DataStoreHandler } from '../../migration/dataStore.js';
+import type { ContextNode } from '../nodes/contextNode.js';
 
 export const makeContextNodes = (store: DataStoreHandler): ContextNode[] => {
   return store.tables.flatMap(table => {

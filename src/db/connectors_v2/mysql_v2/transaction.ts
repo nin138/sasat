@@ -1,5 +1,5 @@
-import * as mysql from 'mysql2/promise';
-import {
+import type * as mysql from 'mysql2/promise';
+import type {
   CommandResponse,
   QueryResponse,
   SQLTransaction,

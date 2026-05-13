@@ -1,17 +1,17 @@
 import { nonNullable } from '../../../runtime/util.js';
 import {
-  Block,
-  Identifier,
+  type Block,
+  type Identifier,
   KeywordTypeNode,
   NumericLiteral,
-  PropertyAssignment,
+  type PropertyAssignment,
   TsFile,
-  TsStatement,
+  type TsStatement,
   tsg,
 } from '../../../tsg/index.js';
 import { Directory } from '../../directory.js';
-import { ContextField, MutationNode } from '../../nodes/mutationNode.js';
-import { RootNode } from '../../nodes/rootNode.js';
+import type { ContextField, MutationNode } from '../../nodes/mutationNode.js';
+import type { RootNode } from '../../nodes/rootNode.js';
 import { makeFindQueryName, publishFunctionName } from '../names.js';
 import { makeMutationMiddlewareAndTypes } from './mutation/makeMutationInputDecoder.js';
 import { makeTypeRef } from './scripts/getEntityTypeRefs.js';

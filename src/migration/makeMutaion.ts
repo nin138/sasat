@@ -1,4 +1,4 @@
-import { GQLMutation, GqlFromContextParam } from './data/GQLOption.js';
+import type { GQLMutation, GqlFromContextParam } from './data/GQLOption.js';
 
 type Option = {
   noRefetch?: boolean;

@@ -1,5 +1,5 @@
 import { config, setConfig } from '@/config/config.js';
-import { DBClient } from '@/db/connectors/dbClient.js';
+import type { DBClient } from '@/db/connectors/dbClient.js';
 import { CodeGen_v2 } from '@/generatorv2/codegen_v2.js';
 import { MigrationController } from '@/migration/controller.js';
 import { DataStoreHandler } from '@/migration/dataStore.js';

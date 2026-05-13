@@ -1,5 +1,5 @@
-import { GraphQLResolveInfo, SelectionNode } from 'graphql';
-import { Fields } from './field.js';
+import type { GraphQLResolveInfo, SelectionNode } from 'graphql';
+import type { Fields } from './field.js';
 
 export const selectionSetToField = <T extends Fields<unknown>>(
   selections: readonly SelectionNode[],

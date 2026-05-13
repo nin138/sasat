@@ -1,7 +1,7 @@
 import { nonNullable } from '../../../../runtime/util.js';
 import {
-  ObjectLiteral,
-  PropertyAssignment,
+  type ObjectLiteral,
+  type PropertyAssignment,
   tsg,
 } from '../../../../tsg/index.js';
 

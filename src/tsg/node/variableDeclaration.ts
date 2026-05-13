@@ -1,6 +1,6 @@
 import { ExportableDeclaration } from '../abstruct/exportableDeclaration.js';
-import { Identifier, TsExpression } from './expressions.js';
-import { TsType } from './type/type.js';
+import { Identifier, type TsExpression } from './expressions.js';
+import type { TsType } from './type/type.js';
 
 type VariableType = 'const' | 'let';
 

@@ -1,4 +1,7 @@
-import typescript, { ImportDeclaration, SourceFile } from 'typescript';
+import typescript, {
+  type ImportDeclaration,
+  type SourceFile,
+} from 'typescript';
 
 const { SyntaxKind } = typescript;
 

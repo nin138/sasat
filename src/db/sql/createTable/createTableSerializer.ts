@@ -1,4 +1,4 @@
-import { SerializedTable } from '../../../migration/serialized/serializedStore.js';
+import type { SerializedTable } from '../../../migration/serialized/serializedStore.js';
 import { CreateTableParser } from './createTableParser.js';
 import { createTableLexer } from './lexer/createTableLexer.js';
 

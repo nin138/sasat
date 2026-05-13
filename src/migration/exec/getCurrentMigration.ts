@@ -1,4 +1,4 @@
-import { MigrateCommandOption } from '../../cli/commands/migrate.js';
+import type { MigrateCommandOption } from '../../cli/commands/migrate.js';
 import { Console } from '../../cli/console.js';
 import { config } from '../../config/config.js';
 import { getDbClient } from '../../db/getDbClient.js';

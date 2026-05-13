@@ -1,23 +1,23 @@
 import { SqlCreator } from '../../db/sql/sqlCreater.js';
 import { SqlString } from '../../runtime/sql/sqlString.js';
-import { DBColumnTypes, DBType } from '../column/columnTypes.js';
-import { ColumnBuilder } from '../creators/columnBuilder.js';
-import { CreateColumn, createColumn } from '../creators/createColumn.js';
-import { GQLMutation, GQLOption, GQLQuery } from '../data/GQLOption.js';
+import type { DBColumnTypes, DBType } from '../column/columnTypes.js';
+import type { ColumnBuilder } from '../creators/columnBuilder.js';
+import { type CreateColumn, createColumn } from '../creators/createColumn.js';
+import type { GQLMutation, GQLOption, GQLQuery } from '../data/GQLOption.js';
 import { DBIndex } from '../data/index.js';
 import {
-  BaseColumn,
+  type BaseColumn,
   NormalColumn,
-  ReferenceColumn,
+  type ReferenceColumn,
 } from '../serializable/column.js';
-import { Table, TableHandler } from '../serializable/table.js';
-import {
+import { type Table, TableHandler } from '../serializable/table.js';
+import type {
   Reference,
   SerializedColumn,
   SerializedNormalColumn,
 } from '../serialized/serializedColumn.js';
-import { SerializedTable } from '../serialized/serializedStore.js';
-import { StoreMigrator } from './storeMigrator.js';
+import type { SerializedTable } from '../serialized/serializedStore.js';
+import type { StoreMigrator } from './storeMigrator.js';
 
 export interface MigrationTable extends Table {
   addIndex(...columns: string[]): MigrationTable;

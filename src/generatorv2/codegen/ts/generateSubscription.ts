@@ -1,12 +1,12 @@
 import {
-  ArrowFunction,
+  type ArrowFunction,
   KeywordTypeNode,
   TsFile,
   tsg,
-  VariableDeclaration,
+  type VariableDeclaration,
 } from '../../../tsg/index.js';
-import { RootNode } from '../../nodes/rootNode.js';
-import { SubscriptionFilterNode } from '../../nodes/subscriptionNode.js';
+import type { RootNode } from '../../nodes/rootNode.js';
+import type { SubscriptionFilterNode } from '../../nodes/subscriptionNode.js';
 import { makeTypeRef } from './scripts/getEntityTypeRefs.js';
 
 export const generateSubscription = (root: RootNode) => {

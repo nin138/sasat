@@ -1,4 +1,4 @@
-import { ResolverArgs } from './makeResolver.js';
+import type { ResolverArgs } from './makeResolver.js';
 
 export type ResolverMiddleware<
   Context,

@@ -1,5 +1,5 @@
 import {
-  ComparisonExpression,
+  type ComparisonExpression,
   comparisonExpressionToSql,
 } from './comparison.js';
 import { CompositeCondition } from './compositeCondition.js';

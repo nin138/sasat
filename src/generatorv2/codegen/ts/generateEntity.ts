@@ -1,5 +1,5 @@
 import { TsFile, tsg } from '../../../tsg/index.js';
-import { EntityNode } from '../../nodes/entityNode.js';
+import type { EntityNode } from '../../nodes/entityNode.js';
 import { fieldToPropertySignature } from './scripts/fieldToProperty.js';
 
 export const generateEntityFile = (node: EntityNode): TsFile => {

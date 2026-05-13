@@ -1,5 +1,5 @@
 import { TsCode } from '../../abstruct/tsCode.js';
-import { isCode, TsType } from './type.js';
+import { isCode, type TsType } from './type.js';
 
 export class UnionType extends TsCode {
   private readonly types: Array<TsType>;

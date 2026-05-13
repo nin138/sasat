@@ -1,21 +1,21 @@
 import { Console } from '../../../cli/console.js';
-import { GQLQuery, getArgs } from '../../../migration/data/GQLOption.js';
+import { type GQLQuery, getArgs } from '../../../migration/data/GQLOption.js';
 import { nonNullable } from '../../../runtime/util.js';
 import {
-  PropertyAssignment,
-  TsExpression,
+  type PropertyAssignment,
+  type TsExpression,
   TsFile,
-  TsType,
+  type TsType,
   tsg,
 } from '../../../tsg/index.js';
 import { RawCodeStatement } from '../../../tsg/node/rawCodeStatement.js';
-import { Directories, Directory } from '../../directory.js';
-import { EntityNode } from '../../nodes/entityNode.js';
-import {
+import { type Directories, Directory } from '../../directory.js';
+import type { EntityNode } from '../../nodes/entityNode.js';
+import type {
   ArgQueryConditionValue,
   FieldQueryConditionValue,
 } from '../../nodes/QueryConditionNode.js';
-import { RootNode } from '../../nodes/rootNode.js';
+import type { RootNode } from '../../nodes/rootNode.js';
 import { toTsType } from '../../scripts/gqlTypes.js';
 import {
   makeContextTypeRef,

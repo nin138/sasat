@@ -1,5 +1,5 @@
 import {
-  ConditionExpression,
+  type ConditionExpression,
   conditionExpressionToSql,
 } from './conditionExpression.js';
 
