@@ -1,11 +1,11 @@
-import { type ConnectionOptions, createConnection } from 'mysql2/promise';
+import { type ConnectionOptions, createConnection } from "mysql2/promise";
 import {
   type CommandResponse,
   DBClient,
   type QueryResponse,
   type SQLTransaction,
-} from '../dbClient.js';
-import { MySqlTransaction } from './transaction.js';
+} from "../dbClient.js";
+import { MySqlTransaction } from "./transaction.js";
 
 export class MysqlClient extends DBClient {
   async release(): Promise<void> {

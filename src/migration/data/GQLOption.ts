@@ -1,8 +1,8 @@
-import type { EntityNode } from '../../generatorv2/nodes/entityNode.js';
+import type { EntityNode } from "../../generatorv2/nodes/entityNode.js";
 import type {
   ArgQueryConditionValue,
   QueryConditionNode,
-} from '../../generatorv2/nodes/QueryConditionNode.js';
+} from "../../generatorv2/nodes/QueryConditionNode.js";
 
 export interface GqlFromContextParam {
   column: string;
@@ -16,7 +16,7 @@ export type MutationOption = {
 };
 
 export type GQLMutation = {
-  type: 'create' | 'update' | 'delete';
+  type: "create" | "update" | "delete";
   noReFetch: boolean;
   middlewares: string[];
   contextFields: GqlFromContextParam[];
@@ -28,13 +28,13 @@ export type GQLMutation = {
 
 export type GQLQuery =
   | {
-      type: 'single' | 'list-all' | 'list-paging';
+      type: "single" | "list-all" | "list-paging";
       name: string;
       conditions: QueryConditionNode[];
       middlewares: string[];
     }
   | {
-      type: 'primary';
+      type: "primary";
       name?: never;
       conditions: never[];
       middlewares: string[];
@@ -56,28 +56,28 @@ export const getArgs = (
   query: GQLQuery,
   entity: EntityNode,
 ): ArgQueryConditionValue[] => {
-  if (query.type === 'primary')
+  if (query.type === "primary")
     return entity.fields
-      .filter(it => it.isPrimary)
-      .map(it => ({
-        kind: 'arg',
+      .filter((it) => it.isPrimary)
+      .map((it) => ({
+        kind: "arg",
         name: it.fieldName,
         type: it.gqlType,
       }));
   const r: ArgQueryConditionValue[] = [];
-  if (query.type === 'list-paging') {
+  if (query.type === "list-paging") {
     r.push({
-      kind: 'arg',
-      name: 'option',
-      type: 'PagingOption',
+      kind: "arg",
+      name: "option",
+      type: "PagingOption",
     });
   }
-  query.conditions.forEach(it => {
-    if (it.left.kind === 'arg') r.push(it.left);
-    if (it.kind === 'between') {
-      if (it.begin.kind === 'arg') r.push(it.begin);
-      if (it.end.kind === 'arg') r.push(it.end);
-    } else if (it.right.kind === 'arg') r.push(it.right);
+  query.conditions.forEach((it) => {
+    if (it.left.kind === "arg") r.push(it.left);
+    if (it.kind === "between") {
+      if (it.begin.kind === "arg") r.push(it.begin);
+      if (it.end.kind === "arg") r.push(it.end);
+    } else if (it.right.kind === "arg") r.push(it.right);
   });
   return r;
 };

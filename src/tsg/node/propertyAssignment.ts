@@ -1,5 +1,5 @@
-import { TsCode } from '../abstruct/tsCode.js';
-import type { Identifier, Literal } from './expressions.js';
+import { TsCode } from "../abstruct/tsCode.js";
+import type { Identifier, Literal } from "./expressions.js";
 
 export class PropertyAssignment extends TsCode {
   constructor(

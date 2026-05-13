@@ -1,4 +1,4 @@
-import pkg from 'sqlstring';
+import pkg from "sqlstring";
 
 // biome-ignore lint/suspicious/noShadowRestrictedNames: <>
 const { escape, escapeId } = pkg;

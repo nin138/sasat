@@ -1,41 +1,41 @@
 export enum DBColumnTypes {
-  char = 'char',
-  varchar = 'varchar',
-  text = 'text',
-  tinyInt = 'tinyint',
-  smallInt = 'smallint',
-  mediumInt = 'mediumint',
-  int = 'int',
-  bigInt = 'bigint',
-  float = 'float',
-  double = 'double',
-  decimal = 'decimal',
-  year = 'year',
-  date = 'date',
-  time = 'time',
-  dateTime = 'datetime',
-  timestamp = 'timestamp',
-  boolean = 'boolean',
+  char = "char",
+  varchar = "varchar",
+  text = "text",
+  tinyInt = "tinyint",
+  smallInt = "smallint",
+  mediumInt = "mediumint",
+  int = "int",
+  bigInt = "bigint",
+  float = "float",
+  double = "double",
+  decimal = "decimal",
+  year = "year",
+  date = "date",
+  time = "time",
+  dateTime = "datetime",
+  timestamp = "timestamp",
+  boolean = "boolean",
 }
 
 export type DBType =
-  | 'char'
-  | 'varchar'
-  | 'text'
-  | 'tinyint'
-  | 'smallint'
-  | 'mediumint'
-  | 'int'
-  | 'bigint'
-  | 'float'
-  | 'double'
-  | 'decimal'
-  | 'year'
-  | 'date'
-  | 'time'
-  | 'datetime'
-  | 'timestamp'
-  | 'boolean';
+  | "char"
+  | "varchar"
+  | "text"
+  | "tinyint"
+  | "smallint"
+  | "mediumint"
+  | "int"
+  | "bigint"
+  | "float"
+  | "double"
+  | "decimal"
+  | "year"
+  | "date"
+  | "time"
+  | "datetime"
+  | "timestamp"
+  | "boolean";
 
 export type DBStringTypes = DBColumnTypes.char | DBColumnTypes.varchar;
 export type DBTextTypes = DBColumnTypes.text;
@@ -67,7 +67,7 @@ export const columnTypeToTsType = (type: DBColumnTypes): string => {
     case DBColumnTypes.double:
     case DBColumnTypes.decimal:
     case DBColumnTypes.year:
-      return 'number';
+      return "number";
     case DBColumnTypes.char:
     case DBColumnTypes.varchar:
     case DBColumnTypes.text:
@@ -75,8 +75,8 @@ export const columnTypeToTsType = (type: DBColumnTypes): string => {
     case DBColumnTypes.date:
     case DBColumnTypes.dateTime:
     case DBColumnTypes.timestamp:
-      return 'string';
+      return "string";
     case DBColumnTypes.boolean:
-      return 'boolean';
+      return "boolean";
   }
 };

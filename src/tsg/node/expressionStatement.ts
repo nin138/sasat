@@ -1,5 +1,5 @@
-import { TsStatement } from '../abstruct/statement.js';
-import type { TsExpression } from './expressions.js';
+import { TsStatement } from "../abstruct/statement.js";
+import type { TsExpression } from "./expressions.js";
 
 export class ExpressionStatement extends TsStatement {
   constructor(private readonly expression: TsExpression) {
@@ -8,6 +8,6 @@ export class ExpressionStatement extends TsStatement {
   }
 
   protected toTsString(): string {
-    return this.expression.toString() + ';';
+    return this.expression.toString() + ";";
   }
 }

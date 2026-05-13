@@ -1,4 +1,4 @@
-import type { Serializable } from '../serializable/serializable.js';
+import type { Serializable } from "../serializable/serializable.js";
 
 export interface Index {
   constraintName: string;
@@ -15,13 +15,13 @@ export class DBIndex implements Index, Serializable<Index> {
   }
 
   private toConstraintName(columns: string[]): string {
-    return `index_${this.tableName}__${columns.join('_')}`;
+    return `index_${this.tableName}__${columns.join("_")}`;
   }
 
   addSql(): string {
     return `ALTER TABLE ${this.tableName} ADD INDEX ${
       this.constraintName
-    }(${this.columns.join(',')})`;
+    }(${this.columns.join(",")})`;
   }
 
   dropSql(): string {

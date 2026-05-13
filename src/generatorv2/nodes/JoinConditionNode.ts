@@ -1,55 +1,55 @@
-import type { ComparisonOperators } from '../../db/sql/expression/comparison.js';
-import type { ConditionValue } from './ConditionValues.js';
+import type { ComparisonOperators } from "../../db/sql/expression/comparison.js";
+import type { ConditionValue } from "./ConditionValues.js";
 
 export type JoinConditionValue =
   | {
-      kind: 'parent' | 'child';
+      kind: "parent" | "child";
       field: string;
     }
   | ConditionValue;
 
 export type JoinConditionRangeValue =
   | {
-      kind: 'range';
+      kind: "range";
       begin: JoinConditionValue;
       end: JoinConditionValue;
     }
   | DateRangeConditionValue;
 
 type DateRangeConditionValue = {
-  kind: 'date-range';
-  range: 'today';
+  kind: "date-range";
+  range: "today";
   thresholdHour?: number;
 };
 
 export type JoinConditionNode =
   | {
-      kind: 'comparison';
+      kind: "comparison";
       left: JoinConditionValue;
       operator: ComparisonOperators;
       right: JoinConditionValue;
     }
   | {
-      kind: 'comparison';
+      kind: "comparison";
       left: JoinConditionValue;
-      operator: 'BETWEEN';
+      operator: "BETWEEN";
       right: JoinConditionRangeValue;
     }
   | {
-      kind: 'comparison';
+      kind: "comparison";
       left: JoinConditionValue;
-      operator: 'IN';
+      operator: "IN";
       right: JoinConditionValue[];
     }
   | {
-      kind: 'isNull';
+      kind: "isNull";
       value: JoinConditionValue;
       not: boolean;
     }
   | JoinCustomConditionNode;
 
 export type JoinCustomConditionNode = {
-  kind: 'custom';
+  kind: "custom";
   conditionName: string;
   parentRequiredFields?: string[];
   childRequiredFields?: string[];

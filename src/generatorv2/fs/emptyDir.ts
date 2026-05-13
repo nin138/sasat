@@ -1,5 +1,5 @@
-import { mkdir, readdir, rm } from 'node:fs/promises';
-import path from 'node:path';
+import { mkdir, readdir, rm } from "node:fs/promises";
+import path from "node:path";
 
 export async function emptyDir(dir: string) {
   let items: string[];
@@ -12,7 +12,7 @@ export async function emptyDir(dir: string) {
   }
 
   return Promise.all(
-    items.map(item =>
+    items.map((item) =>
       rm(path.join(dir, item), {
         recursive: true,
         force: true,

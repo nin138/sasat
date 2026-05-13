@@ -1,5 +1,5 @@
-import type { ComparisonOperators } from '../../db/sql/expression/comparison.js';
-import type { ConditionValue } from './ConditionValues.js';
+import type { ComparisonOperators } from "../../db/sql/expression/comparison.js";
+import type { ConditionValue } from "./ConditionValues.js";
 
 export type QueryConditionValue =
   | ConditionValue
@@ -7,27 +7,27 @@ export type QueryConditionValue =
   | ArgQueryConditionValue;
 
 export type FieldQueryConditionValue = {
-  kind: 'field';
+  kind: "field";
   column: string;
 };
 
 export type ArgQueryConditionValue = {
-  kind: 'arg';
+  kind: "arg";
   name: string;
-  type: 'Int' | 'Float' | 'String' | string;
+  type: "Int" | "Float" | "String" | string;
 };
 
 export type QueryConditionNode =
   | {
-      kind: 'comparison';
+      kind: "comparison";
       left: QueryConditionValue;
       operator: ComparisonOperators;
       right: QueryConditionValue;
     }
   | {
-      kind: 'between';
+      kind: "between";
       left: QueryConditionValue;
-      operator: 'BETWEEN';
+      operator: "BETWEEN";
       begin: QueryConditionValue;
       end: QueryConditionValue;
     };

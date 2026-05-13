@@ -1,15 +1,14 @@
-import { TsCode } from '../abstruct/tsCode.js';
-import { tsValueString } from '../tsValueString.js';
-import type { Block } from './block.js';
-import { ExpressionStatement } from '@/tsg/index.js';
-import { Parameter } from './parameter.js';
-import type { PropertyAssignment } from '@/tsg/index.js';
-import type { SpreadAssignment } from '@/tsg/index.js';
-import type { TsType } from './type/type.js';
+import type { PropertyAssignment, SpreadAssignment } from "@/tsg/index.js";
+import { ExpressionStatement } from "@/tsg/index.js";
+import { TsCode } from "../abstruct/tsCode.js";
+import { tsValueString } from "../tsValueString.js";
+import type { Block } from "./block.js";
+import { Parameter } from "./parameter.js";
+import type { TsType } from "./type/type.js";
 
 export abstract class TsExpression extends TsCode {
   // biome-ignore lint/correctness/noUnusedPrivateClassMembers: <>
-  private readonly _codeType = 'expression';
+  private readonly _codeType = "expression";
 
   toStatement(): ExpressionStatement {
     return new ExpressionStatement(this);
@@ -54,9 +53,9 @@ export class CallExpression extends TsExpression {
     return (
       this.identifier.toString() +
       (this._typeArgs.length !== 0
-        ? `<${this._typeArgs.map(it => it.toString()).join(',')}>`
-        : '') +
-      `(${this.args.map(it => it.toString()).join(',')})`
+        ? `<${this._typeArgs.map((it) => it.toString()).join(",")}>`
+        : "") +
+      `(${this.args.map((it) => it.toString()).join(",")})`
     );
   }
 }
@@ -101,7 +100,7 @@ export class ArrayLiteral extends Literal {
   }
 
   protected toTsString(): string {
-    return `[${this.literals.map(it => it.toString()).join(',')}]`;
+    return `[${this.literals.map((it) => it.toString()).join(",")}]`;
   }
 }
 
@@ -121,7 +120,7 @@ export class ObjectLiteral extends Literal {
   }
 
   protected toTsString(): string {
-    return `{${this.properties.map(it => it.toString()).join(',')}}`;
+    return `{${this.properties.map((it) => it.toString()).join(",")}}`;
   }
 }
 
@@ -136,7 +135,7 @@ export class ArrowFunction extends Literal {
   }
 
   protected toTsString(): string {
-    const returnType = this.returnType ? `: ${this.returnType}` : '';
+    const returnType = this.returnType ? `: ${this.returnType}` : "";
     return `(${Parameter.arrayToString(
       this.params,
     )})${returnType} => ${this.body.toString()}`;
@@ -154,7 +153,7 @@ export class AsyncExpression extends TsExpression {
   }
 
   protected toTsString(): string {
-    return 'async ' + this.expression.toString();
+    return "async " + this.expression.toString();
   }
 }
 
@@ -165,20 +164,20 @@ export class AwaitExpression extends TsExpression {
   }
 
   protected toTsString(): string {
-    return 'await ' + this.expression.toString();
+    return "await " + this.expression.toString();
   }
 }
 
 export type BinaryExpressionToken =
-  | '==='
-  | '!=='
-  | '+'
-  | '-'
-  | '*'
-  | '/'
-  | '||'
-  | '&&'
-  | '=';
+  | "==="
+  | "!=="
+  | "+"
+  | "-"
+  | "*"
+  | "/"
+  | "||"
+  | "&&"
+  | "=";
 export class BinaryExpression extends TsExpression {
   constructor(
     private readonly left: TsExpression,
@@ -211,7 +210,7 @@ export class Identifier extends TsExpression {
 
 export class NewExpression extends CallExpression {
   protected toTsString(): string {
-    return 'new ' + super.toTsString();
+    return "new " + super.toTsString();
   }
 }
 
@@ -261,7 +260,7 @@ export class AsExpression extends TsExpression {
   }
 
   protected toTsString(): string {
-    return this.expression.toString() + ' as ' + this.asType.toString();
+    return this.expression.toString() + " as " + this.asType.toString();
   }
 }
 

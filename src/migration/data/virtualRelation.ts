@@ -1,4 +1,4 @@
-import type { JoinConditionNode } from '../../generatorv2/nodes/JoinConditionNode.js';
+import type { JoinConditionNode } from "../../generatorv2/nodes/JoinConditionNode.js";
 
 export type VirtualRelation = {
   parentTable: string;
@@ -6,6 +6,6 @@ export type VirtualRelation = {
   parentFieldName?: string;
   childFieldName?: string;
   conditions: JoinConditionNode[];
-  parentType?: 'array' | 'nullable' | 'notnull';
-  childType?: 'array' | 'nullable' | 'notnull';
+  parentType?: "array" | "nullable" | "notnull";
+  childType?: "array" | "nullable" | "notnull";
 };

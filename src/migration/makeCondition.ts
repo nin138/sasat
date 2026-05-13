@@ -1,22 +1,22 @@
-import type { ComparisonOperators } from '../db/sql/expression/comparison.js';
-import type { ConditionValue } from '../generatorv2/nodes/ConditionValues.js';
+import type { ComparisonOperators } from "../db/sql/expression/comparison.js";
+import type { ConditionValue } from "../generatorv2/nodes/ConditionValues.js";
 import type {
   JoinConditionNode,
   JoinConditionRangeValue,
   JoinConditionValue,
-} from '../generatorv2/nodes/JoinConditionNode.js';
+} from "../generatorv2/nodes/JoinConditionNode.js";
 import type {
   QueryConditionNode,
   QueryConditionValue,
-} from '../generatorv2/nodes/QueryConditionNode.js';
+} from "../generatorv2/nodes/QueryConditionNode.js";
 
 const parent = (field: string): JoinConditionValue => ({
-  kind: 'parent',
+  kind: "parent",
   field,
 });
 
 const child = (field: string): JoinConditionValue => ({
-  kind: 'child',
+  kind: "child",
   field,
 });
 
@@ -24,10 +24,10 @@ const contextOrError = (
   field: string,
   errorMessage: string,
 ): ConditionValue => ({
-  kind: 'context',
+  kind: "context",
   field,
   onNotDefined: {
-    action: 'error',
+    action: "error",
     message: errorMessage,
   },
 });
@@ -36,41 +36,41 @@ const contextOrDefault = (
   field: string,
   defaultValue: string | number,
 ): ConditionValue => ({
-  kind: 'context',
+  kind: "context",
   field,
   onNotDefined: {
-    action: 'defaultValue',
+    action: "defaultValue",
     value: defaultValue,
   },
 });
 
 const fixed = (value: string | number): ConditionValue => ({
-  kind: 'fixed',
+  kind: "fixed",
   value,
 });
 
 const today = (thresholdHour?: number, date?: boolean): ConditionValue => ({
-  kind: 'today',
-  type: date ? 'date' : 'datetime',
+  kind: "today",
+  type: date ? "date" : "datetime",
   thresholdHour,
 });
 
 const now = (): ConditionValue => ({
-  kind: 'now',
+  kind: "now",
 });
 
 const values = (
   begin: JoinConditionValue,
   end: JoinConditionValue,
 ): JoinConditionRangeValue => ({
-  kind: 'range',
+  kind: "range",
   begin,
   end,
 });
 
 const betweenToday = (thresholdHour?: number): JoinConditionRangeValue => ({
-  kind: 'date-range',
-  range: 'today',
+  kind: "date-range",
+  range: "today",
   thresholdHour,
 });
 
@@ -79,22 +79,22 @@ const custom = (
   parentRequiredFields?: string[],
   childRequiredFields?: string[],
 ): JoinConditionNode => ({
-  kind: 'custom',
+  kind: "custom",
   conditionName,
   parentRequiredFields,
   childRequiredFields,
 });
 
 const field = (column: string): QueryConditionValue => ({
-  kind: 'field',
+  kind: "field",
   column,
 });
 
 const arg = (
   name: string,
-  type: 'Int' | 'Float' | 'String',
+  type: "Int" | "Float" | "String",
 ): QueryConditionValue => ({
-  kind: 'arg',
+  kind: "arg",
   name,
   type,
 });
@@ -103,9 +103,9 @@ const betweenRel = (
   left: JoinConditionValue,
   range: JoinConditionRangeValue,
 ): JoinConditionNode => ({
-  kind: 'comparison',
+  kind: "comparison",
   left,
-  operator: 'BETWEEN',
+  operator: "BETWEEN",
   right: range,
 });
 
@@ -114,8 +114,8 @@ const betweenQuery = (
   begin: QueryConditionValue,
   end: QueryConditionValue,
 ): QueryConditionNode => ({
-  kind: 'between',
-  operator: 'BETWEEN',
+  kind: "between",
+  operator: "BETWEEN",
   left,
   begin,
   end,
@@ -126,7 +126,7 @@ const comparisonRel = (
   operator: ComparisonOperators,
   right: JoinConditionValue,
 ): JoinConditionNode => ({
-  kind: 'comparison',
+  kind: "comparison",
   left,
   right,
   operator,
@@ -136,20 +136,20 @@ const inRel = (
   left: JoinConditionValue,
   right: JoinConditionValue[],
 ): JoinConditionNode => ({
-  kind: 'comparison',
+  kind: "comparison",
   left,
   right,
-  operator: 'IN',
+  operator: "IN",
 });
 
 const isNullRel = (value: JoinConditionValue): JoinConditionNode => ({
-  kind: 'isNull',
+  kind: "isNull",
   value,
   not: false,
 });
 
 const isNotNullRel = (value: JoinConditionValue): JoinConditionNode => ({
-  kind: 'isNull',
+  kind: "isNull",
   value,
   not: true,
 });
@@ -159,7 +159,7 @@ const comparisonQuery = (
   operator: ComparisonOperators,
   right: QueryConditionValue,
 ): QueryConditionNode => ({
-  kind: 'comparison',
+  kind: "comparison",
   left,
   right,
   operator,

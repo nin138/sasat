@@ -1,30 +1,30 @@
-import fs from 'node:fs';
-import path from 'node:path';
-import { config } from '../../config/config.js';
-import { Directory } from '../../generatorv2/directory.js';
-import type { Relation } from '../../migration/data/relation.js';
-import { DataStoreHandler } from '../../migration/dataStore.js';
+import fs from "node:fs";
+import path from "node:path";
+import { config } from "../../config/config.js";
+import { Directory } from "../../generatorv2/directory.js";
+import type { Relation } from "../../migration/data/relation.js";
+import { DataStoreHandler } from "../../migration/dataStore.js";
 import type {
   BaseColumn,
   ReferenceColumn,
-} from '../../migration/serializable/column.js';
-import type { TableHandler } from '../../migration/serializable/table.js';
-import { getCurrentStore } from '../commands/getCurrentStore.js';
-import { Console } from '../console.js';
+} from "../../migration/serializable/column.js";
+import type { TableHandler } from "../../migration/serializable/table.js";
+import { getCurrentStore } from "../commands/getCurrentStore.js";
+import { Console } from "../console.js";
 
 export const writeDiagram = async (): Promise<void> => {
   try {
     const store = new DataStoreHandler(await getCurrentStore());
 
-    const entities = store.tables.map(it => processTable(store, it));
+    const entities = store.tables.map((it) => processTable(store, it));
     const result = `erDiagram
-${entities.join('\n')}
+${entities.join("\n")}
 `;
     fs.writeFileSync(
       path.join(
         config().migration.out,
         Directory.paths.GENERATED,
-        'er-diagram.mermaid',
+        "er-diagram.mermaid",
       ),
       result,
     );
@@ -39,16 +39,16 @@ function getRefType(parent: BaseColumn, rel: Relation) {
   //   ||	||	Exactly one
   // }o	o{	Zero or more (no upper limit)
   // }|	|{	One or more (no upper limit)
-  const left = parent.isNullable() ? '|o' : '||';
+  const left = parent.isNullable() ? "|o" : "||";
 
   const getRight = () => {
     switch (rel) {
-      case 'One':
-        return '||';
-      case 'Many':
-        return 'o{';
-      case 'OneOrZero':
-        return '|o';
+      case "One":
+        return "||";
+      case "Many":
+        return "o{";
+      case "OneOrZero":
+        return "|o";
     }
   };
 
@@ -57,8 +57,8 @@ function getRefType(parent: BaseColumn, rel: Relation) {
 
 function processTable(store: DataStoreHandler, table: TableHandler) {
   const rel = table.columns
-    .filter(it => it.isReference())
-    .map(it => {
+    .filter((it) => it.isReference())
+    .map((it) => {
       const rel = it as ReferenceColumn;
       const ref = rel.data.reference;
       const parent = store.table(ref.parentTable).column(ref.parentColumn);
@@ -68,8 +68,8 @@ function processTable(store: DataStoreHandler, table: TableHandler) {
       }`;
     });
   return `${table.tableName} {
-${table.columns.map(it => `  ${it.columnName()} ${it.dataType()}`).join('\n')}
+${table.columns.map((it) => `  ${it.columnName()} ${it.dataType()}`).join("\n")}
 }
-${rel.join('\n')}
+${rel.join("\n")}
 `;
 }

@@ -1,10 +1,10 @@
-import type * as mysql from 'mysql2/promise';
+import type * as mysql from "mysql2/promise";
 import type {
   CommandResponse,
   QueryResponse,
   SQLTransaction,
   SQLValueType,
-} from '../intefaces.js';
+} from "../intefaces.js";
 
 export class MySqlTransaction implements SQLTransaction {
   constructor(private connection: mysql.Connection) {}

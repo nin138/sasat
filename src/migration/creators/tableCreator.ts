@@ -1,15 +1,15 @@
-import type { GQLMutation, GQLOption, GQLQuery } from '../data/GQLOption.js';
-import type { VirtualRelation } from '../data/virtualRelation.js';
-import type { DataStore } from '../dataStore.js';
-import { NormalColumn, ReferenceColumn } from '../serializable/column.js';
-import { TableHandler } from '../serializable/table.js';
-import type { Reference } from '../serialized/serializedColumn.js';
+import type { GQLMutation, GQLOption, GQLQuery } from "../data/GQLOption.js";
+import type { VirtualRelation } from "../data/virtualRelation.js";
+import type { DataStore } from "../dataStore.js";
+import { NormalColumn, ReferenceColumn } from "../serializable/column.js";
+import { TableHandler } from "../serializable/table.js";
+import type { Reference } from "../serialized/serializedColumn.js";
 import {
   AutoIncrementIDColumnBuilder,
   type ColumnBuilderBase,
   ReferenceColumnBuilder,
-} from './columnBuilder.js';
-import { ColumnCreator } from './columnCreator.js';
+} from "./columnBuilder.js";
+import { ColumnCreator } from "./columnCreator.js";
 
 export interface TableBuilder {
   autoIncrementHashId(
@@ -19,7 +19,7 @@ export interface TableBuilder {
   column(columnName: string): ColumnCreator;
 
   addVirtualRelation(
-    relation: Omit<VirtualRelation, 'childTable'>,
+    relation: Omit<VirtualRelation, "childTable">,
   ): TableBuilder;
 
   references(reference: Reference, notNull?: boolean): ColumnBuilderBase;
@@ -64,7 +64,7 @@ export class TableCreator implements TableBuilder {
     return new ColumnCreator(this, name);
   }
 
-  addVirtualRelation(relation: Omit<VirtualRelation, 'childTable'>) {
+  addVirtualRelation(relation: Omit<VirtualRelation, "childTable">) {
     this.table.addVirtualRelation(relation);
     return this;
   }
@@ -94,7 +94,7 @@ export class TableCreator implements TableBuilder {
   }
 
   create(): TableHandler {
-    this.columns.forEach(column => {
+    this.columns.forEach((column) => {
       const { data, isPrimary, isUnique } = column.build();
       this.table.addColumn(
         data.hasReference
@@ -108,7 +108,7 @@ export class TableCreator implements TableBuilder {
   }
 
   createdAt(): TableBuilder {
-    this.column('createdAt')
+    this.column("createdAt")
       .timestamp()
       .defaultCurrentTimeStamp()
       .notNull()
@@ -117,7 +117,7 @@ export class TableCreator implements TableBuilder {
   }
 
   updatedAt(): TableBuilder {
-    this.column('updatedAt')
+    this.column("updatedAt")
       .timestamp()
       .defaultCurrentTimeStamp()
       .onUpdateCurrentTimeStamp()
@@ -128,7 +128,7 @@ export class TableCreator implements TableBuilder {
 
   addIndex(...columns: string[]): TableBuilder {
     this.table.addIndex(
-      `index_${this.tableName}__${columns.join('_')}`,
+      `index_${this.tableName}__${columns.join("_")}`,
       ...columns,
     );
     return this;

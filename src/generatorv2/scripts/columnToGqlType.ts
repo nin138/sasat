@@ -1,5 +1,5 @@
-import { DBColumnTypes } from '../../migration/column/columnTypes.js';
-import type { GQLPrimitive } from './gqlTypes.js';
+import { DBColumnTypes } from "../../migration/column/columnTypes.js";
+import type { GQLPrimitive } from "./gqlTypes.js";
 
 export const columnTypeToGqlPrimitive = (type: DBColumnTypes): GQLPrimitive => {
   switch (type) {
@@ -10,10 +10,10 @@ export const columnTypeToGqlPrimitive = (type: DBColumnTypes): GQLPrimitive => {
     case DBColumnTypes.bigInt:
     case DBColumnTypes.decimal:
     case DBColumnTypes.year:
-      return 'Int';
+      return "Int";
     case DBColumnTypes.float:
     case DBColumnTypes.double:
-      return 'Float';
+      return "Float";
     case DBColumnTypes.char:
     case DBColumnTypes.varchar:
     case DBColumnTypes.text:
@@ -21,8 +21,8 @@ export const columnTypeToGqlPrimitive = (type: DBColumnTypes): GQLPrimitive => {
     case DBColumnTypes.date:
     case DBColumnTypes.dateTime:
     case DBColumnTypes.timestamp:
-      return 'String';
+      return "String";
     case DBColumnTypes.boolean:
-      return 'Boolean';
+      return "Boolean";
   }
 };

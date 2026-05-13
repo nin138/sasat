@@ -1,4 +1,4 @@
-import { DBClient, SQLTransaction } from './dbClient.js';
+import { DBClient, SQLTransaction } from "./dbClient.js";
 
 class MockDBTransaction extends SQLTransaction {
   commit(): Promise<void> {

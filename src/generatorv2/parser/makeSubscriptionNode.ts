@@ -1,15 +1,15 @@
-import type { GQLMutation } from '../../migration/data/GQLOption.js';
-import type { DataStoreHandler } from '../../migration/dataStore.js';
-import type { TableHandler } from '../../migration/serializable/table.js';
-import { nonNullable } from '../../runtime/util.js';
-import type { SubscriptionNode } from '../nodes/subscriptionNode.js';
+import type { GQLMutation } from "../../migration/data/GQLOption.js";
+import type { DataStoreHandler } from "../../migration/dataStore.js";
+import type { TableHandler } from "../../migration/serializable/table.js";
+import { nonNullable } from "../../runtime/util.js";
+import type { SubscriptionNode } from "../nodes/subscriptionNode.js";
 
 export const makeSubscriptionNodes = (
   store: DataStoreHandler,
 ): SubscriptionNode[] => {
   return store.tables
-    .flatMap(table => {
-      return table.gqlOption.mutations.map(it => {
+    .flatMap((table) => {
+      return table.gqlOption.mutations.map((it) => {
         return makeSubscriptionNode(table, it);
       });
     })
@@ -17,9 +17,9 @@ export const makeSubscriptionNodes = (
 };
 
 const subscriptionNamePostfix = {
-  create: 'Created',
-  update: 'Updated',
-  delete: 'Deleted',
+  create: "Created",
+  update: "Updated",
+  delete: "Deleted",
 };
 
 const makeSubscriptionNode = (
@@ -32,14 +32,14 @@ const makeSubscriptionNode = (
   return {
     subscriptionName,
     entity: table.getEntityName(),
-    publishFunctionName: 'publish' + subscriptionName,
+    publishFunctionName: "publish" + subscriptionName,
     returnType: {
       typeName: table.getEntityName().name,
       nullable: false,
       array: false,
       entity: true,
     },
-    args: mutation.subscription.subscriptionFilter.map(it => {
+    args: mutation.subscription.subscriptionFilter.map((it) => {
       const column = table.column(it);
       return {
         name: it,
@@ -52,7 +52,7 @@ const makeSubscriptionNode = (
         },
       };
     }),
-    filters: (mutation.subscription?.subscriptionFilter || []).map(it => {
+    filters: (mutation.subscription?.subscriptionFilter || []).map((it) => {
       const column = table.column(it);
       return {
         field: column.fieldName(),

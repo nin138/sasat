@@ -1,4 +1,4 @@
-import type { ComparisonOperators } from '../../../db/sql/expression/comparison.js';
+import type { ComparisonOperators } from "../../../db/sql/expression/comparison.js";
 
 export enum QueryNodeKind {
   Field,
@@ -22,7 +22,7 @@ export enum QueryNodeKind {
   Window,
 }
 
-export type LockMode = 'FOR UPDATE' | 'FOR SHARE';
+export type LockMode = "FOR UPDATE" | "FOR SHARE";
 
 export type Query = {
   select: SelectExpr[];
@@ -66,23 +66,23 @@ export type Over = {
 export type Window =
   | {
       kind: QueryNodeKind.Window;
-      type: 'ROWS' | 'RANGE';
+      type: "ROWS" | "RANGE";
       between: true;
       start: WindowContent;
       end: WindowContent;
     }
   | {
       kind: QueryNodeKind.Window;
-      type: 'ROWS' | 'RANGE';
+      type: "ROWS" | "RANGE";
       between: false;
       value: WindowContent;
     };
 
 type WINDOW_TYPES_NO_ARG =
-  | 'UNBOUNDED PRECEDING'
-  | 'UNBOUNDED FOLLOWING'
-  | 'CURRENT ROW';
-type WINDOW_TYPES_ARG = 'PRECEDING' | 'FOLLOWING';
+  | "UNBOUNDED PRECEDING"
+  | "UNBOUNDED FOLLOWING"
+  | "CURRENT ROW";
+type WINDOW_TYPES_ARG = "PRECEDING" | "FOLLOWING";
 
 export type WindowContent =
   | {
@@ -110,7 +110,7 @@ export type QueryTable = {
     }
 );
 
-export type JoinType = 'INNER' | 'LEFT' | 'RIGHT' | 'OUTER';
+export type JoinType = "INNER" | "LEFT" | "RIGHT" | "OUTER";
 export type Join = {
   kind: QueryNodeKind.Join;
   type?: JoinType;
@@ -149,7 +149,7 @@ export type IsNullExpression = {
   isNot: boolean;
 };
 
-export type CompoundOperator = 'AND' | 'OR';
+export type CompoundOperator = "AND" | "OR";
 export type CompoundExpression = {
   kind: QueryNodeKind.CompoundExpr;
   left: BooleanValueExpression;
@@ -164,7 +164,7 @@ export type ComparisonExpression = {
   right: Value;
 };
 
-export type ContainType = 'start' | 'end' | 'contains';
+export type ContainType = "start" | "end" | "contains";
 export type ContainsExpression = {
   kind: QueryNodeKind.ContainsExpr;
   type: ContainType;
@@ -176,7 +176,7 @@ export type ContainsExpression = {
 export type InExpression = {
   kind: QueryNodeKind.InExpr;
   left: Value;
-  operator: 'IN' | 'NOT IN';
+  operator: "IN" | "NOT IN";
 } & (
   | {
       query: Query | RawExpression;
@@ -205,7 +205,7 @@ export type Literal = {
   value: string | boolean | number | null;
 };
 
-export type SortDirection = 'ASC' | 'DESC';
+export type SortDirection = "ASC" | "DESC";
 export type Sort = {
   kind: QueryNodeKind.Sort;
   field: Field | Fn | Identifier;

@@ -1,5 +1,5 @@
-import type { ComparisonOperators } from '../../db/sql/expression/comparison.js';
-import { nonNullable } from '../util.js';
+import type { ComparisonOperators } from "../../db/sql/expression/comparison.js";
+import { nonNullable } from "../util.js";
 import {
   type BetweenExpression,
   type BooleanValueExpression,
@@ -25,7 +25,7 @@ import {
   type Value,
   type Window,
   type WindowContent,
-} from './query/query.js';
+} from "./query/query.js";
 
 const compound = (
   expr: Array<BooleanValueExpression | undefined | null>,
@@ -62,10 +62,10 @@ const comparison =
 
 const and = (
   ...expr: Array<BooleanValueExpression | undefined | null>
-): BooleanValueExpression => compound(expr, 'AND');
+): BooleanValueExpression => compound(expr, "AND");
 const or = (
   ...expr: Array<BooleanValueExpression | undefined | null>
-): BooleanValueExpression => compound(expr, 'OR');
+): BooleanValueExpression => compound(expr, "OR");
 
 const field = (table: string, name: string, alias?: string): Field => ({
   kind: QueryNodeKind.Field,
@@ -81,7 +81,7 @@ const fn = (fnName: string, args: Value[], alias?: string): Fn => ({
   alias,
 });
 
-const window = (type: 'ROWS' | 'RANGE', value: WindowContent): Window => ({
+const window = (type: "ROWS" | "RANGE", value: WindowContent): Window => ({
   kind: QueryNodeKind.Window,
   type,
   between: false,
@@ -89,7 +89,7 @@ const window = (type: 'ROWS' | 'RANGE', value: WindowContent): Window => ({
 });
 
 const windowBetween = (
-  type: 'ROWS' | 'RANGE',
+  type: "ROWS" | "RANGE",
   start: WindowContent,
   end: WindowContent,
 ): Window => ({
@@ -115,14 +115,14 @@ const In = (
     return {
       kind: QueryNodeKind.InExpr,
       left,
-      operator: 'IN',
+      operator: "IN",
       right: right.map(literal),
     };
   }
   return {
     kind: QueryNodeKind.InExpr,
     left,
-    operator: 'IN',
+    operator: "IN",
     query: right,
   };
 };
@@ -130,7 +130,7 @@ const In = (
 const notIn = (left: Value, values: StrOrNum[]): InExpression => ({
   kind: QueryNodeKind.InExpr,
   left,
-  operator: 'NOT IN',
+  operator: "NOT IN",
   right: values.map(literal),
 });
 
@@ -179,20 +179,20 @@ const conditions = {
   simpleWhere,
   and,
   or,
-  eq: comparison('='),
-  neq: comparison('<>'),
-  gt: comparison('>'),
-  gte: comparison('>='),
-  lt: comparison('<'),
-  lte: comparison('<='),
+  eq: comparison("="),
+  neq: comparison("<>"),
+  gt: comparison(">"),
+  gte: comparison(">="),
+  lt: comparison("<"),
+  lte: comparison("<="),
   comparison: (left: Value, operator: ComparisonOperators, right: Value) =>
     comparison(operator)(left, right),
-  contains: containsExpr(false, 'contains'),
-  notContains: containsExpr(true, 'contains'),
-  startsWith: containsExpr(false, 'start'),
-  notStartsWith: containsExpr(true, 'start'),
-  endsWith: containsExpr(false, 'end'),
-  notEndsWith: containsExpr(true, 'end'),
+  contains: containsExpr(false, "contains"),
+  notContains: containsExpr(true, "contains"),
+  startsWith: containsExpr(false, "start"),
+  notStartsWith: containsExpr(true, "start"),
+  endsWith: containsExpr(false, "end"),
+  notEndsWith: containsExpr(true, "end"),
   in: In,
   notIn,
   between,

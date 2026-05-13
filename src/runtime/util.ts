@@ -1,5 +1,5 @@
 export const pick = <T extends object>(target: T, keys: Array<keyof T>) =>
-  Object.fromEntries(keys.map(key => [key, target[key]]));
+  Object.fromEntries(keys.map((key) => [key, target[key]]));
 
 export const unique = <T>(array: T[]): T[] => {
   const result: T[] = [];

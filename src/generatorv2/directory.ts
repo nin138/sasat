@@ -1,25 +1,25 @@
-import * as path from 'node:path';
+import * as path from "node:path";
 
-const GeneratedDirName = '__generated__';
-const EntityDirName = 'entities';
-const DataSourceDirName = 'dataSources';
+const GeneratedDirName = "__generated__";
+const EntityDirName = "entities";
+const DataSourceDirName = "dataSources";
 
 export type Directories =
-  | 'GENERATED'
-  | 'ENTITIES'
-  | 'BASE'
-  | 'DATA_SOURCES'
-  | 'GENERATED_DS';
+  | "GENERATED"
+  | "ENTITIES"
+  | "BASE"
+  | "DATA_SOURCES"
+  | "GENERATED_DS";
 
 const relative = (from: string, to: string) => {
   const result = path.posix.relative(from, to);
-  if (result.startsWith('../')) return result;
-  return './' + result;
+  if (result.startsWith("../")) return result;
+  return "./" + result;
 };
 
 const GENERATED_PATH = `/${GeneratedDirName}/`;
 const paths: Record<Directories, string> = {
-  BASE: '/',
+  BASE: "/",
   GENERATED: GENERATED_PATH,
   ENTITIES: `${GENERATED_PATH}${EntityDirName}/`,
   DATA_SOURCES: `/${DataSourceDirName}/db/`,

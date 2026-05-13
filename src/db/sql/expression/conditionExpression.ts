@@ -1,8 +1,8 @@
 import {
   type ComparisonExpression,
   comparisonExpressionToSql,
-} from './comparison.js';
-import { CompositeCondition } from './compositeCondition.js';
+} from "./comparison.js";
+import { CompositeCondition } from "./compositeCondition.js";
 
 export type ConditionExpression<T> =
   | ComparisonExpression<T>

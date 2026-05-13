@@ -1,5 +1,5 @@
-import { config } from '../../config/config.js';
-import { Direction } from './getCurrentMigration.js';
+import { config } from "../../config/config.js";
+import { Direction } from "./getCurrentMigration.js";
 
 export const getMigrationTargets = (
   files: string[],
@@ -9,7 +9,7 @@ export const getMigrationTargets = (
   const targetIndex =
     files.indexOf(config().migration.target || files[files.length - 1]) + 1;
   if (currentIndex === -1 || targetIndex === -1)
-    throw new Error('migration target not found');
+    throw new Error("migration target not found");
   if (targetIndex >= currentIndex)
     return {
       direction: Direction.Up,

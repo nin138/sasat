@@ -1,21 +1,21 @@
-import { TsFile, tsg } from '../../../tsg/index.js';
-import { EntityName } from '../../nodes/entityName.js';
-import type { EntityNode } from '../../nodes/entityNode.js';
-import type { RootNode } from '../../nodes/rootNode.js';
-import { makeTypeRef } from './scripts/getEntityTypeRefs.js';
+import { TsFile, tsg } from "../../../tsg/index.js";
+import { EntityName } from "../../nodes/entityName.js";
+import type { EntityNode } from "../../nodes/entityNode.js";
+import type { RootNode } from "../../nodes/rootNode.js";
+import { makeTypeRef } from "./scripts/getEntityTypeRefs.js";
 
 export const generateFields = (root: RootNode) => {
   return new TsFile(
-    ...root.entities.map(it =>
+    ...root.entities.map((it) =>
       tsg
         .typeAlias(
           it.name.fieldsTypeName(),
           tsg
-            .typeRef('Fields', [
-              makeTypeRef(it.name, 'entity', 'GENERATED'),
+            .typeRef("Fields", [
+              makeTypeRef(it.name, "entity", "GENERATED"),
               makeTypeLiteral(it),
             ])
-            .importFrom('sasat'),
+            .importFrom("sasat"),
         )
         .export(),
     ),
@@ -24,7 +24,7 @@ export const generateFields = (root: RootNode) => {
 
 const makeTypeLiteral = (entity: EntityNode) => {
   return tsg.typeLiteral([
-    ...entity.references.map(it =>
+    ...entity.references.map((it) =>
       tsg.propertySignature(
         `${it.fieldName}?`,
         tsg.typeRef(
@@ -32,7 +32,7 @@ const makeTypeLiteral = (entity: EntityNode) => {
         ),
       ),
     ),
-    ...entity.referencedBy.map(it =>
+    ...entity.referencedBy.map((it) =>
       tsg.propertySignature(
         `${it.fieldName}?`,
         tsg.typeRef(EntityName.fromTableName(it.childTable).fieldsTypeName()),

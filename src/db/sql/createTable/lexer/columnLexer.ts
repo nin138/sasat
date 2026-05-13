@@ -1,22 +1,22 @@
-import { Lexer, type Token } from './lexer.js';
+import { Lexer, type Token } from "./lexer.js";
 
 const keywords = [
-  'NOT NULL',
-  'DEFAULT',
-  'ON UPDATE',
-  'ON DELETE',
-  'RESTRICT',
-  'CASCADE',
-  'SET NULL',
-  'NO ACTION',
-  'AUTO_INCREMENT',
-  'unsigned',
-  'signed',
-  'zerofill',
-  'CREATE TABLE',
-  'UNIQUE KEY',
-  'REFERENCES',
-  'NULL',
+  "NOT NULL",
+  "DEFAULT",
+  "ON UPDATE",
+  "ON DELETE",
+  "RESTRICT",
+  "CASCADE",
+  "SET NULL",
+  "NO ACTION",
+  "AUTO_INCREMENT",
+  "unsigned",
+  "signed",
+  "zerofill",
+  "CREATE TABLE",
+  "UNIQUE KEY",
+  "REFERENCES",
+  "NULL",
 ];
 
 export const lexColumn = (str: string): Token[] =>

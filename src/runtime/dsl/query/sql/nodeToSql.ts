@@ -1,4 +1,4 @@
-import { SqlString } from '../../../../runtime/sql/sqlString.js';
+import { SqlString } from "../../../../runtime/sql/sqlString.js";
 import {
   type BetweenExpression,
   type BooleanValueExpression,
@@ -25,26 +25,26 @@ import {
   type Value,
   type Window,
   type WindowContent,
-} from '../query.js';
-import { queryToSql } from './queryToSql.js';
+} from "../query.js";
+import { queryToSql } from "./queryToSql.js";
 
 function partitionBy(ids?: Identifier[]) {
-  if (!ids || ids.length === 0) return '';
-  return `PARTITION BY ${ids.map(Sql.identifier).join(',')} `;
+  if (!ids || ids.length === 0) return "";
+  return `PARTITION BY ${ids.map(Sql.identifier).join(",")} `;
 }
 function orderBy(sorts?: Sort[]) {
-  if (!sorts || sorts.length === 0) return '';
-  return `ORDER BY ${sorts.map(Sql.sort).join(',')} `;
+  if (!sorts || sorts.length === 0) return "";
+  return `ORDER BY ${sorts.map(Sql.sort).join(",")} `;
 }
 
 function windowValue(value: WindowContent) {
-  if (value.type === 'FOLLOWING' || value.type === 'PRECEDING') {
+  if (value.type === "FOLLOWING" || value.type === "PRECEDING") {
     return `${value.value} ${value.type}`;
   }
   return value.type;
 }
 function window(window?: Window) {
-  if (!window) return '';
+  if (!window) return "";
   if (window.between) {
     return `${window.type} BETWEEN ${windowValue(window.start)} AND ${window.end}`;
   }
@@ -52,11 +52,11 @@ function window(window?: Window) {
 }
 
 function over(v?: Over) {
-  if (!v) return '';
+  if (!v) return "";
   return `OVER (${partitionBy(v.partitionBy)}${orderBy(v.orderBy)}${window(v.window)})`;
 }
 
-export const SELECT_ALIAS_SEPARATOR = '__';
+export const SELECT_ALIAS_SEPARATOR = "__";
 export const Sql = {
   select: (expr: SelectExpr): string => {
     switch (expr.kind) {
@@ -73,16 +73,16 @@ export const Sql = {
   literal: (literal: Literal): string => SqlString.escape(literal.value),
   fieldInCondition: (identifier: Field): string =>
     SqlString.escapeId(identifier.table) +
-    '.' +
+    "." +
     SqlString.escapeId(identifier.name),
   fieldInSelect: (identifier: Field): string => {
     const alias =
       identifier.alias && identifier.name !== identifier.alias
-        ? ' AS ' + SqlString.escapeId(identifier.alias)
-        : '';
+        ? " AS " + SqlString.escapeId(identifier.alias)
+        : "";
     return (
       SqlString.escapeId(identifier.table) +
-      '.' +
+      "." +
       SqlString.escapeId(identifier.name) +
       alias
     );
@@ -91,8 +91,8 @@ export const Sql = {
     return SqlString.escapeId(ident.identifier);
   },
   fn: (fn: Fn): string =>
-    `${fn.fnName}(${fn.args.map(Sql.value).join(',')})${over(fn.over)}${
-      fn.alias ? ` AS ${fn.alias}` : ''
+    `${fn.fnName}(${fn.args.map(Sql.value).join(",")})${over(fn.over)}${
+      fn.alias ? ` AS ${fn.alias}` : ""
     }`,
   value: (v: Value): string => {
     if (v.kind === QueryNodeKind.Function) return Sql.fn(v);
@@ -105,21 +105,21 @@ export const Sql = {
       expr.end,
     )}`,
   contains: (expr: ContainsExpression): string => {
-    const operator = expr.isNot ? 'NOT LIKE' : 'LIKE';
+    const operator = expr.isNot ? "NOT LIKE" : "LIKE";
     const val = (value: string, type: ContainType) => {
-      if (type === 'contains') return '%' + value + '%';
-      if (type === 'start') return '%' + value;
-      return value + '%';
+      if (type === "contains") return "%" + value + "%";
+      if (type === "start") return "%" + value;
+      return value + "%";
     };
     return `${Sql.value(expr.left)} ${operator} ${SqlString.escape(
       val(expr.right, expr.type),
     )}`;
   },
   in: (expr: InExpression): string => {
-    if ('right' in expr)
+    if ("right" in expr)
       return `${Sql.value(expr.left)} ${expr.operator} (${expr.right
         .map(Sql.value)
-        .join(', ')})`;
+        .join(", ")})`;
     return `${Sql.value(expr.left)} ${expr.operator} (${Sql.queryOrRaw(
       expr.query,
     )})`;
@@ -131,22 +131,22 @@ export const Sql = {
       expr.right,
     )}`,
   isNull: (expr: IsNullExpression): string =>
-    `${Sql.value(expr.expr)} ${expr.isNot ? 'IS NOT NULL' : 'IS NULL'}`,
+    `${Sql.value(expr.expr)} ${expr.isNot ? "IS NOT NULL" : "IS NULL"}`,
   paren: (expr: ParenthesisExpression): string =>
-    '(' + Sql.booleanValue(expr.expression) + ')',
+    "(" + Sql.booleanValue(expr.expression) + ")",
   table: (table: QueryTable): string => {
     if (!table.subquery) {
       if (table.alias === table.name) return SqlString.escapeId(table.name);
       return (
         SqlString.escapeId(table.name) +
-        ' AS ' +
+        " AS " +
         SqlString.escapeId(table.alias)
       );
     }
     return `(${queryToSql(table.query)}) AS ${SqlString.escapeId(table.alias)}`;
   },
   join: (join: Join): string =>
-    `${join.type ? join.type + ' ' : ''}JOIN ${Sql.table(join.table)} ON ` +
+    `${join.type ? join.type + " " : ""}JOIN ${Sql.table(join.table)} ON ` +
     Sql.booleanValue(join.conditions),
   booleanValue: (expr: BooleanValueExpression): string => {
     switch (expr.kind) {
@@ -183,12 +183,12 @@ export const Sql = {
       }
     };
     if (expr.direction)
-      return `${field()} ${expr.direction === 'DESC' ? 'DESC' : 'ASC'}`;
+      return `${field()} ${expr.direction === "DESC" ? "DESC" : "ASC"}`;
     return field();
   },
-  sorts: (sorts: Sort[]): string => sorts.map(Sql.sort).join(', '),
+  sorts: (sorts: Sort[]): string => sorts.map(Sql.sort).join(", "),
   queryOrRaw: (expr: Query | RawExpression) => {
-    if ('kind' in expr) {
+    if ("kind" in expr) {
       return expr.expr;
     }
     return queryToSql(expr);

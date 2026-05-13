@@ -1,13 +1,13 @@
-import type { DBColumnTypes } from '../../migration/column/columnTypes.js';
-import type { DataStoreHandler } from '../../migration/dataStore.js';
-import type { BaseColumn } from '../../migration/serializable/column.js';
+import type { DBColumnTypes } from "../../migration/column/columnTypes.js";
+import type { DataStoreHandler } from "../../migration/dataStore.js";
+import type { BaseColumn } from "../../migration/serializable/column.js";
 import type {
   ColumnOptions,
   SerializedColumn,
-} from '../../migration/serialized/serializedColumn.js';
-import type { GQLPrimitive } from '../scripts/gqlTypes.js';
-import type { EntityName } from './entityName.js';
-import type { EntityNode } from './entityNode.js';
+} from "../../migration/serialized/serializedColumn.js";
+import type { GQLPrimitive } from "../scripts/gqlTypes.js";
+import type { EntityName } from "./entityName.js";
+import type { EntityNode } from "./entityNode.js";
 
 export type FieldNode = {
   entity: EntityNode;
@@ -32,7 +32,7 @@ const getHashId = (
   store: DataStoreHandler,
   entity: EntityName,
   column: BaseColumn,
-): FieldNode['hashId'] => {
+): FieldNode["hashId"] => {
   if (!column.isReference()) {
     if (column.data.option.autoIncrementHashId)
       return { encoder: entity.IDEncoderName() };
@@ -57,7 +57,7 @@ export const makeFieldNode = (
     entity,
     fieldName: column.fieldName(),
     columnName: column.columnName(),
-    gqlType: hashId ? 'ID' : column.gqlType(),
+    gqlType: hashId ? "ID" : column.gqlType(),
     dbType: column.dataType(),
     isAutoIncrement: column.data.autoIncrement,
     isArray: false,
@@ -85,7 +85,7 @@ export const makeCreatableFieldNode = (
     entity,
     fieldName: column.fieldName(),
     columnName: column.columnName(),
-    gqlType: hashId ? 'ID' : column.gqlType(),
+    gqlType: hashId ? "ID" : column.gqlType(),
     dbType: column.dataType(),
     isAutoIncrement: column.data.autoIncrement,
     isArray: false,
@@ -93,9 +93,9 @@ export const makeCreatableFieldNode = (
     isNullable: column.isNullableOnCreate(),
     isUpdatable: column.isUpdatable(),
     isGQLOpen: !(
-      column.table.gqlOption.mutations.find(it => it.type === 'create')
+      column.table.gqlOption.mutations.find((it) => it.type === "create")
         ?.contextFields || []
-    ).some(it => it.column === column.columnName()),
+    ).some((it) => it.column === column.columnName()),
     column: column.data,
     option: column.data.option,
     hashId: getHashId(store, entity.name, column),
@@ -113,7 +113,7 @@ export const makeUpdatableFieldNode = (
     entity,
     fieldName: column.fieldName(),
     columnName: column.columnName(),
-    gqlType: hashId ? 'ID' : column.gqlType(),
+    gqlType: hashId ? "ID" : column.gqlType(),
     dbType: column.dataType(),
     isAutoIncrement: column.data.autoIncrement,
     isArray: false,
@@ -121,9 +121,9 @@ export const makeUpdatableFieldNode = (
     isPrimary: false,
     isUpdatable: true,
     isGQLOpen: !(
-      column.table.gqlOption.mutations.find(it => it.type === 'update')
+      column.table.gqlOption.mutations.find((it) => it.type === "update")
         ?.contextFields || []
-    ).some(it => it.column === column.columnName()),
+    ).some((it) => it.column === column.columnName()),
     column: column.data,
     option: column.data.option,
     hashId: getHashId(store, entity.name, column),

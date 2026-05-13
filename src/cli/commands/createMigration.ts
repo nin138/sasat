@@ -1,9 +1,9 @@
-import * as fs from 'node:fs';
-import { join } from 'node:path';
-import { config } from '../../config/config.js';
-import { mkDirIfNotExist } from '../../util/fsUtil.js';
-import { capitalizeFirstLetter } from '../../util/stringUtil.js';
-import { Console } from '../console.js';
+import * as fs from "node:fs";
+import { join } from "node:path";
+import { config } from "../../config/config.js";
+import { mkDirIfNotExist } from "../../util/fsUtil.js";
+import { capitalizeFirstLetter } from "../../util/stringUtil.js";
+import { Console } from "../console.js";
 
 const getMigrationFile = (className: string) =>
   `import { SasatMigration, MigrationStore } from "sasat";
@@ -24,7 +24,7 @@ export default class ${capitalizeFirstLetter(
 
 export const createMigrationFile = (migrationName: string): string => {
   const date = new Date();
-  const pad = (val: number) => val.toString().padStart(2, '0');
+  const pad = (val: number) => val.toString().padStart(2, "0");
   const now =
     date.getFullYear() +
     pad(date.getMonth() + 1) +
@@ -37,7 +37,7 @@ export const createMigrationFile = (migrationName: string): string => {
   const outDir = join(config().migration.dir);
   mkDirIfNotExist(outDir);
   fs.writeFileSync(
-    join(outDir, fileName) + '.ts',
+    join(outDir, fileName) + ".ts",
     getMigrationFile(migrationName),
   );
   return fileName;
@@ -45,13 +45,13 @@ export const createMigrationFile = (migrationName: string): string => {
 
 export const createMigration = (args: string): void => {
   if (!args) {
-    Console.error('missing argument migration name');
+    Console.error("missing argument migration name");
     return;
   }
   if (!/^[$A-Za-z_][0-9A-Za-z_]+$/.test(args)) {
-    Console.error('migration name should be match /^[$A-Za-z_][0-9A-Za-z_]+$/');
+    Console.error("migration name should be match /^[$A-Za-z_][0-9A-Za-z_]+$/");
     return;
   }
-  Console.success(createMigrationFile(args) + ' Successfully created');
+  Console.success(createMigrationFile(args) + " Successfully created");
   return;
 };

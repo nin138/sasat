@@ -1,15 +1,15 @@
-import { type TypeReference, tsg } from '../../../../tsg/index.js';
-import { type Directories, Directory } from '../../../directory.js';
-import type { EntityName } from '../../../nodes/entityName.js';
+import { type TypeReference, tsg } from "../../../../tsg/index.js";
+import { type Directories, Directory } from "../../../directory.js";
+import type { EntityName } from "../../../nodes/entityName.js";
 
 type TypeRefs =
-  | 'creatable'
-  | 'fields'
-  | 'identifiable'
-  | 'entity'
-  | 'updatable'
-  | 'result'
-  | 'withRelation';
+  | "creatable"
+  | "fields"
+  | "identifiable"
+  | "entity"
+  | "updatable"
+  | "result"
+  | "withRelation";
 type TypeRefInfo = {
   name: (entity: EntityName) => string;
   file: (entity: EntityName) => string;
@@ -18,39 +18,39 @@ type TypeRefInfo = {
 
 const typeRefs: Record<TypeRefs, TypeRefInfo> = {
   entity: {
-    name: entity => entity.name,
-    dir: 'ENTITIES',
-    file: entity => entity.name,
+    name: (entity) => entity.name,
+    dir: "ENTITIES",
+    file: (entity) => entity.name,
   },
   creatable: {
-    name: entity => entity.creatableInterface(),
-    dir: 'ENTITIES',
-    file: entity => entity.name,
+    name: (entity) => entity.creatableInterface(),
+    dir: "ENTITIES",
+    file: (entity) => entity.name,
   },
   updatable: {
-    name: entity => entity.updatable(),
-    dir: 'ENTITIES',
-    file: entity => entity.name,
+    name: (entity) => entity.updatable(),
+    dir: "ENTITIES",
+    file: (entity) => entity.name,
   },
   identifiable: {
-    name: entity => entity.identifiableInterfaceName(),
-    dir: 'ENTITIES',
-    file: entity => entity.name,
+    name: (entity) => entity.identifiableInterfaceName(),
+    dir: "ENTITIES",
+    file: (entity) => entity.name,
   },
   fields: {
-    name: entity => entity.fieldsTypeName(),
-    dir: 'GENERATED',
-    file: () => 'fields',
+    name: (entity) => entity.fieldsTypeName(),
+    dir: "GENERATED",
+    file: () => "fields",
   },
   withRelation: {
-    name: entity => entity.entityWithRelationTypeName(),
-    dir: 'GENERATED',
-    file: () => 'relationMap',
+    name: (entity) => entity.entityWithRelationTypeName(),
+    dir: "GENERATED",
+    file: () => "relationMap",
   },
   result: {
-    name: entity => entity.resultType(),
-    dir: 'GENERATED',
-    file: () => 'relationMap',
+    name: (entity) => entity.resultType(),
+    dir: "GENERATED",
+    file: () => "relationMap",
   },
 };
 
@@ -67,6 +67,6 @@ export const makeTypeRef = (
 
 export const makeContextTypeRef = (importFrom: Directories): TypeReference => {
   return tsg
-    .typeRef('GQLContext')
-    .importFrom(Directory.resolve(importFrom, 'BASE', 'context'));
+    .typeRef("GQLContext")
+    .importFrom(Directory.resolve(importFrom, "BASE", "context"));
 };

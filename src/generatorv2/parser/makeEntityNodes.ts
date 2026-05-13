@@ -1,6 +1,6 @@
-import type { DataStoreHandler } from '../../migration/dataStore.js';
-import type { TableHandler } from '../../migration/serializable/table.js';
-import { EntityNode } from '../nodes/entityNode.js';
+import type { DataStoreHandler } from "../../migration/dataStore.js";
+import type { TableHandler } from "../../migration/serializable/table.js";
+import { EntityNode } from "../nodes/entityNode.js";
 
 export const makeEntityNodes = (store: DataStoreHandler) => {
   const make = makeEntityNode(store);

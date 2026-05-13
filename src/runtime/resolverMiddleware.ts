@@ -1,4 +1,4 @@
-import type { ResolverArgs } from './makeResolver.js';
+import type { ResolverArgs } from "./makeResolver.js";
 
 export type ResolverMiddleware<
   Context,
@@ -15,7 +15,7 @@ export const makeParamsMiddleware = <
 >(
   update: (params: RequiredParams) => IncomingParams,
 ): ResolverMiddleware<never, RequiredParams, IncomingParams> => {
-  return args => {
+  return (args) => {
     args[1] = update(args[1] as RequiredParams);
     return args;
   };

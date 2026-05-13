@@ -1,7 +1,7 @@
-import type { EntityName } from '../../generatorv2/nodes/entityName.js';
-import type { ArgNode, TypeNode } from './typeNode.js';
+import type { EntityName } from "../../generatorv2/nodes/entityName.js";
+import type { ArgNode, TypeNode } from "./typeNode.js";
 
-type QueryType = 'primary' | 'list';
+type QueryType = "primary" | "list";
 
 export type QueryNode = {
   type: QueryType;

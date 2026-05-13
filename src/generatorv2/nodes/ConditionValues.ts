@@ -1,31 +1,31 @@
 type ContextConditionValue = {
-  kind: 'context';
+  kind: "context";
   field: string;
   onNotDefined: OnNotDefinedAction;
 };
 
 type FixedConditionValue = {
-  kind: 'fixed';
+  kind: "fixed";
   value: string | number;
 };
 
 type TodayStartConditionValue = {
-  kind: 'today';
-  type: 'date' | 'datetime';
+  kind: "today";
+  type: "date" | "datetime";
   thresholdHour?: number;
 };
 
 type NowConditionValue = {
-  kind: 'now';
+  kind: "now";
 };
 
 type OnNotDefinedAction =
   | {
-      action: 'error';
+      action: "error";
       message: string;
     }
   | {
-      action: 'defaultValue';
+      action: "defaultValue";
       value: string | number;
     };
 

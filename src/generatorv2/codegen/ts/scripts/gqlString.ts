@@ -1,20 +1,20 @@
-import { EntityName } from '../../../nodes/entityName.js';
-import type { FieldNode } from '../../../nodes/FieldNode.js';
-import type { MutationNode } from '../../../nodes/mutationNode.js';
-import type { QueryNode } from '../../../nodes/queryNode.js';
+import { EntityName } from "../../../nodes/entityName.js";
+import type { FieldNode } from "../../../nodes/FieldNode.js";
+import type { MutationNode } from "../../../nodes/mutationNode.js";
+import type { QueryNode } from "../../../nodes/queryNode.js";
 import type {
   ReferencedNode,
   ReferenceNode,
-} from '../../../nodes/ReferencedNode.js';
-import type { SubscriptionNode } from '../../../nodes/subscriptionNode.js';
-import type { ArgNode, TypeNode } from '../../../nodes/typeNode.js';
+} from "../../../nodes/ReferencedNode.js";
+import type { SubscriptionNode } from "../../../nodes/subscriptionNode.js";
+import type { ArgNode, TypeNode } from "../../../nodes/typeNode.js";
 
 export const GQLString = {
   args: (args: ArgNode[]): string => {
-    if (args.length === 0) return '';
+    if (args.length === 0) return "";
     return `(${args
-      .map(arg => `${arg.name}: ${GQLString.type(arg.type)}`)
-      .join(',')})`;
+      .map((arg) => `${arg.name}: ${GQLString.type(arg.type)}`)
+      .join(",")})`;
   },
   field: (field: FieldNode): string => {
     return `${field.fieldName}: ${fieldGqlType(field)}`;
@@ -49,7 +49,7 @@ export const GQLString = {
     )}: ${GQLString.type(node.returnType)}`;
   },
   type: (node: TypeNode) => {
-    const type = node.nullable ? node.typeName : node.typeName + '!';
+    const type = node.nullable ? node.typeName : node.typeName + "!";
     if (node.array) return `[${type}]!`;
     return type;
   },
@@ -64,7 +64,7 @@ export const makeGQLType = (
   isNullable: boolean,
   isArray: boolean,
 ) => {
-  const type = isNullable ? typeName : typeName + '!';
+  const type = isNullable ? typeName : typeName + "!";
   if (isArray) return `[${type}]!`;
   return type;
 };

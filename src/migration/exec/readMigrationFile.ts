@@ -1,8 +1,8 @@
-import path from 'node:path';
-import { config } from '@/config/config.js';
-import type { StoreMigrator } from '../front/storeMigrator.js';
-import { Direction } from './getCurrentMigration.js';
-import { changeExtTsToJs } from './migrationFileCompiler.js';
+import path from "node:path";
+import { config } from "@/config/config.js";
+import type { StoreMigrator } from "../front/storeMigrator.js";
+import { Direction } from "./getCurrentMigration.js";
+import { changeExtTsToJs } from "./migrationFileCompiler.js";
 
 export const readMigration = async (
   store: StoreMigrator,

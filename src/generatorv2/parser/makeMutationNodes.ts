@@ -1,24 +1,24 @@
-import { DBColumnTypes } from '../../migration/column/columnTypes.js';
+import { DBColumnTypes } from "../../migration/column/columnTypes.js";
 import type {
   GQLMutation,
   GqlFromContextParam,
-} from '../../migration/data/GQLOption.js';
-import type { TableHandler } from '../../migration/serializable/table.js';
-import type { EntityNode } from '../nodes/entityNode.js';
-import type { ContextField, MutationNode } from '../nodes/mutationNode.js';
+} from "../../migration/data/GQLOption.js";
+import type { TableHandler } from "../../migration/serializable/table.js";
+import type { EntityNode } from "../nodes/entityNode.js";
+import type { ContextField, MutationNode } from "../nodes/mutationNode.js";
 
 export const makeEntityMutationNodes = (
   table: TableHandler,
   entity: EntityNode,
 ): MutationNode[] => {
   if (!table.gqlOption.enabled) return [];
-  return table.gqlOption.mutations.map(mutation => {
+  return table.gqlOption.mutations.map((mutation) => {
     switch (mutation.type) {
-      case 'create':
+      case "create":
         return makeCreateMutationNode(table, entity, mutation);
-      case 'update':
+      case "update":
         return makeUpdateMutationNode(table, entity, mutation);
-      case 'delete':
+      case "delete":
         return makeDeleteMutationNode(table, entity, mutation);
       default:
         throw new Error(`invalid mutation type: ${mutation.type}`);
@@ -40,7 +40,7 @@ const makeCreateMutationNode = (
     entity,
     contextFields: mutation.contextFields.map(makeContextField),
     entityName: table.getEntityName(),
-    identifyFields: table.getPrimaryKeyColumns().map(it => it.fieldName()),
+    identifyFields: table.getPrimaryKeyColumns().map((it) => it.fieldName()),
     mutationName: `create${table.getEntityName().name}`,
     inputName: entity.name.createInputName(),
     refetch: !mutation.noReFetch,
@@ -61,9 +61,9 @@ const makeCreateMutationNode = (
         },
       },
     ],
-    mutationType: 'create',
+    mutationType: "create",
     subscription: mutation.subscription.enabled,
-    requireIdDecodeMiddleware: entity.creatable.fields.some(it => it.hashId),
+    requireIdDecodeMiddleware: entity.creatable.fields.some((it) => it.hashId),
     middlewares: mutation.middlewares,
   };
 };
@@ -77,12 +77,12 @@ const makeUpdateMutationNode = (
     entity,
     contextFields: mutation.contextFields.map(makeContextField),
     entityName: table.getEntityName(),
-    identifyFields: table.getPrimaryKeyColumns().map(it => it.fieldName()),
+    identifyFields: table.getPrimaryKeyColumns().map((it) => it.fieldName()),
     mutationName: `update${table.getEntityName().name}`,
     inputName: entity.name.updateInputName(),
     refetch: !mutation.noReFetch,
     returnType: {
-      typeName: mutation.noReFetch ? 'Boolean' : table.getEntityName().name,
+      typeName: mutation.noReFetch ? "Boolean" : table.getEntityName().name,
       dbType: mutation.noReFetch
         ? DBColumnTypes.boolean
         : (undefined as unknown as DBColumnTypes),
@@ -101,9 +101,11 @@ const makeUpdateMutationNode = (
         },
       },
     ],
-    mutationType: 'update',
+    mutationType: "update",
     subscription: mutation.subscription.enabled,
-    requireIdDecodeMiddleware: entity.updateInput.fields.some(it => it.hashId),
+    requireIdDecodeMiddleware: entity.updateInput.fields.some(
+      (it) => it.hashId,
+    ),
     middlewares: mutation.middlewares,
   };
 };
@@ -119,10 +121,10 @@ const makeDeleteMutationNode = (
     inputName: entity.name.identifyInputName(),
     contextFields: mutation.contextFields.map(makeContextField),
     entityName: table.getEntityName(),
-    identifyFields: table.getPrimaryKeyColumns().map(it => it.fieldName()),
+    identifyFields: table.getPrimaryKeyColumns().map((it) => it.fieldName()),
     refetch: false,
     returnType: {
-      typeName: 'Boolean',
+      typeName: "Boolean",
       dbType: DBColumnTypes.boolean,
       nullable: false,
       array: false,
@@ -139,9 +141,9 @@ const makeDeleteMutationNode = (
         },
       },
     ],
-    mutationType: 'delete',
+    mutationType: "delete",
     subscription: mutation.subscription.enabled,
-    requireIdDecodeMiddleware: entity.identifyFields().some(it => it.hashId),
+    requireIdDecodeMiddleware: entity.identifyFields().some((it) => it.hashId),
     middlewares: mutation.middlewares,
   };
 };

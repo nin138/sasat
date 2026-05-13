@@ -1,5 +1,5 @@
-import { Lexer2 } from './lexer2.js';
-import { type Keyword, Rules } from './rules.js';
+import { Lexer2 } from "./lexer2.js";
+import { type Keyword, Rules } from "./rules.js";
 
 export const createSimpleLexer = (
   str: string,

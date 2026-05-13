@@ -1,8 +1,8 @@
-import { TsCode } from '../abstruct/tsCode.js';
-import { TsUtil } from '../tsUtil.js';
-import type { Identifier, Literal } from './expressions.js';
-import { PropertyModifiers } from './modifier/propertyModifiers.js';
-import { isCode, type TsType } from './type/type.js';
+import { TsCode } from "../abstruct/tsCode.js";
+import { TsUtil } from "../tsUtil.js";
+import type { Identifier, Literal } from "./expressions.js";
+import { PropertyModifiers } from "./modifier/propertyModifiers.js";
+import { isCode, type TsType } from "./type/type.js";
 
 export class PropertyDeclaration extends TsCode {
   private _modifiers = new PropertyModifiers();
@@ -30,14 +30,14 @@ export class PropertyDeclaration extends TsCode {
   protected toTsString(): string {
     const initializer = this._initializer
       ? ` = ${this._initializer.toString()}`
-      : '';
+      : "";
     return (
       this._modifiers.toString() +
       `${this.propertyName}${TsUtil.questionToken(this.optional)}: ${
         this.type
       }` +
       initializer +
-      ';'
+      ";"
     );
   }
 }

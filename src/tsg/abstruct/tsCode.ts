@@ -1,4 +1,4 @@
-import { ImportDeclaration } from '../importDeclaration.js';
+import { ImportDeclaration } from "../importDeclaration.js";
 
 export abstract class TsCode {
   protected readonly importDeclarations: ImportDeclaration[] = [];
@@ -12,11 +12,11 @@ export abstract class TsCode {
   }
 
   protected codePrefix(): string {
-    return '';
+    return "";
   }
 
   protected mergeImport(...code: Array<TsCode | undefined>): void {
-    code.forEach(it => {
+    code.forEach((it) => {
       if (it) this.importDeclarations.push(...it.importDeclarations);
     });
   }

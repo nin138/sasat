@@ -1,11 +1,11 @@
-import { capitalizeFirstLetter } from '../../util/stringUtil.js';
-import type { EntityName } from '../nodes/entityName.js';
-import type { MutationType } from '../nodes/mutationNode.js';
+import { capitalizeFirstLetter } from "../../util/stringUtil.js";
+import type { EntityName } from "../nodes/entityName.js";
+import type { MutationType } from "../nodes/mutationNode.js";
 
 const map: Record<MutationType, string> = {
-  create: 'Created',
-  update: 'Updated',
-  delete: 'Deleted',
+  create: "Created",
+  update: "Updated",
+  delete: "Deleted",
 };
 
 export const publishFunctionName = (
@@ -16,4 +16,4 @@ export const publishFunctionName = (
 };
 
 export const makeFindQueryName = (keys: string[]) =>
-  'findBy' + keys.map(capitalizeFirstLetter).join('And');
+  "findBy" + keys.map(capitalizeFirstLetter).join("And");

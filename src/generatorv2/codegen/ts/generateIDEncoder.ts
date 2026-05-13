@@ -1,37 +1,37 @@
-import typescript from 'typescript';
-import { nonNullable } from '../../../runtime/util.js';
-import { ImportDeclaration } from '../../../tsg/importDeclaration.js';
-import { TsFile, type TsStatement, tsg } from '../../../tsg/index.js';
-import type { RootNode } from '../../nodes/rootNode.js';
-import { getExportedVariables } from './scripts/ast/getExportedVariables.js';
-import { isImported } from './scripts/ast/isImported.js';
-import { tsFileNames } from './tsFileNames.js';
+import typescript from "typescript";
+import { nonNullable } from "../../../runtime/util.js";
+import { ImportDeclaration } from "../../../tsg/importDeclaration.js";
+import { TsFile, type TsStatement, tsg } from "../../../tsg/index.js";
+import type { RootNode } from "../../nodes/rootNode.js";
+import { getExportedVariables } from "./scripts/ast/getExportedVariables.js";
+import { isImported } from "./scripts/ast/isImported.js";
+import { tsFileNames } from "./tsFileNames.js";
 
 const { createSourceFile, ScriptTarget } = typescript;
 
-const hashIds = 'HashIds';
+const hashIds = "HashIds";
 
 export const generateIDEncoder = (
   root: RootNode,
   content: string,
 ): string | null => {
   const fields = root.entities
-    .map(it => it.fields.find(it => it.column.option.autoIncrementHashId))
+    .map((it) => it.fields.find((it) => it.column.option.autoIncrementHashId))
     .filter(nonNullable);
   if (fields.length === 0) return null;
   const sourceFile = createSourceFile(
-    tsFileNames.encoder + '.ts',
+    tsFileNames.encoder + ".ts",
     content,
     ScriptTarget.ESNext,
   );
-  sourceFile.getChildren().map(it => it);
+  sourceFile.getChildren().map((it) => it);
   const exportedVariables = getExportedVariables(sourceFile);
 
-  const hashIdImported = isImported(sourceFile, hashIds, ['hashids']);
+  const hashIdImported = isImported(sourceFile, hashIds, ["hashids"]);
   const statements: TsStatement[] = [];
-  fields.forEach(field => {
+  fields.forEach((field) => {
     const name = field.entity.name.IDEncoderName();
-    const exists = exportedVariables.some(it => {
+    const exists = exportedVariables.some((it) => {
       return (
         it.declarationList.declarations[0].name.getText(sourceFile) === name
       );
@@ -40,10 +40,10 @@ export const generateIDEncoder = (
     statements.push(
       tsg
         .variable(
-          'const',
+          "const",
           name,
           tsg
-            .identifier('makeNumberIdEncoder')
+            .identifier("makeNumberIdEncoder")
             .call(
               tsg.new(
                 tsg.identifier(hashIds),
@@ -57,11 +57,11 @@ export const generateIDEncoder = (
     );
   });
 
-  const imports = hashIdImported ? '' : 'import HashIds from "hashids";\n';
-  const makeEncoder = isImported(sourceFile, 'makeNumberIdEncoder', ['sasat'])
-    ? ''
-    : new ImportDeclaration(['makeNumberIdEncoder'], 'sasat').toString();
+  const imports = hashIdImported ? "" : 'import HashIds from "hashids";\n';
+  const makeEncoder = isImported(sourceFile, "makeNumberIdEncoder", ["sasat"])
+    ? ""
+    : new ImportDeclaration(["makeNumberIdEncoder"], "sasat").toString();
   const addition =
-    statements.length === 0 ? '' : '\n' + new TsFile(...statements).toString();
+    statements.length === 0 ? "" : "\n" + new TsFile(...statements).toString();
   return imports + makeEncoder + content + addition;
 };

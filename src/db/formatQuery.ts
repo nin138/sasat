@@ -1,5 +1,5 @@
-import { SqlString } from '../runtime/sql/sqlString.js';
-import type { SqlValueType } from './connectors/dbClient.js';
+import { SqlString } from "../runtime/sql/sqlString.js";
+import type { SqlValueType } from "./connectors/dbClient.js";
 
 export const formatQuery = (
   str: TemplateStringsArray,
@@ -8,11 +8,11 @@ export const formatQuery = (
 ): string => {
   let ret = str[0];
   for (let i = 0; i < params.length; i++) {
-    if (typeof params[i] === 'function') ret += params[i]();
+    if (typeof params[i] === "function") ret += params[i]();
     else if (Array.isArray(params[i]))
       ret += params[i]
         .map((it: SqlValueType) => SqlString.escape(it))
-        .join(', ');
+        .join(", ");
     else ret += SqlString.escape(params[i]);
     ret += str[i + 1];
   }

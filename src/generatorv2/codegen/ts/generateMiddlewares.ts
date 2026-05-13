@@ -1,11 +1,11 @@
-import typescript from 'typescript';
-import { unique } from '../../../runtime/util.js';
-import { ImportDeclaration as TsgImport } from '../../../tsg/importDeclaration.js';
-import { TsFile, type TsStatement, tsg } from '../../../tsg/index.js';
-import type { RootNode } from '../../nodes/rootNode.js';
-import { getExportedVariables } from './scripts/ast/getExportedVariables.js';
-import { isImported } from './scripts/ast/isImported.js';
-import { tsFileNames } from './tsFileNames.js';
+import typescript from "typescript";
+import { unique } from "../../../runtime/util.js";
+import { ImportDeclaration as TsgImport } from "../../../tsg/importDeclaration.js";
+import { TsFile, type TsStatement, tsg } from "../../../tsg/index.js";
+import type { RootNode } from "../../nodes/rootNode.js";
+import { getExportedVariables } from "./scripts/ast/getExportedVariables.js";
+import { isImported } from "./scripts/ast/isImported.js";
+import { tsFileNames } from "./tsFileNames.js";
 
 const { createSourceFile, ScriptTarget } = typescript;
 
@@ -14,22 +14,22 @@ export const generateMiddlewares = (
   content: string,
 ): string | null => {
   const middlewares = unique(
-    root.entities.flatMap(it => [
-      ...it.queries.flatMap(it => it.middlewares),
-      ...it.mutations.flatMap(it => it.middlewares),
+    root.entities.flatMap((it) => [
+      ...it.queries.flatMap((it) => it.middlewares),
+      ...it.mutations.flatMap((it) => it.middlewares),
     ]),
   );
   if (middlewares.length === 0) return null;
   const sourceFile = createSourceFile(
-    tsFileNames.middleware + '.ts',
+    tsFileNames.middleware + ".ts",
     content,
     ScriptTarget.ESNext,
   );
   const exportedVariables = getExportedVariables(sourceFile);
 
   const statements: TsStatement[] = [];
-  middlewares.forEach(middleware => {
-    const exists = exportedVariables.some(it => {
+  middlewares.forEach((middleware) => {
+    const exists = exportedVariables.some((it) => {
       return (
         it.declarationList.declarations[0].name.getText(sourceFile) ===
         middleware
@@ -39,46 +39,46 @@ export const generateMiddlewares = (
     statements.push(
       tsg
         .variable(
-          'const',
+          "const",
           middleware,
           tsg.arrowFunc(
-            [tsg.parameter('args')],
+            [tsg.parameter("args")],
             undefined,
             tsg.block(
               tsg.throw(
                 tsg.new(
-                  tsg.identifier('Error'),
-                  tsg.string('TODO: Not implemented'),
+                  tsg.identifier("Error"),
+                  tsg.string("TODO: Not implemented"),
                 ),
               ),
-              tsg.return(tsg.identifier('args')),
+              tsg.return(tsg.identifier("args")),
             ),
           ),
-          tsg.typeRef('ResolverMiddleware', [tsg.typeRef('GQLContext')]),
+          tsg.typeRef("ResolverMiddleware", [tsg.typeRef("GQLContext")]),
         )
         .export(),
     );
   });
 
-  const contextImported = isImported(sourceFile, 'GQLContext', [
-    './context',
-    './context.js',
+  const contextImported = isImported(sourceFile, "GQLContext", [
+    "./context",
+    "./context.js",
   ]);
   const resolverMiddlewareImported = isImported(
     sourceFile,
-    'ResolverMiddleware',
-    ['sasat'],
+    "ResolverMiddleware",
+    ["sasat"],
   );
 
   const imports = [
     contextImported
-      ? ''
-      : new TsgImport(['GQLContext'], './context').toString() + '\n',
+      ? ""
+      : new TsgImport(["GQLContext"], "./context").toString() + "\n",
     resolverMiddlewareImported
-      ? ''
-      : new TsgImport(['ResolverMiddleware'], 'sasat').toString() + '\n',
-  ].join('');
+      ? ""
+      : new TsgImport(["ResolverMiddleware"], "sasat").toString() + "\n",
+  ].join("");
   const addition =
-    statements.length === 0 ? '' : '\n' + new TsFile(...statements).toString();
+    statements.length === 0 ? "" : "\n" + new TsFile(...statements).toString();
   return imports + content + addition;
 };

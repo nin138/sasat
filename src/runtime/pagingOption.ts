@@ -2,8 +2,8 @@ import {
   type BooleanValueExpression,
   type ListQueryOption,
   QExpr,
-} from '../index.js';
-import type { Sort } from './dsl/query/query.js';
+} from "../index.js";
+import type { Sort } from "./dsl/query/query.js";
 
 type DsPagingOption = {
   numberOfItem: number;
@@ -16,8 +16,8 @@ export const pagingOption = (option: ListQueryOption): DsPagingOption => {
   const sort = option.order
     ? [
         QExpr.sort(
-          QExpr.field('t1', option.order),
-          option?.asc === false ? 'DESC' : 'ASC',
+          QExpr.field("t1", option.order),
+          option?.asc === false ? "DESC" : "ASC",
         ),
       ]
     : [];

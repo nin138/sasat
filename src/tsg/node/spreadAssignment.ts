@@ -1,10 +1,10 @@
-import { TsCode } from '../abstruct/tsCode.js';
+import { TsCode } from "../abstruct/tsCode.js";
 import type {
   ArrayLiteral,
   Identifier,
   ObjectLiteral,
   TsExpression,
-} from './expressions.js';
+} from "./expressions.js";
 
 export class SpreadAssignment extends TsCode {
   constructor(

@@ -1,10 +1,10 @@
 export enum TokenKind {
-  String = 'string',
-  Keyword = 'keyword',
-  Identifier = 'identifier',
-  Separator = 'separator',
-  Number = 'number',
-  Operator = 'operator',
+  String = "string",
+  Keyword = "keyword",
+  Identifier = "identifier",
+  Separator = "separator",
+  Number = "number",
+  Operator = "operator",
 }
 
 export type Token = {
@@ -19,15 +19,15 @@ export class Lexer {
   private index = 0;
   private tokens: Token[] = [];
   private hasNext = true;
-  private stringLiteralInitializers = ['"', '`', "'"];
+  private stringLiteralInitializers = ['"', "`", "'"];
   // eslint-disable-next-line no-irregular-whitespace
   private whiteSpaces = /([ 　\t\n])/;
-  private separators = ['(', ')', ','];
+  private separators = ["(", ")", ","];
   constructor(
     str: string,
     private keywords: string[],
   ) {
-    this.chars = str.split('');
+    this.chars = str.split("");
   }
   lex(): Token[] {
     while (this.hasNext) {
@@ -97,7 +97,7 @@ export class Lexer {
     }
     this.index -= 1;
     if (!Number.isFinite(+literal)) {
-      throw new Error('fail to read number ,position: ' + this.index);
+      throw new Error("fail to read number ,position: " + this.index);
     }
     this.tokens.push({
       kind: TokenKind.Number,
@@ -106,7 +106,7 @@ export class Lexer {
   }
 
   protected readStrLiteral(start: string): void {
-    let literal = '';
+    let literal = "";
     let isEscape = false;
     while (this.hasNext) {
       const current = this.read();
@@ -114,7 +114,7 @@ export class Lexer {
         break;
       }
       literal += current;
-      isEscape = !isEscape && current === '\\';
+      isEscape = !isEscape && current === "\\";
     }
     this.tokens.push({ kind: TokenKind.String, value: literal });
   }
@@ -128,8 +128,8 @@ export class Lexer {
 
   protected findKeyWord(): boolean {
     const keyword = this.keywords.find(
-      it =>
-        this.chars.slice(this.index, this.index + it.length).join('') === it,
+      (it) =>
+        this.chars.slice(this.index, this.index + it.length).join("") === it,
     );
     if (!keyword) return false;
     this.tokens.push({

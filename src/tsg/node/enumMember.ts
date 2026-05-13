@@ -1,9 +1,9 @@
-import { TsCode } from '../abstruct/tsCode.js';
+import { TsCode } from "../abstruct/tsCode.js";
 import type {
   Identifier,
   NumericLiteral,
   StringLiteral,
-} from './expressions.js';
+} from "./expressions.js";
 
 export class EnumMember extends TsCode {
   constructor(
@@ -16,6 +16,6 @@ export class EnumMember extends TsCode {
   }
   protected toTsString(): string {
     if (!this.value) return this.identifier.toString();
-    return this.identifier + '=' + this.value;
+    return this.identifier + "=" + this.value;
   }
 }

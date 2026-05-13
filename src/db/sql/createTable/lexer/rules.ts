@@ -1,6 +1,6 @@
-import { type Token, TokenKind } from './lexer.js';
+import { type Token, TokenKind } from "./lexer.js";
 
-export type Terminator = 'separator' | 'whitespace' | 'operator';
+export type Terminator = "separator" | "whitespace" | "operator";
 type Res = { hasNext: boolean; value: string; terminated: boolean };
 export type Rule = {
   start: RegExp;
@@ -13,7 +13,7 @@ const createStringLiteralRule = (literalInitializer: RegExp): Rule => {
     start: literalInitializer,
     terminator: [],
     fn: (start, next) => {
-      let literal = '';
+      let literal = "";
       let isEscape = false;
       let v: Res;
       do {
@@ -22,16 +22,16 @@ const createStringLiteralRule = (literalInitializer: RegExp): Rule => {
           return { kind: TokenKind.String, value: literal };
         }
         literal += v.value;
-        isEscape = !isEscape && v.value === '\\';
+        isEscape = !isEscape && v.value === "\\";
       } while (v.hasNext);
-      throw new Error('Non Terminated String');
+      throw new Error("Non Terminated String");
     },
   };
 };
 
 const numberLiteral: Rule = {
   start: /[0-9]/,
-  terminator: ['separator', 'whitespace', 'operator'],
+  terminator: ["separator", "whitespace", "operator"],
   fn: (start, next) => {
     let literal = start;
     let v: { hasNext: boolean; value: string; terminated: boolean };
@@ -41,7 +41,7 @@ const numberLiteral: Rule = {
       literal += v.value;
     } while (v.hasNext);
     if (!Number.isFinite(+literal)) {
-      throw new Error('fail to read number');
+      throw new Error("fail to read number");
     }
     return {
       kind: TokenKind.Number,
@@ -60,28 +60,28 @@ const createKeywordRule = (
 ): Rule => {
   return {
     start: /./,
-    terminator: ['whitespace', 'separator'],
+    terminator: ["whitespace", "separator"],
     fn: (start, next) => {
       let str = ignoreCase ? start.toUpperCase() : start;
-      let words = keywords.map(it =>
-        typeof it === 'string'
+      let words = keywords.map((it) =>
+        typeof it === "string"
           ? { kind: TokenKind.Keyword, value: it }
           : { ...it, value: it.value },
       );
       if (ignoreCase)
-        words = words.map(it => ({ ...it, value: it.value.toUpperCase() }));
+        words = words.map((it) => ({ ...it, value: it.value.toUpperCase() }));
       let v: Res;
 
       while (true) {
         v = next();
-        if (v.terminated && words.find(it => it.value === str)) {
+        if (v.terminated && words.find((it) => it.value === str)) {
           return {
-            kind: words.find(it => it.value === str)!.kind,
+            kind: words.find((it) => it.value === str)!.kind,
             value: str,
           };
         }
         str += ignoreCase ? v.value.toUpperCase() : v.value;
-        words = words.filter(it => it.value.startsWith(str));
+        words = words.filter((it) => it.value.startsWith(str));
         if (words.length === 0) return;
       }
     },
@@ -90,7 +90,7 @@ const createKeywordRule = (
 
 const identifier: Rule = {
   start: /[^0-9]/,
-  terminator: ['separator', 'whitespace', 'operator'],
+  terminator: ["separator", "whitespace", "operator"],
   fn: (start, next) => {
     let value = start;
     let v: Res;

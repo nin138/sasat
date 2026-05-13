@@ -1,17 +1,17 @@
-import { nonNullable } from '../../../../runtime/util.js';
+import { nonNullable } from "../../../../runtime/util.js";
 import type {
   JoinConditionNode,
   JoinConditionValue,
-} from '../../../nodes/JoinConditionNode.js';
+} from "../../../nodes/JoinConditionNode.js";
 import type {
   ReferencedNode,
   ReferenceNode,
-} from '../../../nodes/ReferencedNode.js';
+} from "../../../nodes/ReferencedNode.js";
 
 type GetConditionValue = (cv: JoinConditionValue) => string | null;
 
-const getChildConditionValue: GetConditionValue = cv => {
-  if (cv.kind === 'child') {
+const getChildConditionValue: GetConditionValue = (cv) => {
+  if (cv.kind === "child") {
     return cv.field;
   }
   return null;
@@ -20,19 +20,19 @@ const getChildConditionValue: GetConditionValue = cv => {
 const getConditionChildColumnNames =
   (getConditionValue: GetConditionValue) =>
   (c: JoinConditionNode): (string | null)[] => {
-    if (c.kind === 'custom') return c.childRequiredFields || [];
-    if (c.kind === 'isNull') return [];
+    if (c.kind === "custom") return c.childRequiredFields || [];
+    if (c.kind === "isNull") return [];
     const result = [getConditionValue(c.left)];
-    if (c.operator === 'IN') {
+    if (c.operator === "IN") {
       result.push(getConditionValue(c.left));
-      c.right.forEach(it => {
+      c.right.forEach((it) => {
         result.push(getConditionValue(it));
       });
     }
-    if (c.operator !== 'BETWEEN') {
+    if (c.operator !== "BETWEEN") {
       result.push(getConditionValue(c.right as JoinConditionValue));
     } else {
-      if (c.right.kind === 'range') {
+      if (c.right.kind === "range") {
         result.push(
           getConditionValue(c.right.begin),
           getConditionValue(c.right.end),

@@ -1,8 +1,8 @@
-import type { EntityName } from './entityName.js';
-import type { EntityNode } from './entityNode.js';
-import type { ArgNode, TypeNode } from './typeNode.js';
+import type { EntityName } from "./entityName.js";
+import type { EntityNode } from "./entityNode.js";
+import type { ArgNode, TypeNode } from "./typeNode.js";
 
-export type MutationType = 'create' | 'delete' | 'update';
+export type MutationType = "create" | "delete" | "update";
 
 export type ContextField = {
   fieldName: string;

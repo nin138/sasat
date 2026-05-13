@@ -1,28 +1,28 @@
-import { ImportDeclaration } from '../../../tsg/importDeclaration.js';
-import type { FileData } from '../tscodegen_v2.js';
+import { ImportDeclaration } from "../../../tsg/importDeclaration.js";
+import type { FileData } from "../tscodegen_v2.js";
 
 const contextFile = `\
 ${new ImportDeclaration(
-  ['BaseGQLContext'],
-  './__generated__/context',
+  ["BaseGQLContext"],
+  "./__generated__/context",
 ).toString()}
 export type GQLContext = BaseGQLContext & Record<string, never>;
 `;
 const pubsubFile = `\
 ${new ImportDeclaration(
-  ['PubSub', 'PubSubEngine'],
-  'graphql-subscriptions',
+  ["PubSub", "PubSubEngine"],
+  "graphql-subscriptions",
 ).toString()}
 
 export const pubsub: PubSubEngine = new PubSub();
 `;
 const schemaFile = `\
-${new ImportDeclaration(['assignDeep', 'createTypeDef'], 'sasat').toString()}
+${new ImportDeclaration(["assignDeep", "createTypeDef"], "sasat").toString()}
 ${new ImportDeclaration(
-  ['typeDefs', 'inputs'],
-  './__generated__/typeDefs',
+  ["typeDefs", "inputs"],
+  "./__generated__/typeDefs",
 ).toString()}
-${new ImportDeclaration(['resolvers'], './__generated__/resolver').toString()}
+${new ImportDeclaration(["resolvers"], "./__generated__/resolver").toString()}
 
 export const schema = {
   typeDefs: createTypeDef(
@@ -35,12 +35,12 @@ export const schema = {
 
 const baseDBDataSourceFile = `\
 ${new ImportDeclaration(
-  ['Fields', 'SasatDBDatasource', 'EntityType'],
-  'sasat',
+  ["Fields", "SasatDBDatasource", "EntityType"],
+  "sasat",
 ).toString()}
 ${new ImportDeclaration(
-  ['relationMap', 'tableInfo'],
-  './__generated__/relationMap',
+  ["relationMap", "tableInfo"],
+  "./__generated__/relationMap",
 ).toString()}
 
 export abstract class BaseDBDataSource<
@@ -57,19 +57,19 @@ export abstract class BaseDBDataSource<
 `;
 export const staticFiles: FileData[] = [
   {
-    name: 'context',
+    name: "context",
     body: contextFile,
   },
   {
-    name: 'pubsub',
+    name: "pubsub",
     body: pubsubFile,
   },
   {
-    name: 'schema',
+    name: "schema",
     body: schemaFile,
   },
   {
-    name: 'baseDBDataSource',
+    name: "baseDBDataSource",
     body: baseDBDataSourceFile,
   },
 ];

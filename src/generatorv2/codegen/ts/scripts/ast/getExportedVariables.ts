@@ -1,17 +1,17 @@
 import typescript, {
   type SourceFile,
   type VariableStatement,
-} from 'typescript';
+} from "typescript";
 
 const { SyntaxKind } = typescript;
 export const getExportedVariables = (
   sourceFile: SourceFile,
 ): VariableStatement[] => {
   return sourceFile.statements.filter(
-    it =>
+    (it) =>
       it.kind === SyntaxKind.VariableStatement &&
       (it as VariableStatement).modifiers?.some(
-        it => it.kind === SyntaxKind.ExportKeyword,
+        (it) => it.kind === SyntaxKind.ExportKeyword,
       ),
   ) as VariableStatement[];
 };

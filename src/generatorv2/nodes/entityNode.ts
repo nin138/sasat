@@ -1,21 +1,21 @@
-import type { DBColumnTypes } from '../../migration/column/columnTypes.js';
-import type { GQLQuery } from '../../migration/data/GQLOption.js';
-import type { DataStoreHandler } from '../../migration/dataStore.js';
-import type { TableHandler } from '../../migration/serializable/table.js';
-import { nonNullable } from '../../runtime/util.js';
-import { makeFindQueryName } from '../codegen/names.js';
-import { makeEntityMutationNodes } from '../parser/makeMutationNodes.js';
-import { columnTypeToGqlPrimitive } from '../scripts/columnToGqlType.js';
-import type { GQLPrimitive } from '../scripts/gqlTypes.js';
-import { EntityName } from './entityName.js';
+import type { DBColumnTypes } from "../../migration/column/columnTypes.js";
+import type { GQLQuery } from "../../migration/data/GQLOption.js";
+import type { DataStoreHandler } from "../../migration/dataStore.js";
+import type { TableHandler } from "../../migration/serializable/table.js";
+import { nonNullable } from "../../runtime/util.js";
+import { makeFindQueryName } from "../codegen/names.js";
+import { makeEntityMutationNodes } from "../parser/makeMutationNodes.js";
+import { columnTypeToGqlPrimitive } from "../scripts/columnToGqlType.js";
+import type { GQLPrimitive } from "../scripts/gqlTypes.js";
+import { EntityName } from "./entityName.js";
 import {
   type FieldNode,
   makeCreatableFieldNode,
   makeFieldNode,
   makeUpdatableFieldNode,
-} from './FieldNode.js';
-import type { MutationNode } from './mutationNode.js';
-import { ReferencedNode, ReferenceNode } from './ReferencedNode.js';
+} from "./FieldNode.js";
+import type { MutationNode } from "./mutationNode.js";
+import { ReferencedNode, ReferenceNode } from "./ReferencedNode.js";
 
 export class EntityNode {
   readonly name: EntityName;
@@ -32,7 +32,7 @@ export class EntityNode {
   readonly mutations: MutationNode[];
   constructor(store: DataStoreHandler, table: TableHandler) {
     this.name = EntityName.fromTableName(table.tableName);
-    this.fields = table.columns.map(it => makeFieldNode(store, this, it));
+    this.fields = table.columns.map((it) => makeFieldNode(store, this, it));
     this.tableName = table.tableName;
     this.gqlEnabled = table.gqlOption.enabled;
     this.identifyKeys = table.primaryKey;
@@ -40,27 +40,27 @@ export class EntityNode {
     this.creatable = {
       gqlEnabled:
         table.gqlOption.enabled &&
-        table.gqlOption.mutations.find(it => it.type === 'create') !==
+        table.gqlOption.mutations.find((it) => it.type === "create") !==
           undefined,
       fields: table.columns
-        .map(it => makeCreatableFieldNode(store, this, it))
+        .map((it) => makeCreatableFieldNode(store, this, it))
         .filter(nonNullable),
     };
     this.updateInput = {
       gqlEnabled:
         table.gqlOption.enabled &&
-        table.gqlOption.mutations.find(it => it.type === 'update') !==
+        table.gqlOption.mutations.find((it) => it.type === "update") !==
           undefined,
       fields: [
-        ...this.fields.filter(it => it.isPrimary),
+        ...this.fields.filter((it) => it.isPrimary),
         ...table.columns
-          .map(it => makeUpdatableFieldNode(store, this, it))
+          .map((it) => makeUpdatableFieldNode(store, this, it))
           .filter(nonNullable),
       ],
     };
     this.references = table
       .getReferenceColumns()
-      .map(column =>
+      .map((column) =>
         ReferenceNode.fromReference(
           this,
           column,
@@ -68,18 +68,18 @@ export class EntityNode {
         ),
       )
       .concat(
-        table.virtualRelations.map(it =>
+        table.virtualRelations.map((it) =>
           ReferenceNode.formVirtualRelation(store, this, it),
         ),
       )
       .filter(nonNullable);
     this.referencedBy = store
       .referencedBy(table.tableName)
-      .map(column => ReferencedNode.fromReference(this, table, column))
+      .map((column) => ReferencedNode.fromReference(this, table, column))
       .concat(
         store
           .virtualReferencedBy(table.tableName)
-          .map(rel => ReferencedNode.fromVirtualRelation(store, this, rel)),
+          .map((rel) => ReferencedNode.fromVirtualRelation(store, this, rel)),
       )
       .filter(nonNullable);
 
@@ -88,11 +88,11 @@ export class EntityNode {
       isArray: boolean,
     ): FindMethodNode => {
       const fields = columns.map(
-        column => this.fields.find(it => it.columnName === column)!,
+        (column) => this.fields.find((it) => it.columnName === column)!,
       );
       return {
-        name: makeFindQueryName(fields.map(it => it.fieldName)),
-        params: fields.map(it =>
+        name: makeFindQueryName(fields.map((it) => it.fieldName)),
+        params: fields.map((it) =>
           makePrimitiveParameterNode(it.fieldName, it.columnName, it.dbType),
         ),
         isArray,
@@ -109,11 +109,11 @@ export class EntityNode {
   // end constructor
 
   identifyFields() {
-    return this.fields.filter(it => it.isPrimary);
+    return this.fields.filter((it) => it.isPrimary);
   }
 
   primaryQueryName() {
-    return makeFindQueryName(this.identifyFields().map(it => it.fieldName));
+    return makeFindQueryName(this.identifyFields().map((it) => it.fieldName));
   }
 }
 

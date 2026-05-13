@@ -1,6 +1,6 @@
-import { TsFile, tsg } from '../../../tsg/index.js';
-import type { EntityNode } from '../../nodes/entityNode.js';
-import { fieldToPropertySignature } from './scripts/fieldToProperty.js';
+import { TsFile, tsg } from "../../../tsg/index.js";
+import type { EntityNode } from "../../nodes/entityNode.js";
+import { fieldToPropertySignature } from "./scripts/fieldToProperty.js";
 
 export const generateEntityFile = (node: EntityNode): TsFile => {
   return new TsFile(
@@ -25,7 +25,7 @@ const generateCreatable = (node: EntityNode) => {
     .typeAlias(
       node.name.creatableInterface(),
       node.creatable.fields.length === 0
-        ? tsg.typeRef('Record<string, never>')
+        ? tsg.typeRef("Record<string, never>")
         : tsg.typeLiteral(node.creatable.fields.map(fieldToPropertySignature)),
     )
     .export();
@@ -36,7 +36,7 @@ const generateUpdatable = (node: EntityNode) => {
     .typeAlias(
       node.name.updatable(),
       node.updateInput.fields.length === 0
-        ? tsg.typeRef('Record<string, never>')
+        ? tsg.typeRef("Record<string, never>")
         : tsg.typeLiteral(
             node.updateInput.fields.map(fieldToPropertySignature),
           ),
@@ -49,7 +49,7 @@ const generateIdentifiable = (node: EntityNode) => {
     .typeAlias(
       node.name.identifiableInterfaceName(),
       tsg.typeLiteral(
-        node.fields.filter(it => it.isPrimary).map(fieldToPropertySignature),
+        node.fields.filter((it) => it.isPrimary).map(fieldToPropertySignature),
       ),
     )
     .export();

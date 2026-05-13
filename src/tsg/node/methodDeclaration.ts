@@ -1,8 +1,8 @@
-import type { TsStatement } from '../abstruct/statement.js';
-import { TsCode } from '../abstruct/tsCode.js';
-import { MethodModifiers } from './modifier/methodModifiers.js';
-import type { Parameter } from './parameter.js';
-import { isCode, type TsType } from './type/type.js';
+import type { TsStatement } from "../abstruct/statement.js";
+import { TsCode } from "../abstruct/tsCode.js";
+import { MethodModifiers } from "./modifier/methodModifiers.js";
+import type { Parameter } from "./parameter.js";
+import { isCode, type TsType } from "./type/type.js";
 
 export class MethodDeclaration extends TsCode {
   private _modifiers: MethodModifiers = new MethodModifiers();
@@ -28,11 +28,11 @@ export class MethodDeclaration extends TsCode {
   }
 
   protected toTsString(): string {
-    const params = this.params.map(it => it.toString()).join(',');
+    const params = this.params.map((it) => it.toString()).join(",");
     return (
       this._modifiers.toString() +
       `${this.methodName}(${params}): ${this.returnType}` +
-      `{${this.body.map(it => it.toString()).join('')}}\n`
+      `{${this.body.map((it) => it.toString()).join("")}}\n`
     );
   }
 }

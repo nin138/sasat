@@ -1,8 +1,8 @@
-import { ExportableDeclaration } from '../abstruct/exportableDeclaration.js';
-import type { ExtendsClause } from './extendsClause.js';
-import type { ImplementsClause } from './implementsClause.js';
-import type { MethodDeclaration } from './methodDeclaration.js';
-import type { PropertyDeclaration } from './propertyDeclaration.js';
+import { ExportableDeclaration } from "../abstruct/exportableDeclaration.js";
+import type { ExtendsClause } from "./extendsClause.js";
+import type { ImplementsClause } from "./implementsClause.js";
+import type { MethodDeclaration } from "./methodDeclaration.js";
+import type { PropertyDeclaration } from "./propertyDeclaration.js";
 
 export class Class extends ExportableDeclaration {
   private properties: PropertyDeclaration[] = [];
@@ -45,11 +45,11 @@ export class Class extends ExportableDeclaration {
   }
 
   protected toTsString(): string {
-    const properties = this.properties.map(it => it.toString()).join('');
-    const methods = this.methods.map(it => it.toString()).join('');
-    const implement = this._implements ? this._implements.toString() + ' ' : '';
-    const extend = this._extends ? this._extends.toString() + '' : '';
-    const modifier = this.isAbstract ? 'abstract ' : '';
+    const properties = this.properties.map((it) => it.toString()).join("");
+    const methods = this.methods.map((it) => it.toString()).join("");
+    const implement = this._implements ? this._implements.toString() + " " : "";
+    const extend = this._extends ? this._extends.toString() + "" : "";
+    const modifier = this.isAbstract ? "abstract " : "";
     return (
       modifier +
       `class ${this.name} ${implement}${extend}{${properties}${methods}}`

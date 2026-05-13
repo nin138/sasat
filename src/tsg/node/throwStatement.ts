@@ -1,5 +1,5 @@
-import { TsStatement } from '../abstruct/statement.js';
-import type { TsExpression } from './expressions.js';
+import { TsStatement } from "../abstruct/statement.js";
+import type { TsExpression } from "./expressions.js";
 
 export class ThrowStatement extends TsStatement {
   constructor(private expression: TsExpression) {
@@ -8,6 +8,6 @@ export class ThrowStatement extends TsStatement {
   }
 
   protected toTsString(): string {
-    return 'throw ' + this.expression.toString() + ';';
+    return "throw " + this.expression.toString() + ";";
   }
 }

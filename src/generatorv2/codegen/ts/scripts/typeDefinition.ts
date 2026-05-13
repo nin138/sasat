@@ -1,9 +1,9 @@
-import { nonNullable } from '../../../../runtime/util.js';
+import { nonNullable } from "../../../../runtime/util.js";
 import {
   type ObjectLiteral,
   type PropertyAssignment,
   tsg,
-} from '../../../../tsg/index.js';
+} from "../../../../tsg/index.js";
 
 export type TypeFieldDefinition = {
   return: string;
@@ -14,15 +14,15 @@ export const typeFieldDefinitionToTsg = (
   def: TypeFieldDefinition,
 ): ObjectLiteral => {
   const properties: (PropertyAssignment | null)[] = [
-    tsg.propertyAssign('return', tsg.string(def.return)),
+    tsg.propertyAssign("return", tsg.string(def.return)),
     def.args
       ? tsg.propertyAssign(
-          'args',
+          "args",
           tsg.array(
-            def.args.map(it => {
+            def.args.map((it) => {
               return tsg.object(
-                tsg.propertyAssign('name', tsg.string(it.name)),
-                tsg.propertyAssign('type', tsg.string(it.type)),
+                tsg.propertyAssign("name", tsg.string(it.name)),
+                tsg.propertyAssign("type", tsg.string(it.type)),
               );
             }),
           ),

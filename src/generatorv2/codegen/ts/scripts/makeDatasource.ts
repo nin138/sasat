@@ -1,6 +1,6 @@
-import { type TsExpression, tsg } from '../../../../tsg/index.js';
-import { type Directories, Directory } from '../../../directory.js';
-import type { EntityName } from '../../../nodes/entityName.js';
+import { type TsExpression, tsg } from "../../../../tsg/index.js";
+import { type Directories, Directory } from "../../../directory.js";
+import type { EntityName } from "../../../nodes/entityName.js";
 
 export const makeDatasource = (
   entity: EntityName,
@@ -10,7 +10,7 @@ export const makeDatasource = (
   return tsg.new(
     tsg
       .identifier(entity.dataSourceName())
-      .importFrom(Directory.resolve(importFrom, 'DATA_SOURCES', entity.name)),
+      .importFrom(Directory.resolve(importFrom, "DATA_SOURCES", entity.name)),
     ...(args || []),
   );
 };

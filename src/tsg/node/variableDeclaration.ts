@@ -1,8 +1,8 @@
-import { ExportableDeclaration } from '../abstruct/exportableDeclaration.js';
-import { Identifier, type TsExpression } from './expressions.js';
-import type { TsType } from './type/type.js';
+import { ExportableDeclaration } from "../abstruct/exportableDeclaration.js";
+import { Identifier, type TsExpression } from "./expressions.js";
+import type { TsType } from "./type/type.js";
 
-type VariableType = 'const' | 'let';
+type VariableType = "const" | "let";
 
 export class VariableDeclaration extends ExportableDeclaration {
   private readonly variableName: Identifier;
@@ -14,14 +14,14 @@ export class VariableDeclaration extends ExportableDeclaration {
   ) {
     super();
     this.variableName =
-      typeof variableName === 'string'
+      typeof variableName === "string"
         ? new Identifier(variableName)
         : variableName;
     this.mergeImport(expression, this.variableName, type);
   }
 
   protected toTsString(): string {
-    const type = this.type ? ': ' + this.type.toString() : '';
+    const type = this.type ? ": " + this.type.toString() : "";
     return `${this.flag} ${
       this.variableName
     }${type} = ${this.expression.toString()};`;

@@ -1,13 +1,13 @@
-import fs from 'node:fs';
-import path from 'node:path';
-import type { NestedPartial } from '@/util/type.js';
-import { config, type SasatConfig } from '@/config/config.js';
-import { SasatError } from '@/error.js';
-import { readInitialSchema } from '@/util/fsUtil.js';
-import { type TableBuilder, TableCreator } from '../creators/tableCreator.js';
-import type { DataStore } from '../dataStore.js';
-import type { SerializedStore } from '../serialized/serializedStore.js';
-import { type MigrationTable, TableMigrator } from './tableMigrator.js';
+import fs from "node:fs";
+import path from "node:path";
+import { config, type SasatConfig } from "@/config/config.js";
+import { SasatError } from "@/error.js";
+import { readInitialSchema } from "@/util/fsUtil.js";
+import type { NestedPartial } from "@/util/type.js";
+import { type TableBuilder, TableCreator } from "../creators/tableCreator.js";
+import type { DataStore } from "../dataStore.js";
+import type { SerializedStore } from "../serialized/serializedStore.js";
+import { type MigrationTable, TableMigrator } from "./tableMigrator.js";
 
 export interface MigrationStore extends DataStore {
   createTable(
@@ -28,7 +28,7 @@ export class StoreMigrator implements MigrationStore {
   private constructor() {}
 
   static new(): StoreMigrator {
-    if (fs.existsSync(path.join(config().migration.dir, 'initialSchema.yml'))) {
+    if (fs.existsSync(path.join(config().migration.dir, "initialSchema.yml"))) {
       return StoreMigrator.deserialize(readInitialSchema());
     }
     return new StoreMigrator();
@@ -36,14 +36,16 @@ export class StoreMigrator implements MigrationStore {
 
   static deserialize(data: SerializedStore): StoreMigrator {
     const store = new StoreMigrator();
-    store.tables = data.tables.map(it => TableMigrator.deserialize(it, store));
+    store.tables = data.tables.map((it) =>
+      TableMigrator.deserialize(it, store),
+    );
     store.resetQueue();
     return store;
   }
 
   table(tableName: string): TableMigrator {
-    const table = this.tables.find(it => it.tableName === tableName);
-    if (!table) throw new Error('QueryTable: ' + tableName + ' Not Found');
+    const table = this.tables.find((it) => it.tableName === tableName);
+    if (!table) throw new Error("QueryTable: " + tableName + " Not Found");
     return table;
   }
 
@@ -55,20 +57,20 @@ export class StoreMigrator implements MigrationStore {
     tableName: string,
     tableCreator: (table: TableBuilder) => void,
   ): MigrationStore {
-    if (this.tables.find(it => it.tableName === tableName))
+    if (this.tables.find((it) => it.tableName === tableName))
       throw new SasatError(`${tableName} is already exist`);
     const creator = new TableCreator(tableName, this);
     tableCreator(creator);
     const table = new TableMigrator(creator.create(), this);
     this.tables.push(table);
     this.addQuery(table.showCreateTable());
-    this.addQuery(...table.getIndexes().map(it => it.addSql()));
+    this.addQuery(...table.getIndexes().map((it) => it.addSql()));
     return this;
   }
 
   dropTable(tableName: string): MigrationStore {
     this.addQuery(`DROP TABLE ${tableName}`);
-    this.tables = this.tables.filter(it => it.tableName !== tableName);
+    this.tables = this.tables.filter((it) => it.tableName !== tableName);
     return this;
   }
 
@@ -87,7 +89,7 @@ export class StoreMigrator implements MigrationStore {
 
   serialize(): SerializedStore {
     return {
-      tables: this.tables.map(it => it.serialize()),
+      tables: this.tables.map((it) => it.serialize()),
     };
   }
   setConfig(conf: NestedPartial<SasatConfig>): this {

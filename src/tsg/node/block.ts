@@ -1,4 +1,4 @@
-import { TsStatement } from '../abstruct/statement.js';
+import { TsStatement } from "../abstruct/statement.js";
 
 const notNull = <T>(v: T | null): v is T => {
   return v !== null;
@@ -14,6 +14,6 @@ export class Block extends TsStatement {
   }
 
   protected toTsString(): string {
-    return `{${this.statements.map(it => it.toString()).join('\n')}}`;
+    return `{${this.statements.map((it) => it.toString()).join("\n")}}`;
   }
 }

@@ -1,5 +1,5 @@
-import { TsCode } from '../../abstruct/tsCode.js';
-import { TsAccessor } from '../../accessors.js';
+import { TsCode } from "../../abstruct/tsCode.js";
+import { TsAccessor } from "../../accessors.js";
 
 export class Modifiers extends TsCode {
   private _accessor: TsAccessor = TsAccessor.public;
@@ -42,14 +42,14 @@ export class Modifiers extends TsCode {
   }
 
   protected toTsString(): string {
-    const optional = (bool: boolean, string: string) => (bool ? string : '');
+    const optional = (bool: boolean, string: string) => (bool ? string : "");
     return (
       this._accessor +
-      ' ' +
-      optional(this.isAbstract, 'abstract ') +
-      optional(this.isStatic, 'static ') +
-      optional(this.isReadOnly, 'readonly ') +
-      optional(this.isAsync, 'async ')
+      " " +
+      optional(this.isAbstract, "abstract ") +
+      optional(this.isStatic, "static ") +
+      optional(this.isReadOnly, "readonly ") +
+      optional(this.isAsync, "async ")
     );
   }
 }

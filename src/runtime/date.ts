@@ -1,5 +1,5 @@
-import { QExpr } from './dsl/factory.js';
-import type { Literal } from './dsl/query/query.js';
+import { QExpr } from "./dsl/factory.js";
+import type { Literal } from "./dsl/query/query.js";
 
 export const dateOffset = (date: Date, timeZoneHour?: number): Date => {
   const offset = timeZoneHour
@@ -8,7 +8,7 @@ export const dateOffset = (date: Date, timeZoneHour?: number): Date => {
   return new Date(date.getTime() + offset);
 };
 
-const zeroPad = (v: number, len: number) => v.toString().padStart(len, '0');
+const zeroPad = (v: number, len: number) => v.toString().padStart(len, "0");
 
 export const dateToDatetimeString = (d: Date) => {
   const year = d.getUTCFullYear();
@@ -22,17 +22,17 @@ export const dateToDatetimeString = (d: Date) => {
   // YYYY-MM-DD HH:mm:ss.mmm
   return (
     zeroPad(year, 4) +
-    '-' +
+    "-" +
     zeroPad(month, 2) +
-    '-' +
+    "-" +
     zeroPad(day, 2) +
-    ' ' +
+    " " +
     zeroPad(hour, 2) +
-    ':' +
+    ":" +
     zeroPad(minute, 2) +
-    ':' +
+    ":" +
     zeroPad(second, 2) +
-    '.' +
+    "." +
     zeroPad(millisecond, 3)
   );
 };
@@ -43,7 +43,7 @@ export const dateToDateString = (d: Date) => {
   const day = d.getUTCDate();
 
   // YYYY-MM-DD
-  return zeroPad(year, 4) + '-' + zeroPad(month, 2) + '-' + zeroPad(day, 2);
+  return zeroPad(year, 4) + "-" + zeroPad(month, 2) + "-" + zeroPad(day, 2);
 };
 
 export const getTodayDateString = (timeZoneHour?: number): string => {

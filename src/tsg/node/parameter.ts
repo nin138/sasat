@@ -1,5 +1,5 @@
-import { TsCode } from '../abstruct/tsCode.js';
-import type { TsType } from './type/type.js';
+import { TsCode } from "../abstruct/tsCode.js";
+import type { TsType } from "./type/type.js";
 
 export class Parameter extends TsCode {
   constructor(
@@ -16,6 +16,6 @@ export class Parameter extends TsCode {
   }
 
   public static arrayToString(params: Parameter[]): string {
-    return params.map(it => it.toString()).join(',');
+    return params.map((it) => it.toString()).join(",");
   }
 }

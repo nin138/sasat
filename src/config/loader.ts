@@ -1,15 +1,15 @@
-import { existsSync } from 'node:fs';
-import path from 'node:path';
-import { readYmlFile } from '../util/fsUtil.js';
+import { existsSync } from "node:fs";
+import path from "node:path";
+import { readYmlFile } from "../util/fsUtil.js";
 import {
   defaultConf,
   type PartialSasatConfig,
   type SasatConfig,
-} from './config.js';
+} from "./config.js";
 
 export class SasatConfigLoader {
   private static loadConfig(): PartialSasatConfig {
-    const fileName = 'sasat.yml';
+    const fileName = "sasat.yml";
     const filepath = path.join(process.cwd(), fileName);
     if (!existsSync(filepath)) return defaultConf;
     return readYmlFile(filepath);
@@ -34,10 +34,10 @@ export class SasatConfigLoader {
   // biome-ignore lint/suspicious/noExplicitAny: <>
   private readValue(value: any): any {
     if (!value) return value;
-    if (Array.isArray(value)) return value.map(it => this.readValue(it));
-    if (typeof value === 'string' && value.startsWith('$'))
+    if (Array.isArray(value)) return value.map((it) => this.readValue(it));
+    if (typeof value === "string" && value.startsWith("$"))
       return process.env[value.slice(1)];
-    if (typeof value === 'object') {
+    if (typeof value === "object") {
       for (const key in value) {
         if (Object.hasOwn(value, key)) value[key] = this.readValue(value[key]);
       }

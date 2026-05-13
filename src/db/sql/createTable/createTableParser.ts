@@ -1,15 +1,15 @@
-import type { ForeignKeyReferentialAction } from '@/migration/data/foreignKey.js';
-import { columnTypeToGqlPrimitive } from '../../../generatorv2/scripts/columnToGqlType.js';
-import type { DBColumnTypes } from '../../../migration/column/columnTypes.js';
-import { defaultGQLOption } from '../../../migration/data/GQLOption.js';
+import type { ForeignKeyReferentialAction } from "@/migration/data/foreignKey.js";
+import { columnTypeToGqlPrimitive } from "../../../generatorv2/scripts/columnToGqlType.js";
+import type { DBColumnTypes } from "../../../migration/column/columnTypes.js";
+import { defaultGQLOption } from "../../../migration/data/GQLOption.js";
 import {
   defaultColumnOption,
   type Reference,
   type SerializedNormalColumn,
-} from '../../../migration/serialized/serializedColumn.js';
-import type { SerializedTable } from '../../../migration/serialized/serializedStore.js';
-import { camelize } from '../../../util/stringUtil.js';
-import { type Token, TokenKind } from './lexer/lexer.js';
+} from "../../../migration/serialized/serializedColumn.js";
+import type { SerializedTable } from "../../../migration/serialized/serializedStore.js";
+import { camelize } from "../../../util/stringUtil.js";
+import { type Token, TokenKind } from "./lexer/lexer.js";
 
 const splitArray = <T>(array: T[], callback: (item: T) => boolean): T[][] => {
   const indexes: number[] = [];
@@ -19,7 +19,7 @@ const splitArray = <T>(array: T[], callback: (item: T) => boolean): T[][] => {
   // [1,2,3]; 2
   let prev = 0;
   const result: T[][] = [];
-  indexes.forEach(it => {
+  indexes.forEach((it) => {
     result.push(array.slice(prev, it));
     prev = it + 1;
   });
@@ -28,15 +28,15 @@ const splitArray = <T>(array: T[], callback: (item: T) => boolean): T[][] => {
 };
 
 interface ParenToken {
-  kind: 'Paren';
+  kind: "Paren";
   tokens: Tokens[];
-  value: '';
+  value: "";
 }
 
 type Tokens = Token | ParenToken;
 
 const isParenToken = (token: Tokens): token is ParenToken => {
-  return token.kind === 'Paren';
+  return token.kind === "Paren";
 };
 
 export class CreateTableParser {
@@ -44,7 +44,7 @@ export class CreateTableParser {
 
   constructor(private readonly tokens: Token[]) {
     this.result = {
-      tableName: '',
+      tableName: "",
       columns: [],
       primaryKey: [],
       uniqueKeys: [],
@@ -59,12 +59,12 @@ export class CreateTableParser {
       const result: Tokens[] = [];
       for (let i = 0; i < tokens.length; i++) {
         const token = tokens[i];
-        if (token.kind === TokenKind.Separator && token.value === '(') {
+        if (token.kind === TokenKind.Separator && token.value === "(") {
           const endParen = this.findEndOfParenIndex(tokens, i);
           result.push({
-            kind: 'Paren',
+            kind: "Paren",
             tokens: resolveParen(tokens.slice(i + 1, endParen)),
-            value: '',
+            value: "",
           });
           i = endParen;
           continue;
@@ -77,28 +77,29 @@ export class CreateTableParser {
   }
 
   parse = (): SerializedTable => {
-    const parenStart = this.findIndex(TokenKind.Separator, '(', this.tokens);
+    const parenStart = this.findIndex(TokenKind.Separator, "(", this.tokens);
     this.result.tableName = this.tokens[parenStart - 1].value;
     const tokens = this.resolveParen();
     const definitionTokens = tokens.find(
-      it => it.kind === 'Paren',
+      (it) => it.kind === "Paren",
     ) as ParenToken;
     const definitions = splitArray(
       definitionTokens.tokens,
-      token => token.kind === TokenKind.Separator && token.value === ',',
+      (token) => token.kind === TokenKind.Separator && token.value === ",",
     );
-    definitions.forEach(it => {
-      const kindIncludes = (kind: string) => !!it.find(it => it.kind === kind);
-      if (kindIncludes('PRIMARY')) return this.parsePrimary(it);
-      if (kindIncludes('UNIQUE')) return this.parseUnique(it);
-      if (kindIncludes('FOREIGN')) return this.parseFkey(it);
-      if (kindIncludes('KEY') || kindIncludes('INDEX'))
+    definitions.forEach((it) => {
+      const kindIncludes = (kind: string) =>
+        !!it.find((it) => it.kind === kind);
+      if (kindIncludes("PRIMARY")) return this.parsePrimary(it);
+      if (kindIncludes("UNIQUE")) return this.parseUnique(it);
+      if (kindIncludes("FOREIGN")) return this.parseFkey(it);
+      if (kindIncludes("KEY") || kindIncludes("INDEX"))
         return this.parseIndex(it);
 
       const kind = (it[0] as Token).kind;
       if (kind === TokenKind.Identifier || kind === TokenKind.String)
         return this.parseColumn(it);
-      throw new Error('fail to parse sql');
+      throw new Error("fail to parse sql");
     });
     return this.result;
   };
@@ -107,15 +108,15 @@ export class CreateTableParser {
     const columnName = tokens[0].value;
     const type = tokens[1].value.toLowerCase() as DBColumnTypes;
     const gqlType = columnTypeToGqlPrimitive(type);
-    const defaultTokenIndex = tokens.findIndex(it => it.kind === 'DEFAULT');
+    const defaultTokenIndex = tokens.findIndex((it) => it.kind === "DEFAULT");
     const getDefaultValue = () => {
       if (defaultTokenIndex === -1) return undefined;
       const next = tokens[defaultTokenIndex + 1];
-      if (next.kind === 'NULL') return undefined;
+      if (next.kind === "NULL") return undefined;
       if (
         next.kind === TokenKind.Number ||
-        gqlType === 'Float' ||
-        gqlType === 'Int'
+        gqlType === "Float" ||
+        gqlType === "Int"
       )
         return +next.value;
       if (next.kind === TokenKind.String) return next.value;
@@ -124,20 +125,20 @@ export class CreateTableParser {
     const defaultCurrentTimeStamp =
       defaultTokenIndex !== -1 &&
       tokens[defaultTokenIndex + 1].kind === TokenKind.Identifier &&
-      tokens[defaultTokenIndex + 1].value.toUpperCase() === 'CURRENT_TIMESTAMP';
+      tokens[defaultTokenIndex + 1].value.toUpperCase() === "CURRENT_TIMESTAMP";
     const isOnUpdate = (): boolean => {
-      const index = tokens.findIndex(it => it.kind === 'UPDATE');
-      return tokens[index + 1].value.toUpperCase() === 'CURRENT_TIMESTAMP';
+      const index = tokens.findIndex((it) => it.kind === "UPDATE");
+      return tokens[index + 1].value.toUpperCase() === "CURRENT_TIMESTAMP";
     };
     const isNotNull = () => {
       let prevIsNot = false;
-      return tokens.some(it => {
-        if (prevIsNot && it.kind === 'NULL') return true;
-        prevIsNot = it.kind === 'NOT';
+      return tokens.some((it) => {
+        if (prevIsNot && it.kind === "NULL") return true;
+        prevIsNot = it.kind === "NOT";
         return false;
       });
     };
-    const identifiers = tokens.filter(it => it.kind === TokenKind.Identifier);
+    const identifiers = tokens.filter((it) => it.kind === TokenKind.Identifier);
 
     const length =
       tokens[2] && isParenToken(tokens[2])
@@ -154,13 +155,13 @@ export class CreateTableParser {
       type,
       notNull: isNotNull(),
       default: getDefaultValue(),
-      zerofill: identifiers.some(it => it.value.toLowerCase() === 'zerofill'),
-      signed: identifiers.some(it => it.value.toLowerCase() === 'unsigned')
+      zerofill: identifiers.some((it) => it.value.toLowerCase() === "zerofill"),
+      signed: identifiers.some((it) => it.value.toLowerCase() === "unsigned")
         ? false
-        : identifiers.some(it => it.value.toLowerCase() === 'signed')
+        : identifiers.some((it) => it.value.toLowerCase() === "signed")
           ? true
           : undefined,
-      autoIncrement: tokens.some(it => it.kind === 'AUTO_INCREMENT'),
+      autoIncrement: tokens.some((it) => it.kind === "AUTO_INCREMENT"),
       length: length !== undefined ? +length : undefined,
       scale: scale !== undefined ? +scale : undefined,
       defaultCurrentTimeStamp,
@@ -168,52 +169,52 @@ export class CreateTableParser {
       option: defaultColumnOption,
     };
 
-    if (column.default === '.nan' || Number.isNaN(column.default)) {
+    if (column.default === ".nan" || Number.isNaN(column.default)) {
       console.error(column);
     }
 
     this.result.columns.push(column);
-    if (tokens.some(it => it.kind === 'PRIMARY')) {
+    if (tokens.some((it) => it.kind === "PRIMARY")) {
       this.result.primaryKey = [columnName];
     }
-    if (tokens.some(it => it.kind === 'UNIQUE')) {
+    if (tokens.some((it) => it.kind === "UNIQUE")) {
       this.result.uniqueKeys.push([columnName]);
     }
   }
 
   private parsePrimary(tokens: Tokens[]) {
-    const keyIndex = tokens.findIndex(it => it.kind === 'KEY');
+    const keyIndex = tokens.findIndex((it) => it.kind === "KEY");
     const paren = tokens[keyIndex + 1] as ParenToken;
     this.result.primaryKey = paren.tokens
-      .filter(it => it.kind !== TokenKind.Separator)
-      .map(it => it.value);
+      .filter((it) => it.kind !== TokenKind.Separator)
+      .map((it) => it.value);
   }
 
   private parseUnique(tokens: Tokens[]) {
-    const paren = tokens.find(it => it.kind === 'Paren')! as ParenToken;
+    const paren = tokens.find((it) => it.kind === "Paren")! as ParenToken;
     this.result.uniqueKeys.push(
       paren.tokens
-        .filter(it => it.kind !== TokenKind.Separator)
-        .map(it => it.value),
+        .filter((it) => it.kind !== TokenKind.Separator)
+        .map((it) => it.value),
     );
   }
 
   // TODO col_name(length) syntax
   private parseIndex(tokens: Tokens[]) {
-    const paren = tokens.find(it => it.kind === 'Paren')! as ParenToken;
+    const paren = tokens.find((it) => it.kind === "Paren")! as ParenToken;
     this.result.indexes.push({
       constraintName: tokens[1].value,
       columns: paren.tokens
-        .filter(it => it.kind !== TokenKind.Separator && it.kind !== 'Paren')
-        .map(it => it.value),
+        .filter((it) => it.kind !== TokenKind.Separator && it.kind !== "Paren")
+        .map((it) => it.value),
     });
   }
 
   private parseFkey(tokens: Tokens[]) {
-    const f = tokens.findIndex(it => it.kind === 'FOREIGN');
+    const f = tokens.findIndex((it) => it.kind === "FOREIGN");
     const columnName = (tokens[f + 2] as ParenToken).tokens[0].value;
     const refIndex = tokens.findIndex(
-      it => it.kind === 'REFERENCES' && it.value === 'REFERENCES',
+      (it) => it.kind === "REFERENCES" && it.value === "REFERENCES",
     );
     const targetTable = tokens[refIndex + 1].value;
     const targetColumn = (tokens[refIndex + 2] as ParenToken).tokens[0].value;
@@ -221,36 +222,36 @@ export class CreateTableParser {
     let onDelete: ForeignKeyReferentialAction | undefined;
     let onUpdate: ForeignKeyReferentialAction | undefined;
     const on = tokens
-      .map((it, i) => (it.kind === 'ON' ? i : 0))
-      .filter(it => it !== 0);
-    on.forEach(it => {
+      .map((it, i) => (it.kind === "ON" ? i : 0))
+      .filter((it) => it !== 0);
+    on.forEach((it) => {
       const action = (): ForeignKeyReferentialAction => {
         let name = tokens[it + 2].value.toUpperCase();
-        if (name === 'SET' || name === 'NO') {
+        if (name === "SET" || name === "NO") {
           name += tokens[it + 3].value.toUpperCase();
         }
         return name as ForeignKeyReferentialAction;
       };
-      if (tokens[it + 1].kind === 'DELETE') {
+      if (tokens[it + 1].kind === "DELETE") {
         onDelete = action();
       }
-      if (tokens[it + 1].kind === 'UPDATE') {
+      if (tokens[it + 1].kind === "UPDATE") {
         onUpdate = action();
       }
     });
 
     const isColumnUnique = this.result.uniqueKeys
-      .filter(it => it.length === 1)
-      .find(it => it[0] === columnName);
+      .filter((it) => it.length === 1)
+      .find((it) => it[0] === columnName);
     const sameTableRefs = this.result.columns.filter(
-      it => it.hasReference && it.reference.parentTable === targetTable,
+      (it) => it.hasReference && it.reference.parentTable === targetTable,
     );
 
     const reference: Reference = {
       parentTable: targetTable,
       parentColumn: targetColumn,
       columnName,
-      relation: isColumnUnique ? 'OneOrZero' : 'Many',
+      relation: isColumnUnique ? "OneOrZero" : "Many",
       relationName:
         sameTableRefs.length !== 0
           ? targetTable + sameTableRefs.length
@@ -258,7 +259,7 @@ export class CreateTableParser {
       onUpdate,
       onDelete,
     };
-    this.result.columns = this.result.columns.map(it =>
+    this.result.columns = this.result.columns.map((it) =>
       it.columnName === columnName
         ? {
             ...it,
@@ -270,11 +271,11 @@ export class CreateTableParser {
   }
 
   private normalizeFieldName = (fieldName: string): string => {
-    return /^[0-9].*/.test(fieldName) ? '_' + fieldName : fieldName;
+    return /^[0-9].*/.test(fieldName) ? "_" + fieldName : fieldName;
   };
 
   private findIndex(kind: TokenKind, value: string, tokens: Token[]) {
-    return tokens.findIndex(it => it.kind === kind && value === it.value);
+    return tokens.findIndex((it) => it.kind === kind && value === it.value);
   }
 
   private findEndOfParenIndex(
@@ -284,15 +285,15 @@ export class CreateTableParser {
     let opened = 1;
     for (let i = startParenIndex + 1; i < tokens.length; i++) {
       const token = tokens[i];
-      if (token.kind === 'separator') {
-        if (token.value === ')') {
+      if (token.kind === "separator") {
+        if (token.value === ")") {
           opened -= 1;
           if (opened === 0) return i;
-        } else if (token.value === '(') {
+        } else if (token.value === "(") {
           opened += 1;
         }
       }
     }
-    throw new Error('Closing Parenthesis Not Found');
+    throw new Error("Closing Parenthesis Not Found");
   }
 }

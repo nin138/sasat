@@ -1,8 +1,8 @@
-import type { SqlValueType } from '@/db/connectors/dbClient.js';
-import { SqlString } from '../../sql/sqlString.js';
-import type { TableInfo } from '../query/createQueryResolveInfo.js';
-import type { BooleanValueExpression } from '../query/query.js';
-import { Sql } from '../query/sql/nodeToSql.js';
+import type { SqlValueType } from "@/db/connectors/dbClient.js";
+import { SqlString } from "../../sql/sqlString.js";
+import type { TableInfo } from "../query/createQueryResolveInfo.js";
+import type { BooleanValueExpression } from "../query/query.js";
+import { Sql } from "../query/sql/nodeToSql.js";
 
 type ValueSet = {
   field: string;
@@ -30,33 +30,33 @@ export type Delete = {
 
 const escapeId = SqlString.escapeId;
 
-const onDuplicateKeyUpdate = (columns: Create['upsert']): string => {
-  if (!columns || columns.length === 0) return '';
+const onDuplicateKeyUpdate = (columns: Create["upsert"]): string => {
+  if (!columns || columns.length === 0) return "";
   return (
-    ' ON DUPLICATE KEY UPDATE ' +
+    " ON DUPLICATE KEY UPDATE " +
     columns
       .map(escapeId)
-      .map(it => `${it} = VALUES(${it})`)
-      .join(',')
+      .map((it) => `${it} = VALUES(${it})`)
+      .join(",")
   );
 };
 
 export const createToSql = (dsl: Create, tableInfo: TableInfo): string => {
   const map = tableInfo[dsl.table].columnMap;
   const values = dsl.entities
-    .map(it => `(${it.map(it => SqlString.escape(it)).join(',')})`)
-    .join(',');
-  return `INSERT ${dsl.ignore ? 'IGNORE ' : ''}INTO ${escapeId(
+    .map((it) => `(${it.map((it) => SqlString.escape(it)).join(",")})`)
+    .join(",");
+  return `INSERT ${dsl.ignore ? "IGNORE " : ""}INTO ${escapeId(
     dsl.table,
-  )}(${dsl.fields.map(it => escapeId(map[it]))}) VALUES ${values} ${onDuplicateKeyUpdate(dsl.upsert)}`;
+  )}(${dsl.fields.map((it) => escapeId(map[it]))}) VALUES ${values} ${onDuplicateKeyUpdate(dsl.upsert)}`;
 };
 
 export const updateToSql = (dsl: Update, tableInfo: TableInfo): string => {
   const map = tableInfo[dsl.table].columnMap;
 
   return `UPDATE ${escapeId(dsl.table)} SET ${dsl.values
-    .map(it => escapeId(map[it.field]) + ' = ' + SqlString.escape(it.value))
-    .join(', ')} WHERE ${Sql.booleanValue(dsl.where)}`;
+    .map((it) => escapeId(map[it.field]) + " = " + SqlString.escape(it.value))
+    .join(", ")} WHERE ${Sql.booleanValue(dsl.where)}`;
 };
 
 export const deleteToSql = (dsl: Delete): string => {

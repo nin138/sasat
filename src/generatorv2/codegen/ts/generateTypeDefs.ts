@@ -1,42 +1,42 @@
-import { type GQLQuery, getArgs } from '../../../migration/data/GQLOption.js';
-import { nonNullable } from '../../../runtime/util.js';
-import { type PropertyAssignment, TsFile, tsg } from '../../../tsg/index.js';
-import { EntityName } from '../../nodes/entityName.js';
-import type { EntityNode } from '../../nodes/entityNode.js';
-import type { FieldNode } from '../../nodes/FieldNode.js';
-import type { MutationNode } from '../../nodes/mutationNode.js';
-import type { RootNode } from '../../nodes/rootNode.js';
-import type { SubscriptionNode } from '../../nodes/subscriptionNode.js';
-import { GQLString, makeGQLType } from './scripts/gqlString.js';
-import { typeFieldDefinitionToTsg } from './scripts/typeDefinition.js';
+import { type GQLQuery, getArgs } from "../../../migration/data/GQLOption.js";
+import { nonNullable } from "../../../runtime/util.js";
+import { type PropertyAssignment, TsFile, tsg } from "../../../tsg/index.js";
+import { EntityName } from "../../nodes/entityName.js";
+import type { EntityNode } from "../../nodes/entityNode.js";
+import type { FieldNode } from "../../nodes/FieldNode.js";
+import type { MutationNode } from "../../nodes/mutationNode.js";
+import type { RootNode } from "../../nodes/rootNode.js";
+import type { SubscriptionNode } from "../../nodes/subscriptionNode.js";
+import { GQLString, makeGQLType } from "./scripts/gqlString.js";
+import { typeFieldDefinitionToTsg } from "./scripts/typeDefinition.js";
 
 export const generateTypeDefs = (root: RootNode) => {
   const types = [
     ...root.entities.map(makeEntityType),
     makeQuery(root),
-    makeMutation(root.entities.flatMap(it => it.mutations)),
-    makeSubscription(root.subscriptions.filter(it => it.gqlEnabled)),
+    makeMutation(root.entities.flatMap((it) => it.mutations)),
+    makeSubscription(root.subscriptions.filter((it) => it.gqlEnabled)),
   ].filter(nonNullable);
 
   const inputs = [
     tsg.propertyAssign(
-      'PagingOption',
+      "PagingOption",
       tsg.object(
         tsg.propertyAssign(
-          'numberOfItem',
-          typeFieldDefinitionToTsg({ return: 'Int!' }),
+          "numberOfItem",
+          typeFieldDefinitionToTsg({ return: "Int!" }),
         ),
         tsg.propertyAssign(
-          'offset',
-          typeFieldDefinitionToTsg({ return: 'Int' }),
+          "offset",
+          typeFieldDefinitionToTsg({ return: "Int" }),
         ),
         tsg.propertyAssign(
-          'order',
-          typeFieldDefinitionToTsg({ return: 'String' }),
+          "order",
+          typeFieldDefinitionToTsg({ return: "String" }),
         ),
         tsg.propertyAssign(
-          'asc',
-          typeFieldDefinitionToTsg({ return: 'Boolean' }),
+          "asc",
+          typeFieldDefinitionToTsg({ return: "Boolean" }),
         ),
       ),
     ),
@@ -47,10 +47,10 @@ export const generateTypeDefs = (root: RootNode) => {
 
   return new TsFile(
     tsg
-      .variable('const', tsg.identifier('typeDefs'), tsg.object(...types))
+      .variable("const", tsg.identifier("typeDefs"), tsg.object(...types))
       .export(),
     tsg
-      .variable('const', tsg.identifier('inputs'), tsg.object(...inputs))
+      .variable("const", tsg.identifier("inputs"), tsg.object(...inputs))
       .export(),
   ).disableEsLint();
 };
@@ -61,8 +61,8 @@ const makeEntityType = (node: EntityNode): PropertyAssignment | null => {
     node.name.name,
     tsg.object(
       ...node.fields
-        .filter(it => it.isGQLOpen)
-        .map(it => {
+        .filter((it) => it.isGQLOpen)
+        .map((it) => {
           return tsg.propertyAssign(
             it.fieldName,
             typeFieldDefinitionToTsg({
@@ -71,8 +71,8 @@ const makeEntityType = (node: EntityNode): PropertyAssignment | null => {
           );
         }),
       ...node.references
-        .filter(it => it.isGQLOpen)
-        .map(it => {
+        .filter((it) => it.isGQLOpen)
+        .map((it) => {
           return tsg.propertyAssign(
             it.fieldName,
             typeFieldDefinitionToTsg({
@@ -85,8 +85,8 @@ const makeEntityType = (node: EntityNode): PropertyAssignment | null => {
           );
         }),
       ...node.referencedBy
-        .filter(it => it.isGQLOpen)
-        .map(it => {
+        .filter((it) => it.isGQLOpen)
+        .map((it) => {
           return tsg.propertyAssign(
             it.fieldName,
             typeFieldDefinitionToTsg({
@@ -107,8 +107,8 @@ const makeInput = (inputName: string, fields: FieldNode[]) => {
     inputName,
     tsg.object(
       ...fields
-        .filter(it => it.isGQLOpen)
-        .map(it =>
+        .filter((it) => it.isGQLOpen)
+        .map((it) =>
           tsg.propertyAssign(
             it.fieldName,
             typeFieldDefinitionToTsg({
@@ -133,29 +133,29 @@ const makeUpdateInput = (node: EntityNode) => {
 const makeIdentifyInput = (node: EntityNode) => {
   if (
     !node.gqlEnabled ||
-    !node.mutations.find(it => it.mutationType === 'delete')
+    !node.mutations.find((it) => it.mutationType === "delete")
   )
     return null;
   return makeInput(
     node.name.identifyInputName(),
-    node.fields.filter(it => it.isPrimary),
+    node.fields.filter((it) => it.isPrimary),
   );
 };
 
 const makeQueryTypeDef = (entity: EntityNode, query: GQLQuery) => {
   const args = getArgs(query, entity);
   return tsg.propertyAssign(
-    query.type === 'primary' ? entity.name.lowerCase() : query.name,
+    query.type === "primary" ? entity.name.lowerCase() : query.name,
     typeFieldDefinitionToTsg({
       return: GQLString.type({
         typeName: entity.name.name,
         entity: true,
-        array: query.type === 'list-paging' || query.type === 'list-all',
-        nullable: query.type !== 'list-paging' && query.type !== 'list-all',
+        array: query.type === "list-paging" || query.type === "list-all",
+        nullable: query.type !== "list-paging" && query.type !== "list-all",
       }),
-      args: args.map(it => ({
+      args: args.map((it) => ({
         name: it.name,
-        type: it.type + '!',
+        type: it.type + "!",
       })),
     }),
   );
@@ -163,27 +163,29 @@ const makeQueryTypeDef = (entity: EntityNode, query: GQLQuery) => {
 
 const makeQueryProperties = (root: RootNode) => {
   return root.entities
-    .filter(it => it.gqlEnabled)
-    .flatMap(entity => entity.queries.map(it => makeQueryTypeDef(entity, it)));
+    .filter((it) => it.gqlEnabled)
+    .flatMap((entity) =>
+      entity.queries.map((it) => makeQueryTypeDef(entity, it)),
+    );
 };
 
 const makeQuery = (root: RootNode) => {
   const properties = makeQueryProperties(root);
   if (properties.length === 0) return null;
-  return tsg.propertyAssign('Query', tsg.object(...properties));
+  return tsg.propertyAssign("Query", tsg.object(...properties));
 };
 
 const makeMutation = (mutations: MutationNode[]) => {
   if (mutations.length === 0) return null;
   return tsg.propertyAssign(
-    'Mutation',
+    "Mutation",
     tsg.object(
-      ...mutations.map(mutation => {
+      ...mutations.map((mutation) => {
         return tsg.propertyAssign(
           mutation.mutationName,
           typeFieldDefinitionToTsg({
             return: GQLString.type(mutation.returnType),
-            args: mutation.args.map(arg => ({
+            args: mutation.args.map((arg) => ({
               name: arg.name,
               type: GQLString.type(arg.type),
             })),
@@ -197,14 +199,14 @@ const makeMutation = (mutations: MutationNode[]) => {
 const makeSubscription = (subscriptions: SubscriptionNode[]) => {
   if (subscriptions.length === 0) return null;
   return tsg.propertyAssign(
-    'Subscription',
+    "Subscription",
     tsg.object(
-      ...subscriptions.map(subscription => {
+      ...subscriptions.map((subscription) => {
         return tsg.propertyAssign(
           subscription.subscriptionName,
           typeFieldDefinitionToTsg({
             return: GQLString.type(subscription.returnType),
-            args: subscription.args.map(arg => ({
+            args: subscription.args.map((arg) => ({
               name: arg.name,
               type: GQLString.type(arg.type),
             })),

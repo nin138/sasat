@@ -1,13 +1,13 @@
-import * as mysql from 'mysql2/promise';
-import { config } from '../../../config/config.js';
+import * as mysql from "mysql2/promise";
+import { config } from "../../../config/config.js";
 import type {
   CommandResponse,
   DBClient,
   QueryResponse,
   SQLTransaction,
   SQLValueType,
-} from '../intefaces.js';
-import { MySqlTransaction } from './transaction.js';
+} from "../intefaces.js";
+import { MySqlTransaction } from "./transaction.js";
 
 const defaultConfig = { ...config().db, dateStrings: true };
 

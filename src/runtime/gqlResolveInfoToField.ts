@@ -1,5 +1,5 @@
-import type { GraphQLResolveInfo, SelectionNode } from 'graphql';
-import type { Fields } from './field.js';
+import type { GraphQLResolveInfo, SelectionNode } from "graphql";
+import type { Fields } from "./field.js";
 
 export const selectionSetToField = <T extends Fields<unknown>>(
   selections: readonly SelectionNode[],
@@ -8,19 +8,19 @@ export const selectionSetToField = <T extends Fields<unknown>>(
   const result: Fields<Record<string, unknown>> = {
     fields: [],
     relations: {},
-    tableAlias: 't' + number,
+    tableAlias: "t" + number,
   };
   let num = number;
   for (const it of selections) {
     // TODO 'fragmentNode'
-    if (it.kind !== 'Field') continue;
+    if (it.kind !== "Field") continue;
     if (it.selectionSet) {
       num += 1;
       const field = selectionSetToField(it.selectionSet.selections, num);
       result.relations![it.name.value] = field[0];
       num = field[1];
     } else {
-      if (it.name.value !== '__typename') result.fields.push(it.name.value);
+      if (it.name.value !== "__typename") result.fields.push(it.name.value);
     }
   }
   return [result as T, num];

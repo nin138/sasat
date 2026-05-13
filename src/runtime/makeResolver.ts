@@ -1,5 +1,5 @@
-import type { GraphQLResolveInfo } from 'graphql/type';
-import type { ResolverMiddleware } from './resolverMiddleware.js';
+import type { GraphQLResolveInfo } from "graphql/type";
+import type { ResolverMiddleware } from "./resolverMiddleware.js";
 
 export type ResolverArgs<Context, Params = unknown> = [
   _: unknown,

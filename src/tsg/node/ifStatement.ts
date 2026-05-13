@@ -1,5 +1,5 @@
-import { TsStatement } from '../abstruct/statement.js';
-import type { TsExpression } from './expressions.js';
+import { TsStatement } from "../abstruct/statement.js";
+import type { TsExpression } from "./expressions.js";
 
 export class IfStatement extends TsStatement {
   constructor(

@@ -1,26 +1,26 @@
-import { build } from 'esbuild';
-import path from 'node:path';
+import path from "node:path";
+import { build } from "esbuild";
 import {
   getMigrationFileDir,
   getMigrationFileNames,
-} from './getMigrationFiles.js';
+} from "./getMigrationFiles.js";
 
 export const changeExtTsToJs = (fileName: string) =>
-  fileName.slice(0, -3) + '.mjs';
+  fileName.slice(0, -3) + ".mjs";
 
 export const compileMigrationFiles = () => {
   const tsFiles = getMigrationFileNames();
-  const compiles = tsFiles.map(async fileName => {
+  const compiles = tsFiles.map(async (fileName) => {
     const filePath = path.join(getMigrationFileDir(), fileName);
     const r = await build({
       entryPoints: [filePath],
       bundle: true,
       // loader: 'ts',
       outfile: changeExtTsToJs(filePath),
-      platform: 'node',
-      format: 'esm',
+      platform: "node",
+      format: "esm",
       outExtension: {
-        '.js': '.mjs',
+        ".js": ".mjs",
       },
       banner: {
         js: `import { createRequire as topLevelCreateRequire } from 'module';

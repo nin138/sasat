@@ -1,51 +1,51 @@
-import { nonNullable } from '../../../../runtime/util.js';
-import { type TsExpression, tsg } from '../../../../tsg/index.js';
-import type { EntityNode } from '../../../nodes/entityNode.js';
+import { nonNullable } from "../../../../runtime/util.js";
+import { type TsExpression, tsg } from "../../../../tsg/index.js";
+import type { EntityNode } from "../../../nodes/entityNode.js";
 import type {
   JoinConditionNode,
   JoinConditionRangeValue,
   JoinConditionValue,
-} from '../../../nodes/JoinConditionNode.js';
+} from "../../../nodes/JoinConditionNode.js";
 import type {
   ReferencedNode,
   ReferenceNode,
-} from '../../../nodes/ReferencedNode.js';
+} from "../../../nodes/ReferencedNode.js";
 import {
   makeConditionValueQExpr,
   makeConditionValueRaw,
-} from '../scripts/makeConditonValueExpr.js';
-import { makeThrowExpressions } from './makeNoContexError.js';
+} from "../scripts/makeConditonValueExpr.js";
+import { makeThrowExpressions } from "./makeNoContexError.js";
 
-const qExpr = tsg.identifier('qe').importFrom('sasat');
-const parentTableAlias = 'parentTableAlias';
-const childTableAlias = 'childTableAlias';
+const qExpr = tsg.identifier("qe").importFrom("sasat");
+const parentTableAlias = "parentTableAlias";
+const childTableAlias = "childTableAlias";
 
 export const makeJoinConditionValueQExpr = (
   node: EntityNode,
   cv: JoinConditionValue,
 ): TsExpression => {
-  const arg = tsg.identifier('arg');
+  const arg = tsg.identifier("arg");
   switch (cv.kind) {
-    case 'parent': {
+    case "parent": {
       const columnName =
-        node.fields.find(it => it.fieldName === cv.field)?.columnName ||
+        node.fields.find((it) => it.fieldName === cv.field)?.columnName ||
         cv.field;
       return qExpr
-        .property('field')
+        .property("field")
         .call(arg.property(childTableAlias), tsg.string(columnName));
     }
-    case 'child': {
+    case "child": {
       const columnName =
-        node.fields.find(it => it.fieldName === cv.field)?.columnName ||
+        node.fields.find((it) => it.fieldName === cv.field)?.columnName ||
         cv.field;
       return tsg.ternary(
         arg.property(parentTableAlias),
         qExpr
-          .property('field')
+          .property("field")
           .call(arg.property(parentTableAlias), tsg.string(columnName)),
         qExpr
-          .property('value')
-          .call(arg.property('parent?').property(cv.field)),
+          .property("value")
+          .call(arg.property("parent?").property(cv.field)),
       );
     }
     default:
@@ -57,7 +57,7 @@ const makeRangeCondition = (
   entity: EntityNode,
   range: JoinConditionRangeValue,
 ): TsExpression[] => {
-  if (range.kind === 'range') {
+  if (range.kind === "range") {
     return [
       makeJoinConditionValueQExpr(entity, range.begin),
       makeJoinConditionValueQExpr(entity, range.end),
@@ -66,13 +66,13 @@ const makeRangeCondition = (
   return [
     tsg.spread(
       tsg
-        .identifier('getDayRangeQExpr')
-        .importFrom('sasat')
+        .identifier("getDayRangeQExpr")
+        .importFrom("sasat")
         .call(
-          tsg.new(tsg.identifier('Date')),
+          tsg.new(tsg.identifier("Date")),
           range.thresholdHour
             ? tsg.number(range.thresholdHour)
-            : tsg.identifier('undefined'),
+            : tsg.identifier("undefined"),
         ),
     ),
   ];
@@ -82,35 +82,35 @@ const makeConditionExpr = (
   entity: EntityNode,
   condition: JoinConditionNode,
 ) => {
-  if (condition.kind === 'custom') {
+  if (condition.kind === "custom") {
     return tsg
       .identifier(condition.conditionName)
-      .importFrom('../conditions')
-      .call(tsg.identifier('arg'));
+      .importFrom("../conditions")
+      .call(tsg.identifier("arg"));
   }
-  if (condition.kind === 'isNull') {
+  if (condition.kind === "isNull") {
     return qExpr
-      .property(condition.not ? 'isNotNull' : 'isNull')
+      .property(condition.not ? "isNotNull" : "isNull")
       .call(makeJoinConditionValueQExpr(entity, condition.value));
   }
-  if (condition.operator === 'BETWEEN') {
+  if (condition.operator === "BETWEEN") {
     return qExpr
-      .property('between')
+      .property("between")
       .call(
         makeJoinConditionValueQExpr(entity, condition.left),
         ...makeRangeCondition(entity, condition.right),
       );
   }
-  if (condition.operator === 'IN') {
+  if (condition.operator === "IN") {
     return qExpr
-      .property('in')
+      .property("in")
       .call(
         makeJoinConditionValueQExpr(entity, condition.left),
-        tsg.array(condition.right.map(it => makeConditionValueRaw(it))),
+        tsg.array(condition.right.map((it) => makeConditionValueRaw(it))),
       );
   }
   return qExpr
-    .property('comparison')
+    .property("comparison")
     .call(
       makeJoinConditionValueQExpr(entity, condition.left),
       tsg.string(condition.operator),
@@ -122,21 +122,23 @@ export const makeJoinConditionValue = (
   node: EntityNode,
   ref: ReferenceNode | ReferencedNode,
 ) => {
-  const arg = tsg.identifier('arg');
+  const arg = tsg.identifier("arg");
 
   return tsg.propertyAssign(
-    'condition',
+    "condition",
     tsg.arrowFunc(
       [tsg.parameter(arg.toString())],
-      tsg.typeRef('BooleanValueExpression').importFrom('sasat'),
+      tsg.typeRef("BooleanValueExpression").importFrom("sasat"),
       tsg.block(
         ...ref.joinCondition
-          .flatMap(it => makeThrowExpressions(it))
+          .flatMap((it) => makeThrowExpressions(it))
           .filter(nonNullable),
         tsg.return(
           qExpr
-            .property('and')
-            .call(...ref.joinCondition.map(it => makeConditionExpr(node, it))),
+            .property("and")
+            .call(
+              ...ref.joinCondition.map((it) => makeConditionExpr(node, it)),
+            ),
         ),
       ),
     ),

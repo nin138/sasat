@@ -1,6 +1,6 @@
-import type { TsStatement } from './abstruct/statement.js';
-import { TsCode } from './abstruct/tsCode.js';
-import { ImportDeclaration } from './importDeclaration.js';
+import type { TsStatement } from "./abstruct/statement.js";
+import { TsCode } from "./abstruct/tsCode.js";
+import { ImportDeclaration } from "./importDeclaration.js";
 
 export class TsFile extends TsCode {
   private esLintDisabled = false;
@@ -15,14 +15,14 @@ export class TsFile extends TsCode {
       ...this.resolveImport(this.importDeclarations),
       ...this.statements,
     ]
-      .map(it => it.toString())
-      .join('\n');
-    return (this.esLintDisabled ? '/* eslint-disable */\n' : '') + string;
+      .map((it) => it.toString())
+      .join("\n");
+    return (this.esLintDisabled ? "/* eslint-disable */\n" : "") + string;
   }
 
   protected resolveImport(imports: ImportDeclaration[]): ImportDeclaration[] {
     const map: Record<string, string[]> = {};
-    imports.forEach(it => {
+    imports.forEach((it) => {
       if (!map[it.module]) {
         map[it.module] = it.types;
       } else {

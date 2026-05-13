@@ -1,18 +1,18 @@
-import { nonNullable } from '../../../../runtime/util.js';
-import { type PropertySignature, TsFile, tsg } from '../../../../tsg/index.js';
-import { EntityName } from '../../../nodes/entityName.js';
-import type { EntityNode } from '../../../nodes/entityNode.js';
+import { nonNullable } from "../../../../runtime/util.js";
+import { type PropertySignature, TsFile, tsg } from "../../../../tsg/index.js";
+import { EntityName } from "../../../nodes/entityName.js";
+import type { EntityNode } from "../../../nodes/entityNode.js";
 import type {
   ReferencedNode,
   ReferenceNode,
-} from '../../../nodes/ReferencedNode.js';
-import type { RootNode } from '../../../nodes/rootNode.js';
+} from "../../../nodes/ReferencedNode.js";
+import type { RootNode } from "../../../nodes/rootNode.js";
 import {
   makeContextTypeRef,
   makeTypeRef,
-} from './../scripts/getEntityTypeRefs.js';
-import { getChildRequiredNames } from './getRequiredColumnNames.js';
-import { makeJoinConditionValue } from './makeJoinConditionValue.js';
+} from "./../scripts/getEntityTypeRefs.js";
+import { getChildRequiredNames } from "./getRequiredColumnNames.js";
+import { makeJoinConditionValue } from "./makeJoinConditionValue.js";
 
 export const generateRelationMap = (root: RootNode) => {
   return new TsFile(
@@ -25,12 +25,12 @@ export const generateRelationMap = (root: RootNode) => {
 const makeRelationMap = (root: RootNode) => {
   return tsg
     .variable(
-      'const',
-      tsg.identifier('relationMap'),
-      tsg.object(...root.entities.map(it => makeEntityRelationMap(it))),
+      "const",
+      tsg.identifier("relationMap"),
+      tsg.object(...root.entities.map((it) => makeEntityRelationMap(it))),
       tsg
-        .typeRef('RelationMap', [makeContextTypeRef('GENERATED')])
-        .importFrom('sasat'),
+        .typeRef("RelationMap", [makeContextTypeRef("GENERATED")])
+        .importFrom("sasat"),
     )
     .export();
 };
@@ -38,7 +38,7 @@ const makeRelationMap = (root: RootNode) => {
 const fieldNameToColumnNameAndFilterPrimary =
   (node: EntityNode) => (field: string) => {
     const column = node.fields.find(
-      it => it.fieldName === field || it.columnName === field,
+      (it) => it.fieldName === field || it.columnName === field,
     );
     if (!column) throw new Error(`${node.name.name}.${field} Not Found`);
     if (column.isPrimary) return null;
@@ -49,17 +49,17 @@ const makeEntityRelationMap = (node: EntityNode) => {
   return tsg.propertyAssign(
     node.tableName,
     tsg.object(
-      ...node.references.map(ref => {
+      ...node.references.map((ref) => {
         const toColumnName = fieldNameToColumnNameAndFilterPrimary(ref.entity);
         return tsg.propertyAssign(
           ref.fieldName,
           tsg.object(
-            tsg.propertyAssign('table', tsg.string(ref.parentTableName)),
+            tsg.propertyAssign("table", tsg.string(ref.parentTableName)),
             makeJoinConditionValue(node, ref),
-            tsg.propertyAssign('array', tsg.boolean(ref.isArray)),
-            tsg.propertyAssign('nullable', tsg.boolean(ref.isNullable)),
+            tsg.propertyAssign("array", tsg.boolean(ref.isArray)),
+            tsg.propertyAssign("nullable", tsg.boolean(ref.isNullable)),
             tsg.propertyAssign(
-              'requiredColumns',
+              "requiredColumns",
               tsg.array(
                 getChildRequiredNames(ref)
                   .map(toColumnName)
@@ -70,17 +70,17 @@ const makeEntityRelationMap = (node: EntityNode) => {
           ),
         );
       }),
-      ...node.referencedBy.map(rel => {
+      ...node.referencedBy.map((rel) => {
         const toColumnName = fieldNameToColumnNameAndFilterPrimary(rel.entity);
         return tsg.propertyAssign(
           rel.fieldName,
           tsg.object(
-            tsg.propertyAssign('table', tsg.string(rel.childTable)),
+            tsg.propertyAssign("table", tsg.string(rel.childTable)),
             makeJoinConditionValue(node, rel),
-            tsg.propertyAssign('array', tsg.boolean(rel.isArray)),
-            tsg.propertyAssign('nullable', tsg.boolean(rel.isNullable)),
+            tsg.propertyAssign("array", tsg.boolean(rel.isArray)),
+            tsg.propertyAssign("nullable", tsg.boolean(rel.isNullable)),
             tsg.propertyAssign(
-              'requiredColumns',
+              "requiredColumns",
               tsg.array(
                 getChildRequiredNames(rel)
                   .map(toColumnName)
@@ -98,32 +98,32 @@ const makeEntityRelationMap = (node: EntityNode) => {
 const makeTableInfo = (root: RootNode) => {
   const columnMap = (entity: EntityNode) =>
     tsg.propertyAssign(
-      'columnMap',
+      "columnMap",
       tsg.object(
-        ...entity.fields.map(field =>
+        ...entity.fields.map((field) =>
           tsg.propertyAssign(field.fieldName, tsg.string(field.columnName)),
         ),
       ),
     );
   return tsg
     .variable(
-      'const',
-      'tableInfo',
+      "const",
+      "tableInfo",
       tsg.object(
-        ...root.entities.map(entity =>
+        ...root.entities.map((entity) =>
           tsg.propertyAssign(
             entity.tableName,
             tsg.object(
               tsg.propertyAssign(
-                'identifiableKeys',
+                "identifiableKeys",
                 tsg.array(entity.identifyKeys.map(tsg.string)),
               ),
               tsg.propertyAssign(
-                'identifiableFields',
+                "identifiableFields",
                 tsg.array(
                   entity.fields
-                    .filter(it => it.isPrimary)
-                    .map(it => it.fieldName)
+                    .filter((it) => it.isPrimary)
+                    .map((it) => it.fieldName)
                     .map(tsg.string),
                 ),
               ),
@@ -132,7 +132,7 @@ const makeTableInfo = (root: RootNode) => {
           ),
         ),
       ),
-      tsg.typeRef('TableInfo').importFrom('sasat'),
+      tsg.typeRef("TableInfo").importFrom("sasat"),
     )
     .export();
 };
@@ -140,11 +140,11 @@ const makeTableInfo = (root: RootNode) => {
 const referenceRelationType = (ref: ReferenceNode) => {
   const parentEntityName = EntityName.fromTableName(ref.parentTableName);
   const type = tsg
-    .typeRef('EntityResult', [
+    .typeRef("EntityResult", [
       tsg.typeRef(parentEntityName.entityWithRelationTypeName()),
       tsg.typeRef(parentEntityName.relationTypeName()),
     ])
-    .importFrom('sasat');
+    .importFrom("sasat");
   return tsg.propertySignature(
     ref.fieldName,
     ref.isArray ? tsg.arrayType(type) : type,
@@ -154,11 +154,11 @@ const referenceRelationType = (ref: ReferenceNode) => {
 const referencedRelationType = (node: ReferencedNode): PropertySignature => {
   const child = EntityName.fromTableName(node.childTable);
   const type = tsg
-    .typeRef('EntityResult', [
+    .typeRef("EntityResult", [
       tsg.typeRef(child.entityWithRelationTypeName()),
-      makeTypeRef(child, 'identifiable', 'GENERATED'),
+      makeTypeRef(child, "identifiable", "GENERATED"),
     ])
-    .importFrom('sasat');
+    .importFrom("sasat");
 
   return tsg.propertySignature(
     node.fieldName,
@@ -177,14 +177,14 @@ const entityRelationType = (node: EntityNode) => {
         node.name.relationTypeName(),
         typeProperties.length !== 0
           ? tsg.typeLiteral(typeProperties)
-          : tsg.typeRef('Record<never, never>'),
+          : tsg.typeRef("Record<never, never>"),
       )
       .export(),
     tsg
       .typeAlias(
         node.name.entityWithRelationTypeName(),
         tsg.intersectionType(
-          makeTypeRef(node.name, 'entity', 'GENERATED'),
+          makeTypeRef(node.name, "entity", "GENERATED"),
           tsg.typeRef(node.name.relationTypeName()),
         ),
       )
@@ -193,11 +193,11 @@ const entityRelationType = (node: EntityNode) => {
       .typeAlias(
         node.name.resultType(),
         tsg
-          .typeRef('EntityResult', [
+          .typeRef("EntityResult", [
             tsg.typeRef(node.name.entityWithRelationTypeName()),
-            makeTypeRef(node.name, 'identifiable', 'GENERATED'),
+            makeTypeRef(node.name, "identifiable", "GENERATED"),
           ])
-          .importFrom('sasat'),
+          .importFrom("sasat"),
       )
       .export(),
   ];

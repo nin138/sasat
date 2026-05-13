@@ -1,7 +1,7 @@
 import typescript, {
   type ImportDeclaration,
   type SourceFile,
-} from 'typescript';
+} from "typescript";
 
 const { SyntaxKind } = typescript;
 
@@ -11,11 +11,11 @@ export const isImported = (
   paths: string[],
 ) => {
   const importDeclarations = sourceFile.statements.filter(
-    it => it.kind === SyntaxKind.ImportDeclaration,
+    (it) => it.kind === SyntaxKind.ImportDeclaration,
   ) as ImportDeclaration[];
-  return importDeclarations.some(it => {
+  return importDeclarations.some((it) => {
     if (
-      !paths.some(path => {
+      !paths.some((path) => {
         const text = it.moduleSpecifier.getText(sourceFile);
         return `'${path}'` === text || `"${path}"` === text;
       })
@@ -24,7 +24,7 @@ export const isImported = (
     const binding = it.importClause?.namedBindings;
     if (it.importClause?.name?.getText(sourceFile) === type) return true;
     if (binding?.kind !== SyntaxKind.NamedImports) return false;
-    return binding.elements.some(it => {
+    return binding.elements.some((it) => {
       return it.name.text.trim() === type;
     });
   });

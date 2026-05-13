@@ -1,7 +1,7 @@
-import { assignDeep } from './assignDeep.js';
+import { assignDeep } from "./assignDeep.js";
 
-describe('assignDeep', () => {
-  it('test', () => {
+describe("assignDeep", () => {
+  it("test", () => {
     expect(
       assignDeep(
         {

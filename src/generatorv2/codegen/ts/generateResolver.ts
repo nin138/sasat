@@ -1,48 +1,48 @@
-import { nonNullable } from '../../../runtime/util.js';
-import { type PropertyAssignment, TsFile, tsg } from '../../../tsg/index.js';
-import { Directory } from '../../directory.js';
-import { EntityName } from '../../nodes/entityName.js';
-import type { EntityNode } from '../../nodes/entityNode.js';
-import type { FieldNode } from '../../nodes/FieldNode.js';
+import { nonNullable } from "../../../runtime/util.js";
+import { type PropertyAssignment, TsFile, tsg } from "../../../tsg/index.js";
+import { Directory } from "../../directory.js";
+import { EntityName } from "../../nodes/entityName.js";
+import type { EntityNode } from "../../nodes/entityNode.js";
+import type { FieldNode } from "../../nodes/FieldNode.js";
 import type {
   ReferencedNode,
   ReferenceNode,
-} from '../../nodes/ReferencedNode.js';
-import type { RootNode } from '../../nodes/rootNode.js';
+} from "../../nodes/ReferencedNode.js";
+import type { RootNode } from "../../nodes/rootNode.js";
 import {
   makeContextTypeRef,
   makeTypeRef,
-} from './scripts/getEntityTypeRefs.js';
-import { makeDatasource } from './scripts/makeDatasource.js';
-import { tsFileNames } from './tsFileNames.js';
+} from "./scripts/getEntityTypeRefs.js";
+import { makeDatasource } from "./scripts/makeDatasource.js";
+import { tsFileNames } from "./tsFileNames.js";
 
 export const generateResolver = (root: RootNode): TsFile => {
-  const hasSubscription = root.subscriptions.some(it => it.gqlEnabled);
+  const hasSubscription = root.subscriptions.some((it) => it.gqlEnabled);
   const properties = [
-    tsg.propertyAssign('Query', tsg.identifier('query').importFrom('./query')),
+    tsg.propertyAssign("Query", tsg.identifier("query").importFrom("./query")),
     tsg.propertyAssign(
-      'Mutation',
-      tsg.identifier('mutation').importFrom('./mutation'),
+      "Mutation",
+      tsg.identifier("mutation").importFrom("./mutation"),
     ),
   ];
   if (hasSubscription)
     properties.push(
       tsg.propertyAssign(
-        'Subscription',
-        tsg.identifier('subscription').importFrom('./subscription'),
+        "Subscription",
+        tsg.identifier("subscription").importFrom("./subscription"),
       ),
     );
   return new TsFile(
     tsg
       .variable(
-        'const',
-        tsg.identifier('resolvers'),
+        "const",
+        tsg.identifier("resolvers"),
         tsg.object(
           ...properties,
           tsg.spreadAssign(
             tsg.object(
               ...root.entities
-                .filter(it => it.gqlEnabled)
+                .filter((it) => it.gqlEnabled)
                 .map(makeEntityResolver),
             ),
           ),
@@ -57,15 +57,15 @@ const makeEntityResolver = (node: EntityNode): PropertyAssignment => {
     node.name.name,
     tsg.object(
       ...node.fields
-        .filter(it => it.hashId)
+        .filter((it) => it.hashId)
         .map(makeHashIdProperty)
         .filter(nonNullable),
       ...node.references
-        .filter(it => it.isGQLOpen)
-        .map(ref => makeRelationProperty(ref)),
+        .filter((it) => it.isGQLOpen)
+        .map((ref) => makeRelationProperty(ref)),
       ...node.referencedBy
-        .filter(it => it.isGQLOpen)
-        .map(ref => makeReferencedByProperty(ref)),
+        .filter((it) => it.isGQLOpen)
+        .map((ref) => makeReferencedByProperty(ref)),
     ),
   );
 };
@@ -79,19 +79,19 @@ const makeHashIdProperty = (field: FieldNode): PropertyAssignment | null => {
       [
         tsg.parameter(
           paramName,
-          makeTypeRef(field.entity.name, 'result', 'GENERATED'),
+          makeTypeRef(field.entity.name, "result", "GENERATED"),
         ),
       ],
       undefined,
       tsg.binary(
         tsg.identifier(paramName).property(field.fieldName),
-        '&&',
+        "&&",
         tsg
           .identifier(field.hashId.encoder)
           .importFrom(
-            Directory.resolve('GENERATED', 'BASE', tsFileNames.encoder),
+            Directory.resolve("GENERATED", "BASE", tsFileNames.encoder),
           )
-          .property('encode')
+          .property("encode")
           .call(tsg.identifier(paramName).property(field.fieldName)),
       ),
     ),
@@ -106,52 +106,52 @@ const makeRelationProperty = (ref: ReferenceNode) => {
       [
         tsg.parameter(
           paramName,
-          makeTypeRef(ref.entity.name, 'result', 'GENERATED'),
+          makeTypeRef(ref.entity.name, "result", "GENERATED"),
         ),
-        tsg.parameter('context', makeContextTypeRef('GENERATED')),
+        tsg.parameter("context", makeContextTypeRef("GENERATED")),
       ],
       undefined,
       tsg.block(
         tsg.if(
           tsg.binary(
             tsg.identifier(paramName).property(ref.fieldName),
-            '!==',
-            tsg.identifier('undefined'),
+            "!==",
+            tsg.identifier("undefined"),
           ),
           tsg.return(tsg.identifier(paramName).property(ref.fieldName)),
         ),
         tsg.variable(
-          'const',
-          'ds',
+          "const",
+          "ds",
           makeDatasource(
             EntityName.fromTableName(ref.parentTableName),
-            'GENERATED',
+            "GENERATED",
           ),
         ),
         tsg.variable(
-          'const',
-          'where',
+          "const",
+          "where",
           tsg
-            .identifier('ds')
-            .property('getRelationMap')
+            .identifier("ds")
+            .property("getRelationMap")
             .call()
             .property(ref.fieldName)
-            .property('condition')
+            .property("condition")
             .call(
               tsg.object(
-                tsg.propertyAssign('parent', tsg.identifier(paramName)),
-                tsg.propertyAssign('childTableAlias', tsg.string('t0')),
-                tsg.propertyAssign('context'),
+                tsg.propertyAssign("parent", tsg.identifier(paramName)),
+                tsg.propertyAssign("childTableAlias", tsg.string("t0")),
+                tsg.propertyAssign("context"),
               ),
             ),
         ),
         tsg.return(
           tsg
-            .identifier('ds')
-            .property('first')
+            .identifier("ds")
+            .property("first")
             .call(
-              tsg.identifier('undefined'),
-              tsg.object(tsg.propertyAssign('where')),
+              tsg.identifier("undefined"),
+              tsg.object(tsg.propertyAssign("where")),
             ),
         ),
       ),
@@ -168,49 +168,49 @@ const makeReferencedByProperty = (ref: ReferencedNode) => {
       [
         tsg.parameter(
           paramName,
-          makeTypeRef(ref.entity.name, 'result', 'GENERATED'),
+          makeTypeRef(ref.entity.name, "result", "GENERATED"),
         ),
-        tsg.parameter('context', makeContextTypeRef('GENERATED')),
+        tsg.parameter("context", makeContextTypeRef("GENERATED")),
       ],
       undefined,
       tsg.block(
         tsg.if(
           tsg.binary(
             tsg.identifier(paramName).property(propertyName),
-            '!==',
-            tsg.identifier('undefined'),
+            "!==",
+            tsg.identifier("undefined"),
           ),
           tsg.return(tsg.identifier(paramName).property(propertyName)),
         ),
         tsg.variable(
-          'const',
-          'ds',
-          makeDatasource(EntityName.fromTableName(ref.childTable), 'GENERATED'),
+          "const",
+          "ds",
+          makeDatasource(EntityName.fromTableName(ref.childTable), "GENERATED"),
         ),
         tsg.variable(
-          'const',
-          'where',
+          "const",
+          "where",
           tsg
-            .identifier('ds')
-            .property('getRelationMap')
+            .identifier("ds")
+            .property("getRelationMap")
             .call()
             .property(propertyName)
-            .property('condition')
+            .property("condition")
             .call(
               tsg.object(
-                tsg.propertyAssign('parent', tsg.identifier(paramName)),
-                tsg.propertyAssign('childTableAlias', tsg.string('t0')),
-                tsg.propertyAssign('context'),
+                tsg.propertyAssign("parent", tsg.identifier(paramName)),
+                tsg.propertyAssign("childTableAlias", tsg.string("t0")),
+                tsg.propertyAssign("context"),
               ),
             ),
         ),
         tsg.return(
           tsg
-            .identifier('ds')
-            .property(ref.isArray ? 'find' : 'first')
+            .identifier("ds")
+            .property(ref.isArray ? "find" : "first")
             .call(
-              tsg.identifier('undefined'),
-              tsg.object(tsg.propertyAssign('where')),
+              tsg.identifier("undefined"),
+              tsg.object(tsg.propertyAssign("where")),
             ),
         ),
       ),

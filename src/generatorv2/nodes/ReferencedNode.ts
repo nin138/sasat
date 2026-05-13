@@ -1,17 +1,17 @@
-import type { VirtualRelation } from '../../migration/data/virtualRelation.js';
-import type { DataStoreHandler } from '../../migration/dataStore.js';
-import { Conditions } from '../../migration/makeCondition.js';
-import type { ReferenceColumn } from '../../migration/serializable/column.js';
+import type { VirtualRelation } from "../../migration/data/virtualRelation.js";
+import type { DataStoreHandler } from "../../migration/dataStore.js";
+import { Conditions } from "../../migration/makeCondition.js";
+import type { ReferenceColumn } from "../../migration/serializable/column.js";
 import type {
   Table,
   TableHandler,
-} from '../../migration/serializable/table.js';
-import type { EntityNode } from './entityNode.js';
+} from "../../migration/serializable/table.js";
+import type { EntityNode } from "./entityNode.js";
 import type {
   JoinConditionNode,
   JoinConditionRangeValue,
   JoinConditionValue,
-} from './JoinConditionNode.js';
+} from "./JoinConditionNode.js";
 
 export class ReferenceNode {
   static fromReference(
@@ -45,8 +45,8 @@ export class ReferenceNode {
       rel.childTable,
       rel.parentTable,
       rel.conditions,
-      rel.childType === undefined || rel.childType === 'array',
-      rel.childType === 'nullable',
+      rel.childType === undefined || rel.childType === "array",
+      rel.childType === "nullable",
       false,
       ds.table(rel.parentTable).gqlOption.enabled &&
         ds.table(rel.childTable).gqlOption.enabled,
@@ -79,8 +79,8 @@ export class ReferencedNode {
       ref.parentFieldName,
       column.table.tableName,
       makeJoinCondition(column.columnName(), ref.parentColumn),
-      ref.relation === 'Many',
-      ref.relation === 'OneOrZero',
+      ref.relation === "Many",
+      ref.relation === "OneOrZero",
       column.isPrimary(),
       parentTable.gqlOption.enabled && column.table.gqlOption.enabled,
     );
@@ -98,8 +98,8 @@ export class ReferencedNode {
       rel.parentFieldName,
       rel.childTable,
       rel.conditions.map(reverseConditionNode),
-      rel.parentType === undefined || rel.parentType === 'array',
-      rel.parentType === 'nullable',
+      rel.parentType === undefined || rel.parentType === "array",
+      rel.parentType === "nullable",
       false,
       ds.table(rel.parentTable).gqlOption.enabled &&
         ds.table(rel.childTable).gqlOption.enabled,
@@ -119,15 +119,15 @@ export class ReferencedNode {
 }
 
 const reverseConditionValue = (cv: JoinConditionValue): JoinConditionValue => {
-  if (cv.kind === 'parent') {
+  if (cv.kind === "parent") {
     return {
       ...cv,
-      kind: 'child',
+      kind: "child",
     };
-  } else if (cv.kind === 'child') {
+  } else if (cv.kind === "child") {
     return {
       ...cv,
-      kind: 'parent',
+      kind: "parent",
     };
   }
   return cv;
@@ -136,7 +136,7 @@ const reverseConditionValue = (cv: JoinConditionValue): JoinConditionValue => {
 const reverseRangeCondition = (
   condition: JoinConditionRangeValue,
 ): JoinConditionRangeValue => {
-  if (condition.kind === 'range') {
+  if (condition.kind === "range") {
     return {
       kind: condition.kind,
       begin: reverseConditionValue(condition.begin),
@@ -149,25 +149,25 @@ const reverseRangeCondition = (
 const reverseConditionNode = (
   condition: JoinConditionNode,
 ): JoinConditionNode => {
-  if (condition.kind === 'custom')
+  if (condition.kind === "custom")
     return {
       ...condition,
       parentRequiredFields: condition.childRequiredFields,
       childRequiredFields: condition.parentRequiredFields,
     };
-  if (condition.kind === 'isNull') {
+  if (condition.kind === "isNull") {
     if (condition.not) {
       return Conditions.rel.isNotNull(reverseConditionValue(condition.value));
     }
     return Conditions.rel.isNull(reverseConditionValue(condition.value));
   }
-  if (condition.operator === 'BETWEEN') {
+  if (condition.operator === "BETWEEN") {
     return Conditions.rel.between(
       reverseConditionValue(condition.left),
       reverseRangeCondition(condition.right),
     );
   }
-  if (condition.operator === 'IN') {
+  if (condition.operator === "IN") {
     return Conditions.rel.in(
       reverseConditionValue(condition.left),
       condition.right.map(reverseConditionValue),
@@ -187,7 +187,7 @@ const makeJoinCondition = (
   return [
     Conditions.rel.comparison(
       Conditions.value.parent(parentColumn),
-      '=',
+      "=",
       Conditions.value.child(childColumn),
     ),
   ];

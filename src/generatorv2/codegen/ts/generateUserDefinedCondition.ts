@@ -1,12 +1,12 @@
-import typescript from 'typescript';
-import { unique } from '../../../runtime/util.js';
-import { ImportDeclaration as TsgImport } from '../../../tsg/importDeclaration.js';
-import { TsFile, type TsStatement, tsg } from '../../../tsg/index.js';
-import type { JoinCustomConditionNode } from '../../nodes/JoinConditionNode.js';
-import type { RootNode } from '../../nodes/rootNode.js';
-import { getExportedVariables } from './scripts/ast/getExportedVariables.js';
-import { isImported } from './scripts/ast/isImported.js';
-import { tsFileNames } from './tsFileNames.js';
+import typescript from "typescript";
+import { unique } from "../../../runtime/util.js";
+import { ImportDeclaration as TsgImport } from "../../../tsg/importDeclaration.js";
+import { TsFile, type TsStatement, tsg } from "../../../tsg/index.js";
+import type { JoinCustomConditionNode } from "../../nodes/JoinConditionNode.js";
+import type { RootNode } from "../../nodes/rootNode.js";
+import { getExportedVariables } from "./scripts/ast/getExportedVariables.js";
+import { isImported } from "./scripts/ast/isImported.js";
+import { tsFileNames } from "./tsFileNames.js";
 
 const { createSourceFile, ScriptTarget } = typescript;
 
@@ -15,36 +15,36 @@ export const generateUserDefinedCondition = (
   content: string,
 ): string | null => {
   const customConditionNames = unique(
-    root.entities.flatMap(it => [
-      ...it.references.flatMap(it =>
+    root.entities.flatMap((it) => [
+      ...it.references.flatMap((it) =>
         it.joinCondition
-          .filter(it => it.kind === 'custom')
-          .map(it => (it as JoinCustomConditionNode).conditionName),
+          .filter((it) => it.kind === "custom")
+          .map((it) => (it as JoinCustomConditionNode).conditionName),
       ),
-      ...it.referencedBy.flatMap(it =>
+      ...it.referencedBy.flatMap((it) =>
         it.joinCondition
-          .filter(it => it.kind === 'custom')
-          .map(it => (it as JoinCustomConditionNode).conditionName),
+          .filter((it) => it.kind === "custom")
+          .map((it) => (it as JoinCustomConditionNode).conditionName),
       ),
     ]),
   );
   if (customConditionNames.length === 0) return null;
   const sourceFile = createSourceFile(
-    tsFileNames.conditions + '.ts',
+    tsFileNames.conditions + ".ts",
     content,
     ScriptTarget.ESNext,
   );
   const exportedVariables = getExportedVariables(sourceFile);
-  const contextImported = isImported(sourceFile, 'GQLContext', [
-    './context',
-    './context.js',
+  const contextImported = isImported(sourceFile, "GQLContext", [
+    "./context",
+    "./context.js",
   ]);
-  const customConditionImported = isImported(sourceFile, 'CustomCondition', [
-    'sasat',
+  const customConditionImported = isImported(sourceFile, "CustomCondition", [
+    "sasat",
   ]);
   const statements: TsStatement[] = [];
-  customConditionNames.forEach(conditionName => {
-    const exists = exportedVariables.some(it => {
+  customConditionNames.forEach((conditionName) => {
+    const exists = exportedVariables.some((it) => {
       return (
         it.declarationList.declarations[0].name.getText(sourceFile) ===
         conditionName
@@ -54,7 +54,7 @@ export const generateUserDefinedCondition = (
       statements.push(
         tsg
           .variable(
-            'const',
+            "const",
             conditionName,
             tsg.arrowFunc(
               [],
@@ -62,13 +62,13 @@ export const generateUserDefinedCondition = (
               tsg.block(
                 tsg.throw(
                   tsg.new(
-                    tsg.identifier('Error'),
-                    tsg.string('TODO: Not Implemented'),
+                    tsg.identifier("Error"),
+                    tsg.string("TODO: Not Implemented"),
                   ),
                 ),
               ),
             ),
-            tsg.typeRef('CustomCondition', [tsg.typeRef('GQLContext')]),
+            tsg.typeRef("CustomCondition", [tsg.typeRef("GQLContext")]),
           )
           .export(),
       );
@@ -76,12 +76,12 @@ export const generateUserDefinedCondition = (
   });
 
   const context = contextImported
-    ? ''
-    : new TsgImport(['GQLContext'], './context').toString() + '\n';
+    ? ""
+    : new TsgImport(["GQLContext"], "./context").toString() + "\n";
   const condition = customConditionImported
-    ? ''
-    : new TsgImport(['CustomCondition'], 'sasat').toString() + '\n';
+    ? ""
+    : new TsgImport(["CustomCondition"], "sasat").toString() + "\n";
   const addition =
-    statements.length === 0 ? '' : '\n' + new TsFile(...statements).toString();
+    statements.length === 0 ? "" : "\n" + new TsFile(...statements).toString();
   return context + condition + content + addition;
 };

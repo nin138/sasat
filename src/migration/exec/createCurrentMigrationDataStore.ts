@@ -1,7 +1,7 @@
-import { StoreMigrator } from '../front/storeMigrator.js';
-import { Direction } from './getCurrentMigration.js';
-import { getMigrationFileNames } from './getMigrationFiles.js';
-import { readMigration } from './readMigrationFile.js';
+import { StoreMigrator } from "../front/storeMigrator.js";
+import { Direction } from "./getCurrentMigration.js";
+import { getMigrationFileNames } from "./getMigrationFiles.js";
+import { readMigration } from "./readMigrationFile.js";
 
 export const createCurrentMigrationDataStore = async (
   targetMigrationName: string | undefined,

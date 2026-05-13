@@ -1,5 +1,5 @@
 export const tsFileNames = {
-  encoder: 'idEncoder',
-  conditions: 'conditions',
-  middleware: 'middlewares',
+  encoder: "idEncoder",
+  conditions: "conditions",
+  middleware: "middlewares",
 };

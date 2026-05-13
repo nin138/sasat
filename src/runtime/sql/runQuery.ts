@@ -1,9 +1,9 @@
-import type { SQLExecutor } from '../../db/connectors/dbClient.js';
-import { QExpr } from '../dsl/factory.js';
+import type { SQLExecutor } from "../../db/connectors/dbClient.js";
+import { QExpr } from "../dsl/factory.js";
 import type {
   RelationMap,
   TableInfo,
-} from '../dsl/query/createQueryResolveInfo.js';
+} from "../dsl/query/createQueryResolveInfo.js";
 import type {
   BooleanValueExpression,
   Field,
@@ -11,19 +11,19 @@ import type {
   Query,
   QueryTable,
   Sort,
-} from '../dsl/query/query.js';
+} from "../dsl/query/query.js";
 import {
   hydrate,
   type QueryResolveInfo,
   type ResultRow,
-} from '../dsl/query/sql/hydrate.js';
-import { SELECT_ALIAS_SEPARATOR } from '../dsl/query/sql/nodeToSql.js';
-import { queryToSql } from '../dsl/query/sql/queryToSql.js';
-import type { Fields } from '../field.js';
-import type { QueryOptions } from '../sasatDBDatasource.js';
-import { nonNullable, unique } from '../util.js';
+} from "../dsl/query/sql/hydrate.js";
+import { SELECT_ALIAS_SEPARATOR } from "../dsl/query/sql/nodeToSql.js";
+import { queryToSql } from "../dsl/query/sql/queryToSql.js";
+import type { Fields } from "../field.js";
+import type { QueryOptions } from "../sasatDBDatasource.js";
+import { nonNullable, unique } from "../util.js";
 
-const notTypeName = (fieldName: string) => fieldName !== '__typename';
+const notTypeName = (fieldName: string) => fieldName !== "__typename";
 
 export const createQuery = (
   baseTableName: string,
@@ -40,18 +40,18 @@ export const createQuery = (
     tableName: string,
     table: Fields<unknown>,
   ): QueryTable => {
-    const tableAlias = table.tableAlias || 't' + tableCount;
+    const tableAlias = table.tableAlias || "t" + tableCount;
     table.tableAlias = tableAlias;
     tableCount++;
     const info = tableInfo[tableName];
 
     select.push(
       ...unique([
-        ...(table.fields as string[]).filter(it => {
+        ...(table.fields as string[]).filter((it) => {
           return notTypeName(it) && info.columnMap[it];
         }),
         ...info.identifiableFields,
-      ]).map(it => {
+      ]).map((it) => {
         const realName = info.columnMap[it] || it;
         return QExpr.field(
           tableAlias,
@@ -73,12 +73,12 @@ export const createQuery = (
               rel.condition({
                 parentTableAlias: tableAlias,
                 childTableAlias:
-                  (table as Fields<unknown>).tableAlias || 't' + current,
+                  (table as Fields<unknown>).tableAlias || "t" + current,
                 context,
               }),
               (table as Fields<unknown>).joinOn,
             ),
-            'LEFT',
+            "LEFT",
           );
         })
         .filter(nonNullable),
@@ -113,13 +113,13 @@ export const createPagingInnerQuery = (
   return {
     select: unique([
       ...tableInfo[tableName].identifiableKeys,
-      ...Object.keys(fields.relations || {}).flatMap(key => {
+      ...Object.keys(fields.relations || {}).flatMap((key) => {
         return relationMap[tableName][key]?.requiredColumns || [];
       }),
       ...(fields.fields as string[])
-        .filter(it => notTypeName(it) && map[it])
-        .map(it => map[it] || it),
-    ]).map(it => QExpr.field(tableAlias, it)),
+        .filter((it) => notTypeName(it) && map[it])
+        .map((it) => map[it] || it),
+    ]).map((it) => QExpr.field(tableAlias, it)),
     from: QExpr.table(tableName, option.join || [], tableAlias),
     limit: option.numberOfItem,
     offset: option.offset,
@@ -156,7 +156,7 @@ export const createPagingFieldQuery = ({
   relationMap,
   context,
 }: CreatePagingFieldQueryArg): Query => {
-  const tableAlias = fields.tableAlias || 't0';
+  const tableAlias = fields.tableAlias || "t0";
 
   const innerQuery: Query = createPagingInnerQuery(
     baseTableName,

@@ -3,15 +3,15 @@ import {
   createPool,
   type Pool,
   type PoolOptions,
-} from 'mysql2/promise';
-import { config } from '@/config/config.js';
+} from "mysql2/promise";
+import { config } from "@/config/config.js";
 import {
   type CommandResponse,
   DBClient,
   type QueryResponse,
   type SQLTransaction,
-} from '../dbClient.js';
-import { MySqlTransaction } from './transaction.js';
+} from "../dbClient.js";
+import { MySqlTransaction } from "./transaction.js";
 
 export class MysqlPoolClient extends DBClient {
   private readonly pool: Pool;

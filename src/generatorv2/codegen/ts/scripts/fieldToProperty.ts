@@ -1,10 +1,10 @@
-import { columnTypeToTsType } from '../../../../migration/column/columnTypes.js';
+import { columnTypeToTsType } from "../../../../migration/column/columnTypes.js";
 import {
   KeywordTypeNode,
   type PropertySignature,
   tsg,
-} from '../../../../tsg/index.js';
-import type { FieldNode } from '../../../nodes/FieldNode.js';
+} from "../../../../tsg/index.js";
+import type { FieldNode } from "../../../nodes/FieldNode.js";
 
 export const fieldToPropertySignature = (
   field: FieldNode,

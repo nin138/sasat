@@ -1,7 +1,7 @@
-import type { GQLOption } from '../data/GQLOption.js';
-import type { Index } from '../data/index.js';
-import type { VirtualRelation } from '../data/virtualRelation.js';
-import type { SerializedColumn } from './serializedColumn.js';
+import type { GQLOption } from "../data/GQLOption.js";
+import type { Index } from "../data/index.js";
+import type { VirtualRelation } from "../data/virtualRelation.js";
+import type { SerializedColumn } from "./serializedColumn.js";
 
 export interface SerializedStore {
   tables: SerializedTable[];

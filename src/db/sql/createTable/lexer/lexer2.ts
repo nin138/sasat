@@ -1,5 +1,5 @@
-import { type Token, TokenKind } from './lexer.js';
-import type { Rule, Terminator } from './rules.js';
+import { type Token, TokenKind } from "./lexer.js";
+import type { Rule, Terminator } from "./rules.js";
 
 type Current = {
   hasNext: boolean;
@@ -17,21 +17,21 @@ export class Lexer2 {
     protected readonly operators: string[],
     protected readonly whiteSpaces = /([ \t\n])/,
   ) {
-    this.chars = str.split('');
+    this.chars = str.split("");
   }
 
   private isTerminated(value: string, terminators: Terminator[]) {
     const separator = (value: string) => this.separators.includes(value);
     const operator = (value: string) =>
-      this.operators.some(it => it.startsWith(value));
+      this.operators.some((it) => it.startsWith(value));
     const whiteSpace = (value: string) => this.whiteSpaces.test(value);
-    return terminators.some(it => {
+    return terminators.some((it) => {
       switch (it) {
-        case 'operator':
+        case "operator":
           return operator(value);
-        case 'separator':
+        case "separator":
           return separator(value);
-        case 'whitespace':
+        case "whitespace":
           return whiteSpace(value);
         default:
           return false;
@@ -54,14 +54,14 @@ export class Lexer2 {
         ? operator(current.value)
         : undefined;
     }
-    let operators = this.operators.filter(it => it.startsWith(current.value));
+    let operators = this.operators.filter((it) => it.startsWith(current.value));
     let state = current.value;
     if (operators.length === 1) return operator(state);
     while (operators.length !== 0) {
       if (!current.hasNext) return operator(state);
       current = this.read();
       state += current.value;
-      operators = operators.filter(it => it.startsWith(state));
+      operators = operators.filter((it) => it.startsWith(state));
       if (operators.length === 1) return operator(state);
     }
     if (state.length > 1) {
@@ -111,11 +111,11 @@ export class Lexer2 {
       if (terminated && value) return value;
       return this.read();
     }
-    throw new Error('No Rule Matched');
+    throw new Error("No Rule Matched");
   }
 
   protected read(): Current {
-    const char = this.chars[this.index] || '';
+    const char = this.chars[this.index] || "";
     this.index += 1;
     return {
       hasNext: this.chars.length > this.index,

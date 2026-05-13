@@ -1,6 +1,6 @@
-import { ExportableDeclaration } from '../abstruct/exportableDeclaration.js';
-import type { EnumMember } from './enumMember.js';
-import type { Identifier } from './expressions.js';
+import { ExportableDeclaration } from "../abstruct/exportableDeclaration.js";
+import type { EnumMember } from "./enumMember.js";
+import type { Identifier } from "./expressions.js";
 
 export class EnumDeclaration extends ExportableDeclaration {
   constructor(
@@ -19,7 +19,7 @@ export class EnumDeclaration extends ExportableDeclaration {
 
   protected toTsString(): string {
     return `enum ${this.identifier}{${this.members
-      .map(it => it.toString() + ',')
-      .join('')}}`;
+      .map((it) => it.toString() + ",")
+      .join("")}}`;
   }
 }

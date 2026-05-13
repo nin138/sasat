@@ -1,10 +1,10 @@
-import type { SQLExecutor, SqlValueType } from '../db/connectors/dbClient.js';
+import type { SQLExecutor, SqlValueType } from "../db/connectors/dbClient.js";
 import {
   type CommandResponse,
   getDbClient,
   qe,
   type RelationMap,
-} from '../index.js';
+} from "../index.js";
 import {
   type Create,
   createToSql,
@@ -12,26 +12,26 @@ import {
   deleteToSql,
   type Update,
   updateToSql,
-} from './dsl/mutation/mutation.js';
+} from "./dsl/mutation/mutation.js";
 import {
   createQueryResolveInfo,
   type TableInfo,
-} from './dsl/query/createQueryResolveInfo.js';
+} from "./dsl/query/createQueryResolveInfo.js";
 import type {
   BooleanValueExpression,
   Join,
   LockMode,
   Query,
   Sort,
-} from './dsl/query/query.js';
-import { hydrate, type ResultRow } from './dsl/query/sql/hydrate.js';
-import { queryToSql } from './dsl/query/sql/queryToSql.js';
-import type { Fields } from './field.js';
+} from "./dsl/query/query.js";
+import { hydrate, type ResultRow } from "./dsl/query/sql/hydrate.js";
+import { queryToSql } from "./dsl/query/sql/queryToSql.js";
+import type { Fields } from "./field.js";
 import {
   createPagingFieldQuery,
   createQuery,
   type PagingOption,
-} from './sql/runQuery.js';
+} from "./sql/runQuery.js";
 
 export type EntityType = Record<string, SqlValueType>;
 export type EntityResult<Entity, Identifiable> = Identifiable & Partial<Entity>;
@@ -95,7 +95,7 @@ export abstract class SasatDBDatasource<
     const dsl: Create = {
       table: this.tableName,
       fields: fields,
-      entities: [fields.map(key => obj[key])],
+      entities: [fields.map((key) => obj[key])],
       upsert: option?.upsert?.updateColumns,
       ignore: option?.ignore,
     };
@@ -115,12 +115,12 @@ export abstract class SasatDBDatasource<
       upsert?: { updateColumns: string[] };
     },
   ): Promise<CommandResponse> {
-    const objects = entities.map(it => ({
+    const objects = entities.map((it) => ({
       ...this.getDefaultValueString(),
       ...it,
     })) as unknown[] as Entity[];
     const keys = Object.keys(objects[0]);
-    const values = objects.map(it => keys.map(key => it[key]));
+    const values = objects.map((it) => keys.map((key) => it[key]));
 
     const dsl: Create = {
       table: this.tableName,
@@ -252,7 +252,7 @@ export abstract class SasatDBDatasource<
   }
 
   private createIdentifiableExpression(entity: Identifiable) {
-    const expr = this.identifyFields.map(it => {
+    const expr = this.identifyFields.map((it) => {
       // biome-ignore lint/suspicious/noExplicitAny: <>
       const value = (entity as any)[it];
       if (!value) throw new Error(`field ${it} is required`);
@@ -268,6 +268,8 @@ export abstract class SasatDBDatasource<
   }
 
   protected fieldToColumn(fields: string[]) {
-    return fields.map(it => this.tableInfo[this.tableName].columnMap[it] || it);
+    return fields.map(
+      (it) => this.tableInfo[this.tableName].columnMap[it] || it,
+    );
   }
 }

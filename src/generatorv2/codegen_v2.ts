@@ -1,16 +1,16 @@
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { writeFile } from 'node:fs/promises';
-import * as path from 'node:path';
-import { emptyDir } from '@/generatorv2/fs/emptyDir.js';
-import { config } from '../config/config.js';
-import type { DataStoreHandler } from '../migration/dataStore.js';
-import { mkDirIfNotExist, writeFileIfNotExist } from '../util/fsUtil.js';
-import { tsFileNames } from './codegen/ts/tsFileNames.js';
-import { TsCodegen_v2 } from './codegen/tscodegen_v2.js';
-import { Directory } from './directory.js';
-import type { EntityNode } from './nodes/entityNode.js';
-import type { RootNode } from './nodes/rootNode.js';
-import { parse } from './parse.js';
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { writeFile } from "node:fs/promises";
+import * as path from "node:path";
+import { emptyDir } from "@/generatorv2/fs/emptyDir.js";
+import { config } from "../config/config.js";
+import type { DataStoreHandler } from "../migration/dataStore.js";
+import { mkDirIfNotExist, writeFileIfNotExist } from "../util/fsUtil.js";
+import { tsFileNames } from "./codegen/ts/tsFileNames.js";
+import { TsCodegen_v2 } from "./codegen/tscodegen_v2.js";
+import { Directory } from "./directory.js";
+import type { EntityNode } from "./nodes/entityNode.js";
+import type { RootNode } from "./nodes/rootNode.js";
+import { parse } from "./parse.js";
 
 // const { emptyDir, writeFile } = fs;
 
@@ -34,9 +34,9 @@ export class CodeGen_v2 {
   async generate(): Promise<void> {
     await this.prepareDirs();
     await Promise.all([
-      ...this.root.entities.map(it => this.generateEntity(it)),
-      ...this.root.entities.map(it => this.generateDatasource(it)),
-      ...this.root.entities.map(it => this.generateGeneratedDatasource(it)),
+      ...this.root.entities.map((it) => this.generateEntity(it)),
+      ...this.root.entities.map((it) => this.generateDatasource(it)),
+      ...this.root.entities.map((it) => this.generateGeneratedDatasource(it)),
       this.generateGql(this.root),
       this.generateFiles(this.root),
       ...this.generateOnceFiles(),
@@ -82,27 +82,27 @@ export class CodeGen_v2 {
   private async generateGql(rootNode: RootNode): Promise<unknown[]> {
     return Promise.all([
       writeFile(
-        this.getFullPath(this.generateDir, 'typeDefs'),
+        this.getFullPath(this.generateDir, "typeDefs"),
         await this.codeGen.generateGqlTypeDefs(rootNode),
       ),
       writeFile(
-        this.getFullPath(this.generateDir, 'resolver'),
+        this.getFullPath(this.generateDir, "resolver"),
         await this.codeGen.generateGqlResolver(rootNode),
       ),
       writeFile(
-        this.getFullPath(this.generateDir, 'query'),
+        this.getFullPath(this.generateDir, "query"),
         await this.codeGen.generateGqlQuery(rootNode),
       ),
       writeFile(
-        this.getFullPath(this.generateDir, 'mutation'),
+        this.getFullPath(this.generateDir, "mutation"),
         await this.codeGen.generateGqlMutation(rootNode),
       ),
       writeFile(
-        this.getFullPath(this.generateDir, 'subscription'),
+        this.getFullPath(this.generateDir, "subscription"),
         await this.codeGen.generateGqlSubscription(rootNode),
       ),
       writeFile(
-        this.getFullPath(this.generateDir, 'context'),
+        this.getFullPath(this.generateDir, "context"),
         await this.codeGen.generateGQLContext(rootNode),
       ),
     ]);
@@ -111,7 +111,7 @@ export class CodeGen_v2 {
   private async generateFiles(rootNode: RootNode): Promise<unknown[]> {
     const files = await this.codeGen.generateFiles(rootNode);
     return Promise.all(
-      files.map(it =>
+      files.map((it) =>
         writeFileIfNotExist(
           this.getFullPath(this.generateDir, it.name),
           it.body,
@@ -123,7 +123,7 @@ export class CodeGen_v2 {
   private generateOnceFiles() {
     return this.codeGen
       .generateOnceFiles()
-      .map(it =>
+      .map((it) =>
         writeFileIfNotExist(this.getFullPath(this.outDir, it.name), it.body),
       );
   }
@@ -132,7 +132,7 @@ export class CodeGen_v2 {
     const filePath = this.getFullPath(this.outDir, tsFileNames.conditions);
     const content = existsSync(filePath)
       ? readFileSync(filePath).toString()
-      : '';
+      : "";
     const nextContent = this.codeGen.generateConditions(rootNode, content);
     if (nextContent) writeFileSync(filePath, nextContent);
   }
@@ -141,7 +141,7 @@ export class CodeGen_v2 {
     const filePath = this.getFullPath(this.outDir, tsFileNames.encoder);
     const content = existsSync(filePath)
       ? readFileSync(filePath).toString()
-      : '';
+      : "";
     const nextContent = this.codeGen.generateIDEncoders(rootNode, content);
     if (nextContent) writeFileSync(filePath, nextContent);
   }
@@ -150,7 +150,7 @@ export class CodeGen_v2 {
     const filePath = this.getFullPath(this.outDir, tsFileNames.middleware);
     const content = existsSync(filePath)
       ? readFileSync(filePath).toString()
-      : '';
+      : "";
     const nextContent = this.codeGen.generateMiddlewares(rootNode, content);
     if (nextContent) writeFileSync(filePath, nextContent);
   }

@@ -1,23 +1,23 @@
-import { SqlCreator } from '../../db/sql/sqlCreater.js';
-import { SqlString } from '../../runtime/sql/sqlString.js';
-import type { DBColumnTypes, DBType } from '../column/columnTypes.js';
-import type { ColumnBuilder } from '../creators/columnBuilder.js';
-import { type CreateColumn, createColumn } from '../creators/createColumn.js';
-import type { GQLMutation, GQLOption, GQLQuery } from '../data/GQLOption.js';
-import { DBIndex } from '../data/index.js';
+import { SqlCreator } from "../../db/sql/sqlCreater.js";
+import { SqlString } from "../../runtime/sql/sqlString.js";
+import type { DBColumnTypes, DBType } from "../column/columnTypes.js";
+import type { ColumnBuilder } from "../creators/columnBuilder.js";
+import { type CreateColumn, createColumn } from "../creators/createColumn.js";
+import type { GQLMutation, GQLOption, GQLQuery } from "../data/GQLOption.js";
+import { DBIndex } from "../data/index.js";
 import {
   type BaseColumn,
   NormalColumn,
   type ReferenceColumn,
-} from '../serializable/column.js';
-import { type Table, TableHandler } from '../serializable/table.js';
+} from "../serializable/column.js";
+import { type Table, TableHandler } from "../serializable/table.js";
 import type {
   Reference,
   SerializedColumn,
   SerializedNormalColumn,
-} from '../serialized/serializedColumn.js';
-import type { SerializedTable } from '../serialized/serializedStore.js';
-import type { StoreMigrator } from './storeMigrator.js';
+} from "../serialized/serializedColumn.js";
+import type { SerializedTable } from "../serialized/serializedStore.js";
+import type { StoreMigrator } from "./storeMigrator.js";
 
 export interface MigrationTable extends Table {
   addIndex(...columns: string[]): MigrationTable;
@@ -125,11 +125,11 @@ export class TableMigrator implements MigrationTable {
       .column(reference.parentColumn);
     if (!targetColumn)
       throw new Error(
-        'Column: ' +
+        "Column: " +
           reference.parentTable +
-          '.' +
+          "." +
           reference.parentColumn +
-          ' Not Exists',
+          " Not Exists",
       );
     if (column.dataType() !== targetColumn.dataType()) {
       throw new Error(
@@ -160,7 +160,7 @@ export class TableMigrator implements MigrationTable {
 
   protected tableExists(tableName: string): true {
     if (!this.store.table(tableName)) {
-      throw new Error('QueryTable: ' + tableName + ' Not Exists');
+      throw new Error("QueryTable: " + tableName + " Not Exists");
     }
     return true;
   }

@@ -1,4 +1,4 @@
-import type { SqlValueType } from '@/db/connectors/dbClient.js';
+import type { SqlValueType } from "@/db/connectors/dbClient.js";
 import {
   DBColumnTypes,
   type DBDateTypes,
@@ -6,8 +6,8 @@ import {
   type DBIntegerTypes,
   type DBStringTypes,
   type DBTextTypes,
-} from '../column/columnTypes.js';
-import type { Column } from '../serializable/column.js';
+} from "../column/columnTypes.js";
+import type { Column } from "../serializable/column.js";
 import {
   type ColumnOptions,
   defaultColumnOption,
@@ -15,7 +15,7 @@ import {
   type SerializedColumn,
   type SerializedNormalColumn,
   type SerializedReferenceColumn,
-} from '../serialized/serializedColumn.js';
+} from "../serialized/serializedColumn.js";
 
 export abstract class ColumnBuilderBase {
   protected _primary = false;
@@ -220,13 +220,13 @@ export class TimeStampColumnBuilder extends ColumnBuilder {
   ) {
     super(name, type);
   }
-  default(value: 'CURRENT_TIMESTAMP' | string | null | undefined): this {
+  default(value: "CURRENT_TIMESTAMP" | string | null | undefined): this {
     this._default = value;
     return this;
   }
   defaultCurrentTimeStamp(): this {
     this._defaultCurrentTimeStamp = true;
-    return this.default('CURRENT_TIMESTAMP');
+    return this.default("CURRENT_TIMESTAMP");
   }
   onUpdateCurrentTimeStamp(): this {
     this._onUpdateCurrentTimeStamp = true;

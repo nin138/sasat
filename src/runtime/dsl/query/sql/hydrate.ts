@@ -1,5 +1,5 @@
-import type { SqlValueType } from '../../../../db/connectors/dbClient.js';
-import { SELECT_ALIAS_SEPARATOR } from './nodeToSql.js';
+import type { SqlValueType } from "../../../../db/connectors/dbClient.js";
+import { SELECT_ALIAS_SEPARATOR } from "./nodeToSql.js";
 
 export type QueryResolveInfo = {
   tableAlias: string;
@@ -27,7 +27,7 @@ const rowToObjs = (row: ResultRow): ParsedObjs => {
 };
 
 const getUnique = (obj: Entity, info: QueryResolveInfo) =>
-  info.keyAliases.map(it => obj[it]).join('_~_');
+  info.keyAliases.map((it) => obj[it]).join("_~_");
 
 const execTable = (
   info: QueryResolveInfo,
@@ -49,7 +49,7 @@ const execTable = (
           : (current as Entity[]).find(
               (item: Record<string, unknown>) =>
                 item &&
-                info.keyAliases.every(key => item[key] === entity![key]),
+                info.keyAliases.every((key) => item[key] === entity![key]),
             )!;
       if (currentTarget) {
         result = current;

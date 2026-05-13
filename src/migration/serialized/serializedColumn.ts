@@ -1,8 +1,8 @@
-import type { SqlValueType } from '../../db/connectors/dbClient.js';
-import { SqlString } from '../../runtime/sql/sqlString.js';
-import type { DBColumnTypes } from '../column/columnTypes.js';
-import type { ForeignKeyReferentialAction } from '../data/foreignKey.js';
-import type { Relation } from '../data/relation.js';
+import type { SqlValueType } from "../../db/connectors/dbClient.js";
+import { SqlString } from "../../runtime/sql/sqlString.js";
+import type { DBColumnTypes } from "../column/columnTypes.js";
+import type { ForeignKeyReferentialAction } from "../data/foreignKey.js";
+import type { Relation } from "../data/relation.js";
 
 export type ColumnOptions = {
   updatable: boolean;
@@ -53,8 +53,8 @@ export const referenceToSql = (
   constraintName: string,
   ref: Reference,
 ): string => {
-  const onUpdate = ref.onUpdate ? ` ON UPDATE ${ref.onUpdate}` : '';
-  const onDelete = ref.onDelete ? ` ON DELETE ${ref.onDelete}` : '';
+  const onUpdate = ref.onUpdate ? ` ON UPDATE ${ref.onUpdate}` : "";
+  const onDelete = ref.onDelete ? ` ON DELETE ${ref.onDelete}` : "";
   return (
     `CONSTRAINT ${constraintName} ` +
     `FOREIGN KEY(${ref.columnName}) ` +

@@ -1,10 +1,10 @@
-import { TsStatement } from './statement.js';
+import { TsStatement } from "./statement.js";
 
 export abstract class ExportableDeclaration extends TsStatement {
   private isExported = false;
 
   protected codePrefix(): string {
-    return this.isExported ? 'export ' : '';
+    return this.isExported ? "export " : "";
   }
 
   export(): this {

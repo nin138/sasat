@@ -1,6 +1,6 @@
-import { TsCode } from '../../abstruct/tsCode.js';
-import { PropertySignature } from '../propertySignature.js';
-import type { TsType } from './type.js';
+import { TsCode } from "../../abstruct/tsCode.js";
+import { PropertySignature } from "../propertySignature.js";
+import type { TsType } from "./type.js";
 
 export class TypeLiteral extends TsCode {
   constructor(private properties: PropertySignature[] = []) {
@@ -21,6 +21,6 @@ export class TypeLiteral extends TsCode {
   }
 
   protected toTsString(): string {
-    return `{${this.properties.map(it => it.toString()).join(';')}}`;
+    return `{${this.properties.map((it) => it.toString()).join(";")}}`;
   }
 }

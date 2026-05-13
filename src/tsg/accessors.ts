@@ -1,5 +1,5 @@
 export enum TsAccessor {
-  public = '',
-  protected = 'protected ',
-  private = 'private',
+  public = "",
+  protected = "protected ",
+  private = "private",
 }

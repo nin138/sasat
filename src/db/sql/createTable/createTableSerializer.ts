@@ -1,6 +1,6 @@
-import type { SerializedTable } from '../../../migration/serialized/serializedStore.js';
-import { CreateTableParser } from './createTableParser.js';
-import { createTableLexer } from './lexer/createTableLexer.js';
+import type { SerializedTable } from "../../../migration/serialized/serializedStore.js";
+import { CreateTableParser } from "./createTableParser.js";
+import { createTableLexer } from "./lexer/createTableLexer.js";
 
 // const getInParenValues = (tokens: Token[], fromIndex = 0) => {
 //   const sliced = tokens.slice(fromIndex);

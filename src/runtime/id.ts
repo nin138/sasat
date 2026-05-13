@@ -1,4 +1,4 @@
-import type Hashids from 'hashids';
+import type Hashids from "hashids";
 
 type NumberIdEncoder = {
   encode: (id: number) => string;

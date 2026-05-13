@@ -1,4 +1,4 @@
-import chalk from 'chalk';
+import chalk from "chalk";
 
 export const Console = {
   success: (msg: string): void => {
@@ -12,6 +12,6 @@ export const Console = {
     console.log(msg);
   },
   debug: (msg: string) => {
-    console.debug('debug:: ' + msg);
+    console.debug("debug:: " + msg);
   },
 };

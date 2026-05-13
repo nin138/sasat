@@ -1,50 +1,50 @@
-import { columnTypeToTsType } from '../../../../migration/column/columnTypes.js';
-import { type TsStatement, type TsType, tsg } from '../../../../tsg/index.js';
-import { type Directories, Directory } from '../../../directory.js';
-import type { EntityNode } from '../../../nodes/entityNode.js';
-import type { FieldNode } from '../../../nodes/FieldNode.js';
-import type { MutationNode } from '../../../nodes/mutationNode.js';
+import { columnTypeToTsType } from "../../../../migration/column/columnTypes.js";
+import { type TsStatement, type TsType, tsg } from "../../../../tsg/index.js";
+import { type Directories, Directory } from "../../../directory.js";
+import type { EntityNode } from "../../../nodes/entityNode.js";
+import type { FieldNode } from "../../../nodes/FieldNode.js";
+import type { MutationNode } from "../../../nodes/mutationNode.js";
 import {
   makeContextTypeRef,
   makeTypeRef,
-} from '../scripts/getEntityTypeRefs.js';
-import { tsFileNames } from '../tsFileNames.js';
+} from "../scripts/getEntityTypeRefs.js";
+import { tsFileNames } from "../tsFileNames.js";
 
-const DIR: Directories = 'GENERATED';
+const DIR: Directories = "GENERATED";
 
 export const makeMutationMiddlewareAndTypes = (entity: EntityNode) => {
-  return entity.mutations.map(node =>
+  return entity.mutations.map((node) =>
     makeMutationResolverMiddleware(entity, node),
   );
 };
 
 const makeParamType = (node: MutationNode): TsType => {
-  if (node.mutationType === 'create')
-    return makeTypeRef(node.entityName, 'creatable', 'GENERATED');
-  if (node.mutationType === 'update')
+  if (node.mutationType === "create")
+    return makeTypeRef(node.entityName, "creatable", "GENERATED");
+  if (node.mutationType === "update")
     return tsg.intersectionType(
-      makeTypeRef(node.entityName, 'identifiable', 'GENERATED'),
-      makeTypeRef(node.entityName, 'updatable', 'GENERATED'),
+      makeTypeRef(node.entityName, "identifiable", "GENERATED"),
+      makeTypeRef(node.entityName, "updatable", "GENERATED"),
     );
-  return makeTypeRef(node.entityName, 'identifiable', 'GENERATED');
+  return makeTypeRef(node.entityName, "identifiable", "GENERATED");
 };
 
 const makeEncoder = (name: string) =>
   tsg
     .identifier(name)
-    .importFrom(Directory.resolve(DIR, 'BASE', tsFileNames.encoder));
+    .importFrom(Directory.resolve(DIR, "BASE", tsFileNames.encoder));
 
 const makeIdDecodeMiddleware = (fields: FieldNode[], node: MutationNode) => {
-  const params = tsg.identifier('args[1]');
+  const params = tsg.identifier("args[1]");
   const entityName = node.entity.name.lowerCase();
   return tsg.arrowFunc(
-    [tsg.parameter('args')],
+    [tsg.parameter("args")],
     undefined,
     tsg.block(
       tsg
         .binary(
           params,
-          '=',
+          "=",
           tsg.object(
             tsg.spreadAssign(params),
             tsg.propertyAssign(
@@ -52,17 +52,17 @@ const makeIdDecodeMiddleware = (fields: FieldNode[], node: MutationNode) => {
               tsg.object(
                 tsg.spreadAssign(params.property(entityName)),
                 ...fields
-                  .filter(it => it.hashId)
-                  .map(it =>
+                  .filter((it) => it.hashId)
+                  .map((it) =>
                     tsg.propertyAssign(
                       it.fieldName,
                       makeEncoder(it.hashId!.encoder)
-                        .property('decode')
+                        .property("decode")
                         .call(
                           params
                             .property(entityName)
                             .property(it.fieldName)
-                            .as(tsg.typeRef('string')),
+                            .as(tsg.typeRef("string")),
                         ),
                     ),
                   ),
@@ -71,7 +71,7 @@ const makeIdDecodeMiddleware = (fields: FieldNode[], node: MutationNode) => {
           ),
         )
         .toStatement(),
-      tsg.return(tsg.identifier('args')),
+      tsg.return(tsg.identifier("args")),
     ),
   );
 };
@@ -82,10 +82,10 @@ const makeResolverMiddleware = (
   fields: FieldNode[],
   node: MutationNode,
 ) => {
-  const sig = fields.map(it =>
+  const sig = fields.map((it) =>
     tsg.propertySignature(
       it.fieldName,
-      tsg.typeRef(it.hashId ? 'string' : columnTypeToTsType(it.dbType)),
+      tsg.typeRef(it.hashId ? "string" : columnTypeToTsType(it.dbType)),
     ),
   );
   const requiredType = tsg.typeAlias(
@@ -95,53 +95,53 @@ const makeResolverMiddleware = (
     ]),
   );
 
-  const middlewareName = node.mutationName + 'Middleware';
+  const middlewareName = node.mutationName + "Middleware";
 
   if (!node.requireIdDecodeMiddleware)
     return [
       requiredType,
       tsg.variable(
-        'const',
+        "const",
         middlewareName,
         tsg.array(
-          node.middlewares.map(it =>
-            tsg.identifier(it).importFrom('../' + tsFileNames.middleware),
+          node.middlewares.map((it) =>
+            tsg.identifier(it).importFrom("../" + tsFileNames.middleware),
           ),
         ),
         tsg.arrayType(
           tsg
-            .typeRef('ResolverMiddleware', [
+            .typeRef("ResolverMiddleware", [
               makeContextTypeRef(DIR),
               tsg.identifier(typeName),
             ])
-            .importFrom('sasat'),
+            .importFrom("sasat"),
         ),
       ),
     ];
   const incomingType = tsg.typeAlias(
-    'GQL' + typeName,
+    "GQL" + typeName,
     tsg.typeLiteral([
       tsg.propertySignature(entity.name.lowerCase(), tsg.typeLiteral(sig)),
     ]),
   );
 
   const middleware = tsg.variable(
-    'const',
-    node.mutationName + 'Middleware',
+    "const",
+    node.mutationName + "Middleware",
     tsg.array([
       makeIdDecodeMiddleware(fields, node),
-      ...node.middlewares.map(it =>
-        tsg.identifier(it).importFrom('../' + tsFileNames.middleware),
+      ...node.middlewares.map((it) =>
+        tsg.identifier(it).importFrom("../" + tsFileNames.middleware),
       ),
     ]),
     tsg.arrayType(
       tsg
-        .typeRef('ResolverMiddleware', [
+        .typeRef("ResolverMiddleware", [
           makeContextTypeRef(DIR),
           tsg.identifier(typeName),
-          tsg.identifier('GQL' + typeName),
+          tsg.identifier("GQL" + typeName),
         ])
-        .importFrom('sasat'),
+        .importFrom("sasat"),
     ),
   );
   return [incomingType, requiredType, middleware];
@@ -152,21 +152,21 @@ export const makeMutationResolverMiddleware = (
   node: MutationNode,
 ): TsStatement[] => {
   switch (node.mutationType) {
-    case 'create':
+    case "create":
       return makeResolverMiddleware(
         entity.name.createInputName(),
         entity,
         entity.creatable.fields,
         node,
       );
-    case 'update':
+    case "update":
       return makeResolverMiddleware(
         entity.name.updateInputName(),
         entity,
         entity.updateInput.fields,
         node,
       );
-    case 'delete':
+    case "delete":
       return makeResolverMiddleware(
         entity.name.identifyInputName(),
         entity,

@@ -1,13 +1,13 @@
-import type { MigrateCommandOption } from '../../cli/commands/migrate.js';
-import { Console } from '../../cli/console.js';
-import { config } from '../../config/config.js';
-import { getDbClient } from '../../db/getDbClient.js';
-import { SqlString } from '../../runtime/sql/sqlString.js';
-import { getMigrationFileNames } from './getMigrationFiles.js';
+import type { MigrateCommandOption } from "../../cli/commands/migrate.js";
+import { Console } from "../../cli/console.js";
+import { config } from "../../config/config.js";
+import { getDbClient } from "../../db/getDbClient.js";
+import { SqlString } from "../../runtime/sql/sqlString.js";
+import { getMigrationFileNames } from "./getMigrationFiles.js";
 
 export enum Direction {
-  Up = 'up',
-  Down = 'down',
+  Up = "up",
+  Down = "down",
 }
 
 type MigrationRecord = {
@@ -18,11 +18,11 @@ type MigrationRecord = {
 
 const calcRunMigrationFileNames = (records: MigrationRecord[]) => {
   const result: string[] = [];
-  records.forEach(it => {
+  records.forEach((it) => {
     if (it.direction === Direction.Down) {
       if (result[result.length] !== it.name)
         throw new Error(
-          'Invalid migration history: `down` migration must be the same migration as the last `up` migration ',
+          "Invalid migration history: `down` migration must be the same migration as the last `up` migration ",
         );
       result.pop();
       return;
@@ -40,13 +40,13 @@ export const getCurrentMigration = async (
   const client = getDbClient();
   const query =
     `CREATE TABLE IF NOT EXISTS ${migrationTable} ` +
-    '(id int auto_increment primary key , name varchar(100) not null,' +
+    "(id int auto_increment primary key , name varchar(100) not null," +
     "direction enum('up', 'down') not null, migrated_at timestamp default current_timestamp)";
   if (!options.silent) {
     Console.log(
       `creating migration table: ${migrationTable} :: ${Buffer.from(
         migrationTable,
-      ).toString('base64')}`,
+      ).toString("base64")}`,
     );
     Console.log(query);
   }

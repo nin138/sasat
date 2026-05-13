@@ -1,4 +1,4 @@
-import { nonNullable } from '../../../runtime/util.js';
+import { nonNullable } from "../../../runtime/util.js";
 import {
   type Block,
   type Identifier,
@@ -8,34 +8,34 @@ import {
   TsFile,
   type TsStatement,
   tsg,
-} from '../../../tsg/index.js';
-import { Directory } from '../../directory.js';
-import type { ContextField, MutationNode } from '../../nodes/mutationNode.js';
-import type { RootNode } from '../../nodes/rootNode.js';
-import { makeFindQueryName, publishFunctionName } from '../names.js';
-import { makeMutationMiddlewareAndTypes } from './mutation/makeMutationInputDecoder.js';
-import { makeTypeRef } from './scripts/getEntityTypeRefs.js';
-import { makeDatasource } from './scripts/makeDatasource.js';
+} from "../../../tsg/index.js";
+import { Directory } from "../../directory.js";
+import type { ContextField, MutationNode } from "../../nodes/mutationNode.js";
+import type { RootNode } from "../../nodes/rootNode.js";
+import { makeFindQueryName, publishFunctionName } from "../names.js";
+import { makeMutationMiddlewareAndTypes } from "./mutation/makeMutationInputDecoder.js";
+import { makeTypeRef } from "./scripts/getEntityTypeRefs.js";
+import { makeDatasource } from "./scripts/makeDatasource.js";
 
 export const generateMutationResolver = (root: RootNode) => {
   return new TsFile(
     ...root.entities.flatMap(makeMutationMiddlewareAndTypes).flat(),
     tsg
       .variable(
-        'const',
-        'mutation',
+        "const",
+        "mutation",
         tsg.object(
-          ...root.entities.flatMap(it => it.mutations).map(makeMutation),
+          ...root.entities.flatMap((it) => it.mutations).map(makeMutation),
         ),
       )
       .export(),
   ).disableEsLint();
 };
 
-const result = tsg.identifier('result');
-const refetched = tsg.identifier('fetched');
-const ds = tsg.identifier('ds');
-const ident = tsg.identifier('identifiable');
+const result = tsg.identifier("result");
+const refetched = tsg.identifier("fetched");
+const ds = tsg.identifier("ds");
+const ident = tsg.identifier("identifiable");
 
 const makeMutation = (node: MutationNode): PropertyAssignment => {
   return tsg.propertyAssign(
@@ -45,14 +45,14 @@ const makeMutation = (node: MutationNode): PropertyAssignment => {
         tsg
           .arrowFunc(makeResolverArgs(node), undefined, makeMutationBody(node))
           .toAsync(),
-        tsg.identifier(node.mutationName + 'Middleware'),
+        tsg.identifier(node.mutationName + "Middleware"),
       )
       .typeArgs(
         ...[
           context,
           tsg.typeRef(node.inputName),
           node.requireIdDecodeMiddleware
-            ? tsg.typeRef('GQL' + node.inputName)
+            ? tsg.typeRef("GQL" + node.inputName)
             : null,
         ].filter(nonNullable),
       ),
@@ -60,38 +60,38 @@ const makeMutation = (node: MutationNode): PropertyAssignment => {
 };
 
 const makeMutationBody = (node: MutationNode) => {
-  if (node.mutationType === 'create') return makeCreateMutationBody(node);
-  if (node.mutationType === 'update') return makeUpdateMutationBody(node);
+  if (node.mutationType === "create") return makeCreateMutationBody(node);
+  if (node.mutationType === "update") return makeUpdateMutationBody(node);
   return makeDeleteMutationBody(node);
 };
 
 // TODO refetch should use resolveInfo for avoiding n+1
-const makeResolver = tsg.identifier('makeResolver').importFrom('sasat');
+const makeResolver = tsg.identifier("makeResolver").importFrom("sasat");
 const context = tsg
-  .typeRef('GQLContext')
-  .importFrom(Directory.resolve('GENERATED', 'BASE', 'context'));
+  .typeRef("GQLContext")
+  .importFrom(Directory.resolve("GENERATED", "BASE", "context"));
 const makeResolverArgs = (node: MutationNode) =>
   [
-    tsg.parameter('_'),
+    tsg.parameter("_"),
     tsg.parameter(`{${node.entityName.lowerCase()}}`),
-    node.contextFields.length === 0 ? null : tsg.parameter('context'),
+    node.contextFields.length === 0 ? null : tsg.parameter("context"),
   ].filter(nonNullable);
 
 const makeCreateMutationBody = (node: MutationNode) => {
   const entity = tsg.identifier(node.entityName.lowerCase());
   const dsVariable = tsg.variable(
-    'const',
+    "const",
     ds,
-    makeDatasource(node.entityName, 'GENERATED'),
+    makeDatasource(node.entityName, "GENERATED"),
   );
-  const createCall = ds.property('create').call(entity);
+  const createCall = ds.property("create").call(entity);
   if (!node.subscription && !node.refetch)
     return tsg.block(dsVariable, tsg.return(createCall));
 
   if (!node.refetch) {
     return tsg.block(
       dsVariable,
-      tsg.variable('const', result, tsg.await(createCall)),
+      tsg.variable("const", result, tsg.await(createCall)),
       node.subscription ? makePublishCall(node, result) : null,
       tsg.return(result),
     );
@@ -99,7 +99,7 @@ const makeCreateMutationBody = (node: MutationNode) => {
 
   return tsg.block(
     dsVariable,
-    tsg.variable('const', result, tsg.await(createCall)),
+    tsg.variable("const", result, tsg.await(createCall)),
     ...makeRefetched(node),
     node.subscription ? makePublishCall(node, refetched) : null,
     tsg.return(refetched),
@@ -109,27 +109,27 @@ const makeCreateMutationBody = (node: MutationNode) => {
 const makeRefetched = (node: MutationNode) => {
   return [
     tsg.variable(
-      'const',
+      "const",
       ident,
       tsg
-        .identifier('pick')
-        .importFrom('sasat')
+        .identifier("pick")
+        .importFrom("sasat")
         .call(
-          node.mutationType === 'create'
+          node.mutationType === "create"
             ? result
             : tsg.identifier(node.entityName.lowerCase()),
           tsg.array(node.identifyFields.map(tsg.string)),
         )
-        .as(tsg.typeRef('unknown'))
-        .as(makeTypeRef(node.entityName, 'identifiable', 'GENERATED')),
+        .as(tsg.typeRef("unknown"))
+        .as(makeTypeRef(node.entityName, "identifiable", "GENERATED")),
     ),
     tsg.variable(
-      'const',
+      "const",
       refetched,
       tsg.await(
         ds
           .property(makeFindQueryName(node.identifyFields))
-          .call(...node.identifyFields.map(it => ident.property(it))),
+          .call(...node.identifyFields.map((it) => ident.property(it))),
       ),
     ),
   ];
@@ -140,9 +140,9 @@ const makePublishCall = (node: MutationNode, identifier: Identifier) => {
     .await(
       tsg
         .identifier(publishFunctionName(node.entityName, node.mutationType))
-        .importFrom('./subscription')
+        .importFrom("./subscription")
         .call(
-          identifier.as(makeTypeRef(node.entityName, 'entity', 'GENERATED')),
+          identifier.as(makeTypeRef(node.entityName, "entity", "GENERATED")),
         ),
     )
     .toStatement();
@@ -155,7 +155,7 @@ const makeDatasourceParam = (
   if (contextParams.length === 0) return entity;
   return tsg.object(
     tsg.spreadAssign(entity),
-    ...contextParams.map(it =>
+    ...contextParams.map((it) =>
       tsg.propertyAssign(
         it.fieldName,
         tsg.identifier(`context.${it.contextName}`),
@@ -167,28 +167,28 @@ const makeDatasourceParam = (
 const makeUpdateMutationBody = (node: MutationNode): Block => {
   const entity = tsg.identifier(node.entityName.lowerCase());
   const dsV = tsg.variable(
-    'const',
+    "const",
     ds,
-    makeDatasource(node.entityName, 'GENERATED'),
+    makeDatasource(node.entityName, "GENERATED"),
   );
   const resultV = tsg.variable(
-    'const',
+    "const",
     result,
     tsg.await(
       ds
-        .property('update')
+        .property("update")
         .call(makeDatasourceParam(entity, node.contextFields))
-        .property('then')
+        .property("then")
         .call(
           tsg.arrowFunc(
             [
               tsg.parameter(
-                'it',
-                tsg.typeRef('CommandResponse').importFrom('sasat'),
+                "it",
+                tsg.typeRef("CommandResponse").importFrom("sasat"),
               ),
             ],
             KeywordTypeNode.boolean,
-            tsg.binary(tsg.identifier('it.changedRows'), '===', tsg.number(1)),
+            tsg.binary(tsg.identifier("it.changedRows"), "===", tsg.number(1)),
           ),
         ),
     ),
@@ -208,33 +208,33 @@ const makeUpdateMutationBody = (node: MutationNode): Block => {
 const makeDeleteMutationBody = (node: MutationNode): Block => {
   const entity = tsg.identifier(node.entityName.lowerCase());
   const dsV = tsg.variable(
-    'const',
+    "const",
     ds,
-    makeDatasource(node.entityName, 'GENERATED'),
+    makeDatasource(node.entityName, "GENERATED"),
   );
   const deleteCall = ds
-    .property('delete')
+    .property("delete")
     .call(entity)
-    .property('then')
+    .property("then")
     .call(
       tsg.arrowFunc(
         [
           tsg.parameter(
-            'it',
-            tsg.typeRef('CommandResponse').importFrom('sasat'),
+            "it",
+            tsg.typeRef("CommandResponse").importFrom("sasat"),
           ),
         ],
         KeywordTypeNode.boolean,
         tsg.binary(
-          tsg.identifier('it.affectedRows'),
-          '===',
+          tsg.identifier("it.affectedRows"),
+          "===",
           new NumericLiteral(1),
         ),
       ),
     );
   return tsg.block(
     dsV,
-    tsg.variable('const', result, tsg.await(deleteCall)),
+    tsg.variable("const", result, tsg.await(deleteCall)),
     node.subscription
       ? tsg.if(result, tsg.block(makePublishCall(node, entity)))
       : null,

@@ -1,5 +1,5 @@
-import { TsCode } from '../abstruct/tsCode.js';
-import type { TypeReference } from './type/typeReference.js';
+import { TsCode } from "../abstruct/tsCode.js";
+import type { TypeReference } from "./type/typeReference.js";
 
 export class ImplementsClause extends TsCode {
   private readonly types: TypeReference[];
@@ -10,6 +10,6 @@ export class ImplementsClause extends TsCode {
   }
 
   protected toTsString(): string {
-    return `implements ${this.types.join(',')}`;
+    return `implements ${this.types.join(",")}`;
   }
 }

@@ -1,4 +1,4 @@
-import { formatQuery } from '../formatQuery.js';
+import { formatQuery } from "../formatQuery.js";
 
 export type QueryResponse = Array<{ [key: string]: SqlValueType }>;
 export interface CommandResponse {

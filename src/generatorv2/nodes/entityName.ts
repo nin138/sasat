@@ -2,7 +2,7 @@ import {
   camelize,
   capitalizeFirstLetter,
   lowercaseFirstLetter,
-} from '../../util/stringUtil.js';
+} from "../../util/stringUtil.js";
 
 export class EntityName {
   static fromTableName(tableName: string): EntityName {
@@ -23,18 +23,18 @@ export class EntityName {
   }
 
   relationTypeName(): string {
-    return this.name + 'Relations';
+    return this.name + "Relations";
   }
   entityWithRelationTypeName(): string {
-    return this.name + 'WithRelations';
+    return this.name + "WithRelations";
   }
 
   resultType(): string {
-    return this.name + 'Result';
+    return this.name + "Result";
   }
 
   fieldsTypeName(): string {
-    return this.name + 'Fields';
+    return this.name + "Fields";
   }
 
   dataSourceName(): string {
@@ -47,10 +47,10 @@ export class EntityName {
     return lowercaseFirstLetter(this.name);
   }
   createInputName(): string {
-    return this.name + 'CreateInput';
+    return this.name + "CreateInput";
   }
   updateInputName(): string {
-    return this.name + 'UpdateInput';
+    return this.name + "UpdateInput";
   }
   identifyInputName(): string {
     return `${this.name}IdentifyInput`;

@@ -1,6 +1,6 @@
-import { TsCode } from '../../abstruct/tsCode.js';
-import { Identifier } from '../expressions.js';
-import { pickCode, type TsType } from './type.js';
+import { TsCode } from "../../abstruct/tsCode.js";
+import { Identifier } from "../expressions.js";
+import { pickCode, type TsType } from "./type.js";
 
 export class TypeReference extends TsCode {
   constructor(
@@ -17,21 +17,21 @@ export class TypeReference extends TsCode {
   }
 
   partial(): TypeReference {
-    return new TypeReference('Partial', [this]);
+    return new TypeReference("Partial", [this]);
   }
 
   pick(...properties: string[]): TypeReference {
-    return new TypeReference('Pick', [
+    return new TypeReference("Pick", [
       this,
-      new Identifier(properties.map(it => `'${it}'`).join('|')),
+      new Identifier(properties.map((it) => `'${it}'`).join("|")),
     ]);
   }
 
   protected toTsString(): string {
     const typeArgs =
       this.typeArguments.length === 0
-        ? ''
-        : `<${this.typeArguments.join(',')}>`;
+        ? ""
+        : `<${this.typeArguments.join(",")}>`;
     return `${this.typeName}${typeArgs}`;
   }
 }

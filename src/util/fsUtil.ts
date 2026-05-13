@@ -1,13 +1,13 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
-import yaml from 'js-yaml';
-import { config } from '../config/config.js';
-import type { SerializedStore } from '../migration/serialized/serializedStore.js';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { writeFile } from "node:fs/promises";
+import { join } from "node:path";
+import yaml from "js-yaml";
+import { config } from "../config/config.js";
+import type { SerializedStore } from "../migration/serialized/serializedStore.js";
 
 // biome-ignore lint/suspicious/noExplicitAny: <>
 export const readYmlFile = (filepath: string): any =>
-  yaml.load(readFileSync(filepath, 'utf8'));
+  yaml.load(readFileSync(filepath, "utf8"));
 
 export const mkDirIfNotExist = (path: string): void => {
   if (!existsSync(path)) mkdirSync(path);
@@ -34,8 +34,8 @@ export const writeYmlFile = (
       skipInvalid: true,
       noRefs: true,
       sortKeys: (a, b) => {
-        if (b === 'tableName') return 1;
-        if (a === 'tableName') return -1;
+        if (b === "tableName") return 1;
+        if (a === "tableName") return -1;
 
         if (a > b) return 1;
         if (a < b) return -1;
@@ -46,8 +46,8 @@ export const writeYmlFile = (
 };
 
 export const readInitialSchema = (): SerializedStore => {
-  return readYmlFile(join(config().migration.dir, 'initialSchema.yml'));
+  return readYmlFile(join(config().migration.dir, "initialSchema.yml"));
 };
 export const writeCurrentSchema = (schema: SerializedStore): void => {
-  writeYmlFile(config().migration.dir, 'currentSchema.yml', schema as never);
+  writeYmlFile(config().migration.dir, "currentSchema.yml", schema as never);
 };

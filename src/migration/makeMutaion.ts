@@ -1,4 +1,4 @@
-import type { GQLMutation, GqlFromContextParam } from './data/GQLOption.js';
+import type { GQLMutation, GqlFromContextParam } from "./data/GQLOption.js";
 
 type Option = {
   noRefetch?: boolean;
@@ -12,7 +12,7 @@ type Option = {
     | boolean;
 };
 
-const formatSubscription = (subscription: Option['subscription']) => {
+const formatSubscription = (subscription: Option["subscription"]) => {
   if (subscription === undefined || subscription === false) {
     return {
       enabled: false,
@@ -31,7 +31,7 @@ const formatSubscription = (subscription: Option['subscription']) => {
 };
 
 const formatOptions = (
-  type: GQLMutation['type'],
+  type: GQLMutation["type"],
   option?: Option,
 ): GQLMutation => ({
   type,
@@ -42,8 +42,8 @@ const formatOptions = (
 });
 
 export const Mutations = {
-  create: (options?: Option): GQLMutation => formatOptions('create', options),
-  update: (options?: Option): GQLMutation => formatOptions('update', options),
-  delete: (options?: Omit<Option, 'noRefetch'>): GQLMutation =>
-    formatOptions('delete', options),
+  create: (options?: Option): GQLMutation => formatOptions("create", options),
+  update: (options?: Option): GQLMutation => formatOptions("update", options),
+  delete: (options?: Omit<Option, "noRefetch">): GQLMutation =>
+    formatOptions("delete", options),
 };

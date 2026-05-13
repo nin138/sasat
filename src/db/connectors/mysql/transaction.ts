@@ -1,9 +1,9 @@
-import type { Connection } from 'mysql2/promise';
+import type { Connection } from "mysql2/promise";
 import {
   type CommandResponse,
   type QueryResponse,
   SQLTransaction,
-} from '../dbClient.js';
+} from "../dbClient.js";
 
 export class MySqlTransaction extends SQLTransaction {
   constructor(private connection: Connection) {
