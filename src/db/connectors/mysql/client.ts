@@ -4,46 +4,39 @@ import {
   QueryResponse,
   SQLTransaction,
 } from '../dbClient.js';
-import * as mysql from 'mysql2';
+import { ConnectionOptions, createConnection } from 'mysql2/promise';
 import { MySqlTransaction } from './transaction.js';
-import { config } from '../../../config/config.js';
-import { promisify } from 'util';
 
 export class MysqlClient extends DBClient {
-  private readonly pool: mysql.Pool;
+  async release(): Promise<void> {
+    return;
+  }
   constructor(
-    readonly connectionOption?: Partial<mysql.ConnectionOptions>,
-    poolOption?: Partial<mysql.PoolOptions>,
+    readonly connectionOption: ConnectionOptions,
     logger?: (query: string) => void,
   ) {
     super(logger);
-    this.pool = mysql.createPool({
-      ...config().db,
-      dateStrings: true,
-      ...connectionOption,
-      ...poolOption,
-    });
-    this.release = this.release.bind(this);
   }
 
-  async transaction(): Promise<SQLTransaction> {
-    const connection = mysql.createConnection({
-      ...config().db,
+  protected getConnection() {
+    return createConnection({
       dateStrings: true,
       ...this.connectionOption,
     });
-    await promisify(connection.beginTransaction).bind(connection)();
+  }
+
+  async transaction(): Promise<SQLTransaction> {
+    const connection = await this.getConnection();
+    await connection.beginTransaction();
     return new MySqlTransaction(connection);
   }
 
-  async release(): Promise<void> {
-    await promisify(this.pool.end).bind(this.pool)();
-    this._released = true;
-  }
-
-  protected execSql(sql: string): Promise<QueryResponse | CommandResponse> {
-    return promisify(this.pool.query).bind(this.pool)(sql as never) as Promise<
-      QueryResponse | CommandResponse
-    >;
+  protected async execSql(
+    sql: string,
+  ): Promise<QueryResponse | CommandResponse> {
+    const connection = await this.getConnection();
+    const r = await connection.query(sql);
+    await connection.end();
+    return r[0] as QueryResponse | CommandResponse;
   }
 }

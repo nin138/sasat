@@ -1,12 +1,12 @@
 import { DBClient } from './connectors/dbClient.js';
-import { MysqlClient } from './connectors/mysql/client.js';
+import { MysqlPoolClient } from './connectors/mysql/poolClient.js';
 
 let client: DBClient | undefined;
 // TODO check is args changed
 export const getDbClient = (
-  ...config: ConstructorParameters<typeof MysqlClient>
+  ...config: ConstructorParameters<typeof MysqlPoolClient>
 ): DBClient => {
   if (client && !client.isReleased()) return client;
-  client = new MysqlClient(...config);
+  client = new MysqlPoolClient(...config);
   return client;
 };

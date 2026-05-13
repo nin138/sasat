@@ -1,4 +1,4 @@
-import { NestedPartial } from 'util/type';
+import { NestedPartial } from '@/util/type.js';
 import { MigrationTable, TableMigrator } from './tableMigrator.js';
 import { DataStore } from '../dataStore.js';
 import { TableBuilder, TableCreator } from '../creators/tableCreator.js';
