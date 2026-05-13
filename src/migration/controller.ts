@@ -1,3 +1,4 @@
+import { DBClient } from '@/db/connectors/dbClient.js';
 import { config, setConfig } from '../config/config.js';
 import { SerializedStore } from './serialized/serializedStore.js';
 import { getCurrentMigration } from './exec/getCurrentMigration.js';
@@ -10,7 +11,10 @@ import { Console } from '../cli/console.js';
 import { getMigrationFileNames } from '../migration/exec/getMigrationFiles.js';
 
 export class MigrationController {
-  async migrate(options: MigrateCommandOption): Promise<{
+  async migrate(
+    client: DBClient,
+    options: MigrateCommandOption,
+  ): Promise<{
     store: SerializedStore;
     currentMigration: string;
   }> {
@@ -28,7 +32,7 @@ export class MigrationController {
         Console.log('---------\n' + tsFileName);
       }
       store = await readMigration(store, tsFileName, target.direction);
-      await runMigration(store, tsFileName, target.direction, options);
+      await runMigration(client, store, tsFileName, target.direction, options);
       store.resetQueue();
     }
     return {

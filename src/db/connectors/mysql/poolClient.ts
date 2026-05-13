@@ -1,5 +1,4 @@
 import {
-  ConnectionOptions,
   createConnection,
   createPool,
   Pool,
@@ -17,15 +16,12 @@ import { config } from '@/config/config.js';
 export class MysqlPoolClient extends DBClient {
   private readonly pool: Pool;
   constructor(
-    readonly connectionOption?: Partial<ConnectionOptions>,
-    poolOption?: Partial<PoolOptions>,
+    readonly poolOption: PoolOptions,
     logger?: (query: string) => void,
   ) {
     super(logger);
     this.pool = createPool({
-      ...config().db,
       dateStrings: true,
-      ...connectionOption,
       ...poolOption,
     });
     this.release = this.release.bind(this);
@@ -35,7 +31,7 @@ export class MysqlPoolClient extends DBClient {
     const connection = await createConnection({
       ...config().db,
       dateStrings: true,
-      ...this.connectionOption,
+      ...this.poolOption,
     });
     await connection.beginTransaction();
     return new MySqlTransaction(connection);

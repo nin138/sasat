@@ -1,11 +1,11 @@
-import { config, setConfig } from '../../config/config.js';
-import { MigrationController } from '../../migration/controller.js';
+import { DBClient } from '@/db/connectors/dbClient.js';
+import { config, setConfig } from '@/config/config.js';
+import { MigrationController } from '@/migration/controller.js';
 import { Console } from '../console.js';
-import { DataStoreHandler } from '../../migration/dataStore.js';
-import { writeCurrentSchema } from '../../util/fsUtil.js';
-import { getDbClient } from '../../db/getDbClient.js';
-import { CodeGen_v2 } from '../../generatorv2/codegen_v2.js';
-import { compileMigrationFiles } from '../../migration/exec/migrationFileCompiler.js';
+import { DataStoreHandler } from '@/migration/dataStore.js';
+import { writeCurrentSchema } from '@/util/fsUtil.js';
+import { CodeGen_v2 } from '@/generatorv2/codegen_v2.js';
+import { compileMigrationFiles } from '@/migration/exec/migrationFileCompiler.js';
 
 export type MigrateCommandOption = {
   generateFiles: boolean;
@@ -14,7 +14,10 @@ export type MigrateCommandOption = {
   skipBuild: boolean;
 };
 
-export const migrate = async (options: MigrateCommandOption): Promise<void> => {
+export const migrate = async (
+  client: DBClient,
+  options: MigrateCommandOption,
+): Promise<void> => {
   let current;
   Console.log('--migration started--');
   try {
@@ -26,7 +29,7 @@ export const migrate = async (options: MigrateCommandOption): Promise<void> => {
       setConfig({ db: conf.migration.db });
     }
     const migration = new MigrationController();
-    const result = await migration.migrate(options);
+    const result = await migration.migrate(client, options);
     current = result.currentMigration;
     if (options.generateFiles) {
       const storeHandler = new DataStoreHandler(result.store);
@@ -37,7 +40,5 @@ export const migrate = async (options: MigrateCommandOption): Promise<void> => {
   } catch (e: unknown) {
     Console.error((e as Error).message);
     throw e;
-  } finally {
-    await getDbClient().release();
   }
 };

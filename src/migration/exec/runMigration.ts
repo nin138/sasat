@@ -1,11 +1,12 @@
+import { DBClient } from '@/db/connectors/dbClient.js';
 import { StoreMigrator } from '../front/storeMigrator.js';
-import { getDbClient } from '../../db/getDbClient.js';
-import { Console } from '../../cli/console.js';
+import { Console } from '@/cli/console.js';
 import { Direction } from './getCurrentMigration.js';
-import { config, setConfig } from '../../config/config.js';
-import { MigrateCommandOption } from '../../cli/commands/migrate.js';
+import { config, setConfig } from '@/config/config.js';
+import { MigrateCommandOption } from '@/cli/commands/migrate.js';
 
 export const runMigration = async (
+  client: DBClient,
   store: StoreMigrator,
   migrationName: string,
   direction: Direction,
@@ -23,7 +24,7 @@ export const runMigration = async (
   if (options.dry) {
     return;
   }
-  const transaction = await getDbClient().transaction();
+  const transaction = await client.transaction();
   try {
     for (const sql of sqls) {
       await transaction.rawQuery(sql).catch((e: Error) => {

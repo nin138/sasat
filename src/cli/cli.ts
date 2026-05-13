@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { getDbClient } from '@/db/getDbClient.js';
 import { cac } from 'cac';
 import { writeDiagram } from './commands/erDiagram.js';
 import { createMigration } from './commands/createMigration.js';
@@ -18,10 +19,12 @@ try {
     .option('-s, --silent', 'do not print logs')
     .option('-b, --skipBuild', 'skip compile migration files')
     .action(async options => {
-      await migrate(options).catch(e => {
+      const client = getDbClient();
+      await migrate(client, options).catch(e => {
         console.error(e);
         process.exit(1);
       });
+      await client.release();
     });
   cli
     .command('migration:build', 'compile migration files')

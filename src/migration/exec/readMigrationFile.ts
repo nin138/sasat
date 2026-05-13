@@ -1,7 +1,7 @@
 import path from 'path';
 import { StoreMigrator } from '../front/storeMigrator.js';
 import { Direction } from './getCurrentMigration.js';
-import { config } from '../../config/config.js';
+import { config } from '@/config/config.js';
 import { changeExtTsToJs } from './migrationFileCompiler.js';
 
 export const readMigration = async (
