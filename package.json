@@ -4,7 +4,7 @@
   "repository": "https://github.com/nin138/sasat.git",
   "author": "nin138 <ninian138@gmail.com>",
   "license": "MIT",
-  "bin": "dist/cli/cli.mjs",
+  "bin": "dist/cli/index.mjs",
   "scripts": {
     "start": "env-cmd .env ts-node ./index.ts",
     "build": "tsdown",
@@ -18,7 +18,7 @@
     "test:base": "node --experimental-vm-modules node_modules/.bin/jest",
     "resetdb": "docker-compose exec db sh -c \"mysql -u root < /docker-entrypoint-initdb.d/temp.sql\"",
     "prepare": "yarn build && husky install",
-    "sasat": "yarn env-cmd tsx ./src/cli/cli.ts",
+    "sasat": "yarn env-cmd tsx src/cli/index.ts",
     "server": "yarn env-cmd ts-node-esm -r tsconfig-paths/register ./test/testServer.ts"
   },
   "dependencies": {

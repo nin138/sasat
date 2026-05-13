@@ -1,17 +1,17 @@
 #!/usr/bin/env node
 import { cac } from "cac";
+import { createMigration } from "@/cli/commands/createMigration.js";
+import { dumpDB } from "@/cli/commands/dumpDb.js";
+import { writeDiagram } from "@/cli/commands/erDiagram.js";
+import { generate } from "@/cli/commands/generate.js";
+import { init } from "@/cli/commands/init.js";
+import { migrate } from "@/cli/commands/migrate.js";
+import { migrationBuild } from "@/cli/commands/migrationBuild.js";
 import { getDbClient } from "@/db/getDbClient.js";
-import { createMigration } from "./commands/createMigration.js";
-import { dumpDB } from "./commands/dumpDb.js";
-import { writeDiagram } from "./commands/erDiagram.js";
-import { generate } from "./commands/generate.js";
-import { init } from "./commands/init.js";
-import { migrate } from "./commands/migrate.js";
-import { migrationBuild } from "./commands/migrationBuild.js";
 
-const cli = cac();
+const index = cac();
 try {
-  cli
+  index
     .usage("yarn sasat <command> [options]\n")
     .command("migrate", "execute migration")
     .option("-g, --generateFiles", "migrate with generate files")
@@ -26,21 +26,21 @@ try {
       });
       await client.release();
     });
-  cli
+  index
     .command("migration:build", "compile migration files")
     .action(migrationBuild);
-  cli.command("generate", "generate files").action(generate);
-  cli
+  index.command("generate", "generate files").action(generate);
+  index
     .command("generate:er", "generate mermaid er diagram")
     .action(writeDiagram);
-  cli
+  index
     .command("migration:create [name]", "generate new migration file")
     .action(createMigration);
-  cli.command("dump-db", "dump database schema").action(dumpDB);
-  cli.command("init").action(init);
+  index.command("dump-db", "dump database schema").action(dumpDB);
+  index.command("init").action(init);
 
-  cli.parse();
-  if (!cli.matchedCommand) cli.outputHelp();
+  index.parse();
+  if (!index.matchedCommand) index.outputHelp();
 } catch (e) {
   console.error(e);
   process.exit(1);
