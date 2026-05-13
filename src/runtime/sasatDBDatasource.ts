@@ -65,7 +65,8 @@ export abstract class SasatDBDatasource<
   QueryResult extends Partial<Entity> & Identifiable,
 > implements Repository<Entity, Identifiable, Creatable, Updatable>
 {
-  protected abstract relationMap: RelationMap<unknown>;
+  // biome-ignore lint/suspicious/noExplicitAny: <>
+  protected abstract relationMap: RelationMap<any>;
   protected abstract tableInfo: TableInfo;
   abstract readonly tableName: string;
   abstract readonly fields: string[];

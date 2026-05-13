@@ -25,9 +25,9 @@ export const selectionSetToField = <T extends Fields<unknown>>(
   }
   return [result as T, num];
 };
-
 export const gqlResolveInfoToField = <
-  T extends Fields<unknown> = Fields<unknown>,
+  // biome-ignore lint/suspicious/noExplicitAny: <>
+  T extends Fields<any> = Fields<unknown>,
 >(
   info: GraphQLResolveInfo,
 ): T => {

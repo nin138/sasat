@@ -27,7 +27,8 @@ const notTypeName = (fieldName: string) => fieldName !== "__typename";
 
 export const createQuery = (
   baseTableName: string,
-  fields: Fields<unknown>,
+  // biome-ignore lint/suspicious/noExplicitAny: <>
+  fields: Fields<any>,
   options: QueryOptions | undefined,
   tableInfo: TableInfo,
   relationMap: RelationMap,
