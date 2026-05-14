@@ -1,4 +1,4 @@
-import { SqlString } from "../../../../runtime/sql/sqlString.js";
+import { SqlString } from "@/runtime/sql/sqlString.js";
 import {
   type BetweenExpression,
   type BooleanValueExpression,

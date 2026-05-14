@@ -79,7 +79,7 @@ export const createQuery = (
               }),
               (table as Fields<unknown>).joinOn,
             ),
-            "LEFT",
+            (table as Fields<unknown>).joinType ?? "LEFT",
           );
         })
         .filter(nonNullable),

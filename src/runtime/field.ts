@@ -5,4 +5,5 @@ export type Fields<Entity, Relation = Record<string, unknown>> = {
   relations?: Relation;
   tableAlias?: string;
   joinOn?: BooleanValueExpression;
+  joinType?: "INNER" | "LEFT";
 };
