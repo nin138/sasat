@@ -141,7 +141,8 @@ export type BooleanValueExpression =
   | InExpression
   | BetweenExpression
   | ContainsExpression
-  | ExistsExpression;
+  | ExistsExpression
+  | RawExpression;
 
 export type IsNullExpression = {
   kind: QueryNodeKind.IsNullExpr;

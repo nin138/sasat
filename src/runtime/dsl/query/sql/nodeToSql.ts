@@ -166,6 +166,8 @@ export const Sql = {
         return Sql.isNull(expr);
       case QueryNodeKind.Exists:
         return Sql.exists(expr);
+      case QueryNodeKind.Raw:
+        return expr.expr;
     }
   },
   exists: (expr: ExistsExpression): string => {
