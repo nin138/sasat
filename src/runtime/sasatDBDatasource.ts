@@ -54,6 +54,7 @@ export type QueryOptions = {
   limit?: number;
   offset?: number;
   lock?: LockMode;
+  join?: Join[];
 };
 
 export abstract class SasatDBDatasource<

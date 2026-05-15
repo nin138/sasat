@@ -13,7 +13,9 @@ const getLock = (lock?: LockMode): string => {
 
 export const queryToSql = (query: Query): string => {
   const select = query.select.map(Sql.select).join(", ");
-  const join = getJoin(query.from).map(Sql.join).join(" ");
+  const join = [...getJoin(query.from), ...(query.join ?? [])]
+    .map(Sql.join)
+    .join(" ");
   const where = query.where ? " WHERE " + Sql.booleanValue(query.where) : "";
   const groupBy = query.groupBy
     ? " GROUP BY" + query.groupBy.cols.map(Sql.value).join(",")

@@ -34,6 +34,7 @@ export type Query = {
   limit?: number;
   offset?: number;
   lock?: LockMode;
+  join?: Join[];
 };
 
 export type GroupByExpr = {
