@@ -1,12 +1,12 @@
 import * as fs from "node:fs";
 import { join } from "node:path";
-import { config } from "../../config/config.js";
-import { mkDirIfNotExist } from "../../util/fsUtil.js";
-import { capitalizeFirstLetter } from "../../util/stringUtil.js";
+import { config } from "@/config/config.js";
+import { mkDirIfNotExist } from "@/util/fsUtil.js";
+import { capitalizeFirstLetter } from "@/util/stringUtil.js";
 import { Console } from "../console.js";
 
 const getMigrationFile = (className: string) =>
-  `import { SasatMigration, MigrationStore } from "sasat";
+  `import type { MigrationStore, SasatMigration } from "sasat/migration";  
 
 export default class ${capitalizeFirstLetter(
     className,
@@ -16,7 +16,7 @@ export default class ${capitalizeFirstLetter(
 
   };
 
-  down: (store: MigrationStore) => void = store => {
+  down: (store: MigrationStore) => void = () => {
     throw new Error('Down is not implemented on ${className}');
   };
 }
