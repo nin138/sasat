@@ -7,6 +7,7 @@ import { generate } from "@/cli/commands/generate.js";
 import { init } from "@/cli/commands/init.js";
 import { migrate } from "@/cli/commands/migrate.js";
 import { migrationBuild } from "@/cli/commands/migrationBuild.js";
+import { config, setConfig } from "@/config/config.js";
 import { getDbClient } from "@/db/getDbClient.js";
 
 const index = cac();
@@ -19,6 +20,10 @@ try {
     .option("-s, --silent", "do not print logs")
     .option("-b, --skipBuild", "skip compile migration files")
     .action(async (options) => {
+      const conf = config();
+      if (conf.migration.db) {
+        setConfig({ db: conf.migration.db });
+      }
       const client = getDbClient();
       await migrate(client, options).catch((e) => {
         console.error(e);

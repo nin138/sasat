@@ -19,7 +19,7 @@ export class MigrationController {
     currentMigration: string;
   }> {
     const fileNames = getMigrationFileNames();
-    const currentMigration = await getCurrentMigration(options);
+    const currentMigration = await getCurrentMigration(client, options);
     if (!options.silent) {
       Console.log("--current migration--: " + currentMigration);
     }

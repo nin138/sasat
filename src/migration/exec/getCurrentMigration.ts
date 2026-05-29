@@ -1,8 +1,8 @@
-import type { MigrateCommandOption } from "../../cli/commands/migrate.js";
-import { Console } from "../../cli/console.js";
-import { config } from "../../config/config.js";
-import { getDbClient } from "../../db/getDbClient.js";
-import { SqlString } from "../../runtime/sql/sqlString.js";
+import type { MigrateCommandOption } from "@/cli/commands/migrate.js";
+import { Console } from "@/cli/console.js";
+import { config } from "@/config/config.js";
+import type { SQLClient } from "@/db/connectors/dbClient.js";
+import { SqlString } from "@/runtime/sql/sqlString.js";
 import { getMigrationFileNames } from "./getMigrationFiles.js";
 
 export enum Direction {
@@ -33,11 +33,11 @@ const calcRunMigrationFileNames = (records: MigrationRecord[]) => {
 };
 
 export const getCurrentMigration = async (
+  client: SQLClient,
   options: MigrateCommandOption,
 ): Promise<string | undefined> => {
   const migrationTable = SqlString.escapeId(config().migration.table);
   const files = getMigrationFileNames();
-  const client = getDbClient();
   const query =
     `CREATE TABLE IF NOT EXISTS ${migrationTable} ` +
     "(id int auto_increment primary key , name varchar(100) not null," +
@@ -56,7 +56,6 @@ export const getCurrentMigration = async (
     Console.debug(q);
   }
   const result = await client.rawQuery(q);
-  console.debug(result);
   if (!result.length) return;
   const runs = calcRunMigrationFileNames(
     result as unknown as MigrationRecord[],

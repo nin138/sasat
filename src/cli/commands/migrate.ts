@@ -24,10 +24,6 @@ export const migrate = async (
     if (!options.skipBuild) {
       await compileMigrationFiles();
     }
-    const conf = config();
-    if (conf.migration.db) {
-      setConfig({ db: conf.migration.db });
-    }
     const migration = new MigrationController();
     const result = await migration.migrate(client, options);
     current = result.currentMigration;
