@@ -116,7 +116,8 @@ export abstract class SasatDBDatasource<
       ignore?: boolean;
       upsert?: { updateColumns: string[] };
     },
-  ): Promise<CommandResponse> {
+  ): Promise<CommandResponse | null> {
+    if (entities.length === 0) return null;
     const objects = entities.map((it) => ({
       ...this.getDefaultValueString(),
       ...it,
