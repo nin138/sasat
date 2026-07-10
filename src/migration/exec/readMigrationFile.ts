@@ -25,5 +25,8 @@ export const readMigration = async (
     await instance.down(store);
     if (instance.afterDown) await instance.afterDown();
   }
+  store.currentOption = {
+    skipOnTest: instance.skipOnTest ?? false,
+  };
   return store;
 };

@@ -1,8 +1,8 @@
-import { config, setConfig } from "@/config/config.js";
 import type { DBClient } from "@/db/connectors/dbClient.js";
 import { CodeGen_v2 } from "@/generatorv2/codegen_v2.js";
 import { MigrationController } from "@/migration/controller.js";
 import { DataStoreHandler } from "@/migration/dataStore.js";
+import { getCurrentMigration } from "@/migration/exec/getCurrentMigration.js";
 import { compileMigrationFiles } from "@/migration/exec/migrationFileCompiler.js";
 import { writeCurrentSchema } from "@/util/fsUtil.js";
 import { Console } from "../console.js";
@@ -25,7 +25,8 @@ export const migrate = async (
       await compileMigrationFiles();
     }
     const migration = new MigrationController();
-    const result = await migration.migrate(client, options);
+    const currentMigration = await getCurrentMigration(client, options);
+    const result = await migration.migrate(client, currentMigration, options);
     current = result.currentMigration;
     if (options.generateFiles) {
       const storeHandler = new DataStoreHandler(result.store);

@@ -20,10 +20,17 @@ export interface MigrationStore extends DataStore {
   setConfig(config: NestedPartial<SasatConfig>): MigrationStore;
 }
 
+type CurrentOption = {
+  skipOnTest: boolean;
+};
+
 export class StoreMigrator implements MigrationStore {
   protected tables: TableMigrator[] = [];
   protected migrationQueue: string[] = [];
   protected conf: NestedPartial<SasatConfig> | undefined;
+  public currentOption: CurrentOption = {
+    skipOnTest: false,
+  };
 
   private constructor() {}
 

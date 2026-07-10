@@ -7,4 +7,5 @@ export interface SasatMigration {
   afterUp?: () => void | Promise<void>;
   beforeDown?: () => void | Promise<void>;
   afterDown?: () => void | Promise<void>;
+  skipOnTest?: boolean | undefined;
 }

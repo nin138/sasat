@@ -2,7 +2,7 @@ import { assignDeep } from "../util/assignDeep.js";
 import type { NestedPartial } from "../util/type.js";
 import { SasatConfigLoader } from "./loader.js";
 
-export interface SasatConfigDb {
+export type SasatDBConfigBase = {
   host: string;
   port: number;
   user: string;
@@ -11,9 +11,13 @@ export interface SasatConfigDb {
   ssl?: {
     ca?: string[];
   };
-}
+};
 
-const defaultConfDb: SasatConfigDb = {
+export type SasatConfigDB = SasatDBConfigBase & {
+  testing?: SasatDBConfigBase;
+};
+
+const defaultConfDb: SasatConfigDB = {
   host: "127.0.0.1",
   port: 3306,
   user: "root",
@@ -37,7 +41,7 @@ export interface SasatConfigMigration {
   dir: string;
   out: string;
   target?: string;
-  db?: SasatConfigDb;
+  db?: SasatConfigDB;
 }
 
 const defaultConfMigration: SasatConfigMigration = {
@@ -54,7 +58,7 @@ export interface SasatConfigGenerator {
 }
 
 export interface SasatConfig {
-  db: SasatConfigDb;
+  db: SasatConfigDB;
   migration: SasatConfigMigration;
   generator: SasatConfigGenerator;
   // redis: SasatConfigRedis;

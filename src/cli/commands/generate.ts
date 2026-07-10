@@ -1,3 +1,4 @@
+import { generateTestMigFileCommand } from "@/cli/commands/generateTestMigFileCommand.js";
 import { getCurrentStore } from "@/cli/commands/getCurrentStore.js";
 import { config } from "@/config/config.js";
 import { CodeGen_v2 } from "@/generatorv2/codegen_v2.js";
@@ -19,6 +20,7 @@ export const generate = async (): Promise<void> => {
     const storeHandler = new DataStoreHandler(store);
     writeCurrentSchema(store);
     await new CodeGen_v2(storeHandler).generate();
+    await generateTestMigFileCommand({ silent: true });
     Console.success(
       `code generated. DIR: ${
         config().migration.out

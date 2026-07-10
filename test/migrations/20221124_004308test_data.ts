@@ -1,4 +1,4 @@
-import { SasatMigration, MigrationStore } from 'sasat';
+import { SasatMigration, MigrationStore } from 'sasat/migration';
 import { StockCreatable } from '../out/__generated__/entities/Stock.js';
 import { SqlString } from 'sasat';
 

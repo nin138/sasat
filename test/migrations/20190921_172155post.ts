@@ -7,6 +7,7 @@ import {
 } from 'sasat/migration';
 
 export default class Post implements SasatMigration {
+  skipOnTest = true
   up: (store: MigrationStore) => void = store => {
     return store.createTable('post', table => {
       table.autoIncrementHashId('postId');
