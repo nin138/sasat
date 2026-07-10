@@ -196,7 +196,7 @@ export abstract class SasatDBDatasource<
   }
 
   async first(
-    fields?: EntityFields,
+    fields?: EntityFields | Readonly<EntityFields>,
     option?: QueryOptions,
     context?: unknown,
   ): Promise<QueryResult | null> {
