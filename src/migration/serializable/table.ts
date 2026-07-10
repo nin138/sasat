@@ -167,10 +167,7 @@ export class TableHandler implements Table {
           return referenceToSql(ref.getConstraintName(), ref.data.reference);
         }),
     );
-    return `CREATE TABLE ${SqlString.escapeId(this.tableName)}
-            (
-              ${rows.join(", ")}
-            )`;
+    return `CREATE TABLE ${SqlString.escapeId(this.tableName)}(${rows.join(", ")})`;
   }
 
   hasColumn(columnName: string): boolean {
