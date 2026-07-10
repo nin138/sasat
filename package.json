@@ -60,7 +60,7 @@
     ]
   },
   "type": "module",
-  "packageManager": "yarn@3.8.2",
+  "packageManager": "yarn@3.8.7",
   "exports": {
     ".": {
       "import": "./dist/index.mjs",
