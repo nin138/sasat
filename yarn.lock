@@ -1727,7 +1727,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/js-yaml@npm:4.0.9":
+"@types/js-yaml@npm:^4.0.9":
   version: 4.0.9
   resolution: "@types/js-yaml@npm:4.0.9"
   checksum: e5e5e49b5789a29fdb1f7d204f82de11cb9e8f6cb24ab064c616da5d6e1b3ccfbf95aa5d1498a9fbd3b9e745564e69b4a20b6c530b5a8bbb2d4eb830cda9bc69
@@ -3972,14 +3972,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"js-yaml@npm:^4.1.1":
-  version: 4.1.1
-  resolution: "js-yaml@npm:4.1.1"
+"js-yaml@npm:^5.2.2":
+  version: 5.2.2
+  resolution: "js-yaml@npm:5.2.2"
   dependencies:
     argparse: ^2.0.1
   bin:
-    js-yaml: bin/js-yaml.js
-  checksum: ea2339c6930fe048ec31b007b3c90be2714ab3e7defcc2c27ebf30c74fd940358f29070b4345af0019ef151875bf3bc3f8644bea1bab0372652b5044813ac02d
+    js-yaml: bin/js-yaml.mjs
+  checksum: 651ad7009f48a3dad5084d58e56d52891ebbd5a942fee05735fa173b5f22c1df5af774a58f30f2ead2d87868b5438ae907f7d072ac0e425e6d04b970d0314885
   languageName: node
   linkType: hard
 
@@ -4826,7 +4826,7 @@ __metadata:
     "@apollo/server": ^5.5.1
     "@biomejs/biome": ^2.4.15
     "@types/jest": ^30.0.0
-    "@types/js-yaml": 4.0.9
+    "@types/js-yaml": ^4.0.9
     "@types/node": ^25.7.0
     "@types/pluralize": 0.0.33
     "@types/sqlstring": 2.3.2
@@ -4840,7 +4840,7 @@ __metadata:
     hashids: ^2.3.0
     husky: 8.0.3
     jest: ^30.4.2
-    js-yaml: ^4.1.1
+    js-yaml: ^5.2.2
     lint-staged: ^17.0.4
     mysql2: ^3.22.3
     pluralize: ^8.0.0

@@ -1,13 +1,13 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import yaml from "js-yaml";
+import { dump, load } from "js-yaml";
 import { config } from "../config/config.js";
 import type { SerializedStore } from "../migration/serialized/serializedStore.js";
 
 // biome-ignore lint/suspicious/noExplicitAny: <>
 export const readYmlFile = (filepath: string): any =>
-  yaml.load(readFileSync(filepath, "utf8"));
+  load(readFileSync(filepath, "utf8"));
 
 export const mkDirIfNotExist = (path: string): void => {
   if (!existsSync(path))
@@ -33,7 +33,7 @@ export const writeYmlFile = (
   mkDirIfNotExist(path);
   writeFileSync(
     join(path, fileName),
-    yaml.dump(obj, {
+    dump(obj, {
       skipInvalid: true,
       noRefs: true,
       sortKeys: (a, b) => {
