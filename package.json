@@ -54,6 +54,10 @@
   "peerDependencies": {
     "@apollo/server": "^4.0.0 || ^5.0.0"
   },
+  "resolutions": {
+    "tar": "7.5.19",
+    "undici": "~6.28.0"
+  },
   "lint-staged": {
     "*.ts": [
       "yarn check"
