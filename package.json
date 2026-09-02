@@ -44,7 +44,7 @@
     "@types/sqlstring": "2.3.2",
     "env-cmd": "^11.0.0",
     "globals": "^17.4.0",
-    "husky": "8.0.3",
+    "husky": "9.1.7",
     "jest": "^30.4.2",
     "lint-staged": "^17.0.4",
     "sasat": "link:./dist",
