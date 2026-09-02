@@ -13,9 +13,7 @@ export type SasatDBConfigBase = {
   };
 };
 
-export type SasatConfigDB = SasatDBConfigBase & {
-  testing?: SasatDBConfigBase;
-};
+export type SasatConfigDB = SasatDBConfigBase;
 
 const defaultConfDb: SasatConfigDB = {
   host: "127.0.0.1",
@@ -59,6 +57,7 @@ export interface SasatConfigGenerator {
 
 export interface SasatConfig {
   db: SasatConfigDB;
+  testDB?: SasatConfigDB;
   migration: SasatConfigMigration;
   generator: SasatConfigGenerator;
   // redis: SasatConfigRedis;

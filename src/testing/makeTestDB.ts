@@ -7,7 +7,7 @@ const S = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 const N = 8;
 
 export async function makeTestDB(conf?: SasatDBConfigBase) {
-  const c = conf ?? config().db.testing ?? config().db;
+  const c = conf ?? config().testDB ?? config().db;
   const client = await TestDBClient.create({
     host: c.host,
     port: +c.port,
