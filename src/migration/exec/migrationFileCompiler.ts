@@ -1,5 +1,5 @@
 import path from "node:path";
-import { build } from "esbuild";
+import { build, type Plugin } from "esbuild";
 import {
   getMigrationFileDir,
   getMigrationFileNames,
@@ -10,6 +10,19 @@ export const changeExtTsToJs = (fileName: string) =>
 
 export const compileMigrationFiles = () => {
   const tsFiles = getMigrationFileNames();
+  const stubServerOnlyPlugin: Plugin = {
+    name: "stub-server-only",
+    setup(build) {
+      build.onResolve({ filter: /^server-only$/ }, () => ({
+        path: "server-only",
+        namespace: "stub-server-only",
+      }));
+      build.onLoad({ filter: /.*/, namespace: "stub-server-only" }, () => ({
+        contents: "",
+        loader: "js",
+      }));
+    },
+  };
   const compiles = tsFiles.map(async (fileName) => {
     const filePath = path.join(getMigrationFileDir(), fileName);
     const r = await build({
@@ -22,7 +35,7 @@ export const compileMigrationFiles = () => {
       outExtension: {
         ".js": ".mjs",
       },
-      external: ["server-only"],
+      plugins: [stubServerOnlyPlugin],
       banner: {
         js: `import { createRequire as topLevelCreateRequire } from 'module';
 const require = topLevelCreateRequire(import.meta.url);                                                                                                                        
