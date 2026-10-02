@@ -117,3 +117,14 @@ test("reports migration build success only after compilation", async () => {
   expect(compileMigrationFiles).toHaveBeenCalledTimes(1);
   expect(Console.success).toHaveBeenCalledWith("Done!");
 });
+
+test("dry run skips schema and application generation even when requested", async () => {
+  await migrate({} as DBClient, { ...options, dry: true });
+  expect(MigrationController.prototype.migrate).toHaveBeenCalledWith(
+    {},
+    "001.ts",
+    expect.objectContaining({ dry: true }),
+  );
+  expect(writeCurrentSchema).not.toHaveBeenCalled();
+  expect(CodeGen_v2.prototype.generate).not.toHaveBeenCalled();
+});

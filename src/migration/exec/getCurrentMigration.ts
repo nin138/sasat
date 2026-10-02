@@ -1,7 +1,7 @@
 import type { MigrateCommandOption } from "@/cli/commands/migrate.js";
 import { Console } from "@/cli/console.js";
 import { config } from "@/config/config.js";
-import type { SQLClient } from "@/db/connectors/dbClient.js";
+import type { QueryResponse, SQLClient } from "@/db/connectors/dbClient.js";
 import { SqlString } from "@/runtime/sql/sqlString.js";
 import { getMigrationFileNames } from "./getMigrationFiles.js";
 
@@ -38,24 +38,40 @@ export const getCurrentMigration = async (
 ): Promise<string | undefined> => {
   const migrationTable = SqlString.escapeId(config().migration.table);
   const files = getMigrationFileNames();
-  const query =
-    `CREATE TABLE IF NOT EXISTS ${migrationTable} ` +
-    "(id int auto_increment primary key , name varchar(100) not null," +
-    "direction enum('up', 'down') not null, migrated_at timestamp default current_timestamp)";
-  if (!options.silent) {
-    Console.log(
-      `creating migration table: ${migrationTable} :: ${Buffer.from(
-        migrationTable,
-      ).toString("base64")}`,
-    );
-    Console.log(query);
+  if (!options.dry) {
+    const query =
+      `CREATE TABLE IF NOT EXISTS ${migrationTable} ` +
+      "(id int auto_increment primary key , name varchar(100) not null," +
+      "direction enum('up', 'down') not null, migrated_at timestamp default current_timestamp)";
+    if (!options.silent) {
+      Console.log(
+        `creating migration table: ${migrationTable} :: ${Buffer.from(
+          migrationTable,
+        ).toString("base64")}`,
+      );
+      Console.log(query);
+    }
+    await client.rawQuery(query);
   }
-  await client.rawQuery(query);
   const q = `SELECT name, direction FROM ${migrationTable} ORDER BY id ASC`;
   if (!options.silent) {
     Console.debug(q);
   }
-  const result = await client.rawQuery(q);
+  let result: QueryResponse;
+  try {
+    result = await client.rawQuery(q);
+  } catch (error) {
+    // A fresh database has no history yet. Do not create it during a dry run.
+    if (
+      options.dry &&
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      error.code === "ER_NO_SUCH_TABLE"
+    )
+      return undefined;
+    throw error;
+  }
   if (!result.length) return;
   const runs = calcRunMigrationFileNames(
     result as unknown as MigrationRecord[],

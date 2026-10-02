@@ -161,3 +161,26 @@ test("preserves nested AND/OR grouping on either side", () => {
     "(`u`.`tenant` = 1 AND `u`.`active` = true) OR `u`.`public` = true",
   );
 });
+
+test("keeps a zero limit, including with an offset", () => {
+  expect(queryToSql({ ...base(), limit: 0 })).toBe(
+    "SELECT `u`.`id` FROM `users` AS `u` LIMIT 0",
+  );
+  expect(queryToSql({ ...base(), limit: 0, offset: 2 })).toContain(
+    "LIMIT 0 OFFSET 2",
+  );
+  expect(queryToSql({ ...base(), offset: 0 })).not.toContain("OFFSET");
+  expect(queryToSql(base())).not.toContain("LIMIT");
+});
+
+test.each([-1, 1.5, NaN, Infinity, Number.MAX_SAFE_INTEGER + 1])(
+  "rejects invalid pagination value %s",
+  (value) => {
+    expect(() => queryToSql({ ...base(), limit: value })).toThrow(
+      "LIMIT must be a non-negative safe integer",
+    );
+    expect(() => queryToSql({ ...base(), limit: 10, offset: value })).toThrow(
+      "OFFSET must be a non-negative safe integer",
+    );
+  },
+);

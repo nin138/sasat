@@ -28,12 +28,17 @@ export const migrate = async (
     const currentMigration = await getCurrentMigration(client, options);
     const result = await migration.migrate(client, currentMigration, options);
     current = result.currentMigration;
-    if (options.generateFiles) {
+    if (options.generateFiles && !options.dry) {
       const storeHandler = new DataStoreHandler(result.store);
       writeCurrentSchema(result.store);
       await new CodeGen_v2(storeHandler).generate();
     }
-    if (!options.silent) Console.success(`current migration is ${current}`);
+    if (!options.silent)
+      Console.success(
+        options.dry
+          ? `dry run target is ${current}`
+          : `current migration is ${current}`,
+      );
   } catch (e: unknown) {
     Console.error((e as Error).message);
     throw e;

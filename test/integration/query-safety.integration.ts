@@ -256,3 +256,16 @@ test("nested AND/OR restricts updates and deletes to the intended tenant", async
     [1, 4, 6],
   );
 });
+
+test("zero-sized queries and pages return no rows", async () => {
+  const ds = new ScopeDBDataSource();
+  assert.deepEqual(await ds.find({ fields: ["id"] }, { limit: 0 }), []);
+  assert.deepEqual(
+    await ds.findPageable({ numberOfItem: 0 }, { fields: ["id"] }),
+    [],
+  );
+  assert.deepEqual(
+    await ds.findPageable({ numberOfItem: 0, offset: 1 }, { fields: ["id"] }),
+    [],
+  );
+});

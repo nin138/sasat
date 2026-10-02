@@ -27,7 +27,15 @@ export const queryToSql = (query: Query): string => {
     query.sort && query.sort.length !== 0
       ? " ORDER BY " + Sql.sorts(query.sort)
       : "";
-  const limit = query.limit ? " LIMIT " + query.limit : "";
+  for (const [name, value] of [
+    ["LIMIT", query.limit],
+    ["OFFSET", query.offset],
+  ] as const) {
+    if (value != null && (!Number.isSafeInteger(value) || value < 0)) {
+      throw new Error(name + " must be a non-negative safe integer");
+    }
+  }
+  const limit = query.limit != null ? " LIMIT " + query.limit : "";
   const offset = query.offset ? " OFFSET " + query.offset : "";
   if (offset && !limit) throw new Error("LIMIT is required to use OFFSET.");
   return (

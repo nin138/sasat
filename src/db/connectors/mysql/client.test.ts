@@ -160,3 +160,23 @@ test("detects changes to the default database configuration", async () => {
     config().db = original;
   }
 });
+
+test("pool client closes the dedicated connection when BEGIN fails", async () => {
+  const c = connection();
+  const error = new Error("begin failed");
+  c.beginTransaction.mockRejectedValue(error);
+  const pool = connection();
+  jest.mocked(createPool).mockReturnValue(pool as never);
+  jest.mocked(createConnection).mockResolvedValue(c as never);
+  const client = new MysqlPoolClient({ database: "test" });
+  try {
+    await expect(client.transaction()).rejects.toBe(error);
+    expect(c.end).toHaveBeenCalledTimes(1);
+    expect(c.commit).not.toHaveBeenCalled();
+    expect(c.rollback).not.toHaveBeenCalled();
+    expect(pool.end).not.toHaveBeenCalled();
+    await expect(client.rawQuery("SELECT 1")).resolves.toEqual([{ id: 1 }]);
+  } finally {
+    await client.release();
+  }
+});

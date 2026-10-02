@@ -22,6 +22,12 @@ $ npm sasat generate
 $ npm sasat migrate
 ```
 
+`sasat migrate --dry` previews pending SQL without creating the migration
+history table or applying migrations. With `--generateFiles`, dry runs also skip
+application code, `currentSchema.yml`, and `test.migration.json` generation.
+Migration sources are still compiled to `.mjs` to calculate the preview; use
+`--skipBuild` when those compiled files are already up to date.
+
 ## config file
 `projectroot/sasat.yml`
 ```yml
@@ -236,7 +242,9 @@ them into your data sources.
 joins from both options participate in that parent query. `paging.sort` takes
 precedence over `options.sort`; `options.lock` applies to both the parent
 subquery and the outer query. Related rows are loaded after the parent page
-has been selected.
+has been selected. A `limit` or `numberOfItem` of `0` returns no rows. Limits
+and offsets must be non-negative safe integers; negative, fractional, and
+non-finite values are rejected before SQL execution.
 
 ### Selecting local or Redis PubSub
 
@@ -340,17 +348,20 @@ Optional `TEST_DB_USER` and `TEST_DB_PASSWORD` configure the test connection
 and drop databases. This command uses only these explicit test settings; it does
 not load `.env` or use the application's `DATABASE` setting.
 
-Each run creates two uniquely named `sasat_it_*` databases, applies the test
-migrations and seed data, and starts Apollo and Yoga on temporary ports. It
-compares queries, pagination, nested relations, creates and updates against real
-MySQL. It also checks nonexistent IDs, duplicate-key errors, and application-defined
+The server tests create two uniquely named `sasat_it_*` databases, apply the test
+migrations and seed data, and start Apollo and Yoga on temporary ports. They
+compare queries, pagination, nested relations, creates and updates against real
+MySQL. They also check nonexistent IDs, duplicate-key errors, and application-defined
 authentication around a generated mutation (missing/invalid credentials reject
 writes; valid credentials allow them). Authentication fixtures use temporary,
 random test tokens and do not change the development servers' authentication.
 Yoga tests also cover mutation-triggered SSE events, renamed-field
 filters, and server-side subscription cleanup after disconnects. The servers
 stop and their databases are dropped on completion, including test failures.
-This suite is separate from `test:unit` and never resets an existing database.
+Additional tests use their own disposable databases to check query conditions,
+zero-sized pages, and migration CLI dry runs with both missing and existing
+history tables. Temporary CLI files are removed afterward. This suite is
+separate from `test:unit` and never resets an existing database.
 
 The default integration run uses local PubSub. To test Redis delivery across
 processes, start both services and run:

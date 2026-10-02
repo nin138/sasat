@@ -31,7 +31,7 @@ try {
         console.error(e);
         process.exit(1);
       });
-      if (options.generateFiles) {
+      if (options.generateFiles && !options.dry) {
         await generateTestMigrationFile(client);
       }
       await client.release();

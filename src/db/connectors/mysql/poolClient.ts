@@ -33,8 +33,13 @@ export class MysqlPoolClient extends DBClient {
       dateStrings: true,
       ...this.poolOption,
     });
-    await connection.beginTransaction();
-    return new MySqlTransaction(connection);
+    try {
+      await connection.beginTransaction();
+      return new MySqlTransaction(connection);
+    } catch (error) {
+      await connection.end();
+      throw error;
+    }
   }
 
   async release(): Promise<void> {

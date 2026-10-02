@@ -16,6 +16,7 @@ export class TestDBClient extends MysqlClient {
       host: data.host,
       port: data.port,
       user: data.user,
+      password: data.password,
     });
     await c.rawQuery(`CREATE DATABASE ${data.database}`);
     await c.release();

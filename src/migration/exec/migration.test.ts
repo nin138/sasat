@@ -122,3 +122,48 @@ test("rejects out-of-order migration history", async () => {
     ),
   ).rejects.toThrow("Invalid migration history");
 });
+
+test("dry run reads history without submitting DDL", async () => {
+  const rawQuery = jest
+    .fn()
+    .mockResolvedValue([{ name: names[0], direction: "up" }]);
+  await expect(
+    getCurrentMigration({ rawQuery } as unknown as SQLClient, {
+      ...options,
+      dry: true,
+    }),
+  ).resolves.toBe(names[0]);
+  expect(rawQuery).toHaveBeenCalledTimes(1);
+  expect(rawQuery.mock.calls[0][0]).toMatch(/^SELECT name, direction FROM/);
+});
+
+test("dry run treats a missing history table as an unapplied database", async () => {
+  const rawQuery = jest
+    .fn()
+    .mockRejectedValue(
+      Object.assign(new Error("missing table"), { code: "ER_NO_SUCH_TABLE" }),
+    );
+  await expect(
+    getCurrentMigration({ rawQuery } as unknown as SQLClient, {
+      ...options,
+      dry: true,
+    }),
+  ).resolves.toBeUndefined();
+  expect(rawQuery).toHaveBeenCalledTimes(1);
+  expect(rawQuery.mock.calls[0][0]).toMatch(/^SELECT/);
+});
+
+test.each(["ER_ACCESS_DENIED_ERROR", "ER_BAD_DB_ERROR", "ETIMEDOUT"])(
+  "dry run propagates %s instead of assuming empty history",
+  async (code) => {
+    const error = Object.assign(new Error("unavailable"), { code });
+    const rawQuery = jest.fn().mockRejectedValue(error);
+    await expect(
+      getCurrentMigration({ rawQuery } as unknown as SQLClient, {
+        ...options,
+        dry: true,
+      }),
+    ).rejects.toBe(error);
+    expect(rawQuery.mock.calls[0][0]).toMatch(/^SELECT/);
+  },
+);
