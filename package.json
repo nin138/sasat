@@ -19,11 +19,13 @@
     "resetdb": "docker-compose exec db sh -c \"mysql -u root < /docker-entrypoint-initdb.d/temp.sql\"",
     "prepare": "yarn build && husky",
     "sasat": "yarn env-cmd npx tsx src/cli/index.ts",
-    "server": "yarn env-cmd ts-node-esm -r tsconfig-paths/register ./test/testServer.ts",
+    "server": "yarn server:apollo",
+    "server:apollo": "env-cmd --silent --no-override tsx ./test/testServer.ts",
+    "server:yoga": "env-cmd --silent --no-override tsx ./test/yogaServer.ts",
     "codex": "docker compose exec dev codex codex --sandbox workspace-write --ask-for-approval on-request -c 'approvals_reviewer=\"auto_review\"'",
     "test:unit": "jest --runInBand",
     "test:coverage": "jest --runInBand --coverage",
-    "test:typecheck": "tsc --project tsconfig.test.json --noEmit"
+    "test:typecheck": "tsc --project tsconfig.test.json --noEmit && tsc --project tsconfig.servers.json"
   },
   "dependencies": {
     "@biomejs/biome": "^2.5.14",
@@ -48,12 +50,14 @@
     "@types/sqlstring": "2.3.2",
     "env-cmd": "^11.0.0",
     "globals": "^17.12.0",
+    "graphql-yoga": "^5.24.1",
     "husky": "9.1.7",
     "jest": "^30.5.2",
     "lint-staged": "^17.5.1",
     "sasat": "link:./dist",
     "ts-jest": "^29.4.13",
-    "tsdown": "^0.23.0"
+    "tsdown": "^0.23.0",
+    "tsx": "^4.23.15"
   },
   "peerDependencies": {
     "@apollo/server": "^4.0.0 || ^5.0.0"

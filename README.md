@@ -101,14 +101,33 @@ console.log(`🚀 Server ready at ${url}`);
 ```
 - 5_ run server!
 
+## Development servers
+
+Both servers use GraphQL 16 and share the generated schema, resolvers, and
+custom fields in `test/serverSchema.ts`.
+
+| Command | Server | Endpoint |
+| --- | --- | --- |
+| `yarn server` or `yarn server:apollo` | Apollo Server | `http://localhost:4444/` |
+| `yarn server:yoga` | GraphQL Yoga | `http://localhost:4445/graphql` |
+
+Run the commands in separate terminals to use both at the same time. Set `PORT`
+to override the port. Both commands load `.env` when present; a missing `.env`
+does not prevent startup. Queries and mutations that access data require the
+configured MySQL database and migrations. Starting the servers does not reset
+the database or run migrations.
+
 ## Testing
 
 Install the locked dependencies with `yarn install --immutable`. Tests run without a MySQL server or a local `.env` file.
 
 - `yarn test:unit`: run the unit and file-generation integration tests.
 - `yarn test:coverage`: run the same suite and write coverage reports to `coverage/` (HTML: `coverage/lcov-report/index.html`).
-- `yarn test:typecheck`: type-check the implementation and test files.
+- `yarn test:typecheck`: type-check the implementation, tests, and both development servers.
 - `yarn test:unit src/runtime/date.test.ts`: run a specific test file.
+- `yarn test:unit test/servers.test.ts`: start both servers on temporary ports and
+  check their HTTP query/mutation handling, schema parity, and validation without
+  database access.
 
 Tests use temporary directories for filesystem operations, mock database connections, and run clock-dependent cases in UTC. They cover SQL generation, migration execution and rollback, configuration, GraphQL resolvers, generated TypeScript and GraphQL schemas, and preservation of user edits during regeneration. Type-only declarations are checked by TypeScript; generated output is verified through the generator tests.
 
