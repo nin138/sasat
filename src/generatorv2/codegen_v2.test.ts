@@ -18,6 +18,8 @@ import { StoreMigrator } from "../migration/front/storeMigrator.js";
 import { Mutations } from "../migration/makeMutaion.js";
 import { Queries } from "../migration/makeQuery.js";
 import { createTypeDef } from "../runtime/createTypeDef.js";
+import { makeResolver } from "../runtime/makeResolver.js";
+import { pick } from "../runtime/util.js";
 import { CodeGen_v2 } from "./codegen_v2.js";
 import { parse } from "./parse.js";
 
@@ -34,11 +36,11 @@ afterEach(() => {
   rmSync(dir, { recursive: true, force: true });
 });
 
-function fixture() {
+function fixture(nameField = "name") {
   const store = StoreMigrator.deserialize({ tables: [] });
   store.createTable("user", (table) => {
     table.autoIncrementHashId("id", { salt: "users" });
-    table.column("name").varchar(80);
+    table.column("name").varchar(80).fieldName(nameField);
     table.enableGQL();
     table.addGQLQuery(
       Queries.primary(),
@@ -148,10 +150,170 @@ test("rejects tables without a primary key", () => {
   );
 });
 
-test.each([false, true])(
-  "generated subscriptions deliver events with filtering=%s",
-  async (filtered) => {
-    const store = fixture();
+test("generated mutations call overrides on the user datasource subclass", async () => {
+  await new CodeGen_v2(fixture()).generate();
+  class GeneratedUserDBDataSource {
+    create(_input: unknown): unknown {
+      throw new Error("Base create must be overridden");
+    }
+    update(_input: unknown): unknown {
+      throw new Error("Base update must be overridden");
+    }
+    delete(_input: unknown): unknown {
+      throw new Error("Base delete must be overridden");
+    }
+    findById(_id: number): unknown {
+      throw new Error("Base findById must be overridden");
+    }
+  }
+  const saved = { id: 1, name: "custom result" };
+  class UserDBDataSource extends GeneratedUserDBDataSource {
+    override create = jest.fn().mockResolvedValue(saved);
+    override update = jest.fn().mockResolvedValue({ changedRows: 1 });
+    override delete = jest.fn().mockResolvedValue({ affectedRows: 1 });
+    override findById = jest.fn().mockResolvedValue(saved);
+    constructor() {
+      super();
+      instances.push(this);
+    }
+  }
+  const instances: UserDBDataSource[] = [];
+  const publishUserCreated = jest.fn();
+  const exports = {} as {
+    mutation: Record<string, (...args: unknown[]) => Promise<unknown>>;
+  };
+  const code = ts.transpileModule(
+    readFileSync(join(dir, "__generated__/mutation.ts"), "utf8"),
+    { compilerOptions: { module: ts.ModuleKind.CommonJS } },
+  );
+  runInNewContext(code.outputText, {
+    exports,
+    require: (name: string) => {
+      if (name === "../dataSources/db/User.js") return { UserDBDataSource };
+      if (name === "../dataSources/db/Post.js") return {};
+      if (name === "sasat") return { makeResolver, pick };
+      if (name === "../middlewares.js")
+        return { auth: (args: unknown) => args };
+      if (name === "../idEncoder.js") return { UserHashId: { decode: Number } };
+      if (name === "./subscription.js") return { publishUserCreated };
+      throw new Error(`Unexpected generated import: ${name}`);
+    },
+  });
+  await expect(
+    exports.mutation.createUser(null, { user: { name: "input" } }, {}),
+  ).resolves.toEqual(saved);
+  expect(instances[0].create).toHaveBeenCalledWith({ name: "input" });
+  expect(instances[0].findById).toHaveBeenCalledWith(1);
+  expect(publishUserCreated).toHaveBeenCalledWith(saved);
+  await expect(
+    exports.mutation.updateUser(
+      null,
+      { user: { id: "1", name: "updated" } },
+      {},
+    ),
+  ).resolves.toEqual(saved);
+  expect(instances[1].update).toHaveBeenCalledWith({ id: 1, name: "updated" });
+  expect(instances[1].findById).toHaveBeenCalledWith(1);
+  await expect(
+    exports.mutation.deleteUser(null, { user: { id: "1" } }, {}),
+  ).resolves.toBe(true);
+  expect(instances[2].delete).toHaveBeenCalledWith({ id: 1 });
+});
+
+test("generated relation resolvers use the owning relation map and GraphQL context", async () => {
+  await new CodeGen_v2(fixture()).generate();
+  const parentCondition = jest.fn().mockReturnValue("parent condition");
+  const childCondition = jest.fn().mockReturnValue("child condition");
+  const first = jest.fn().mockResolvedValue({ id: 1 });
+  const find = jest.fn().mockResolvedValue([{ id: 2 }]);
+  class UserDBDataSource {
+    getRelationMap() {
+      return { posts: { condition: childCondition } };
+    }
+    first = first;
+  }
+  class PostDBDataSource {
+    getRelationMap() {
+      return { user: { condition: parentCondition } };
+    }
+    find = find;
+  }
+  type Resolver = (
+    parent: Record<string, unknown>,
+    args: unknown,
+    context: unknown,
+  ) => unknown;
+  const exports = {} as {
+    resolvers: { User: { posts: Resolver }; Post: { user: Resolver } };
+  };
+  const code = ts.transpileModule(
+    readFileSync(join(dir, "__generated__/resolver.ts"), "utf8"),
+    {
+      compilerOptions: { module: ts.ModuleKind.CommonJS },
+    },
+  );
+  runInNewContext(code.outputText, {
+    exports,
+    require: (name: string) => {
+      if (name.includes("dataSources/db/User")) return { UserDBDataSource };
+      if (name.includes("dataSources/db/Post")) return { PostDBDataSource };
+      if (
+        /^\.\/(query|mutation|subscription)(\.js)?$/.test(name) ||
+        name.includes("idEncoder")
+      )
+        return {};
+      throw new Error(`Unexpected generated import: ${name}`);
+    },
+  });
+  const context = { tenantId: "tenant" };
+  const user = { id: 1 };
+  const post = { id: 2, userId: 1 };
+  await expect(
+    exports.resolvers.User.posts(user, {}, context),
+  ).resolves.toEqual([{ id: 2 }]);
+  await expect(exports.resolvers.Post.user(post, {}, context)).resolves.toEqual(
+    { id: 1 },
+  );
+  expect(childCondition).toHaveBeenCalledWith({
+    parent: user,
+    childTableAlias: "t0",
+    context,
+  });
+  expect(parentCondition).toHaveBeenCalledWith({
+    parent: post,
+    childTableAlias: "t0",
+    context,
+  });
+  expect(find).toHaveBeenCalledWith(
+    undefined,
+    { where: "child condition" },
+    context,
+  );
+  expect(first).toHaveBeenCalledWith(
+    undefined,
+    { where: "parent condition" },
+    context,
+  );
+  first.mockClear();
+  find.mockClear();
+  expect(
+    exports.resolvers.User.posts({ ...user, posts: [] }, {}, context),
+  ).toEqual([]);
+  expect(exports.resolvers.Post.user({ ...post, user }, {}, context)).toBe(
+    user,
+  );
+  expect(first).not.toHaveBeenCalled();
+  expect(find).not.toHaveBeenCalled();
+});
+
+test.each([
+  { filtered: false, field: "name" },
+  { filtered: true, field: "name" },
+  { filtered: true, field: "displayName" },
+])(
+  "generated subscriptions deliver events with filtering=$filtered, field=$field",
+  async ({ filtered, field }) => {
+    const store = fixture(field);
     if (filtered) {
       store.table(
         "user",
@@ -176,7 +338,7 @@ test.each([false, true])(
       };
       publishUserCreated: (entity: {
         id: number;
-        name: string;
+        [key: string]: string | number;
       }) => Promise<void>;
     };
     const compiled = ts.transpileModule(code, {
@@ -197,11 +359,12 @@ test.each([false, true])(
     try {
       expect(iterator[Symbol.asyncIterator]()).toBe(iterator);
       const next = iterator.next();
-      if (filtered) await exports.publishUserCreated({ id: 1, name: "Other" });
-      await exports.publishUserCreated({ id: 2, name: "Ada" });
+      if (filtered)
+        await exports.publishUserCreated({ id: 1, [field]: "Other" });
+      await exports.publishUserCreated({ id: 2, [field]: "Ada" });
       await expect(next).resolves.toEqual({
         done: false,
-        value: { UserCreated: { id: 2, name: "Ada" } },
+        value: { UserCreated: { id: 2, [field]: "Ada" } },
       });
     } finally {
       await iterator.return?.();

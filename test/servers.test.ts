@@ -1,47 +1,18 @@
-import { type ChildProcess, spawn } from "node:child_process";
-import { once } from "node:events";
-import { resolve } from "node:path";
 import {
   type FormattedExecutionResult,
   getIntrospectionQuery,
   type IntrospectionQuery,
 } from "graphql";
 
-const children: ChildProcess[] = [];
+import { ServerProcess } from "./helpers/serverProcess.js";
+
+const servers: ServerProcess[] = [];
 const urls: Record<string, string> = {};
 
 function startServer(file: string): Promise<string> {
-  const child = spawn(process.execPath, ["--import", "tsx", file], {
-    cwd: resolve(__dirname, ".."),
-    env: { ...process.env, PORT: "0" },
-    stdio: ["ignore", "pipe", "pipe"],
-  });
-  children.push(child);
-  return new Promise((resolveUrl, reject) => {
-    let output = "";
-    const timeout = setTimeout(() => {
-      reject(new Error(`${file} did not start: ${output}`));
-    }, 15_000);
-    const fail = (error: Error) => {
-      clearTimeout(timeout);
-      reject(error);
-    };
-    child.once("error", fail);
-    child.once("exit", (code) => {
-      fail(new Error(`${file} exited with ${code}: ${output}`));
-    });
-    child.stderr!.on("data", (data: Buffer) => {
-      output += data.toString();
-    });
-    child.stdout!.on("data", (data: Buffer) => {
-      output += data.toString();
-      const match = output.match(/Server ready at (http:\/\/\S+)/);
-      if (match) {
-        clearTimeout(timeout);
-        resolveUrl(match[1]);
-      }
-    });
-  });
+  const server = new ServerProcess(file);
+  servers.push(server);
+  return server.ready;
 }
 
 beforeAll(async () => {
@@ -52,14 +23,7 @@ beforeAll(async () => {
 }, 20_000);
 
 afterAll(async () => {
-  await Promise.all(
-    children.map(async (child) => {
-      if (child.exitCode !== null || child.signalCode !== null) return;
-      const exited = once(child, "exit");
-      child.kill("SIGTERM");
-      await exited;
-    }),
-  );
+  await Promise.all(servers.map((server) => server.stop()));
 });
 
 async function request(server: string, query: string) {

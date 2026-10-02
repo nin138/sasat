@@ -16,5 +16,5 @@ test.each([
 ] as const)("maps ascending option %s", (asc, direction) => {
   expect(
     pagingOption({ numberOfItem: 5, offset: 10, order: "name", asc }).sort,
-  ).toEqual([QExpr.sort(QExpr.field("t1", "name"), direction)]);
+  ).toEqual([QExpr.sort(QExpr.field("t0", "name"), direction)]);
 });

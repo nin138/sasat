@@ -25,6 +25,7 @@
     "codex": "docker compose exec dev codex codex --sandbox workspace-write --ask-for-approval on-request -c 'approvals_reviewer=\"auto_review\"'",
     "test:unit": "jest --runInBand",
     "test:coverage": "jest --runInBand --coverage",
+    "test:integration": "tsx --test test/integration/servers.integration.ts",
     "test:typecheck": "tsc --project tsconfig.test.json --noEmit && tsc --project tsconfig.servers.json"
   },
   "dependencies": {
@@ -58,9 +59,6 @@
     "ts-jest": "^29.4.13",
     "tsdown": "^0.23.0",
     "tsx": "^4.23.15"
-  },
-  "peerDependencies": {
-    "@apollo/server": "^4.0.0 || ^5.0.0"
   },
   "resolutions": {
     "qs": "^6.16.0",

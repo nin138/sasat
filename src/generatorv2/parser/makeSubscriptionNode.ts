@@ -56,6 +56,7 @@ const makeSubscriptionNode = (
       const column = table.column(it);
       return {
         field: column.fieldName(),
+        argument: it,
         gqlType: column.gqlType(),
       };
     }),

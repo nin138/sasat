@@ -38,6 +38,7 @@
     "moduleResolution": "nodenext",            /* Specify module resolution strategy: 'node' (Node.js) or 'classic' (TypeScript pre-1.6). */
     "paths": {
       "sasat": ["./src"],
+      "sasat/migration": ["./src/migration/index.ts"],
       "@/*": ["./src/*"]
     },
     /* A series of entries which re-map imports to lookup locations relative to the 'baseUrl'. */

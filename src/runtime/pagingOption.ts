@@ -16,7 +16,7 @@ export const pagingOption = (option: ListQueryOption): DsPagingOption => {
   const sort = option.order
     ? [
         QExpr.sort(
-          QExpr.field("t1", option.order),
+          QExpr.field("t0", option.order),
           option?.asc === false ? "DESC" : "ASC",
         ),
       ]

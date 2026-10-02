@@ -1,5 +1,10 @@
 import { nonNullable } from "../../../runtime/util.js";
-import { type PropertyAssignment, TsFile, tsg } from "../../../tsg/index.js";
+import {
+  KeywordTypeNode,
+  type PropertyAssignment,
+  TsFile,
+  tsg,
+} from "../../../tsg/index.js";
 import { Directory } from "../../directory.js";
 import { EntityName } from "../../nodes/entityName.js";
 import type { EntityNode } from "../../nodes/entityNode.js";
@@ -108,6 +113,7 @@ const makeRelationProperty = (ref: ReferenceNode) => {
           paramName,
           makeTypeRef(ref.entity.name, "result", "GENERATED"),
         ),
+        tsg.parameter("_args", KeywordTypeNode.unknown),
         tsg.parameter("context", makeContextTypeRef("GENERATED")),
       ],
       undefined,
@@ -131,8 +137,7 @@ const makeRelationProperty = (ref: ReferenceNode) => {
         tsg.variable(
           "const",
           "where",
-          tsg
-            .identifier("ds")
+          makeDatasource(ref.entity.name, "GENERATED")
             .property("getRelationMap")
             .call()
             .property(ref.fieldName)
@@ -152,6 +157,7 @@ const makeRelationProperty = (ref: ReferenceNode) => {
             .call(
               tsg.identifier("undefined"),
               tsg.object(tsg.propertyAssign("where")),
+              tsg.identifier("context"),
             ),
         ),
       ),
@@ -170,6 +176,7 @@ const makeReferencedByProperty = (ref: ReferencedNode) => {
           paramName,
           makeTypeRef(ref.entity.name, "result", "GENERATED"),
         ),
+        tsg.parameter("_args", KeywordTypeNode.unknown),
         tsg.parameter("context", makeContextTypeRef("GENERATED")),
       ],
       undefined,
@@ -190,8 +197,7 @@ const makeReferencedByProperty = (ref: ReferencedNode) => {
         tsg.variable(
           "const",
           "where",
-          tsg
-            .identifier("ds")
+          makeDatasource(ref.entity.name, "GENERATED")
             .property("getRelationMap")
             .call()
             .property(propertyName)
@@ -211,6 +217,7 @@ const makeReferencedByProperty = (ref: ReferencedNode) => {
             .call(
               tsg.identifier("undefined"),
               tsg.object(tsg.propertyAssign("where")),
+              tsg.identifier("context"),
             ),
         ),
       ),

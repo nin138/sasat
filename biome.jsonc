@@ -11,6 +11,8 @@
       "src/**",
       "test/**/*.test.ts",
       "test/**/*.spec.ts",
+      "test/helpers/**",
+      "test/integration/**",
       "test/serverSchema.ts",
       "test/testServer.ts",
       "test/yogaServer.ts",

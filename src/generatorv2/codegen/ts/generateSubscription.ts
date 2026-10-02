@@ -96,7 +96,7 @@ const makeWithFilter = (event: string, filters: SubscriptionFilterNode[]) => {
       tsg.binary(
         tsg.identifier(`result.${it.field}`),
         "===",
-        tsg.identifier(`variables.${it.field}`),
+        tsg.identifier(`variables.${it.argument}`),
       ),
     )
     .reduce((previousValue, currentValue) =>

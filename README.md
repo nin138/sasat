@@ -106,6 +106,10 @@ console.log(`🚀 Server ready at ${url}`);
 Both servers use GraphQL 16 and share the generated schema, resolvers, and
 custom fields in `test/serverSchema.ts`.
 
+Sasat does not require Apollo Server. Install the server you want to use in your
+application; this repository keeps both Apollo Server and Yoga as development
+dependencies for compatibility testing.
+
 | Command | Server | Endpoint |
 | --- | --- | --- |
 | `yarn server` or `yarn server:apollo` | Apollo Server | `http://localhost:4444/` |
@@ -119,7 +123,7 @@ the database or run migrations.
 
 ## Testing
 
-Install the locked dependencies with `yarn install --immutable`. Tests run without a MySQL server or a local `.env` file.
+Install the locked dependencies with `yarn install --immutable`. Unit and HTTP smoke tests run without a MySQL server or a local `.env` file.
 
 - `yarn test:unit`: run the unit and file-generation integration tests.
 - `yarn test:coverage`: run the same suite and write coverage reports to `coverage/` (HTML: `coverage/lcov-report/index.html`).
@@ -132,3 +136,30 @@ Install the locked dependencies with `yarn install --immutable`. Tests run witho
 Tests use temporary directories for filesystem operations, mock database connections, and run clock-dependent cases in UTC. They cover SQL generation, migration execution and rollback, configuration, GraphQL resolvers, generated TypeScript and GraphQL schemas, and preservation of user edits during regeneration. Type-only declarations are checked by TypeScript; generated output is verified through the generator tests.
 
 The existing `yarn test` command still runs its database reset and migration pretest step; use it only with a disposable test database. Live MySQL compatibility is not covered by the mocked connector tests.
+
+### MySQL integration tests
+
+Start the development MySQL instance with `docker compose up -d db`, then run:
+
+```sh
+TEST_DB_HOST=127.0.0.1 TEST_DB_PORT=3308 yarn test:integration
+```
+
+From the existing `dev` container, use `TEST_DB_HOST=db TEST_DB_PORT=3306`.
+Optional `TEST_DB_USER` and `TEST_DB_PASSWORD` configure the test connection
+(defaults: `root` and an empty password). The account must be allowed to create
+and drop databases. This command uses only these explicit test settings; it does
+not load `.env` or use the application's `DATABASE` setting.
+
+Each run creates two uniquely named `sasat_it_*` databases, applies the test
+migrations and seed data, and starts Apollo and Yoga on temporary ports. It
+compares queries, pagination, nested relations, creates and updates against real
+MySQL. Yoga tests also cover mutation-triggered SSE events, renamed-field
+filters, and server-side subscription cleanup after disconnects. The servers
+stop and their databases are dropped on completion, including test failures.
+This suite is separate from `test:unit` and never resets an existing database.
+
+If generated code predates these fixes, regenerate it to update relation
+resolvers and subscription filters. Paging now sorts against the root table
+alias, and subscription arguments retain their existing names when a database
+column has a different public field name.

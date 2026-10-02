@@ -4,6 +4,6 @@
     "rootDir": ".",
     "noEmit": true
   },
-  "include": ["test/testServer.ts", "test/yogaServer.ts"],
+  "include": ["test/testServer.ts", "test/yogaServer.ts", "test/integration/**/*.ts"],
   "exclude": ["node_modules", "dist", "dist_prev"]
 }

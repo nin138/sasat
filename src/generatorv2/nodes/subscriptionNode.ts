@@ -18,5 +18,6 @@ export type SubscriptionNode = {
 
 export type SubscriptionFilterNode = {
   field: string;
+  argument: string;
   gqlType: GQLPrimitive;
 };

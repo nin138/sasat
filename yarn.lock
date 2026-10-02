@@ -5285,8 +5285,6 @@ __metadata:
     tsdown: "npm:^0.23.0"
     tsx: "npm:^4.23.15"
     typescript: "npm:^6.0.3"
-  peerDependencies:
-    "@apollo/server": ^4.0.0 || ^5.0.0
   bin:
     sasat: dist/cli/index.mjs
   languageName: unknown
