@@ -101,6 +101,130 @@ console.log(`🚀 Server ready at ${url}`);
 ```
 - 5_ run server!
 
+## Using GraphQL Yoga
+
+Install Yoga in your application and use the generated schema and resolvers:
+
+```sh
+yarn add sasat graphql@^16 graphql-yoga@^5
+yarn add --dev tsx typescript
+```
+
+The following example assumes `migration.out: ./out` and generated files with
+`.js` import extensions. Add application context fields to the user-editable
+`out/context.ts`:
+
+```typescript
+import type { BaseGQLContext } from './__generated__/context.js';
+
+export type GQLContext = BaseGQLContext & { requestId: string };
+```
+
+Create `server.ts` in the application root:
+
+```typescript
+import { randomUUID } from 'node:crypto';
+import { createServer } from 'node:http';
+import { createSchema, createYoga } from 'graphql-yoga';
+import { createTypeDef } from 'sasat';
+import type { GQLContext } from './out/context.js';
+import { resolvers } from './out/__generated__/resolver.js';
+import { inputs, typeDefs } from './out/__generated__/typeDefs.js';
+
+const yoga = createYoga({
+  schema: createSchema({
+    typeDefs: createTypeDef(typeDefs, inputs),
+    resolvers,
+  }),
+  context: ({ request }): GQLContext => ({
+    requestId: request.headers.get('x-request-id') ?? randomUUID(),
+  }),
+});
+
+const port = Number(process.env.PORT ?? 4000);
+createServer(yoga).listen(port, () => {
+  console.log(`Yoga ready at http://localhost:${port}/graphql`);
+});
+```
+
+Run `yarn tsx server.ts` after configuring the generated database connection and
+applying your migrations. Yoga creates context for each request; Sasat resolvers
+and resolver middleware receive it as their third argument. If your migrations
+define required context fields, also supply those fields in the factory above.
+See the [Yoga context documentation](https://the-guild.dev/graphql/yoga-server/docs/features/context).
+
+For example, export this middleware from `out/middlewares.ts` and register its
+name in a migration with
+`Queries.primary(['logRequest'])`, then regenerate:
+
+```typescript
+import type { ResolverMiddleware } from 'sasat';
+import type { GQLContext } from './context.js';
+
+export const logRequest: ResolverMiddleware<GQLContext> = args => {
+  console.log(args[2].requestId);
+  return args;
+};
+```
+
+Authentication is application-defined: verify credentials in your context
+factory and use middleware to enforce access before running a resolver.
+The request ID above only demonstrates context propagation. Continue overriding
+generated DataSource methods in `out/dataSources/db/*.ts`; Yoga uses the same
+user-editable subclasses as Apollo.
+
+### Connecting to subscriptions
+
+Enable subscriptions in the relevant migration, for example
+`Mutations.create({ subscription: true })`, and regenerate. Yoga serves
+subscriptions over SSE at the same `/graphql` endpoint. See the
+[Yoga subscription documentation](https://the-guild.dev/graphql/yoga-server/docs/features/subscriptions).
+
+To try the repository's generated `UserCreated` subscription, start
+`yarn server:yoga` with the migrated test database, then keep this request open:
+
+```sh
+curl -N http://localhost:4445/graphql \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: text/event-stream' \
+  --data '{"query":"subscription { UserCreated { userId NNN } }"}'
+```
+
+In another terminal, send a mutation to the same Yoga process:
+
+```sh
+curl http://localhost:4445/graphql \
+  -H 'Content-Type: application/json' \
+  --data '{"query":"mutation { createUser(user: { NNN: \"Yoga example\" }) { userId NNN } }"}'
+```
+
+The first terminal receives an `event: next` with the created user. Press Ctrl+C
+to disconnect and release the subscription. Replace the URL and fields with
+your application's generated schema when using the `server.ts` example above.
+For a JavaScript client, run `yarn add graphql-sse` and use distinct connections mode:
+
+```typescript
+import { createClient } from 'graphql-sse';
+
+const client = createClient({ url: 'http://localhost:4445/graphql' });
+const unsubscribe = client.subscribe(
+  { query: 'subscription { UserCreated { userId NNN } }' },
+  {
+    next: result => console.log(result),
+    error: error => console.error(error),
+    complete: () => console.log('Subscription complete'),
+  },
+);
+
+// Call when the UI is unmounted or the subscription is no longer needed.
+// unsubscribe();
+// client.dispose(); // Dispose the client when all subscriptions are finished.
+```
+
+The generated PubSub is in memory: events reach subscribers in the same process.
+Use a shared PubSub implementation in the user-editable `out/pubsub.ts` when
+running multiple server processes.
+
 ## Development servers
 
 Both servers use GraphQL 16 and share the generated schema, resolvers, and
@@ -154,10 +278,25 @@ not load `.env` or use the application's `DATABASE` setting.
 Each run creates two uniquely named `sasat_it_*` databases, applies the test
 migrations and seed data, and starts Apollo and Yoga on temporary ports. It
 compares queries, pagination, nested relations, creates and updates against real
-MySQL. Yoga tests also cover mutation-triggered SSE events, renamed-field
+MySQL. It also checks nonexistent IDs, duplicate-key errors, and application-defined
+authentication around a generated mutation (missing/invalid credentials reject
+writes; valid credentials allow them). Authentication fixtures use temporary,
+random test tokens and do not change the development servers' authentication.
+Yoga tests also cover mutation-triggered SSE events, renamed-field
 filters, and server-side subscription cleanup after disconnects. The servers
 stop and their databases are dropped on completion, including test failures.
 This suite is separate from `test:unit` and never resets an existing database.
+
+The error tests run in production mode and preserve each server's default error
+handling. A missing row returns `user: null` and updating a missing row returns
+`updateUser: false`. A middleware `GraphQLError` with code `UNAUTHENTICATED` is
+exposed by both servers. For a database constraint error, Apollo returns the
+database message while Yoga masks it as `Unexpected error.`; both use code
+`INTERNAL_SERVER_ERROR`. These execution failures return HTTP 200 with `errors`
+and `data: null` because the tested mutation field is non-null. This is an
+intentional comparison of current defaults, not a shared error-format policy.
+See [Yoga error masking](https://the-guild.dev/graphql/yoga-server/docs/features/error-masking)
+when defining your application's public errors.
 
 If generated code predates these fixes, regenerate it to update relation
 resolvers and subscription filters. Paging now sorts against the root table

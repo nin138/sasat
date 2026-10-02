@@ -9,6 +9,7 @@ import {
   type RowDataPacket,
 } from "mysql2/promise";
 import { ServerProcess } from "../helpers/serverProcess.js";
+import { UserHashId } from "../out/idEncoder.js";
 import { migrationStore } from "./migrations.js";
 
 const connectionOptions = {
@@ -22,6 +23,17 @@ let connection: Connection | undefined;
 const databases: string[] = [];
 const servers: ServerProcess[] = [];
 const urls: string[] = [];
+
+function serverEnvironment(database: string) {
+  return {
+    NODE_ENV: "production",
+    DB_HOST: connectionOptions.host,
+    DB_PORT: String(connectionOptions.port),
+    DB_USER: connectionOptions.user,
+    DB_PASSWORD: connectionOptions.password,
+    DATABASE: database,
+  };
+}
 
 before(
   async () => {
@@ -37,13 +49,7 @@ before(
       databases.push(database);
       await connection.query("USE ??", [database]);
       for (const statement of sql) await connection.query(statement);
-      const server = new ServerProcess(entry, {
-        DB_HOST: connectionOptions.host,
-        DB_PORT: String(connectionOptions.port),
-        DB_USER: connectionOptions.user,
-        DB_PASSWORD: connectionOptions.password,
-        DATABASE: database,
-      });
+      const server = new ServerProcess(entry, serverEnvironment(database));
       servers.push(server);
       urls.push(await server.ready);
     }
@@ -67,22 +73,33 @@ after(async () => {
   }
 });
 
-async function graphql<T>(
-  server: number,
+async function request<T>(
+  url: string,
   query: string,
   variables: Record<string, unknown> = {},
-): Promise<T> {
-  const response = await fetch(urls[server], {
+  headers: Record<string, string> = {},
+) {
+  const response = await fetch(url, {
     method: "POST",
     headers: {
       "content-type": "application/json",
       accept: "application/graphql-response+json",
+      ...headers,
     },
     body: JSON.stringify({ query, variables }),
     signal: AbortSignal.timeout(5_000),
   });
   const result = (await response.json()) as FormattedExecutionResult<T>;
-  assert.equal(response.status, 200, JSON.stringify(result));
+  return { status: response.status, result };
+}
+
+async function graphql<T>(
+  server: number,
+  query: string,
+  variables: Record<string, unknown> = {},
+): Promise<T> {
+  const { status, result } = await request<T>(urls[server], query, variables);
+  assert.equal(status, 200, JSON.stringify(result));
   assert.equal(result.errors, undefined, JSON.stringify(result.errors));
   assert.ok(result.data);
   return result.data;
@@ -142,6 +159,113 @@ test("Apollo and Yoga produce identical database CRUD and relation results", {
     results.push({ initial, created, post, updated, fetched });
   }
   assert.deepEqual(results[0], results[1]);
+});
+
+test("Apollo and Yoga return null and false for a valid but nonexistent ID", async () => {
+  const id = UserHashId.encode(2_000_000_000);
+  for (const server of [0, 1]) {
+    assert.deepEqual(
+      await graphql(
+        server,
+        "query($id: ID!) { user(userId: $id) { userId } }",
+        { id },
+      ),
+      { user: null },
+    );
+    assert.deepEqual(
+      await graphql(
+        server,
+        'mutation($id: ID!) { updateUser(user: { userId: $id, NNN: "Missing" }) }',
+        { id },
+      ),
+      { updateUser: false },
+    );
+  }
+});
+
+test("Apollo and Yoga report duplicate-key errors with their default masking", async () => {
+  for (const server of [0, 1]) {
+    const query =
+      'mutation { createUser(user: { NNN: "Original", nick: "duplicate-test" }) { userId } }';
+    await graphql(server, query);
+    const { status, result } = await request(urls[server], query);
+    assert.equal(status, 200);
+    // createUser is non-null, so an execution error nulls the root data.
+    assert.equal(result.data, null);
+    assert.equal(result.errors?.length, 1);
+    const error = result.errors![0];
+    assert.deepEqual(error.path, ["createUser"]);
+    assert.equal(error.extensions?.code, "INTERNAL_SERVER_ERROR");
+    if (server === 0) {
+      assert.match(error.message, /Duplicate entry/);
+    } else {
+      assert.equal(error.message, "Unexpected error.");
+      assert.doesNotMatch(
+        JSON.stringify(result),
+        /duplicate-test|INSERT|stacktrace/,
+      );
+    }
+    const [rows] = await connection!.query<RowDataPacket[]>(
+      "SELECT name FROM ??.user WHERE nickName = ?",
+      [databases[server], "duplicate-test"],
+    );
+    assert.deepEqual(rows, [{ name: "Original" }]);
+    assert.deepEqual(await graphql(server, "{ __typename }"), {
+      __typename: "Query",
+    });
+  }
+});
+
+test("Apollo and Yoga reject missing or invalid authentication before writing", {
+  timeout: 40_000,
+}, async () => {
+  const token = randomUUID();
+  for (const [index, name] of ["apollo", "yoga"].entries()) {
+    const server = new ServerProcess("test/integration/authServer.ts", {
+      ...serverEnvironment(databases[index]),
+      TEST_SERVER: name,
+      TEST_AUTH_TOKEN: token,
+    });
+    try {
+      const url = await server.ready;
+      const query =
+        'mutation { createUser(user: { NNN: "Authenticated", nick: "auth-test" }) { userId NNN } }';
+      const rejectedHeaders: Record<string, string>[] = [
+        {},
+        { authorization: "Bearer invalid" },
+      ];
+      for (const headers of rejectedHeaders) {
+        const { status, result } = await request(url, query, {}, headers);
+        assert.equal(status, 200);
+        assert.equal(result.data, null);
+        assert.equal(result.errors?.length, 1);
+        assert.equal(result.errors![0].message, "Authentication required");
+        assert.equal(result.errors![0].extensions?.code, "UNAUTHENTICATED");
+        assert.deepEqual(result.errors![0].path, ["createUser"]);
+      }
+      const [beforeRows] = await connection!.query<RowDataPacket[]>(
+        "SELECT userId FROM ??.user WHERE nickName = ?",
+        [databases[index], "auth-test"],
+      );
+      assert.equal(beforeRows.length, 0);
+      const { status, result } = await request<{ createUser: { NNN: string } }>(
+        url,
+        query,
+        {},
+        { authorization: `Bearer ${token}` },
+      );
+      assert.equal(status, 200);
+      assert.equal(result.errors, undefined);
+      assert.equal(result.data?.createUser.NNN, "Authenticated");
+      const [afterRows] = await connection!.query<RowDataPacket[]>(
+        "SELECT name FROM ??.user WHERE nickName = ?",
+        [databases[index], "auth-test"],
+      );
+      assert.deepEqual(afterRows, [{ name: "Authenticated" }]);
+    } finally {
+      await server.stop();
+    }
+  }
 });
 
 async function waitForSubscriptions(count: number) {
