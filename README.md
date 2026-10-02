@@ -186,6 +186,13 @@ Enable subscriptions in the relevant migration, for example
 subscriptions over SSE at the same `/graphql` endpoint. See the
 [Yoga subscription documentation](https://the-guild.dev/graphql/yoga-server/docs/features/subscriptions).
 
+Subscription filters on Hash ID columns (including references) accept encoded
+`ID!` arguments and decode them with the corresponding column encoder before
+comparing event data. Other filter types are unchanged. Arguments retain the
+configured database column names even when entity fields are renamed. Regenerate
+existing code to apply this fix; clients using `Int!` variables for these filters
+must switch to `ID!` and pass the encoded ID.
+
 To try the repository's generated `UserCreated` subscription, start
 `yarn server:yoga` with the migrated test database, then keep this request open:
 

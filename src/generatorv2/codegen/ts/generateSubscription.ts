@@ -5,9 +5,11 @@ import {
   tsg,
   type VariableDeclaration,
 } from "../../../tsg/index.js";
+import { Directory } from "../../directory.js";
 import type { RootNode } from "../../nodes/rootNode.js";
 import type { SubscriptionFilterNode } from "../../nodes/subscriptionNode.js";
 import { makeTypeRef } from "./scripts/getEntityTypeRefs.js";
+import { tsFileNames } from "./tsFileNames.js";
 
 export const generateSubscription = (root: RootNode) => {
   const subscriptionEnum = tsg
@@ -91,14 +93,27 @@ const makeAsyncIteratorCall = (event: string): ArrowFunction => {
 };
 
 const makeWithFilter = (event: string, filters: SubscriptionFilterNode[]) => {
+  const hashedFilters = filters.filter((filter) => filter.hashId);
+  const decoded = tsg.identifier("decoded");
   const binaryExpressions = filters
-    .map((it) =>
-      tsg.binary(
-        tsg.identifier(`result.${it.field}`),
+    .map((filter) => {
+      const expected = filter.hashId
+        ? decoded.property(filter.argument)
+        : tsg.identifier("variables").property(filter.argument);
+      const matches = tsg.binary(
+        tsg.identifier("result").property(filter.field),
         "===",
-        tsg.identifier(`variables.${it.argument}`),
-      ),
-    )
+        expected,
+      );
+      // An invalid hash decodes to undefined; it must not match a missing field.
+      return filter.hashId
+        ? tsg.binary(
+            tsg.binary(expected, "!==", tsg.identifier("undefined")),
+            "&&",
+            matches,
+          )
+        : matches;
+    })
     .reduce((previousValue, currentValue) =>
       tsg.binary(previousValue, "&&", currentValue),
     );
@@ -116,6 +131,36 @@ const makeWithFilter = (event: string, filters: SubscriptionFilterNode[]) => {
           ],
           tsg.typeRef("Promise", [KeywordTypeNode.boolean]),
           tsg.block(
+            ...(hashedFilters.length === 0
+              ? []
+              : [
+                  tsg.variable(
+                    "const",
+                    decoded,
+                    tsg.object(
+                      ...hashedFilters.map((filter) =>
+                        tsg.propertyAssign(
+                          filter.argument,
+                          tsg
+                            .identifier(filter.hashId!.encoder)
+                            .importFrom(
+                              Directory.resolve(
+                                "GENERATED",
+                                "BASE",
+                                tsFileNames.encoder,
+                              ),
+                            )
+                            .property("decode")
+                            .call(
+                              tsg
+                                .identifier("variables")
+                                .property(filter.argument),
+                            ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ]),
             tsg.variable(
               "const",
               tsg.identifier("result"),

@@ -1,5 +1,6 @@
 import type { GQLPrimitive } from "../scripts/gqlTypes.js";
 import type { EntityName } from "./entityName.js";
+import type { FieldNode } from "./FieldNode.js";
 import type { ArgNode, TypeNode } from "./typeNode.js";
 
 type MutationType = "create" | "delete" | "update";
@@ -20,4 +21,5 @@ export type SubscriptionFilterNode = {
   field: string;
   argument: string;
   gqlType: GQLPrimitive;
+  hashId?: FieldNode["hashId"];
 };

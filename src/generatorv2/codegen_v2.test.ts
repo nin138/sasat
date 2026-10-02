@@ -11,6 +11,7 @@ import { join } from "node:path";
 import { runInNewContext } from "node:vm";
 import { buildSchema, validateSchema } from "graphql";
 import { PubSub, withFilter } from "graphql-subscriptions";
+import Hashids from "hashids";
 import ts from "typescript";
 import { config } from "../config/config.js";
 import { DataStoreHandler } from "../migration/dataStore.js";
@@ -19,6 +20,7 @@ import { Mutations } from "../migration/makeMutaion.js";
 import { Queries } from "../migration/makeQuery.js";
 import { createPubSub } from "../runtime/createPubSub.js";
 import { createTypeDef } from "../runtime/createTypeDef.js";
+import { makeNumberIdEncoder } from "../runtime/id.js";
 import { makeResolver } from "../runtime/makeResolver.js";
 import { pick } from "../runtime/util.js";
 import { CodeGen_v2 } from "./codegen_v2.js";
@@ -336,17 +338,21 @@ test("generated relation resolvers use the owning relation map and GraphQL conte
 });
 
 test.each([
-  { filtered: false, field: "name" },
-  { filtered: true, field: "name" },
-  { filtered: true, field: "displayName" },
+  { filtered: false, field: "name", hashed: false },
+  { filtered: true, field: "name", hashed: false },
+  { filtered: true, field: "displayName", hashed: false },
+  { filtered: true, field: "displayName", hashed: true },
 ])(
-  "generated subscriptions deliver events with filtering=$filtered, field=$field",
-  async ({ filtered, field }) => {
+  "generated subscriptions deliver events with filtering=$filtered, field=$field, hashed=$hashed",
+  async ({ filtered, field, hashed }) => {
+    const UserHashId = makeNumberIdEncoder(new Hashids("users"));
     const store = fixture(field);
     if (filtered) {
       store.table(
         "user",
-      ).gqlOption.mutations[0].subscription.subscriptionFilter = ["name"];
+      ).gqlOption.mutations[0].subscription.subscriptionFilter = hashed
+        ? ["id", "name"]
+        : ["name"];
     }
     await new CodeGen_v2(store).generate();
     const code = readFileSync(
@@ -377,17 +383,22 @@ test.each([
       exports,
       require: (name: string) => {
         if (name === "graphql-subscriptions") return { withFilter };
+        if (/^\.\.\/idEncoder(\.js)?$/.test(name)) return { UserHashId };
         if (name === "../pubsub" || name === "../pubsub.js") return { pubsub };
         throw new Error("Unexpected generated import: " + name);
       },
     });
     const iterator = await exports.subscription.UserCreated.subscribe(
       undefined,
-      { name: "Ada" },
+      { name: "Ada", id: UserHashId.encode(2) },
     );
     try {
       expect(iterator[Symbol.asyncIterator]()).toBe(iterator);
       const next = iterator.next();
+      if (hashed) {
+        await exports.publishUserCreated({ id: 1, [field]: "Ada" });
+        await exports.publishUserCreated({ id: 2, [field]: "Other" });
+      }
       if (filtered)
         await exports.publishUserCreated({ id: 1, [field]: "Other" });
       await exports.publishUserCreated({ id: 2, [field]: "Ada" });

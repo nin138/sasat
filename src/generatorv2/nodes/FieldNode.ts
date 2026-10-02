@@ -28,7 +28,7 @@ export type FieldNode = {
   };
 };
 
-const getHashId = (
+export const getHashId = (
   store: DataStoreHandler,
   entity: EntityName,
   column: BaseColumn,
