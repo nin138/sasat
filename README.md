@@ -221,9 +221,57 @@ const unsubscribe = client.subscribe(
 // client.dispose(); // Dispose the client when all subscriptions are finished.
 ```
 
-The generated PubSub is in memory: events reach subscribers in the same process.
-Use a shared PubSub implementation in the user-editable `out/pubsub.ts` when
-running multiple server processes.
+### Selecting local or Redis PubSub
+
+Newly generated `out/pubsub.ts` uses Sasat's configurable PubSub factory:
+
+```typescript
+import { createPubSub } from 'sasat';
+
+export const pubsub = createPubSub();
+```
+
+Existing `pubsub.ts` files are user-owned and preserved during regeneration.
+To opt in, replace the original `new PubSub()` setup with the code above; keep
+any application-specific customization you need.
+
+| Environment variable | Default | Meaning |
+| --- | --- | --- |
+| `PUBSUB_BACKEND` | `local` | `local` for in-process events, `redis` for shared events |
+| `REDIS_URL` | none | Required for Redis; accepts `redis://` or TLS `rediss://` URLs |
+| `PUBSUB_PREFIX` | `sasat:` | Redis channel prefix; use the same value on communicating servers and different values for separate applications/environments |
+
+Local mode works without Redis. To use Redis from the host, start the Compose
+service and run the application servers in separate terminals:
+
+```sh
+docker compose up -d redis
+
+# Terminal 1
+PUBSUB_BACKEND=redis REDIS_URL=redis://127.0.0.1:6379 yarn server:apollo
+
+# Terminal 2
+PUBSUB_BACKEND=redis REDIS_URL=redis://127.0.0.1:6379 yarn server:yoga
+```
+
+The Compose `dev` service sets `REDIS_URL=redis://redis:6379`; recreate an existing
+`dev` container to pick up that setting, or pass the URL explicitly. Inside it,
+run `PUBSUB_BACKEND=redis yarn server:apollo` and
+`PUBSUB_BACKEND=redis yarn server:yoga`. The Redis host port is loopback-only and
+can be changed with `REDIS_PORT`. This development Redis has persistence disabled.
+
+An Apollo mutation can now publish to a Yoga SSE subscriber in another process.
+To return to local delivery, restart each application with `PUBSUB_BACKEND=local`.
+Redis connections open on first publish/subscribe; connection failures reject
+operations and do not fall back to local mode. A mutation's database write may
+already have completed when publishing fails. Redis Pub/Sub does not replay
+missed events after a disconnect; clients should query current state on reconnect.
+
+You can also pass explicit `backend`, `redisUrl`, and `channelPrefix` options to
+`createPubSub()`. Explicit options take precedence over environment variables.
+Await pending publishes and stop subscriptions before calling
+`await pubsub.close()` during application shutdown. Custom `PubSubEngine`
+implementations remain supported in the user-editable `out/pubsub.ts`.
 
 ## Development servers
 
@@ -286,6 +334,20 @@ Yoga tests also cover mutation-triggered SSE events, renamed-field
 filters, and server-side subscription cleanup after disconnects. The servers
 stop and their databases are dropped on completion, including test failures.
 This suite is separate from `test:unit` and never resets an existing database.
+
+The default integration run uses local PubSub. To test Redis delivery across
+processes, start both services and run:
+
+```sh
+docker compose up -d db redis
+TEST_DB_HOST=127.0.0.1 TEST_DB_PORT=3308 \
+  TEST_REDIS_URL=redis://127.0.0.1:6379 yarn test:integration:redis
+```
+
+Inside `dev`, use `TEST_DB_HOST=db TEST_DB_PORT=3306` and
+`TEST_REDIS_URL=redis://redis:6379`. Redis tests publish mutations through Apollo
+and receive/filter events on Yoga, verify disconnect cleanup, and check channel
+prefix isolation. Each run uses a unique prefix and never flushes Redis.
 
 The error tests run in production mode and preserve each server's default error
 handling. A missing row returns `user: null` and updating a missing row returns

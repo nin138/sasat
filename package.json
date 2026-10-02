@@ -26,6 +26,7 @@
     "test:unit": "jest --runInBand",
     "test:coverage": "jest --runInBand --coverage",
     "test:integration": "tsx --test test/integration/servers.integration.ts",
+    "test:integration:redis": "env PUBSUB_BACKEND=redis tsx --test test/integration/servers.integration.ts",
     "test:typecheck": "tsc --project tsconfig.test.json --noEmit && tsc --project tsconfig.servers.json"
   },
   "dependencies": {
@@ -36,6 +37,7 @@
     "graphql": "^16.14.2",
     "graphql-subscriptions": "^3.0.0",
     "hashids": "^2.3.0",
+    "ioredis": "^5.11.1",
     "js-yaml": "^5.4.2",
     "mysql2": "^3.24.4",
     "pluralize": "^8.0.0",

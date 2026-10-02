@@ -8,6 +8,7 @@ import {
   createConnection,
   type RowDataPacket,
 } from "mysql2/promise";
+import { createPubSub } from "../../src/runtime/createPubSub.js";
 import { ServerProcess } from "../helpers/serverProcess.js";
 import { UserHashId } from "../out/idEncoder.js";
 import { migrationStore } from "./migrations.js";
@@ -23,6 +24,10 @@ let connection: Connection | undefined;
 const databases: string[] = [];
 const servers: ServerProcess[] = [];
 const urls: string[] = [];
+const pubsubBackend = process.env.PUBSUB_BACKEND ?? "local";
+const redisUrl = process.env.TEST_REDIS_URL ?? "redis://127.0.0.1:6379";
+const pubsubPrefix = `sasat_it:${randomUUID()}:`;
+const publishingServer = pubsubBackend === "redis" ? 0 : 1;
 
 function serverEnvironment(database: string) {
   return {
@@ -32,6 +37,9 @@ function serverEnvironment(database: string) {
     DB_USER: connectionOptions.user,
     DB_PASSWORD: connectionOptions.password,
     DATABASE: database,
+    PUBSUB_BACKEND: pubsubBackend,
+    REDIS_URL: redisUrl,
+    PUBSUB_PREFIX: pubsubPrefix,
   };
 }
 
@@ -334,7 +342,7 @@ async function nextEvent(response: Response) {
   }
 }
 
-test("Yoga delivers a created event over SSE and releases PubSub on disconnect", {
+test(`Yoga delivers a created event over ${pubsubBackend} PubSub and releases it on disconnect`, {
   timeout: 15_000,
 }, async () => {
   const stream = subscribe("subscription { UserCreated { userId NNN } }");
@@ -343,7 +351,7 @@ test("Yoga delivers a created event over SSE and releases PubSub on disconnect",
     const created = await graphql<{
       createUser: { userId: string; NNN: string };
     }>(
-      1,
+      publishingServer,
       'mutation { createUser(user: { NNN: "SSE", nick: "sse" }) { userId NNN } }',
     );
     assert.deepEqual(await nextEvent(await stream.response), {
@@ -364,7 +372,7 @@ test("Yoga filters renamed fields and releases a pending subscription on disconn
   timeout: 15_000,
 }, async () => {
   const created = await graphql<{ createUser: { userId: string } }>(
-    1,
+    publishingServer,
     'mutation { createUser(user: { NNN: "Before", nick: "filtered" }) { userId } }',
   );
   const stream = subscribe(
@@ -374,7 +382,7 @@ test("Yoga filters renamed fields and releases a pending subscription on disconn
     await waitForSubscriptions(1);
     for (const name of ["Other", "Match"]) {
       await graphql(
-        1,
+        publishingServer,
         "mutation($id: ID!, $name: String!) { updateUser(user: { userId: $id, NNN: $name }) }",
         { id: created.createUser.userId, name },
       );
@@ -399,5 +407,58 @@ test("Yoga filters renamed fields and releases a pending subscription on disconn
     pending.controller.abort();
     await pending.response.catch(() => {});
     await waitForSubscriptions(0);
+  }
+});
+
+test("Redis channel prefixes isolate independent applications", {
+  skip: pubsubBackend !== "redis",
+  timeout: 10_000,
+}, async () => {
+  const first = createPubSub({
+    backend: "redis",
+    redisUrl,
+    channelPrefix: pubsubPrefix + "a:",
+  });
+  const receiver = createPubSub({
+    backend: "redis",
+    redisUrl,
+    channelPrefix: pubsubPrefix + "a:",
+  });
+  const isolated = createPubSub({
+    backend: "redis",
+    redisUrl,
+    channelPrefix: pubsubPrefix + "b:",
+  });
+  try {
+    const received: unknown[] = [];
+    const isolatedReceived: unknown[] = [];
+    const event = Promise.withResolvers<unknown>();
+    const isolatedEvent = Promise.withResolvers<unknown>();
+    const id = await receiver.subscribe(
+      "event",
+      (value) => {
+        received.push(value);
+        event.resolve(value);
+      },
+      {},
+    );
+    await isolated.subscribe(
+      "event",
+      (value) => {
+        isolatedReceived.push(value);
+        isolatedEvent.resolve(value);
+      },
+      {},
+    );
+    await first.publish("event", { source: "first" });
+    await isolated.publish("event", { source: "isolated" });
+    await Promise.all([event.promise, isolatedEvent.promise]);
+    assert.deepEqual(received, [{ source: "first" }]);
+    assert.deepEqual(isolatedReceived, [{ source: "isolated" }]);
+    receiver.unsubscribe(id);
+    await first.publish("event", { source: "after unsubscribe" });
+    assert.equal(received.length, 1);
+  } finally {
+    await Promise.all([first.close(), receiver.close(), isolated.close()]);
   }
 });

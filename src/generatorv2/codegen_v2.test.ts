@@ -17,6 +17,7 @@ import { DataStoreHandler } from "../migration/dataStore.js";
 import { StoreMigrator } from "../migration/front/storeMigrator.js";
 import { Mutations } from "../migration/makeMutaion.js";
 import { Queries } from "../migration/makeQuery.js";
+import { createPubSub } from "../runtime/createPubSub.js";
 import { createTypeDef } from "../runtime/createTypeDef.js";
 import { makeResolver } from "../runtime/makeResolver.js";
 import { pick } from "../runtime/util.js";
@@ -135,11 +136,39 @@ test("preserves custom files and removes obsolete generated output on regenerati
   const originalMiddleware =
     readFileSync(middleware, "utf8") + "\n// custom auth\n";
   writeFileSync(middleware, originalMiddleware);
+  const pubsub = join(dir, "pubsub.ts");
+  const customPubsub = "// user-owned PubSub implementation\n";
+  writeFileSync(pubsub, customPubsub);
   writeFileSync(join(dir, "__generated__/obsolete.ts"), "obsolete");
   await generator.generate();
   expect(readFileSync(custom, "utf8")).toBe(edited);
   expect(readFileSync(middleware, "utf8")).toBe(originalMiddleware);
+  expect(readFileSync(pubsub, "utf8")).toBe(customPubsub);
   expect(existsSync(join(dir, "__generated__/obsolete.ts"))).toBe(false);
+});
+
+test("generated pubsub uses the configurable runtime factory", async () => {
+  await new CodeGen_v2(fixture()).generate();
+  const exports = {} as { pubsub: ReturnType<typeof createPubSub> };
+  const compiled = ts.transpileModule(
+    readFileSync(join(dir, "pubsub.ts"), "utf8"),
+    {
+      compilerOptions: { module: ts.ModuleKind.CommonJS },
+    },
+  );
+  runInNewContext(compiled.outputText, {
+    exports,
+    require: (name: string) => {
+      if (name === "sasat")
+        return { createPubSub: () => createPubSub({ backend: "local" }) };
+      throw new Error(`Unexpected generated import: ${name}`);
+    },
+  });
+  const receive = jest.fn();
+  await exports.pubsub.subscribe("event", receive, {});
+  await exports.pubsub.publish("event", { value: 1 });
+  expect(receive).toHaveBeenCalledWith({ value: 1 });
+  await exports.pubsub.close();
 });
 
 test("rejects tables without a primary key", () => {

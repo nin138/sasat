@@ -10,7 +10,7 @@ const servers: ServerProcess[] = [];
 const urls: Record<string, string> = {};
 
 function startServer(file: string): Promise<string> {
-  const server = new ServerProcess(file);
+  const server = new ServerProcess(file, { PUBSUB_BACKEND: "local" });
   servers.push(server);
   return server.ready;
 }

@@ -1,0 +1,508 @@
+diff --git a/README.md b/README.md
+index 7439ddb..430cf8d 100644
+--- a/README.md
++++ b/README.md
+@@ -221,9 +221,57 @@ const unsubscribe = client.subscribe(
+ // client.dispose(); // Dispose the client when all subscriptions are finished.
+ ```
+ 
+-The generated PubSub is in memory: events reach subscribers in the same process.
+-Use a shared PubSub implementation in the user-editable `out/pubsub.ts` when
+-running multiple server processes.
++### Selecting local or Redis PubSub
++
++Newly generated `out/pubsub.ts` uses Sasat's configurable PubSub factory:
++
++```typescript
++import { createPubSub } from 'sasat';
++
++export const pubsub = createPubSub();
++```
++
++Existing `pubsub.ts` files are user-owned and preserved during regeneration.
++To opt in, replace the original `new PubSub()` setup with the code above; keep
++any application-specific customization you need.
++
++| Environment variable | Default | Meaning |
++| --- | --- | --- |
++| `PUBSUB_BACKEND` | `local` | `local` for in-process events, `redis` for shared events |
++| `REDIS_URL` | none | Required for Redis; accepts `redis://` or TLS `rediss://` URLs |
++| `PUBSUB_PREFIX` | `sasat:` | Redis channel prefix; use the same value on communicating servers and different values for separate applications/environments |
++
++Local mode works without Redis. To use Redis from the host, start the Compose
++service and run the application servers in separate terminals:
++
++```sh
++docker compose up -d redis
++
++# Terminal 1
++PUBSUB_BACKEND=redis REDIS_URL=redis://127.0.0.1:6379 yarn server:apollo
++
++# Terminal 2
++PUBSUB_BACKEND=redis REDIS_URL=redis://127.0.0.1:6379 yarn server:yoga
++```
++
++The Compose `dev` service sets `REDIS_URL=redis://redis:6379`; recreate an existing
++`dev` container to pick up that setting, or pass the URL explicitly. Inside it,
++run `PUBSUB_BACKEND=redis yarn server:apollo` and
++`PUBSUB_BACKEND=redis yarn server:yoga`. The Redis host port is loopback-only and
++can be changed with `REDIS_PORT`. This development Redis has persistence disabled.
++
++An Apollo mutation can now publish to a Yoga SSE subscriber in another process.
++To return to local delivery, restart each application with `PUBSUB_BACKEND=local`.
++Redis connections open on first publish/subscribe; connection failures reject
++operations and do not fall back to local mode. A mutation's database write may
++already have completed when publishing fails. Redis Pub/Sub does not replay
++missed events after a disconnect; clients should query current state on reconnect.
++
++You can also pass explicit `backend`, `redisUrl`, and `channelPrefix` options to
++`createPubSub()`. Explicit options take precedence over environment variables.
++Await pending publishes and stop subscriptions before calling
++`await pubsub.close()` during application shutdown. Custom `PubSubEngine`
++implementations remain supported in the user-editable `out/pubsub.ts`.
+ 
+ ## Development servers
+ 
+@@ -287,6 +335,20 @@ filters, and server-side subscription cleanup after disconnects. The servers
+ stop and their databases are dropped on completion, including test failures.
+ This suite is separate from `test:unit` and never resets an existing database.
+ 
++The default integration run uses local PubSub. To test Redis delivery across
++processes, start both services and run:
++
++```sh
++docker compose up -d db redis
++TEST_DB_HOST=127.0.0.1 TEST_DB_PORT=3308 \
++  TEST_REDIS_URL=redis://127.0.0.1:6379 yarn test:integration:redis
++```
++
++Inside `dev`, use `TEST_DB_HOST=db TEST_DB_PORT=3306` and
++`TEST_REDIS_URL=redis://redis:6379`. Redis tests publish mutations through Apollo
++and receive/filter events on Yoga, verify disconnect cleanup, and check channel
++prefix isolation. Each run uses a unique prefix and never flushes Redis.
++
+ The error tests run in production mode and preserve each server's default error
+ handling. A missing row returns `user: null` and updating a missing row returns
+ `updateUser: false`. A middleware `GraphQLError` with code `UNAUTHENTICATED` is
+diff --git a/docker-compose.yml b/docker-compose.yml
+index 4c790b1..32e7a70 100644
+--- a/docker-compose.yml
++++ b/docker-compose.yml
+@@ -17,6 +17,16 @@ services:
+       MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+     ports:
+       - '3308:3306'
++  redis:
++    image: redis:8-alpine
++    command: ["redis-server", "--save", "", "--appendonly", "no"]
++    ports:
++      - '127.0.0.1:${REDIS_PORT:-6379}:6379'
++    healthcheck:
++      test: ["CMD", "redis-cli", "ping"]
++      interval: 5s
++      timeout: 3s
++      retries: 5
+   dev:
+     build:
+       context: ./docker/dev
+@@ -26,6 +36,7 @@ services:
+       DB_USER: 'root'
+       DB_PASSWORD:
+       DATABASE: 'test'
++      REDIS_URL: 'redis://redis:6379'
+     volumes:
+       - ./:/app
+       # Overlays the host .env inside the container only; the host file is untouched.
+diff --git a/package.json b/package.json
+index 1ed4761..cb04ca1 100644
+--- a/package.json
++++ b/package.json
+@@ -26,6 +26,7 @@
+     "test:unit": "jest --runInBand",
+     "test:coverage": "jest --runInBand --coverage",
+     "test:integration": "tsx --test test/integration/servers.integration.ts",
++    "test:integration:redis": "env PUBSUB_BACKEND=redis tsx --test test/integration/servers.integration.ts",
+     "test:typecheck": "tsc --project tsconfig.test.json --noEmit && tsc --project tsconfig.servers.json"
+   },
+   "dependencies": {
+@@ -36,6 +37,7 @@
+     "graphql": "^16.14.2",
+     "graphql-subscriptions": "^3.0.0",
+     "hashids": "^2.3.0",
++    "ioredis": "^5.11.1",
+     "js-yaml": "^5.4.2",
+     "mysql2": "^3.24.4",
+     "pluralize": "^8.0.0",
+diff --git a/src/generatorv2/codegen/ts/staticFiles.ts b/src/generatorv2/codegen/ts/staticFiles.ts
+index 43e2787..2de0767 100644
+--- a/src/generatorv2/codegen/ts/staticFiles.ts
++++ b/src/generatorv2/codegen/ts/staticFiles.ts
+@@ -9,12 +9,9 @@ ${new ImportDeclaration(
+ export type GQLContext = BaseGQLContext & Record<string, never>;
+ `;
+ const pubsubFile = `\
+-${new ImportDeclaration(
+-  ["PubSub", "PubSubEngine"],
+-  "graphql-subscriptions",
+-).toString()}
++${new ImportDeclaration(["createPubSub"], "sasat").toString()}
+ 
+-export const pubsub: PubSubEngine = new PubSub();
++export const pubsub = createPubSub();
+ `;
+ const schemaFile = `\
+ ${new ImportDeclaration(["assignDeep", "createTypeDef"], "sasat").toString()}
+diff --git a/src/generatorv2/codegen_v2.test.ts b/src/generatorv2/codegen_v2.test.ts
+index 65cc610..fef147e 100644
+--- a/src/generatorv2/codegen_v2.test.ts
++++ b/src/generatorv2/codegen_v2.test.ts
+@@ -17,6 +17,7 @@ import { DataStoreHandler } from "../migration/dataStore.js";
+ import { StoreMigrator } from "../migration/front/storeMigrator.js";
+ import { Mutations } from "../migration/makeMutaion.js";
+ import { Queries } from "../migration/makeQuery.js";
++import { createPubSub } from "../runtime/createPubSub.js";
+ import { createTypeDef } from "../runtime/createTypeDef.js";
+ import { makeResolver } from "../runtime/makeResolver.js";
+ import { pick } from "../runtime/util.js";
+@@ -135,13 +136,41 @@ test("preserves custom files and removes obsolete generated output on regenerati
+   const originalMiddleware =
+     readFileSync(middleware, "utf8") + "\n// custom auth\n";
+   writeFileSync(middleware, originalMiddleware);
++  const pubsub = join(dir, "pubsub.ts");
++  const customPubsub = "// user-owned PubSub implementation\n";
++  writeFileSync(pubsub, customPubsub);
+   writeFileSync(join(dir, "__generated__/obsolete.ts"), "obsolete");
+   await generator.generate();
+   expect(readFileSync(custom, "utf8")).toBe(edited);
+   expect(readFileSync(middleware, "utf8")).toBe(originalMiddleware);
++  expect(readFileSync(pubsub, "utf8")).toBe(customPubsub);
+   expect(existsSync(join(dir, "__generated__/obsolete.ts"))).toBe(false);
+ });
+ 
++test("generated pubsub uses the configurable runtime factory", async () => {
++  await new CodeGen_v2(fixture()).generate();
++  const exports = {} as { pubsub: ReturnType<typeof createPubSub> };
++  const compiled = ts.transpileModule(
++    readFileSync(join(dir, "pubsub.ts"), "utf8"),
++    {
++      compilerOptions: { module: ts.ModuleKind.CommonJS },
++    },
++  );
++  runInNewContext(compiled.outputText, {
++    exports,
++    require: (name: string) => {
++      if (name === "sasat")
++        return { createPubSub: () => createPubSub({ backend: "local" }) };
++      throw new Error(`Unexpected generated import: ${name}`);
++    },
++  });
++  const receive = jest.fn();
++  await exports.pubsub.subscribe("event", receive, {});
++  await exports.pubsub.publish("event", { value: 1 });
++  expect(receive).toHaveBeenCalledWith({ value: 1 });
++  await exports.pubsub.close();
++});
++
+ test("rejects tables without a primary key", () => {
+   const store = StoreMigrator.deserialize({ tables: [] });
+   store.createTable("invalid", (table) => table.column("name").text());
+diff --git a/src/index.ts b/src/index.ts
+index a599d27..377bf8b 100644
+--- a/src/index.ts
++++ b/src/index.ts
+@@ -13,6 +13,11 @@ export { getDbClient } from "./db/getDbClient.js";
+ export type { ComparisonOperators } from "./db/sql/expression/comparison.js";
+ export { CompositeCondition } from "./db/sql/expression/compositeCondition.js";
+ export type { TypeFieldDefinition } from "./generatorv2/codegen/ts/scripts/typeDefinition.js";
++export type {
++  ConfiguredPubSub,
++  PubSubOptions,
++} from "./runtime/createPubSub.js";
++export { createPubSub } from "./runtime/createPubSub.js";
+ export { createTypeDef } from "./runtime/createTypeDef.js";
+ export {
+   dateOffset,
+diff --git a/test/integration/servers.integration.ts b/test/integration/servers.integration.ts
+index 0408dcb..6ff266a 100644
+--- a/test/integration/servers.integration.ts
++++ b/test/integration/servers.integration.ts
+@@ -8,6 +8,7 @@ import {
+   createConnection,
+   type RowDataPacket,
+ } from "mysql2/promise";
++import { createPubSub } from "../../src/runtime/createPubSub.js";
+ import { ServerProcess } from "../helpers/serverProcess.js";
+ import { UserHashId } from "../out/idEncoder.js";
+ import { migrationStore } from "./migrations.js";
+@@ -23,6 +24,10 @@ let connection: Connection | undefined;
+ const databases: string[] = [];
+ const servers: ServerProcess[] = [];
+ const urls: string[] = [];
++const pubsubBackend = process.env.PUBSUB_BACKEND ?? "local";
++const redisUrl = process.env.TEST_REDIS_URL ?? "redis://127.0.0.1:6379";
++const pubsubPrefix = `sasat_it:${randomUUID()}:`;
++const publishingServer = pubsubBackend === "redis" ? 0 : 1;
+ 
+ function serverEnvironment(database: string) {
+   return {
+@@ -32,6 +37,9 @@ function serverEnvironment(database: string) {
+     DB_USER: connectionOptions.user,
+     DB_PASSWORD: connectionOptions.password,
+     DATABASE: database,
++    PUBSUB_BACKEND: pubsubBackend,
++    REDIS_URL: redisUrl,
++    PUBSUB_PREFIX: pubsubPrefix,
+   };
+ }
+ 
+@@ -334,7 +342,7 @@ async function nextEvent(response: Response) {
+   }
+ }
+ 
+-test("Yoga delivers a created event over SSE and releases PubSub on disconnect", {
++test(`Yoga delivers a created event over ${pubsubBackend} PubSub and releases it on disconnect`, {
+   timeout: 15_000,
+ }, async () => {
+   const stream = subscribe("subscription { UserCreated { userId NNN } }");
+@@ -343,7 +351,7 @@ test("Yoga delivers a created event over SSE and releases PubSub on disconnect",
+     const created = await graphql<{
+       createUser: { userId: string; NNN: string };
+     }>(
+-      1,
++      publishingServer,
+       'mutation { createUser(user: { NNN: "SSE", nick: "sse" }) { userId NNN } }',
+     );
+     assert.deepEqual(await nextEvent(await stream.response), {
+@@ -364,7 +372,7 @@ test("Yoga filters renamed fields and releases a pending subscription on disconn
+   timeout: 15_000,
+ }, async () => {
+   const created = await graphql<{ createUser: { userId: string } }>(
+-    1,
++    publishingServer,
+     'mutation { createUser(user: { NNN: "Before", nick: "filtered" }) { userId } }',
+   );
+   const stream = subscribe(
+@@ -374,7 +382,7 @@ test("Yoga filters renamed fields and releases a pending subscription on disconn
+     await waitForSubscriptions(1);
+     for (const name of ["Other", "Match"]) {
+       await graphql(
+-        1,
++        publishingServer,
+         "mutation($id: ID!, $name: String!) { updateUser(user: { userId: $id, NNN: $name }) }",
+         { id: created.createUser.userId, name },
+       );
+@@ -401,3 +409,56 @@ test("Yoga filters renamed fields and releases a pending subscription on disconn
+     await waitForSubscriptions(0);
+   }
+ });
++
++test("Redis channel prefixes isolate independent applications", {
++  skip: pubsubBackend !== "redis",
++  timeout: 10_000,
++}, async () => {
++  const first = createPubSub({
++    backend: "redis",
++    redisUrl,
++    channelPrefix: pubsubPrefix + "a:",
++  });
++  const receiver = createPubSub({
++    backend: "redis",
++    redisUrl,
++    channelPrefix: pubsubPrefix + "a:",
++  });
++  const isolated = createPubSub({
++    backend: "redis",
++    redisUrl,
++    channelPrefix: pubsubPrefix + "b:",
++  });
++  try {
++    const received: unknown[] = [];
++    const isolatedReceived: unknown[] = [];
++    const event = Promise.withResolvers<unknown>();
++    const isolatedEvent = Promise.withResolvers<unknown>();
++    const id = await receiver.subscribe(
++      "event",
++      (value) => {
++        received.push(value);
++        event.resolve(value);
++      },
++      {},
++    );
++    await isolated.subscribe(
++      "event",
++      (value) => {
++        isolatedReceived.push(value);
++        isolatedEvent.resolve(value);
++      },
++      {},
++    );
++    await first.publish("event", { source: "first" });
++    await isolated.publish("event", { source: "isolated" });
++    await Promise.all([event.promise, isolatedEvent.promise]);
++    assert.deepEqual(received, [{ source: "first" }]);
++    assert.deepEqual(isolatedReceived, [{ source: "isolated" }]);
++    receiver.unsubscribe(id);
++    await first.publish("event", { source: "after unsubscribe" });
++    assert.equal(received.length, 1);
++  } finally {
++    await Promise.all([first.close(), receiver.close(), isolated.close()]);
++  }
++});
+diff --git a/test/out/pubsub.ts b/test/out/pubsub.ts
+index 04e3a05..5c3ea06 100644
+--- a/test/out/pubsub.ts
++++ b/test/out/pubsub.ts
+@@ -1,3 +1,3 @@
+-import { PubSub, PubSubEngine } from 'graphql-subscriptions';
++import {createPubSub} from "sasat";
+ 
+-export const pubsub: PubSubEngine = new PubSub();
++export const pubsub = createPubSub();
+diff --git a/test/servers.test.ts b/test/servers.test.ts
+index 3ce1899..63d0f8d 100644
+--- a/test/servers.test.ts
++++ b/test/servers.test.ts
+@@ -10,7 +10,7 @@ const servers: ServerProcess[] = [];
+ const urls: Record<string, string> = {};
+ 
+ function startServer(file: string): Promise<string> {
+-  const server = new ServerProcess(file);
++  const server = new ServerProcess(file, { PUBSUB_BACKEND: "local" });
+   servers.push(server);
+   return server.ready;
+ }
+diff --git a/tsconfig.json b/tsconfig.json
+index 24e270a..5c53825 100644
+--- a/tsconfig.json
++++ b/tsconfig.json
+@@ -37,7 +37,7 @@
+     /* Module Resolution Options */
+     "moduleResolution": "nodenext",            /* Specify module resolution strategy: 'node' (Node.js) or 'classic' (TypeScript pre-1.6). */
+     "paths": {
+-      "sasat": ["./src"],
++      "sasat": ["./src/index.ts"],
+       "sasat/migration": ["./src/migration/index.ts"],
+       "@/*": ["./src/*"]
+     },
+diff --git a/yarn.lock b/yarn.lock
+index 8bcac55..702023f 100644
+--- a/yarn.lock
++++ b/yarn.lock
+@@ -1092,6 +1092,13 @@ __metadata:
+   languageName: node
+   linkType: hard
+ 
++"@ioredis/commands@npm:1.10.0":
++  version: 1.10.0
++  resolution: "@ioredis/commands@npm:1.10.0"
++  checksum: 10/2b0322f99d24f11d99ae279b59d977bb129f95f973ed3a31cbee68376e8fad41f974d23d7f9a06151b3d9c140038ef312e0b45d4577048ab0797aa9a6839213d
++  languageName: node
++  linkType: hard
++
+ "@isaacs/cliui@npm:^8.0.2":
+   version: 8.0.2
+   resolution: "@isaacs/cliui@npm:8.0.2"
+@@ -2893,6 +2900,13 @@ __metadata:
+   languageName: node
+   linkType: hard
+ 
++"cluster-key-slot@npm:1.1.1":
++  version: 1.1.1
++  resolution: "cluster-key-slot@npm:1.1.1"
++  checksum: 10/2b926e8ebe7c350f4d87f0156a581cdaf3d26722b1256ec7c0b970c136e51dddd3cd2dc69acee61d5c310dc3730531705eac6ecaf9fec51903cf3a9f9287babf
++  languageName: node
++  linkType: hard
++
+ "co@npm:^4.6.0":
+   version: 4.6.0
+   resolution: "co@npm:4.6.0"
+@@ -2974,7 +2988,7 @@ __metadata:
+   languageName: node
+   linkType: hard
+ 
+-"debug@npm:^4.1.0, debug@npm:^4.1.1, debug@npm:^4.3.1, debug@npm:^4.4.0, debug@npm:^4.4.3":
++"debug@npm:4.4.3, debug@npm:^4.1.0, debug@npm:^4.1.1, debug@npm:^4.3.1, debug@npm:^4.4.0, debug@npm:^4.4.3":
+   version: 4.4.3
+   resolution: "debug@npm:4.4.3"
+   dependencies:
+@@ -3023,6 +3037,13 @@ __metadata:
+   languageName: node
+   linkType: hard
+ 
++"denque@npm:2.1.0":
++  version: 2.1.0
++  resolution: "denque@npm:2.1.0"
++  checksum: 10/8ea05321576624b90acfc1ee9208b8d1d04b425cf7573b9b4fa40a2c3ed4d4b0af5190567858f532f677ed2003d4d2b73c8130b34e3c7b8d5e88cdcfbfaa1fe7
++  languageName: node
++  linkType: hard
++
+ "depd@npm:~2.0.0":
+   version: 2.0.0
+   resolution: "depd@npm:2.0.0"
+@@ -3788,6 +3809,21 @@ __metadata:
+   languageName: node
+   linkType: hard
+ 
++"ioredis@npm:^5.11.1":
++  version: 5.11.1
++  resolution: "ioredis@npm:5.11.1"
++  dependencies:
++    "@ioredis/commands": "npm:1.10.0"
++    cluster-key-slot: "npm:1.1.1"
++    debug: "npm:4.4.3"
++    denque: "npm:2.1.0"
++    redis-errors: "npm:1.2.0"
++    redis-parser: "npm:3.0.0"
++    standard-as-callback: "npm:2.1.0"
++  checksum: 10/f27653075b0599a9e8886b28a59bb2e232ca7d91b4a81de699e932cb55dcdcec791fe571fb7d4ebc81fc26f44667a76cf165162ecea57285548190ea0d58f734
++  languageName: node
++  linkType: hard
++
+ "is-arrayish@npm:^0.2.1":
+   version: 0.2.1
+   resolution: "is-arrayish@npm:0.2.1"
+@@ -5106,6 +5142,22 @@ __metadata:
+   languageName: node
+   linkType: hard
+ 
++"redis-errors@npm:1.2.0, redis-errors@npm:^1.0.0":
++  version: 1.2.0
++  resolution: "redis-errors@npm:1.2.0"
++  checksum: 10/001c11f63ddd52d7c80eb4f4ede3a9433d29a458a7eea06b9154cb37c9802a218d93b7988247aa8c958d4b5d274b18354e8853c148f1096fda87c6e675cfd3ee
++  languageName: node
++  linkType: hard
++
++"redis-parser@npm:3.0.0":
++  version: 3.0.0
++  resolution: "redis-parser@npm:3.0.0"
++  dependencies:
++    redis-errors: "npm:^1.0.0"
++  checksum: 10/b10846844b4267f19ce1a6529465819c3d78c3e89db7eb0c3bb4eb19f83784797ec411274d15a77dbe08038b48f95f76014b83ca366dc955a016a3a0a0234650
++  languageName: node
++  linkType: hard
++
+ "require-directory@npm:^2.1.1":
+   version: 2.1.1
+   resolution: "require-directory@npm:2.1.1"
+@@ -5274,6 +5326,7 @@ __metadata:
+     graphql-yoga: "npm:^5.24.1"
+     hashids: "npm:^2.3.0"
+     husky: "npm:9.1.7"
++    ioredis: "npm:^5.11.1"
+     jest: "npm:^30.5.2"
+     js-yaml: "npm:^5.4.2"
+     lint-staged: "npm:^17.5.1"
+@@ -5464,6 +5517,13 @@ __metadata:
+   languageName: node
+   linkType: hard
+ 
++"standard-as-callback@npm:2.1.0":
++  version: 2.1.0
++  resolution: "standard-as-callback@npm:2.1.0"
++  checksum: 10/88bec83ee220687c72d94fd86a98d5272c91d37ec64b66d830dbc0d79b62bfa6e47f53b71646011835fc9ce7fae62739545d13124262b53be4fbb3e2ebad551c
++  languageName: node
++  linkType: hard
++
+ "statuses@npm:^2.0.1, statuses@npm:~2.0.2":
+   version: 2.0.2
+   resolution: "statuses@npm:2.0.2"

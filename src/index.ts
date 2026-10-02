@@ -13,6 +13,11 @@ export { getDbClient } from "./db/getDbClient.js";
 export type { ComparisonOperators } from "./db/sql/expression/comparison.js";
 export { CompositeCondition } from "./db/sql/expression/compositeCondition.js";
 export type { TypeFieldDefinition } from "./generatorv2/codegen/ts/scripts/typeDefinition.js";
+export type {
+  ConfiguredPubSub,
+  PubSubOptions,
+} from "./runtime/createPubSub.js";
+export { createPubSub } from "./runtime/createPubSub.js";
 export { createTypeDef } from "./runtime/createTypeDef.js";
 export {
   dateOffset,

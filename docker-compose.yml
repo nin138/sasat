@@ -17,6 +17,16 @@ services:
       MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
     ports:
       - '3308:3306'
+  redis:
+    image: redis:8-alpine
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    ports:
+      - '127.0.0.1:${REDIS_PORT:-6379}:6379'
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
   dev:
     build:
       context: ./docker/dev
@@ -26,6 +36,7 @@ services:
       DB_USER: 'root'
       DB_PASSWORD:
       DATABASE: 'test'
+      REDIS_URL: 'redis://redis:6379'
     volumes:
       - ./:/app
       # Overlays the host .env inside the container only; the host file is untouched.

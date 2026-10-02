@@ -9,12 +9,9 @@ ${new ImportDeclaration(
 export type GQLContext = BaseGQLContext & Record<string, never>;
 `;
 const pubsubFile = `\
-${new ImportDeclaration(
-  ["PubSub", "PubSubEngine"],
-  "graphql-subscriptions",
-).toString()}
+${new ImportDeclaration(["createPubSub"], "sasat").toString()}
 
-export const pubsub: PubSubEngine = new PubSub();
+export const pubsub = createPubSub();
 `;
 const schemaFile = `\
 ${new ImportDeclaration(["assignDeep", "createTypeDef"], "sasat").toString()}

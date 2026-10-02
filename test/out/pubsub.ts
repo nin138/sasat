@@ -1,3 +1,3 @@
-import { PubSub, PubSubEngine } from 'graphql-subscriptions';
+import {createPubSub} from "sasat";
 
-export const pubsub: PubSubEngine = new PubSub();
+export const pubsub = createPubSub();
