@@ -1,4 +1,5 @@
 import { createConnection, createPool } from "mysql2/promise";
+import { config, setConfig } from "../../../config/config.js";
 import { getDbClient } from "../../getDbClient.js";
 import { MysqlClient } from "./client.js";
 import { MysqlPoolClient } from "./poolClient.js";
@@ -104,4 +105,58 @@ test("reuses the shared pool until it is released", async () => {
   const second = getDbClient({ database: "test" });
   expect(second).not.toBe(first);
   await second.release();
+});
+
+test("rejects changed explicit connection options without replacing or closing the active pool", async () => {
+  const pool = connection();
+  jest.mocked(createPool).mockReturnValue(pool as never);
+  const first = getDbClient({ database: "tenant_a" });
+  try {
+    expect(getDbClient({ database: "tenant_a" })).toBe(first);
+    expect(getDbClient()).toBe(first);
+    expect(() => getDbClient({ database: "tenant_b" })).toThrow(
+      "already initialized with different settings",
+    );
+    expect(createPool).toHaveBeenCalledTimes(1);
+    expect(pool.end).not.toHaveBeenCalled();
+    await first.rawQuery("SELECT 1");
+    expect(pool.query).toHaveBeenCalledWith("SELECT 1");
+  } finally {
+    await first.release();
+  }
+  const second = getDbClient({ database: "tenant_b" });
+  expect(createPool).toHaveBeenLastCalledWith(
+    expect.objectContaining({ database: "tenant_b" }),
+  );
+  await second.release();
+});
+
+test("rejects a changed logger instead of ignoring it", async () => {
+  jest.mocked(createPool).mockImplementation(() => connection() as never);
+  const logger = jest.fn();
+  const first = getDbClient(undefined, logger);
+  try {
+    expect(getDbClient(undefined, logger)).toBe(first);
+    expect(getDbClient()).toBe(first);
+    expect(() => getDbClient(undefined, jest.fn())).toThrow(
+      "already initialized with different settings",
+    );
+  } finally {
+    await first.release();
+  }
+});
+
+test("detects changes to the default database configuration", async () => {
+  jest.mocked(createPool).mockImplementation(() => connection() as never);
+  const original = structuredClone(config().db);
+  const first = getDbClient();
+  try {
+    setConfig({ db: { database: "changed_database" } });
+    expect(() => getDbClient()).toThrow(
+      "already initialized with different settings",
+    );
+  } finally {
+    await first.release();
+    config().db = original;
+  }
 });

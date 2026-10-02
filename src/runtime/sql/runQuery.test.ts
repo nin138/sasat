@@ -4,8 +4,14 @@ import {
   type RelationMap,
   type TableInfo,
 } from "../dsl/query/createQueryResolveInfo.js";
+import { queryToSql } from "../dsl/query/sql/queryToSql.js";
 import type { Fields } from "../field.js";
-import { createPagingInnerQuery, createQuery, runQuery } from "./runQuery.js";
+import {
+  createPagingFieldQuery,
+  createPagingInnerQuery,
+  createQuery,
+  runQuery,
+} from "./runQuery.js";
 
 const tables: TableInfo = {
   users: {
@@ -131,4 +137,57 @@ test("runs SQL and hydrates the returned rows", async () => {
   expect(client.rawQuery).toHaveBeenCalledWith(
     "SELECT `u`.`id` AS `u__id` FROM `users` AS `u`",
   );
+});
+
+test("combines paging and query predicates before limiting parents", () => {
+  const query = createPagingFieldQuery({
+    baseTableName: "users",
+    fields: {
+      fields: ["id"] as never[],
+      relations: { posts: { fields: ["title"] } },
+    },
+    tableInfo: tables,
+    relationMap: relations,
+    pagingOption: {
+      numberOfItem: 2,
+      offset: 1,
+      where: q.or(
+        q.eq(q.field("t0", "name"), q.value("Ada")),
+        q.eq(q.field("t0", "name"), q.value("Lin")),
+      ),
+    },
+    queryOption: { where: q.gt(q.field("t0", "user_id"), q.value(10)) },
+  });
+  const sql = queryToSql(query).replace(/\s+/g, " ");
+  expect(sql).toContain(
+    "WHERE `t0`.`user_id` > 10 AND (`t0`.`name` = 'Ada' OR `t0`.`name` = 'Lin') LIMIT 2 OFFSET 1",
+  );
+  expect(sql.indexOf("LIMIT 2")).toBeLessThan(sql.indexOf("LEFT JOIN"));
+});
+
+test("applies query-only conditions with their joins, ordering and locks inside the page", () => {
+  const joined = q.join(
+    q.table("posts", [], "p"),
+    q.eq(q.field("u", "user_id"), q.field("p", "user_id")),
+    "INNER",
+  );
+  const query = createPagingFieldQuery({
+    baseTableName: "users",
+    fields: { fields: ["id"] as never[], tableAlias: "u" },
+    tableInfo: tables,
+    relationMap: relations,
+    pagingOption: { numberOfItem: 3, join: [joined] },
+    queryOption: {
+      join: [joined],
+      where: q.eq(q.field("p", "title"), q.value("allowed")),
+      sort: [q.sort(q.field("u", "user_id"), "DESC")],
+      lock: "FOR UPDATE",
+    },
+  });
+  const sql = queryToSql(query).replace(/\s+/g, " ");
+  expect(sql).toContain(
+    "WHERE `p`.`title` = 'allowed' ORDER BY `u`.`user_id` DESC LIMIT 3 FOR UPDATE) AS `u`",
+  );
+  expect(sql.match(/INNER JOIN/g)).toHaveLength(1);
+  expect(query.lock).toBe("FOR UPDATE");
 });

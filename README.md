@@ -221,6 +221,23 @@ const unsubscribe = client.subscribe(
 // client.dispose(); // Dispose the client when all subscriptions are finished.
 ```
 
+### Shared database client
+
+`getDbClient()` reuses the active connection pool. Calls with the same explicit
+connection options and logger also reuse it. While the pool is active, changing
+explicit options, supplying a different logger, or changing `config().db` throws
+an error instead of silently using the previous database. Stop pending work and
+`await client.release()` before changing settings. For simultaneous connections
+to different databases, construct separate `MysqlClient` instances and inject
+them into your data sources.
+
+`findPageable(paging, fields, options)` combines `paging.where` and
+`options.where` with AND before applying the page's limit and offset. Explicit
+joins from both options participate in that parent query. `paging.sort` takes
+precedence over `options.sort`; `options.lock` applies to both the parent
+subquery and the outer query. Related rows are loaded after the parent page
+has been selected.
+
 ### Selecting local or Redis PubSub
 
 Newly generated `out/pubsub.ts` uses Sasat's configurable PubSub factory:

@@ -25,8 +25,8 @@
     "codex": "docker compose exec dev codex codex --sandbox workspace-write --ask-for-approval on-request -c 'approvals_reviewer=\"auto_review\"'",
     "test:unit": "jest --runInBand",
     "test:coverage": "jest --runInBand --coverage",
-    "test:integration": "tsx --test test/integration/servers.integration.ts",
-    "test:integration:redis": "env PUBSUB_BACKEND=redis tsx --test test/integration/servers.integration.ts",
+    "test:integration": "tsx --test test/integration/*.integration.ts",
+    "test:integration:redis": "env PUBSUB_BACKEND=redis tsx --test test/integration/*.integration.ts",
     "test:typecheck": "tsc --project tsconfig.test.json --noEmit && tsc --project tsconfig.servers.json"
   },
   "dependencies": {

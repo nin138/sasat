@@ -146,3 +146,18 @@ test("renders a subquery table and window frame boundaries", () => {
     }),
   ).toContain("ROWS UNBOUNDED PRECEDING");
 });
+
+test("preserves nested AND/OR grouping on either side", () => {
+  const a = q.eq(q.field("u", "tenant"), q.value(1));
+  const b = q.eq(q.field("u", "active"), q.value(true));
+  const c = q.eq(q.field("u", "public"), q.value(true));
+  expect(sql(q.and(a, q.or(b, c)))).toBe(
+    "`u`.`tenant` = 1 AND (`u`.`active` = true OR `u`.`public` = true)",
+  );
+  expect(sql(q.and(q.or(a, b), c))).toBe(
+    "(`u`.`tenant` = 1 OR `u`.`active` = true) AND `u`.`public` = true",
+  );
+  expect(sql(q.or(q.and(a, b), c))).toBe(
+    "(`u`.`tenant` = 1 AND `u`.`active` = true) OR `u`.`public` = true",
+  );
+});

@@ -126,10 +126,17 @@ export const Sql = {
   },
   comparison: (expr: ComparisonExpression): string =>
     `${Sql.value(expr.left)}  ${expr.operator} ${Sql.value(expr.right)}`,
-  compound: (expr: CompoundExpression): string =>
-    `${Sql.booleanValue(expr.left)} ${expr.operator} ${Sql.booleanValue(
-      expr.right,
-    )}`,
+  compound: (expr: CompoundExpression): string => {
+    const operand = (child: BooleanValueExpression): string => {
+      const sql = Sql.booleanValue(child);
+      // Preserve the AST grouping when AND and OR are nested.
+      return child.kind === QueryNodeKind.CompoundExpr &&
+        child.operator !== expr.operator
+        ? "(" + sql + ")"
+        : sql;
+    };
+    return operand(expr.left) + " " + expr.operator + " " + operand(expr.right);
+  },
   isNull: (expr: IsNullExpression): string =>
     `${Sql.value(expr.expr)} ${expr.isNot ? "IS NOT NULL" : "IS NULL"}`,
   paren: (expr: ParenthesisExpression): string =>

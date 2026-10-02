@@ -163,10 +163,23 @@ export const createPagingFieldQuery = ({
     baseTableName,
     tableAlias,
     fields,
-    pagingOption,
+    {
+      ...pagingOption,
+      // Filter parents before LIMIT/OFFSET, including generated query conditions.
+      where:
+        queryOption?.where && pagingOption.where
+          ? QExpr.and(queryOption.where, pagingOption.where)
+          : (queryOption?.where ?? pagingOption.where),
+      join: unique([
+        ...(pagingOption.join ?? []),
+        ...(queryOption?.join ?? []),
+      ]),
+      sort: pagingOption.sort ?? queryOption?.sort,
+    },
     tableInfo,
     relationMap,
   );
+  innerQuery.lock = queryOption?.lock;
 
   const main = createQuery(
     baseTableName,
@@ -178,6 +191,7 @@ export const createPagingFieldQuery = ({
   );
   return {
     select: main.select,
+    lock: queryOption?.lock,
     from: {
       ...main.from,
       subquery: true,
