@@ -8,7 +8,11 @@ export const getMigrationTargets = (
   const currentIndex = current ? files.indexOf(current) + 1 : 0;
   const targetIndex =
     files.indexOf(config().migration.target || files[files.length - 1]) + 1;
-  if (currentIndex === -1 || targetIndex === -1)
+  if (
+    (current !== undefined && !files.includes(current)) ||
+    (config().migration.target !== undefined &&
+      !files.includes(config().migration.target!))
+  )
     throw new Error("migration target not found");
   if (targetIndex >= currentIndex)
     return {

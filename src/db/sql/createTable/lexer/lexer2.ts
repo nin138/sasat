@@ -41,9 +41,9 @@ export class Lexer2 {
 
   lex(): Token[] {
     let value = this.read();
-    do {
+    while (value.value !== "") {
       value = this.exec(value);
-    } while (value.hasNext);
+    }
     return this.tokens;
   }
 
@@ -96,7 +96,8 @@ export class Lexer2 {
       let value: Current | undefined;
       const next = () => {
         value = this.read();
-        terminated = this.isTerminated(value.value, rule.terminator);
+        terminated =
+          value.value === "" || this.isTerminated(value.value, rule.terminator);
         return {
           terminated,
           ...value,

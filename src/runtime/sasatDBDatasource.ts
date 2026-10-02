@@ -258,7 +258,8 @@ export abstract class SasatDBDatasource<
     const expr = this.identifyFields.map((it) => {
       // biome-ignore lint/suspicious/noExplicitAny: <>
       const value = (entity as any)[it];
-      if (!value) throw new Error(`field ${it} is required`);
+      if (value === undefined || value === null)
+        throw new Error(`field ${it} is required`);
       return qe.eq(
         qe.field(this.tableName, this.tableInfo[this.tableName].columnMap[it]),
         qe.value(value),

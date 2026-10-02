@@ -146,7 +146,8 @@ export class CreateTableParser {
         : undefined;
     const scale =
       tokens[2] && isParenToken(tokens[2])
-        ? tokens[2].tokens[1]?.value
+        ? tokens[2].tokens.filter((it) => it.kind !== TokenKind.Separator)[1]
+            ?.value
         : undefined;
     const column: SerializedNormalColumn = {
       hasReference: false,
@@ -228,7 +229,7 @@ export class CreateTableParser {
       const action = (): ForeignKeyReferentialAction => {
         let name = tokens[it + 2].value.toUpperCase();
         if (name === "SET" || name === "NO") {
-          name += tokens[it + 3].value.toUpperCase();
+          name += " " + tokens[it + 3].value.toUpperCase();
         }
         return name as ForeignKeyReferentialAction;
       };

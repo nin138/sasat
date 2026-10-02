@@ -2,9 +2,10 @@ import { QExpr } from "./dsl/factory.js";
 import type { Literal } from "./dsl/query/query.js";
 
 export const dateOffset = (date: Date, timeZoneHour?: number): Date => {
-  const offset = timeZoneHour
-    ? timeZoneHour * 60 * 60 * 1000
-    : date.getTimezoneOffset() * 60000;
+  const offset =
+    timeZoneHour !== undefined
+      ? timeZoneHour * 60 * 60 * 1000
+      : date.getTimezoneOffset() * 60000;
   return new Date(date.getTime() + offset);
 };
 
@@ -63,7 +64,7 @@ export const getDayRange = (
   timeZoneHour?: number,
 ): [string, string] => {
   date.setHours(0, 0, 0, 0);
-  const d = dateOffset(date, timeZoneHour || 0);
+  const d = dateOffset(date, timeZoneHour);
   const begin = dateToDatetimeString(d);
   d.setDate(d.getDate() + 1);
   return [begin, dateToDatetimeString(d)];

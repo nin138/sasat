@@ -20,7 +20,7 @@ const calcRunMigrationFileNames = (records: MigrationRecord[]) => {
   const result: string[] = [];
   records.forEach((it) => {
     if (it.direction === Direction.Down) {
-      if (result[result.length] !== it.name)
+      if (result[result.length - 1] !== it.name)
         throw new Error(
           "Invalid migration history: `down` migration must be the same migration as the last `up` migration ",
         );

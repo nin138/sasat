@@ -46,7 +46,7 @@ function windowValue(value: WindowContent) {
 function window(window?: Window) {
   if (!window) return "";
   if (window.between) {
-    return `${window.type} BETWEEN ${windowValue(window.start)} AND ${window.end}`;
+    return `${window.type} BETWEEN ${windowValue(window.start)} AND ${windowValue(window.end)}`;
   }
   return `${window.type} ${windowValue(window.value)}`;
 }
@@ -108,8 +108,8 @@ export const Sql = {
     const operator = expr.isNot ? "NOT LIKE" : "LIKE";
     const val = (value: string, type: ContainType) => {
       if (type === "contains") return "%" + value + "%";
-      if (type === "start") return "%" + value;
-      return value + "%";
+      if (type === "start") return value + "%";
+      return "%" + value;
     };
     return `${Sql.value(expr.left)} ${operator} ${SqlString.escape(
       val(expr.right, expr.type),

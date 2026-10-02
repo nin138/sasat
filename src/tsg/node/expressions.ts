@@ -175,6 +175,7 @@ export type BinaryExpressionToken =
   | "-"
   | "*"
   | "/"
+  | "??"
   | "||"
   | "&&"
   | "=";

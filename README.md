@@ -98,3 +98,16 @@ const { url } = await startStandaloneServer(server, { listen: { port: 4000 } });
 console.log(`🚀 Server ready at ${url}`);
 ```
 - 5_ run server!
+
+## Testing
+
+Install the locked dependencies with `yarn install --immutable`. Tests run without a MySQL server or a local `.env` file.
+
+- `yarn test:unit`: run the unit and file-generation integration tests.
+- `yarn test:coverage`: run the same suite and write coverage reports to `coverage/` (HTML: `coverage/lcov-report/index.html`).
+- `yarn test:typecheck`: type-check the implementation and test files.
+- `yarn test:unit src/runtime/date.test.ts`: run a specific test file.
+
+Tests use temporary directories for filesystem operations, mock database connections, and run clock-dependent cases in UTC. They cover SQL generation, migration execution and rollback, configuration, GraphQL resolvers, generated TypeScript and GraphQL schemas, and preservation of user edits during regeneration. Type-only declarations are checked by TypeScript; generated output is verified through the generator tests.
+
+The existing `yarn test` command still runs its database reset and migration pretest step; use it only with a disposable test database. Live MySQL compatibility is not covered by the mocked connector tests.

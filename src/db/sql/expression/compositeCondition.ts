@@ -18,7 +18,9 @@ export class CompositeCondition<T> {
 
   toSQL(): string {
     return (
-      "(" + this.conditions.map(conditionExpressionToSql).join(this.type) + ")"
+      "(" +
+      this.conditions.map(conditionExpressionToSql).join(` ${this.type} `) +
+      ")"
     );
   }
 }

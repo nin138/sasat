@@ -31,7 +31,7 @@ export const runMigration = async (
         Console.error(`ERROR ON ${migrationName}`);
         Console.error(`SQL: ${sql}`);
         Console.error(`MESSAGE: ${e.message}`);
-        process.exit(1);
+        throw e;
       });
     }
     await transaction.query`insert into ${() =>

@@ -15,7 +15,7 @@ export const makeConditionValueRaw = (cv: JoinConditionValue): TsExpression => {
       }
       return tsg.binary(
         context.property(cv.field),
-        "||",
+        "??",
         typeof cv.onNotDefined.value === "string"
           ? tsg.string(cv.onNotDefined.value)
           : tsg.number(cv.onNotDefined.value),
@@ -63,7 +63,7 @@ export const makeConditionValueQExpr = (
         .call(
           tsg.binary(
             context.property(cv.field),
-            "||",
+            "??",
             typeof cv.onNotDefined.value === "string"
               ? tsg.string(cv.onNotDefined.value)
               : tsg.number(cv.onNotDefined.value),

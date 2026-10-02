@@ -33,6 +33,7 @@ export const comparisonExpressionToSql = (
 ): string => {
   const type = Object.hasOwn(exp, "__type") ? exp.__type || "AND" : "AND";
   return Object.entries(exp)
+    .filter(([key]) => key !== "__type")
     .map(([key, value]) => {
       const column = SqlString.escapeId(key);
       if (!Array.isArray(value))
@@ -49,7 +50,7 @@ export const comparisonExpressionToSql = (
         return `${column} BETWEEN ${SqlString.escape(
           value[1],
         )} AND ${SqlString.escape(value[2])}`;
-      if (Object.keys(Comparison).includes(value[0]))
+      if ((Object.values(Comparison) as string[]).includes(value[0]))
         return `${column} ${value[0]} ${SqlString.escape(value[1])}`;
       throw new SasatError("SQL PARSE ERROR");
     })

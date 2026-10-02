@@ -70,7 +70,7 @@ export class TableCreator implements TableBuilder {
   }
 
   addColumn(column: ColumnBuilderBase): void {
-    if (this.table.hasColumn(column.columnName))
+    if (this.columns.some((it) => it.columnName === column.columnName))
       throw new Error(`${this.tableName}.${column.columnName} already exists`);
     this.columns.push(column);
   }
@@ -127,10 +127,7 @@ export class TableCreator implements TableBuilder {
   }
 
   addIndex(...columns: string[]): TableBuilder {
-    this.table.addIndex(
-      `index_${this.tableName}__${columns.join("_")}`,
-      ...columns,
-    );
+    this.table.addIndex(...columns);
     return this;
   }
 

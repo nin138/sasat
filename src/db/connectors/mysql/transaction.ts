@@ -11,15 +11,19 @@ export class MySqlTransaction extends SQLTransaction {
   }
 
   async commit(): Promise<void> {
-    const result = await this.connection.commit();
-    await this.connection.end();
-    return result;
+    try {
+      await this.connection.commit();
+    } finally {
+      await this.connection.end();
+    }
   }
 
   async rollback(): Promise<void> {
-    await this.connection.rollback();
-    await this.connection.end();
-    return;
+    try {
+      await this.connection.rollback();
+    } finally {
+      await this.connection.end();
+    }
   }
 
   protected async execSql(

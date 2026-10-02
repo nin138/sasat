@@ -18,9 +18,11 @@ export const queryToSql = (query: Query): string => {
     .join(" ");
   const where = query.where ? " WHERE " + Sql.booleanValue(query.where) : "";
   const groupBy = query.groupBy
-    ? " GROUP BY" + query.groupBy.cols.map(Sql.value).join(",")
+    ? " GROUP BY " + query.groupBy.cols.map(Sql.value).join(",")
     : "";
-  const having = query.having ? "HAVING " + Sql.booleanValue(query.having) : "";
+  const having = query.having
+    ? " HAVING " + Sql.booleanValue(query.having)
+    : "";
   const sort =
     query.sort && query.sort.length !== 0
       ? " ORDER BY " + Sql.sorts(query.sort)
@@ -30,7 +32,7 @@ export const queryToSql = (query: Query): string => {
   if (offset && !limit) throw new Error("LIMIT is required to use OFFSET.");
   return (
     `SELECT ${select} FROM ${Sql.table(query.from)}` +
-    join +
+    (join ? " " + join : "") +
     where +
     groupBy +
     having +

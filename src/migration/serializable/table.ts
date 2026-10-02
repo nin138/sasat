@@ -82,7 +82,9 @@ export class TableHandler implements Table {
   }
 
   dropColumn(columnName: string): void {
-    this._columns = this._columns.filter((it) => it.fieldName() !== columnName);
+    this._columns = this._columns.filter(
+      (it) => it.columnName() !== columnName,
+    );
   }
 
   serialize(): SerializedTable {

@@ -1,5 +1,6 @@
 import { existsSync } from "node:fs";
 import path from "node:path";
+import { assignDeep } from "../util/assignDeep.js";
 import { readYmlFile } from "../util/fsUtil.js";
 import {
   defaultConf,
@@ -18,10 +19,9 @@ export class SasatConfigLoader {
   readonly conf: SasatConfig;
 
   constructor() {
-    const conf: SasatConfig = this.readValue({
-      ...defaultConf,
-      ...SasatConfigLoader.loadConfig(),
-    });
+    const conf: SasatConfig = this.readValue(
+      assignDeep(structuredClone(defaultConf), SasatConfigLoader.loadConfig()),
+    );
     this.conf = {
       ...conf,
     };

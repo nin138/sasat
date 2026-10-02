@@ -27,16 +27,24 @@ export class MysqlClient extends DBClient {
 
   async transaction(): Promise<SQLTransaction> {
     const connection = await this.getConnection();
-    await connection.beginTransaction();
-    return new MySqlTransaction(connection);
+    try {
+      await connection.beginTransaction();
+      return new MySqlTransaction(connection);
+    } catch (error) {
+      await connection.end();
+      throw error;
+    }
   }
 
   protected async execSql(
     sql: string,
   ): Promise<QueryResponse | CommandResponse> {
     const connection = await this.getConnection();
-    const r = await connection.query(sql);
-    await connection.end();
-    return r[0] as QueryResponse | CommandResponse;
+    try {
+      const r = await connection.query(sql);
+      return r[0] as QueryResponse | CommandResponse;
+    } finally {
+      await connection.end();
+    }
   }
 }
