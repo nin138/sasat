@@ -13,6 +13,7 @@ export type ResultRow = Record<string, SqlValueType>;
 
 type Entity = Record<string, unknown>;
 type ParsedObjs = Record<string, Entity>;
+type ChildIndexes = WeakMap<Entity[], Map<unknown, Entity>>;
 
 const rowToObjs = (row: ResultRow): ParsedObjs => {
   const objs: Record<string, ResultRow> = {};
@@ -27,11 +28,14 @@ const rowToObjs = (row: ResultRow): ParsedObjs => {
 };
 
 const getUnique = (obj: Entity, info: QueryResolveInfo) =>
-  info.keyAliases.map((it) => obj[it]).join("_~_");
+  info.keyAliases.length === 1
+    ? obj[info.keyAliases[0]]
+    : JSON.stringify(info.keyAliases.map((key) => obj[key]));
 
 const execTable = (
   info: QueryResolveInfo,
   objs: ParsedObjs,
+  childIndexes: ChildIndexes,
   current?: Entity | Entity[],
 ) => {
   let entity: Record<string, unknown> | null = objs[info.tableAlias];
@@ -39,24 +43,22 @@ const execTable = (
   let result: Entity | Entity[] | null;
   let currentTarget: Entity | null;
   if (info.isArray) {
-    if (!current) {
-      result = entity == null ? [] : [entity];
-      currentTarget = entity;
-    } else {
-      currentTarget =
-        entity == null
-          ? null
-          : (current as Entity[]).find(
-              (item: Record<string, unknown>) =>
-                item &&
-                info.keyAliases.every((key) => item[key] === entity![key]),
-            )!;
-      if (currentTarget) {
-        result = current;
-      } else {
+    result = (current as Entity[] | undefined) ?? [];
+    currentTarget = null;
+    if (entity !== null) {
+      // Each relation array owns its index, so equal child IDs in other parents
+      // or sibling relations cannot share hydrated entities.
+      let index = childIndexes.get(result);
+      if (!index) {
+        index = new Map();
+        childIndexes.set(result, index);
+      }
+      const unique = getUnique(entity, info);
+      currentTarget = index.get(unique) ?? null;
+      if (currentTarget === null) {
         currentTarget = entity;
-        result = current;
-        if (currentTarget) (result as Entity[]).push(currentTarget);
+        index.set(unique, entity);
+        result.push(entity);
       }
     }
   } else {
@@ -68,6 +70,7 @@ const execTable = (
       currentTarget![it.property] = execTable(
         it,
         objs,
+        childIndexes,
         currentTarget![it.property] as Entity | Entity[],
       );
     }
@@ -83,21 +86,23 @@ export const hydrate = (
   info: QueryResolveInfo,
 ): unknown[] => {
   const result: Record<string, unknown>[] = [];
-  // Record<uniqueValue, index of result>
-  const t0mapper: Record<string, number> = {};
+  // A single-column key keeps its SQL value; composite keys use JSON tuples.
+  const t0mapper = new Map<unknown, number>();
+  const childIndexes: ChildIndexes = new WeakMap();
   info.isArray = false; // TODO skip t0 mapper & getUnique when isArray = false;
   for (const row of data) {
     const objs: ParsedObjs = rowToObjs(row);
     const currentObj = objs[info.tableAlias];
     const unique = getUnique(currentObj, info);
 
-    if (t0mapper[unique] === undefined) {
-      t0mapper[unique] = result.length;
-      result.push(execTable(info, objs, currentObj) as Entity);
+    const index = t0mapper.get(unique);
+    if (index === undefined) {
+      t0mapper.set(unique, result.length);
+      result.push(execTable(info, objs, childIndexes, currentObj) as Entity);
       continue;
     }
-    const base = result[t0mapper[unique]];
-    execTable(info, objs, base);
+    const base = result[index];
+    execTable(info, objs, childIndexes, base);
   }
 
   return result;
