@@ -2,20 +2,14 @@ import { comparisonExpressionToSql } from "./comparison.js";
 import { CompositeCondition } from "./compositeCondition.js";
 import { conditionExpressionToSql } from "./conditionExpression.js";
 
-test.each([
-  "=",
-  ">",
-  "<",
-  ">=",
-  "<=",
-  "<>",
-  "LIKE",
-  "NOT LIKE",
-])("supports %s comparisons", (operator) => {
-  expect(comparisonExpressionToSql({ name: [operator, "Ada"] } as never)).toBe(
-    "`name` " + operator + " 'Ada'",
-  );
-});
+test.each(["=", ">", "<", ">=", "<=", "<>", "LIKE", "NOT LIKE"])(
+  "supports %s comparisons",
+  (operator) => {
+    expect(
+      comparisonExpressionToSql({ name: [operator, "Ada"] } as never),
+    ).toBe("`name` " + operator + " 'Ada'");
+  },
+);
 
 test("joins only actual columns using the requested boolean operator", () => {
   expect(

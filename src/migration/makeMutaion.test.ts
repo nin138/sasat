@@ -1,19 +1,18 @@
 import { Mutations } from "./makeMutaion.js";
 import { Queries } from "./makeQuery.js";
 
-test.each([
-  "create",
-  "update",
-  "delete",
-] as const)("sets safe defaults for %s mutations", (method) => {
-  expect(Mutations[method]()).toEqual({
-    type: method,
-    noReFetch: false,
-    middlewares: [],
-    contextFields: [],
-    subscription: { enabled: false, subscriptionFilter: [] },
-  });
-});
+test.each(["create", "update", "delete"] as const)(
+  "sets safe defaults for %s mutations",
+  (method) => {
+    expect(Mutations[method]()).toEqual({
+      type: method,
+      noReFetch: false,
+      middlewares: [],
+      contextFields: [],
+      subscription: { enabled: false, subscriptionFilter: [] },
+    });
+  },
+);
 
 test.each([
   [true, { enabled: true, subscriptionFilter: [] }],

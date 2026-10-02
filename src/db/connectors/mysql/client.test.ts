@@ -41,31 +41,33 @@ test("closes a connection when a query fails", async () => {
   expect(c.end).toHaveBeenCalledTimes(1);
 });
 
-test.each([
-  "commit",
-  "rollback",
-] as const)("ends a transaction connection after %s", async (action) => {
-  const c = connection();
-  jest.mocked(createConnection).mockResolvedValue(c as never);
-  const transaction = await new MysqlClient({}).transaction();
-  expect(c.beginTransaction).toHaveBeenCalledTimes(1);
-  await expect(transaction.rawQuery("SELECT 1")).resolves.toEqual([{ id: 1 }]);
-  await transaction[action]();
-  expect(c[action]).toHaveBeenCalledTimes(1);
-  expect(c.end).toHaveBeenCalledTimes(1);
-});
+test.each(["commit", "rollback"] as const)(
+  "ends a transaction connection after %s",
+  async (action) => {
+    const c = connection();
+    jest.mocked(createConnection).mockResolvedValue(c as never);
+    const transaction = await new MysqlClient({}).transaction();
+    expect(c.beginTransaction).toHaveBeenCalledTimes(1);
+    await expect(transaction.rawQuery("SELECT 1")).resolves.toEqual([
+      { id: 1 },
+    ]);
+    await transaction[action]();
+    expect(c[action]).toHaveBeenCalledTimes(1);
+    expect(c.end).toHaveBeenCalledTimes(1);
+  },
+);
 
-test.each([
-  "commit",
-  "rollback",
-] as const)("closes the connection when %s fails", async (action) => {
-  const c = connection();
-  c[action].mockRejectedValue(new Error("transaction failed"));
-  jest.mocked(createConnection).mockResolvedValue(c as never);
-  const transaction = await new MysqlClient({}).transaction();
-  await expect(transaction[action]()).rejects.toThrow("transaction failed");
-  expect(c.end).toHaveBeenCalledTimes(1);
-});
+test.each(["commit", "rollback"] as const)(
+  "closes the connection when %s fails",
+  async (action) => {
+    const c = connection();
+    c[action].mockRejectedValue(new Error("transaction failed"));
+    jest.mocked(createConnection).mockResolvedValue(c as never);
+    const transaction = await new MysqlClient({}).transaction();
+    await expect(transaction[action]()).rejects.toThrow("transaction failed");
+    expect(c.end).toHaveBeenCalledTimes(1);
+  },
+);
 
 test("closes connections if starting a transaction fails", async () => {
   const c = connection();

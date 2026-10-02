@@ -69,7 +69,7 @@
   },
   "lint-staged": {
     "*.ts": [
-      "yarn check"
+      "yarn check --no-errors-on-unmatched"
     ]
   },
   "type": "module",

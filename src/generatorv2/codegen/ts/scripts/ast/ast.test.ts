@@ -32,6 +32,9 @@ test.each([
   ["Original", ["./local.js"], false],
   ["Direct", ["package"], false],
   ["Missing", ["package"], false],
-])("detects local binding %s at the specified module", (name, paths, expected) => {
-  expect(isImported(source, name, paths)).toBe(expected);
-});
+])(
+  "detects local binding %s at the specified module",
+  (name, paths, expected) => {
+    expect(isImported(source, name, paths)).toBe(expected);
+  },
+);

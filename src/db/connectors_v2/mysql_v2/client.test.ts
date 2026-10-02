@@ -24,28 +24,30 @@ test("forwards parameterized queries and tracks pool release", async () => {
   expect(client.released()).toBe(true);
 });
 
-test.each([
-  "commit",
-  "rollback",
-] as const)("starts a transaction and closes it on %s", async (action) => {
-  jest.mocked(createPool).mockReturnValue({} as never);
-  const connection = {
-    execute: jest.fn().mockResolvedValue([]),
-    beginTransaction: jest.fn().mockResolvedValue(undefined),
-    commit: jest.fn().mockResolvedValue(undefined),
-    rollback: jest.fn().mockResolvedValue(undefined),
-    end: jest.fn().mockResolvedValue(undefined),
-  };
-  jest.mocked(createConnection).mockResolvedValue(connection as never);
-  const transaction = await new MysqlClient({ database: "test" }).transaction();
-  await transaction.query("SELECT ?", [1]);
-  await transaction.command("DELETE FROM users WHERE id = ?", [2]);
-  expect(connection.execute.mock.calls).toEqual([
-    ["SELECT ?", [1]],
-    ["DELETE FROM users WHERE id = ?", [2]],
-  ]);
-  await transaction[action]();
-  expect(connection.beginTransaction).toHaveBeenCalledTimes(1);
-  expect(connection[action]).toHaveBeenCalledTimes(1);
-  expect(connection.end).toHaveBeenCalledTimes(1);
-});
+test.each(["commit", "rollback"] as const)(
+  "starts a transaction and closes it on %s",
+  async (action) => {
+    jest.mocked(createPool).mockReturnValue({} as never);
+    const connection = {
+      execute: jest.fn().mockResolvedValue([]),
+      beginTransaction: jest.fn().mockResolvedValue(undefined),
+      commit: jest.fn().mockResolvedValue(undefined),
+      rollback: jest.fn().mockResolvedValue(undefined),
+      end: jest.fn().mockResolvedValue(undefined),
+    };
+    jest.mocked(createConnection).mockResolvedValue(connection as never);
+    const transaction = await new MysqlClient({
+      database: "test",
+    }).transaction();
+    await transaction.query("SELECT ?", [1]);
+    await transaction.command("DELETE FROM users WHERE id = ?", [2]);
+    expect(connection.execute.mock.calls).toEqual([
+      ["SELECT ?", [1]],
+      ["DELETE FROM users WHERE id = ?", [2]],
+    ]);
+    await transaction[action]();
+    expect(connection.beginTransaction).toHaveBeenCalledTimes(1);
+    expect(connection[action]).toHaveBeenCalledTimes(1);
+    expect(connection.end).toHaveBeenCalledTimes(1);
+  },
+);

@@ -35,16 +35,14 @@ test("creates a timestamped migration with up and down hooks", () => {
   expect(content).toContain("down:");
 });
 
-test.each([
-  "",
-  "../escape",
-  "invalid-name",
-  "1invalid",
-])("rejects invalid names %s before writing", (name) => {
-  createMigration(name);
-  expect(Console.error).toHaveBeenCalledTimes(1);
-  expect(existsSync(config().migration.dir)).toBe(false);
-});
+test.each(["", "../escape", "invalid-name", "1invalid"])(
+  "rejects invalid names %s before writing",
+  (name) => {
+    createMigration(name);
+    expect(Console.error).toHaveBeenCalledTimes(1);
+    expect(existsSync(config().migration.dir)).toBe(false);
+  },
+);
 
 test("reports a successful migration creation", () => {
   createMigration("addUsers");

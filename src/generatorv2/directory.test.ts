@@ -29,6 +29,9 @@ test.each([
   [true, false, "User"],
   [false, true, "[User!]!"],
   [true, true, "[User]!"],
-])("renders GraphQL nullability=%s and array=%s", (nullable, array, expected) => {
-  expect(makeGQLType("User", nullable, array)).toBe(expected);
-});
+])(
+  "renders GraphQL nullability=%s and array=%s",
+  (nullable, array, expected) => {
+    expect(makeGQLType("User", nullable, array)).toBe(expected);
+  },
+);

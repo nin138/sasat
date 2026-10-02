@@ -7,7 +7,18 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "includes": ["src/**", "!node_modules", "!.next", "!dist", "!build"]
+    "includes": [
+      "src/**",
+      "test/**/*.test.ts",
+      "test/**/*.spec.ts",
+      "test/serverSchema.ts",
+      "test/testServer.ts",
+      "test/yogaServer.ts",
+      "!node_modules",
+      "!.next",
+      "!dist",
+      "!build"
+    ]
   },
   "formatter": {
     "enabled": true,

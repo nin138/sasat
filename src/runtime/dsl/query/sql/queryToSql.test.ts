@@ -31,11 +31,14 @@ test.each([
   ["notStartsWith", "NOT LIKE", "Ada%"],
   ["endsWith", "LIKE", "%Ada"],
   ["notEndsWith", "NOT LIKE", "%Ada"],
-] as const)("renders %s with the correct wildcard placement", (method, operator, value) => {
-  expect(sql(q[method](field, "Ada"))).toBe(
-    "`u`.`id` " + operator + " '" + value + "'",
-  );
-});
+] as const)(
+  "renders %s with the correct wildcard placement",
+  (method, operator, value) => {
+    expect(sql(q[method](field, "Ada"))).toBe(
+      "`u`.`id` " + operator + " '" + value + "'",
+    );
+  },
+);
 
 test("handles empty and compound conditions", () => {
   const eq = q.eq(field, q.value(1));

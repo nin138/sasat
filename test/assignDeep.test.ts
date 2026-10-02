@@ -1,7 +1,7 @@
-import { assignDeep } from '../src/util/assignDeep';
+import { assignDeep } from "../src/util/assignDeep";
 
-describe('assignDeep', () => {
-  it('should ', function () {
+describe("assignDeep", () => {
+  it("should ", () => {
     expect(assignDeep({}, { a: 1 })).toStrictEqual({ a: 1 });
     expect(assignDeep({ a: { b: 1 } }, { a: { c: 2, d: 3 } })).toStrictEqual({
       a: { b: 1, c: 2, d: 3 },
