@@ -26,8 +26,11 @@ export const makeEntityMutationNodes = (
   });
 };
 
-const makeContextField = (params: GqlFromContextParam): ContextField => ({
-  fieldName: params.column,
+const makeContextField = (
+  table: TableHandler,
+  params: GqlFromContextParam,
+): ContextField => ({
+  fieldName: table.column(params.column).fieldName(),
   contextName: params.contextName || params.column,
 });
 
@@ -38,7 +41,9 @@ const makeCreateMutationNode = (
 ): MutationNode => {
   return {
     entity,
-    contextFields: mutation.contextFields.map(makeContextField),
+    contextFields: mutation.contextFields.map((params) =>
+      makeContextField(table, params),
+    ),
     entityName: table.getEntityName(),
     identifyFields: table.getPrimaryKeyColumns().map((it) => it.fieldName()),
     mutationName: `create${table.getEntityName().name}`,
@@ -63,7 +68,9 @@ const makeCreateMutationNode = (
     ],
     mutationType: "create",
     subscription: mutation.subscription.enabled,
-    requireIdDecodeMiddleware: entity.creatable.fields.some((it) => it.hashId),
+    requireIdDecodeMiddleware: entity.creatable.fields.some(
+      (it) => it.hashId && it.isGQLOpen,
+    ),
     middlewares: mutation.middlewares,
   };
 };
@@ -75,7 +82,9 @@ const makeUpdateMutationNode = (
 ): MutationNode => {
   return {
     entity,
-    contextFields: mutation.contextFields.map(makeContextField),
+    contextFields: mutation.contextFields.map((params) =>
+      makeContextField(table, params),
+    ),
     entityName: table.getEntityName(),
     identifyFields: table.getPrimaryKeyColumns().map((it) => it.fieldName()),
     mutationName: `update${table.getEntityName().name}`,
@@ -104,7 +113,7 @@ const makeUpdateMutationNode = (
     mutationType: "update",
     subscription: mutation.subscription.enabled,
     requireIdDecodeMiddleware: entity.updateInput.fields.some(
-      (it) => it.hashId,
+      (it) => it.hashId && it.isGQLOpen,
     ),
     middlewares: mutation.middlewares,
   };
@@ -119,7 +128,9 @@ const makeDeleteMutationNode = (
     entity,
     mutationName: `delete${table.getEntityName().name}`,
     inputName: entity.name.identifyInputName(),
-    contextFields: mutation.contextFields.map(makeContextField),
+    contextFields: mutation.contextFields.map((params) =>
+      makeContextField(table, params),
+    ),
     entityName: table.getEntityName(),
     identifyFields: table.getPrimaryKeyColumns().map((it) => it.fieldName()),
     refetch: false,

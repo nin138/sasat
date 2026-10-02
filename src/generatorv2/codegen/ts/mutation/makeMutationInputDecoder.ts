@@ -52,7 +52,7 @@ const makeIdDecodeMiddleware = (fields: FieldNode[], node: MutationNode) => {
               tsg.object(
                 tsg.spreadAssign(params.property(entityName)),
                 ...fields
-                  .filter((it) => it.hashId)
+                  .filter((it) => it.hashId && it.isGQLOpen)
                   .map((it) =>
                     tsg.propertyAssign(
                       it.fieldName,

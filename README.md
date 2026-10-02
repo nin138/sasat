@@ -186,6 +186,13 @@ Enable subscriptions in the relevant migration, for example
 subscriptions over SSE at the same `/graphql` endpoint. See the
 [Yoga subscription documentation](https://the-guild.dev/graphql/yoga-server/docs/features/subscriptions).
 
+For create and update mutations, `contextFields` supplies values from the server
+context and takes precedence over input values. Configure database column names
+in `contextFields`; generated resolvers map them to renamed entity fields.
+These fields are excluded from GraphQL input. Context values use database types
+(for example, numeric foreign keys), so they are not decoded as client Hash IDs.
+Regenerate existing code to apply these fixes.
+
 Subscription filters on Hash ID columns (including references) accept encoded
 `ID!` arguments and decode them with the corresponding column encoder before
 comparing event data. Other filter types are unchanged. Arguments retain the
@@ -394,6 +401,12 @@ and `data: null` because the tested mutation field is non-null. This is an
 intentional comparison of current defaults, not a shared error-format policy.
 See [Yoga error masking](https://the-guild.dev/graphql/yoga-server/docs/features/error-masking)
 when defining your application's public errors.
+
+Query selection handling expands named and inline fragments, merges all
+`fieldNodes` and repeated relation selections, and respects `@skip`, `@include`,
+and fragment type conditions. SQL aliases are assigned after merging, so nested
+selections keep unique aliases. This runtime fix applies to existing generated
+resolvers after updating Sasat; regeneration is not required for fragment support.
 
 If generated code predates these fixes, regenerate it to update relation
 resolvers and subscription filters. Paging now sorts against the root table

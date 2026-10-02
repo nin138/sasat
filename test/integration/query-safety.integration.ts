@@ -14,12 +14,16 @@ import type {
   SQLExecutor,
 } from "../../src/db/connectors/dbClient.js";
 import { getDbClient } from "../../src/db/getDbClient.js";
+import { generateMutationResolver } from "../../src/generatorv2/codegen/ts/generateMutationResolver.js";
 import { generateQueryResolver } from "../../src/generatorv2/codegen/ts/generateQueryResolver.js";
+import { generateTypeDefs } from "../../src/generatorv2/codegen/ts/generateTypeDefs.js";
 import { parse } from "../../src/generatorv2/parse.js";
 import { DataStoreHandler } from "../../src/migration/dataStore.js";
 import { StoreMigrator } from "../../src/migration/front/storeMigrator.js";
 import { Conditions } from "../../src/migration/makeCondition.js";
+import { Mutations } from "../../src/migration/makeMutaion.js";
 import { Queries } from "../../src/migration/makeQuery.js";
+import { createTypeDef } from "../../src/runtime/createTypeDef.js";
 import { QExpr as q } from "../../src/runtime/dsl/factory.js";
 import type { Fields } from "../../src/runtime/field.js";
 import { gqlResolveInfoToField } from "../../src/runtime/gqlResolveInfoToField.js";
@@ -169,11 +173,13 @@ test("filters the parent page before OFFSET and keeps all selected children", as
   );
 });
 
-test("a generated GraphQL paging resolver applies its configured condition", async () => {
+test("a generated GraphQL paging resolver applies its condition and merges fragment selections", async () => {
   const store = StoreMigrator.deserialize({ tables: [] });
   store.createTable("scope", (table) => {
     table.column("id").int().primary();
     table.column("tenant_id").int().fieldName("tenantId");
+    table.column("active").int();
+    table.column("visible").int();
     table.enableGQL();
     table.addGQLQuery(
       Queries.paging("scopes", {
@@ -204,7 +210,7 @@ test("a generated GraphQL paging resolver applies its configured condition", asy
     },
   });
   const schema = buildSchema(
-    "input PagingOption { numberOfItem: Int!, offset: Int, order: String } type Scope { id: Int! } type Query { scopes(tenant: Int!, option: PagingOption!): [Scope!]! }",
+    "input PagingOption { numberOfItem: Int!, offset: Int, order: String } type Child { id: Int!, scopeId: Int! } type Scope { id: Int!, tenantId: Int!, active: Int!, visible: Int!, children: [Child!]! } type Query { scopes(tenant: Int!, option: PagingOption!): [Scope!]! }",
   );
   const result = await graphql({
     schema,
@@ -217,6 +223,44 @@ test("a generated GraphQL paging resolver applies its configured condition", asy
   });
   assert.equal(result.errors, undefined);
   assert.equal(JSON.stringify(result.data), '{"scopes":[{"id":3}]}');
+  const fragmented = await graphql({
+    schema,
+    source: `
+      query($load: Boolean! = true) {
+        scopes(tenant: 1, option: { numberOfItem: 1, offset: 1, order: "id" }) {
+          ...ScopeFields
+          children @include(if: $load) { id }
+        }
+        scopes(tenant: 1, option: { numberOfItem: 1, offset: 1, order: "id" }) {
+          ... on Scope { visible children { ...ChildFields } }
+        }
+      }
+      fragment ScopeFields on Scope { tenantId active }
+      fragment ChildFields on Child { scopeId }
+    `,
+    rootValue: {
+      scopes: (args: unknown, context: unknown, info: unknown) =>
+        exports.query.scopes(null, args, context, info),
+    },
+  });
+  assert.equal(fragmented.errors, undefined, JSON.stringify(fragmented.errors));
+  const data = JSON.parse(JSON.stringify(fragmented.data));
+  data.scopes[0].children.sort(
+    (a: { id: number }, b: { id: number }) => a.id - b.id,
+  );
+  assert.deepEqual(data, {
+    scopes: [
+      {
+        tenantId: 1,
+        active: 0,
+        children: [
+          { id: 31, scopeId: 3 },
+          { id: 32, scopeId: 3 },
+        ],
+        visible: 1,
+      },
+    ],
+  });
 });
 
 test("rejects switching a live shared pool to a different database", async () => {
@@ -268,4 +312,81 @@ test("zero-sized queries and pages return no rows", async () => {
     await ds.findPageable({ numberOfItem: 0, offset: 1 }, { fields: ["id"] }),
     [],
   );
+});
+
+test("generated create stores the context tenant in a renamed column", async () => {
+  const store = StoreMigrator.deserialize({ tables: [] });
+  store.createTable("scope", (table) => {
+    table.column("id").int().primary();
+    table.column("tenant_id").int().fieldName("tenantId");
+    table.column("active").int();
+    table.column("visible").int();
+    table.enableGQL();
+    table.addGQLQuery(Queries.primary());
+    table.addGQLMutation(
+      Mutations.create({
+        noRefetch: true,
+        contextFields: [{ column: "tenant_id", contextName: "currentTenant" }],
+      }),
+    );
+  });
+  const root = parse(new DataStoreHandler(store.serialize()));
+  const mutationExports = {} as {
+    mutation: { createScope: (...args: unknown[]) => unknown };
+  };
+  runInNewContext(
+    ts.transpileModule(generateMutationResolver(root).toString(), {
+      compilerOptions: { module: ts.ModuleKind.CommonJS },
+    }).outputText,
+    {
+      exports: mutationExports,
+      require: (name: string) => {
+        if (name === "sasat") return { makeResolver };
+        if (name.includes("dataSources/db/Scope")) return { ScopeDBDataSource };
+        throw new Error("Unexpected generated import: " + name);
+      },
+    },
+  );
+  const definitions = {} as {
+    typeDefs: Parameters<typeof createTypeDef>[0];
+    inputs: Parameters<typeof createTypeDef>[1];
+  };
+  runInNewContext(
+    ts.transpileModule(generateTypeDefs(root).toString(), {
+      compilerOptions: { module: ts.ModuleKind.CommonJS },
+    }).outputText,
+    { exports: definitions },
+  );
+  const schema = buildSchema(
+    createTypeDef(definitions.typeDefs, definitions.inputs),
+  );
+  const execute = (scope: Record<string, unknown>) =>
+    graphql({
+      schema,
+      source:
+        "mutation($scope: ScopeCreateInput!) { createScope(scope: $scope) { id tenantId active visible } }",
+      variableValues: { scope },
+      contextValue: { currentTenant: 42 },
+      rootValue: {
+        createScope: (args: unknown, context: unknown, info: unknown) =>
+          mutationExports.mutation.createScope(null, args, context, info),
+      },
+    });
+  const result = await execute({ id: 101, active: 1, visible: 0 });
+  assert.equal(result.errors, undefined, JSON.stringify(result.errors));
+  assert.equal(
+    JSON.stringify(result.data),
+    '{"createScope":{"id":101,"tenantId":42,"active":1,"visible":0}}',
+  );
+  const rejected = await execute({
+    id: 102,
+    active: 1,
+    visible: 0,
+    tenantId: 999,
+  });
+  assert.equal(rejected.errors?.length, 1);
+  const [rows] = await connection!.query<RowDataPacket[]>(
+    "SELECT id, tenant_id FROM scope WHERE id IN (101,102) ORDER BY id",
+  );
+  assert.deepEqual(rows, [{ id: 101, tenant_id: 42 }]);
 });

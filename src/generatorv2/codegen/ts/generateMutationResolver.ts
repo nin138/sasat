@@ -84,7 +84,9 @@ const makeCreateMutationBody = (node: MutationNode) => {
     ds,
     makeDatasource(node.entityName, "GENERATED"),
   );
-  const createCall = ds.property("create").call(entity);
+  const createCall = ds
+    .property("create")
+    .call(makeDatasourceParam(entity, node.contextFields));
   if (!node.subscription && !node.refetch)
     return tsg.block(dsVariable, tsg.return(createCall));
 
