@@ -3,6 +3,8 @@ rdb migration based graphql source code generator.
 resolve relations without N + 1.
 
 ## getting stared
+Requires Node.js 22 or later.
+
 ```sh
 $ npm i sasat
 $ npm run sasat init

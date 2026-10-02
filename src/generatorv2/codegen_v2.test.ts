@@ -10,6 +10,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { runInNewContext } from "node:vm";
 import { buildSchema, validateSchema } from "graphql";
+import { PubSub, withFilter } from "graphql-subscriptions";
 import ts from "typescript";
 import { config } from "../config/config.js";
 import { DataStoreHandler } from "../migration/dataStore.js";
@@ -146,3 +147,64 @@ test("rejects tables without a primary key", () => {
     "Table: invalid has no primary key.",
   );
 });
+
+test.each([false, true])(
+  "generated subscriptions deliver events with filtering=%s",
+  async (filtered) => {
+    const store = fixture();
+    if (filtered) {
+      store.table(
+        "user",
+      ).gqlOption.mutations[0].subscription.subscriptionFilter = ["name"];
+    }
+    await new CodeGen_v2(store).generate();
+    const code = readFileSync(
+      join(dir, "__generated__/subscription.ts"),
+      "utf8",
+    );
+    const pubsub = new PubSub();
+    const exports = {} as {
+      subscription: {
+        UserCreated: {
+          subscribe: (
+            root?: unknown,
+            args?: unknown,
+          ) =>
+            | AsyncIterableIterator<unknown>
+            | Promise<AsyncIterableIterator<unknown>>;
+        };
+      };
+      publishUserCreated: (entity: {
+        id: number;
+        name: string;
+      }) => Promise<void>;
+    };
+    const compiled = ts.transpileModule(code, {
+      compilerOptions: { module: ts.ModuleKind.CommonJS },
+    });
+    runInNewContext(compiled.outputText, {
+      exports,
+      require: (name: string) => {
+        if (name === "graphql-subscriptions") return { withFilter };
+        if (name === "../pubsub" || name === "../pubsub.js") return { pubsub };
+        throw new Error("Unexpected generated import: " + name);
+      },
+    });
+    const iterator = await exports.subscription.UserCreated.subscribe(
+      undefined,
+      { name: "Ada" },
+    );
+    try {
+      expect(iterator[Symbol.asyncIterator]()).toBe(iterator);
+      const next = iterator.next();
+      if (filtered) await exports.publishUserCreated({ id: 1, name: "Other" });
+      await exports.publishUserCreated({ id: 2, name: "Ada" });
+      await expect(next).resolves.toEqual({
+        done: false,
+        value: { UserCreated: { id: 2, name: "Ada" } },
+      });
+    } finally {
+      await iterator.return?.();
+    }
+  },
+);

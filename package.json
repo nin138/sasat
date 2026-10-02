@@ -17,7 +17,7 @@
     "test:single": "env-cmd jest --silent=false --verbose false",
     "test:base": "node --experimental-vm-modules node_modules/.bin/jest",
     "resetdb": "docker-compose exec db sh -c \"mysql -u root < /docker-entrypoint-initdb.d/temp.sql\"",
-    "prepare": "yarn build && husky install",
+    "prepare": "yarn build && husky",
     "sasat": "yarn env-cmd npx tsx src/cli/index.ts",
     "server": "yarn env-cmd ts-node-esm -r tsconfig-paths/register ./test/testServer.ts",
     "codex": "docker compose exec dev codex codex --sandbox workspace-write --ask-for-approval on-request -c 'approvals_reviewer=\"auto_review\"'",
@@ -26,15 +26,15 @@
     "test:typecheck": "tsc --project tsconfig.test.json --noEmit"
   },
   "dependencies": {
-    "@biomejs/biome": "^2.4.15",
-    "cac": "^6.7.14",
-    "chalk": "^5.3.0",
+    "@biomejs/biome": "^2.5.14",
+    "cac": "^7.0.0",
+    "chalk": "^6.0.0",
     "esbuild": "^0.28.2",
-    "graphql": "^16.8.1",
-    "graphql-subscriptions": "^2.0.0",
+    "graphql": "^16.14.2",
+    "graphql-subscriptions": "^3.0.0",
     "hashids": "^2.3.0",
-    "js-yaml": "^5.2.2",
-    "mysql2": "^3.22.3",
+    "js-yaml": "^5.4.2",
+    "mysql2": "^3.24.4",
     "pluralize": "^8.0.0",
     "sqlstring": "^2.3.3",
     "typescript": "^6.0.3"
@@ -43,25 +43,25 @@
     "@apollo/server": "^5.5.1",
     "@types/jest": "^30.0.0",
     "@types/js-yaml": "^4.0.9",
-    "@types/node": "^25.7.0",
+    "@types/node": "^25.9.8",
     "@types/pluralize": "0.0.33",
     "@types/sqlstring": "2.3.2",
     "env-cmd": "^11.0.0",
-    "globals": "^17.4.0",
-    "husky": "8.0.3",
-    "jest": "^30.4.2",
-    "lint-staged": "^17.0.4",
+    "globals": "^17.12.0",
+    "husky": "9.1.7",
+    "jest": "^30.5.2",
+    "lint-staged": "^17.5.1",
     "sasat": "link:./dist",
-    "ts-jest": "^29.4.9",
-    "tsdown": "^0.22.0"
+    "ts-jest": "^29.4.13",
+    "tsdown": "^0.23.0"
   },
   "peerDependencies": {
     "@apollo/server": "^4.0.0 || ^5.0.0"
   },
   "resolutions": {
-    "qs": "^6.15.2",
-    "tar": "^7.5.21",
-    "undici": "~6.28.0"
+    "qs": "^6.16.0",
+    "tar": "^7.5.22",
+    "undici": "~6.28.1"
   },
   "lint-staged": {
     "*.ts": [
@@ -91,5 +91,8 @@
   ],
   "volta": {
     "node": "24.15.0"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }

@@ -85,7 +85,7 @@ const makeAsyncIteratorCall = (event: string): ArrowFunction => {
     tsg
       .identifier("pubsub")
       .importFrom("../pubsub")
-      .property("asyncIterator")
+      .property("asyncIterableIterator")
       .call(tsg.array([tsg.identifier(`SubscriptionName.${event}`)])),
   );
 };
