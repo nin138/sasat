@@ -122,3 +122,5 @@ typings/
 # Serverless directories
 .serverless
 
+AGENTS.override.md
+

@@ -1,4 +1,3 @@
-version: "3"
 services:
   node:
     image: node:alpine
@@ -9,7 +8,6 @@ services:
     tty: true
     command: sh
   db:
-    platform: linux/x86_64
     build:
       context: ./docker/db
     environment:
@@ -19,3 +17,30 @@ services:
       MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
     ports:
       - '3308:3306'
+  dev:
+    build:
+      context: ./docker/dev
+    environment:
+      DB_HOST: 'db'
+      DB_PORT: '3306'
+      DB_USER: 'root'
+      DB_PASSWORD:
+      DATABASE: 'test'
+    volumes:
+      - ./:/app
+      # Overlays the host .env inside the container only; the host file is untouched.
+      - ./.env_dev:/app/.env:ro
+      - /app/node_modules
+      - dev-claude:/root/.claude
+      - dev-codex:/root/.codex
+    depends_on:
+      - db
+    init: true
+    command: ["sleep", "infinity"]
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+
+volumes:
+  dev-claude:
+  dev-codex:
