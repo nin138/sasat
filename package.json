@@ -33,7 +33,7 @@
     "cac": "^7.0.0",
     "chalk": "^6.0.0",
     "esbuild": "^0.28.2",
-    "graphql": "^16.14.2",
+    "graphql": "^17.0.0",
     "graphql-subscriptions": "^3.0.0",
     "hashids": "^2.3.0",
     "js-yaml": "^5.4.2",
