@@ -1,48 +1,29 @@
 import { existsSync } from "node:fs";
 import path from "node:path";
-import { assignDeep } from "../util/assignDeep.js";
 import { readYmlFile } from "../util/fsUtil.js";
-import {
-  defaultConf,
-  type PartialSasatConfig,
-  type SasatConfig,
-} from "./config.js";
+import { defaultConf, type SasatConfig } from "./config.js";
+import { invalidConfig, mergeConfig } from "./validate.js";
 
 export class SasatConfigLoader {
-  private static loadConfig(): PartialSasatConfig {
-    const fileName = "sasat.yml";
-    const filepath = path.join(process.cwd(), fileName);
-    if (!existsSync(filepath)) return defaultConf;
-    return readYmlFile(filepath);
+  private static loadConfig(): unknown {
+    const filepath = path.join(process.cwd(), "sasat.yml");
+    if (!existsSync(filepath)) return {};
+    try {
+      const value: unknown = readYmlFile(filepath);
+      return value === undefined ? {} : value;
+    } catch {
+      // YAML errors can contain source snippets, including passwords and CA data.
+      throw invalidConfig("sasat.yml", "could not be read or parsed");
+    }
   }
 
   readonly conf: SasatConfig;
 
   constructor() {
-    const conf: SasatConfig = this.readValue(
-      assignDeep(structuredClone(defaultConf), SasatConfigLoader.loadConfig()),
-    );
-    this.conf = {
-      ...conf,
-    };
+    this.conf = mergeConfig(defaultConf, SasatConfigLoader.loadConfig(), true);
   }
 
   getConfig(): SasatConfig {
     return this.conf;
-  }
-
-  // biome-ignore lint/suspicious/noExplicitAny: <>
-  private readValue(value: any): any {
-    if (!value) return value;
-    if (Array.isArray(value)) return value.map((it) => this.readValue(it));
-    if (typeof value === "string" && value.startsWith("$"))
-      return process.env[value.slice(1)];
-    if (typeof value === "object") {
-      for (const key in value) {
-        if (Object.hasOwn(value, key)) value[key] = this.readValue(value[key]);
-      }
-      return value;
-    }
-    return value;
   }
 }

@@ -4,7 +4,7 @@
 
 ## Loading configuration
 
-Sasat merges defaults with `sasat.yml` in the current working directory on first use. The public `setConfig(partial)` API merges further updates into the shared process configuration.
+Sasat merges defaults with `sasat.yml` in the current working directory on first use. The public `setConfig(partial)` API merges further updates into the shared process configuration. Both paths normalize and validate the documented settings before publishing the result.
 
 | Setting | Default or purpose |
 | --- | --- |
@@ -24,9 +24,92 @@ Sasat merges defaults with `sasat.yml` in the current working directory on first
 
 For PostgreSQL, explicitly set the port and user; the shared defaults remain MySQL-compatible. See [PostgreSQL configuration and SQL differences](postgresql.md).
 
-A string starting with `$` is replaced with the environment variable named by the entire remaining string. `$DB_HOST` works; embedded substitutions such as `prefix-$NAME` are not supported. Missing variables become undefined, and environment values remain strings after substitution. The loader does not validate the full configuration at runtime, so check required variables and numeric settings.
+In YAML, a string starting with `# Configuration, CLI, and migrations
+
+[README](../README.md) · [Runtime customization](runtime.md) · [Application workflow](application-workflow.md)
+
+## Loading configuration
+
+Sasat merges defaults with `sasat.yml` in the current working directory on first use. The public `setConfig(partial)` API merges further updates into the shared process configuration. Both paths normalize and validate the documented settings before publishing the result.
+
+| Setting | Default or purpose |
+| --- | --- |
+| `db.dialect` | `mysql` by default; set `postgres` for PostgreSQL |
+| `db.host` / `db.port` | `127.0.0.1` / `3306` |
+| `db.user` / `db.database` | `root` / `sasat` |
+| `db.password` | Empty string by default |
+| `db.ssl.ca` | Optional array of CA strings |
+| `migration.dir` | `migrations` |
+| `migration.table` | `__migrate__` |
+| `migration.out` | `sasat` |
+| `migration.target` | Optional exact migration filename, including `.ts` |
+| `migration.db` | Optional connection override used by migration and generation commands |
+| `testDB` | Connection settings for test-database creation; must use the application dialect |
+| `generator.gql.subscription` | Defaults to true; set false and regenerate to disable subscriptions and mutation publishing |
+| `generator.addJsExtToImportStatement` | Defaults to false; set true for the README's ESM example |
+
+For PostgreSQL, explicitly set the port and user; the shared defaults remain MySQL-compatible. See [PostgreSQL configuration and SQL differences](postgresql.md).
+
+ is replaced with the environment variable named by the entire remaining string. `$DB_HOST` works; embedded substitutions such as `prefix-$NAME` are not supported. An explicit reference to an undefined variable is an error, including for optional settings such as password. Omit an optional setting when it is not needed. A defined empty password is allowed.
+
+Only settings with numeric or boolean types are converted: port accepts decimal digit strings, and boolean flags accept exactly `"true"` or `"false"`. Passwords, hosts, names, and paths remain strings. `setConfig` does not expand environment references; a password starting with `# Configuration, CLI, and migrations
+
+[README](../README.md) · [Runtime customization](runtime.md) · [Application workflow](application-workflow.md)
+
+## Loading configuration
+
+Sasat merges defaults with `sasat.yml` in the current working directory on first use. The public `setConfig(partial)` API merges further updates into the shared process configuration. Both paths normalize and validate the documented settings before publishing the result.
+
+| Setting | Default or purpose |
+| --- | --- |
+| `db.dialect` | `mysql` by default; set `postgres` for PostgreSQL |
+| `db.host` / `db.port` | `127.0.0.1` / `3306` |
+| `db.user` / `db.database` | `root` / `sasat` |
+| `db.password` | Empty string by default |
+| `db.ssl.ca` | Optional array of CA strings |
+| `migration.dir` | `migrations` |
+| `migration.table` | `__migrate__` |
+| `migration.out` | `sasat` |
+| `migration.target` | Optional exact migration filename, including `.ts` |
+| `migration.db` | Optional connection override used by migration and generation commands |
+| `testDB` | Connection settings for test-database creation; must use the application dialect |
+| `generator.gql.subscription` | Defaults to true; set false and regenerate to disable subscriptions and mutation publishing |
+| `generator.addJsExtToImportStatement` | Defaults to false; set true for the README's ESM example |
+
+For PostgreSQL, explicitly set the port and user; the shared defaults remain MySQL-compatible. See [PostgreSQL configuration and SQL differences](postgresql.md).
+
+ remains literal there.
 
 If you use `.env`, load it through your application's startup tooling. Supply the connection settings to both the CLI and the server. Sasat itself does not automatically load this file.
+
+## Validation and partial updates
+
+| Setting | Accepted values |
+| --- | --- |
+| `db.host`, `db.user`, `db.database` | Non-empty strings; whitespace-only values are rejected |
+| `db.port` | Integer from 1 through 65535; decimal digit strings are normalized to numbers |
+| `db.dialect` | `mysql`, `postgres`, or omitted |
+| `db.password` | String, including empty, or omitted |
+| `db.ssl` / `db.ssl.ca` | Optional object / optional array of non-empty strings |
+| `migration.table`, `migration.dir`, `migration.out` | Non-empty strings |
+| `migration.target` | Non-empty string or omitted |
+| Generator flags | Boolean or exactly `"true"` / `"false"` |
+
+The same database rules apply to `testDB` and `migration.db`. These blocks may be omitted. When supplied, missing connection properties are filled from the main `db` settings; existing override values are retained on subsequent updates. Changing dialect does not automatically choose a different port or user.
+
+Absent settings keep defaults or the current value. Explicit `undefined` can clear an optional setting through `setConfig`; it is rejected for required settings. `null` is not an omission. Nested sections must be objects. Use `{}` or omit the file to use defaults; empty or malformed YAML is rejected. CA arrays keep the existing append behavior during partial updates; inheritance into an optional database block does not duplicate them.
+
+Additional driver/extension options such as `connectionLimit` are preserved for compatibility, but their types and ranges are outside Sasat's documented schema and are not validated here. Errors within extension data use a wildcard path such as `db.*` to avoid echoing arbitrary input keys.
+
+A failed `setConfig` leaves the current configuration unchanged. A successful call publishes a detached object; previously held references remain snapshots. Use the object returned by the latest `setConfig` call. Directly mutating that object bypasses validation; use another `setConfig` call for further changes.
+
+Errors identify the setting and rule, for example:
+
+`Invalid configuration: db.port must be an integer between 1 and 65535`
+
+Errors do not include the rejected value, environment variable contents, or YAML source snippets. Parse/read failures identify `sasat.yml` instead of an individual setting. Invalid configuration is rejected before normal CLI database or generation work.
+
+**Upgrade:** unresolved environment references and values previously passed through to drivers may now fail at configuration loading. Supply the missing variables, omit unused optional settings, and fix invalid types/ranges. No generated-code regeneration is required for this change.
 
 ## Database drivers
 

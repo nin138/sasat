@@ -50,3 +50,80 @@ test("reports malformed YAML", () => {
   writeFileSync(join(dir, "sasat.yml"), "db: [");
   expect(() => new SasatConfigLoader()).toThrow();
 });
+
+test("normalizes environment ports/booleans without coercing passwords", () => {
+  process.env.SASAT_TEST_HOST = "5432";
+  writeFileSync(
+    join(dir, "sasat.yml"),
+    "db:\n  port: $SASAT_TEST_HOST\n  password: $SASAT_TEST_HOST\n",
+  );
+  expect(new SasatConfigLoader().getConfig().db).toMatchObject({
+    port: 5432,
+    password: "5432",
+  });
+  process.env.SASAT_TEST_HOST = "false";
+  writeFileSync(
+    join(dir, "sasat.yml"),
+    "generator:\n  gql:\n    subscription: $SASAT_TEST_HOST\n",
+  );
+  expect(new SasatConfigLoader().getConfig().generator.gql.subscription).toBe(
+    false,
+  );
+});
+
+test.each(["host", "port", "password"])(
+  "missing explicit environment references fail at db.%s",
+  (key) => {
+    delete process.env.SASAT_TEST_HOST;
+    writeFileSync(join(dir, "sasat.yml"), `db:\n  ${key}: $SASAT_TEST_HOST\n`);
+    expect(() => new SasatConfigLoader()).toThrow(
+      `db.${key} references an undefined environment variable`,
+    );
+  },
+);
+
+test("optional missing settings and an empty password are allowed", () => {
+  writeFileSync(join(dir, "sasat.yml"), 'db:\n  password: ""\n');
+  expect(new SasatConfigLoader().getConfig().db.password).toBe("");
+  expect(new SasatConfigLoader().getConfig().testDB).toBeUndefined();
+});
+
+test.each(["{}"])("empty configuration keeps defaults: %j", (yaml) => {
+  writeFileSync(join(dir, "sasat.yml"), yaml);
+  expect(new SasatConfigLoader().getConfig()).toEqual(defaultConf);
+});
+
+test.each([
+  "",
+  "# empty\n",
+  "null",
+  "[]",
+  "true",
+  "plain text",
+  "db: []",
+  "db: null",
+  "generator: false",
+  "migration: []",
+])("rejects invalid YAML structure: %s", (yaml) => {
+  writeFileSync(join(dir, "sasat.yml"), yaml);
+  expect(() => new SasatConfigLoader()).toThrow("Invalid configuration:");
+});
+
+test("parser errors and invalid values never echo secrets or YAML snippets", () => {
+  const secret = "S06_SYNTHETIC_SECRET";
+  for (const yaml of [
+    `db: [${secret}`,
+    `db:\n  password: ${secret}\n  port: ${secret}`,
+    `db:\n  ssl:\n    ca: [${secret}, null]`,
+  ]) {
+    writeFileSync(join(dir, "sasat.yml"), yaml);
+    try {
+      new SasatConfigLoader();
+      throw new Error("validation did not run");
+    } catch (error) {
+      expect(String(error)).toContain("Invalid configuration:");
+      expect(String(error)).not.toContain(secret);
+      expect((error as Error).cause).toBeUndefined();
+    }
+  }
+});

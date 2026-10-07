@@ -32,7 +32,6 @@
     "test:package": "tsx --test test/package/*.integration.ts"
   },
   "dependencies": {
-    "@biomejs/biome": "^2.5.14",
     "cac": "^7.0.0",
     "chalk": "^6.0.0",
     "esbuild": "^0.28.2",
@@ -46,6 +45,7 @@
   },
   "devDependencies": {
     "@apollo/server": "^5.5.1",
+    "@biomejs/biome": "^2.5.14",
     "@types/jest": "^30.0.0",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^25.9.8",

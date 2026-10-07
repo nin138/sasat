@@ -1,6 +1,6 @@
-import { assignDeep } from "../util/assignDeep.js";
 import type { NestedPartial } from "../util/type.js";
 import { SasatConfigLoader } from "./loader.js";
+import { mergeConfig } from "./validate.js";
 
 export type SasatDBConfigBase = {
   /** Defaults to mysql for backward compatibility. */
@@ -86,6 +86,6 @@ export const config = (): SasatConfig => {
 };
 
 export function setConfig(update: NestedPartial<SasatConfig>): SasatConfig {
-  conf = assignDeep(config(), update) as SasatConfig;
+  conf = mergeConfig(config(), update);
   return conf;
 }
