@@ -95,30 +95,18 @@ const makeAsyncIteratorCall = (event: string): ArrowFunction => {
 const makeWithFilter = (event: string, filters: SubscriptionFilterNode[]) => {
   const hashedFilters = filters.filter((filter) => filter.hashId);
   const decoded = tsg.identifier("decoded");
-  const binaryExpressions = filters
-    .map((filter) => {
-      const expected = filter.hashId
-        ? decoded.property(filter.argument)
-        : tsg.identifier("variables").property(filter.argument);
-      const matches = tsg.binary(
+  const matches = filters
+    .map((filter) =>
+      tsg.binary(
         tsg.identifier("result").property(filter.field),
         "===",
-        expected,
-      );
-      // An invalid hash decodes to undefined; it must not match a missing field.
-      return filter.hashId
-        ? tsg.binary(
-            tsg.binary(expected, "!==", tsg.identifier("undefined")),
-            "&&",
-            matches,
-          )
-        : matches;
-    })
-    .reduce((previousValue, currentValue) =>
-      tsg.binary(previousValue, "&&", currentValue),
-    );
-
-  return tsg
+        filter.hashId
+          ? decoded.property(filter.argument)
+          : tsg.identifier("variables").property(filter.argument),
+      ),
+    )
+    .reduce((left, right) => tsg.binary(left, "&&", right));
+  const withFilter = tsg
     .identifier("withFilter")
     .importFrom("graphql-subscriptions")
     .call(
@@ -127,48 +115,54 @@ const makeWithFilter = (event: string, filters: SubscriptionFilterNode[]) => {
         .arrowFunc(
           [
             tsg.parameter("payload", KeywordTypeNode.any),
-            tsg.parameter("variables", KeywordTypeNode.any),
+            ...(filters.some((filter) => !filter.hashId)
+              ? [tsg.parameter("variables", KeywordTypeNode.any)]
+              : []),
           ],
           tsg.typeRef("Promise", [KeywordTypeNode.boolean]),
           tsg.block(
-            ...(hashedFilters.length === 0
-              ? []
-              : [
-                  tsg.variable(
-                    "const",
-                    decoded,
-                    tsg.object(
-                      ...hashedFilters.map((filter) =>
-                        tsg.propertyAssign(
-                          filter.argument,
-                          tsg
-                            .identifier(filter.hashId!.encoder)
-                            .importFrom(
-                              Directory.resolve(
-                                "GENERATED",
-                                "BASE",
-                                tsFileNames.encoder,
-                              ),
-                            )
-                            .property("decode")
-                            .call(
-                              tsg
-                                .identifier("variables")
-                                .property(filter.argument),
-                            ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ]),
             tsg.variable(
               "const",
-              tsg.identifier("result"),
-              tsg.await(tsg.identifier(`payload.${event}`)),
+              "result",
+              tsg.await(tsg.identifier("payload").property(event)),
             ),
-            tsg.return(binaryExpressions),
+            tsg.return(matches),
           ),
         )
         .toAsync(),
     );
+  if (hashedFilters.length === 0) return withFilter;
+  // Decode once when subscribing, before opening the iterator. withFilter catches
+  // predicate errors, so validation inside the predicate would hide bad input.
+  return tsg.arrowFunc(
+    ["root", "variables", "context", "info"].map((name) =>
+      tsg.parameter(name, KeywordTypeNode.any),
+    ),
+    undefined,
+    tsg.block(
+      tsg.variable(
+        "const",
+        decoded,
+        tsg.object(
+          ...hashedFilters.map((filter) =>
+            tsg.propertyAssign(
+              filter.argument,
+              tsg
+                .identifier(filter.hashId!.encoder)
+                .importFrom(
+                  Directory.resolve("GENERATED", "BASE", tsFileNames.encoder),
+                )
+                .property("decode")
+                .call(tsg.identifier("variables").property(filter.argument)),
+            ),
+          ),
+        ),
+      ),
+      tsg.return(
+        withFilter.call(
+          ...["root", "variables", "context", "info"].map(tsg.identifier),
+        ),
+      ),
+    ),
+  );
 };

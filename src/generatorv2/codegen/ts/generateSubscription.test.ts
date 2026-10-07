@@ -1,6 +1,5 @@
 import { runInNewContext } from "node:vm";
 import { buildSchema } from "graphql";
-import { withFilter } from "graphql-subscriptions";
 import Hashids from "hashids";
 import ts from "typescript";
 import { config } from "../../../config/config.js";
@@ -82,13 +81,35 @@ function loadFilters() {
         if (/^\.\.\/pubsub(\.js)?$/.test(name)) return { pubsub: {} };
         if (name === "graphql-subscriptions")
           return {
-            withFilter: (_source: unknown, predicate: Predicate) => predicate,
+            withFilter:
+              (_source: unknown, predicate: Predicate) =>
+              (_root: unknown, variables: Record<string, unknown>) =>
+              (payload: unknown) =>
+                predicate(payload, variables),
           };
         throw new Error("Unexpected generated import: " + name);
       },
     },
   );
-  return exports.subscription;
+  return Object.fromEntries(
+    Object.entries(exports.subscription).map(([event, resolver]) => [
+      event,
+      {
+        subscribe: async (
+          payload: unknown,
+          variables: Record<string, unknown>,
+        ) => {
+          const predicate = (
+            resolver.subscribe as unknown as (
+              _root: unknown,
+              variables: Record<string, unknown>,
+            ) => (payload: unknown) => Promise<boolean>
+          )(undefined, variables);
+          return predicate(payload);
+        },
+      },
+    ]),
+  );
 }
 
 test("generates ID arguments for hashed primary and reference columns", () => {
@@ -152,26 +173,23 @@ test("uses the referenced encoder and combines hash, string and integer filters"
   await expect(filter(payload, variables)).resolves.toBe(true);
   await expect(
     filter(payload, { ...variables, account_id: MessageHashId.encode(42) }),
-  ).resolves.toBe(false);
+  ).rejects.toMatchObject({ extensions: { code: "BAD_USER_INPUT" } });
   await expect(
     filter(payload, { ...variables, status: "other" }),
   ).resolves.toBe(false);
   await expect(filter(payload, { ...variables, rank: 1 })).resolves.toBe(false);
 });
 
-test("invalid encoded IDs never match, including absent payload keys", async () => {
+test("invalid encoded IDs reject at subscription setup", async () => {
   const filter = loadFilters().AccountDeleted.subscribe;
-  for (const id of ["", "not a valid hash!"]) {
-    const iterator = await withFilter(
-      async function* () {
-        yield { AccountDeleted: { accountId: 42 } };
-        yield { AccountDeleted: {} };
-      },
-      (payload, args) => filter(payload, args ?? {}),
-    )(undefined, { id }, undefined, undefined);
-    await expect(iterator.next()).resolves.toEqual({
-      done: true,
-      value: undefined,
+  for (const id of [
+    "",
+    "not a valid hash!",
+    new Hashids("accounts").encode(1, 2),
+  ]) {
+    await expect(filter({ AccountDeleted: {} }, { id })).rejects.toMatchObject({
+      message: "Invalid Hash ID",
+      extensions: { code: "BAD_USER_INPUT" },
     });
   }
 });

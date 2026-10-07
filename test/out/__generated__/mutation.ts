@@ -10,17 +10,17 @@ import {publishUserCreated,publishUserUpdated} from "./subscription.js";
 import {PostDBDataSource} from "../dataSources/db/Post.js";
 type UserCreateInput = {user: UserCreatable}
 const createUserMiddleware: Array<ResolverMiddleware<GQLContext,UserCreateInput>> = [testMiddleware,hoge];
-type GQLUserUpdateInput = {user: {userId: string;NNN: string;nick: string;foo: string}}
+type GQLUserUpdateInput = {user: {userId: string;NNN?: string | null;nick?: string | null;foo?: string | null}}
 type UserUpdateInput = {user: UserIdentifiable & UserUpdatable}
-const updateUserMiddleware: Array<ResolverMiddleware<GQLContext,UserUpdateInput,GQLUserUpdateInput>> = [(args) => {args[1]={...args[1],user: {...args[1].user,userId: UserHashId.decode(args[1].user.userId as string)}};
+const updateUserMiddleware: Array<ResolverMiddleware<GQLContext,UserUpdateInput,GQLUserUpdateInput>> = [(args) => {args[1]={...args[1],user: {...args[1].user,userId: (args[1].user.userId===null||args[1].user.userId===undefined)?args[1].user.userId:UserHashId.decode(args[1].user.userId as string)}};
 return args;}];
 type GQLPostCreateInput = {post: {uId: string;title: string}}
 type PostCreateInput = {post: PostCreatable}
-const createPostMiddleware: Array<ResolverMiddleware<GQLContext,PostCreateInput,GQLPostCreateInput>> = [(args) => {args[1]={...args[1],post: {...args[1].post,uId: UserHashId.decode(args[1].post.uId as string)}};
+const createPostMiddleware: Array<ResolverMiddleware<GQLContext,PostCreateInput,GQLPostCreateInput>> = [(args) => {args[1]={...args[1],post: {...args[1].post,uId: (args[1].post.uId===null||args[1].post.uId===undefined)?args[1].post.uId:UserHashId.decode(args[1].post.uId as string)}};
 return args;}];
-type GQLPostUpdateInput = {post: {postId: string;title: string}}
+type GQLPostUpdateInput = {post: {postId: string;title?: string | null}}
 type PostUpdateInput = {post: PostIdentifiable & PostUpdatable}
-const updatePostMiddleware: Array<ResolverMiddleware<GQLContext,PostUpdateInput,GQLPostUpdateInput>> = [(args) => {args[1]={...args[1],post: {...args[1].post,postId: PostHashId.decode(args[1].post.postId as string)}};
+const updatePostMiddleware: Array<ResolverMiddleware<GQLContext,PostUpdateInput,GQLPostUpdateInput>> = [(args) => {args[1]={...args[1],post: {...args[1].post,postId: (args[1].post.postId===null||args[1].post.postId===undefined)?args[1].post.postId:PostHashId.decode(args[1].post.postId as string)}};
 return args;}];
 export const mutation = {createUser: makeResolver<GQLContext,UserCreateInput>(async (_,{user}) => {const ds = new UserDBDataSource();
 const result = await ds.create(user);

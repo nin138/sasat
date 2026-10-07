@@ -9,7 +9,7 @@ Sasat preserves decimal and bigint values across generated types, GraphQL, and i
 | Other integer columns | `Int` | `number` | Number (GraphQL's signed 32-bit range) |
 | float / double | `Float` | `number` | Number |
 
-Hash ID columns continue to use GraphQL `ID`. A bigint Hash ID uses `bigint` internally and `makeBigIntIdEncoder` for encoding/decoding.
+Hash ID columns continue to use GraphQL `ID`. A bigint Hash ID uses `bigint` internally and `makeBigIntIdEncoder` for encoding/decoding. See [Hash IDs](hash-ids.md) for zero, null, validation, and resolver input types.
 
 ## Inputs and results
 

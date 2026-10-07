@@ -97,9 +97,21 @@ const makeHashIdProperty = (field: FieldNode): PropertyAssignment | null => {
         ),
       ],
       undefined,
-      tsg.binary(
+      tsg.ternary(
+        tsg.binary(
+          tsg.binary(
+            tsg.identifier(paramName).property(field.fieldName),
+            "===",
+            tsg.identifier("null"),
+          ),
+          "||",
+          tsg.binary(
+            tsg.identifier(paramName).property(field.fieldName),
+            "===",
+            tsg.identifier("undefined"),
+          ),
+        ),
         tsg.identifier(paramName).property(field.fieldName),
-        "&&",
         tsg
           .identifier(field.hashId.encoder)
           .importFrom(

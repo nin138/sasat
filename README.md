@@ -113,7 +113,7 @@ export default class CreateUser implements SasatMigration {
 }
 ```
 
-The database stores a numeric primary key; GraphQL exposes it as an encoded Hash ID. `enableGQL()` enables the table for GraphQL, and the query/mutation declarations select the operations to expose.
+The database stores a numeric primary key; GraphQL exposes it as an encoded Hash ID. See [Hash IDs](docs/hash-ids.md) for nullable references, validation, and TypeScript types. `enableGQL()` enables the table for GraphQL, and the query/mutation declarations select the operations to expose.
 
 ### 4. Apply the migration and generate code
 

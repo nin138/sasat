@@ -6,6 +6,7 @@ import type {
   JoinConditionValue,
 } from "../generatorv2/nodes/JoinConditionNode.js";
 import type {
+  ArgQueryConditionValue,
   QueryConditionNode,
   QueryConditionValue,
 } from "../generatorv2/nodes/QueryConditionNode.js";
@@ -92,7 +93,7 @@ const field = (column: string): QueryConditionValue => ({
 
 const arg = (
   name: string,
-  type: "Int" | "Float" | "String",
+  type: ArgQueryConditionValue["type"],
 ): QueryConditionValue => ({
   kind: "arg",
   name,

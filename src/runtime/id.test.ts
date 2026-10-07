@@ -14,3 +14,12 @@ test("uses the supplied salt", () => {
     makeNumberIdEncoder(new Hashids("two")).encode(42),
   );
 });
+
+test("number encoders retain absence without confusing it with zero", () => {
+  const encoder = makeNumberIdEncoder(new Hashids("test"));
+  expect(encoder.encode(null)).toBeNull();
+  expect(encoder.decode(null)).toBeNull();
+  expect(encoder.encode(undefined)).toBeUndefined();
+  expect(encoder.decode(undefined)).toBeUndefined();
+  expect(encoder.decode(encoder.encode(0))).toBe(0);
+});

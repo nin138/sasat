@@ -47,3 +47,20 @@ test("preserves async resolver results and failures", async () => {
     })(null, {}, {}, info),
   ).rejects.toThrow("failed");
 });
+
+test("public resolver parameters use the incoming type and middleware supplies the decoded type", () => {
+  const wrapped = makeResolver<
+    Record<string, never>,
+    { id: number },
+    { id: string }
+  >(
+    (_root, params) => params.id,
+    [
+      (args) => {
+        args[1] = { id: Number(args[1].id) };
+        return args;
+      },
+    ],
+  );
+  expect(wrapped(null, { id: "42" }, {}, info)).toBe(42);
+});

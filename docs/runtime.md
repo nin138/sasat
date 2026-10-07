@@ -150,7 +150,7 @@ Check the following cases against the types and inputs your application uses.
 | Area | Current behavior |
 | --- | --- |
 | createBulk | Combines fields from all rows in one INSERT. Missing/undefined values use database DEFAULT; explicit null uses NULL. Normal database constraints and upsert rules still apply. No automatic batch splitting |
-| Hash IDs | Zero is not encoded on one output path, and nullable reference input can turn null into undefined. Verify reference clearing and boundary values |
+| Hash IDs | Zero is encoded normally; null clears nullable references and omission leaves them unchanged. Undecodable IDs return BAD_USER_INPUT. See [Hash IDs and upgrading](hash-ids.md) |
 | decimal / ordinary bigint | GraphQL `Decimal` / `BigInt`; TypeScript `string` / `bigint`. Both use strings in GraphQL JSON. See [numeric types](numeric-types.md) for input rules and upgrading |
 | first | Does not automatically add LIMIT 1. Inspect returned row counts for large datasets |
 | update with noRefetch | Returns true only when changedRows is 1. MySQL may return false for an unchanged value or a missing row; PostgreSQL returns true for one matched row even when unchanged |

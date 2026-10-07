@@ -26,10 +26,12 @@ export const makeResolver = <
     RequiredParams,
     IncomingParams
   >[] = [],
-): Resolver<Context, RequiredParams> => {
-  return (...args: Parameters<typeof resolver>) => {
+): Resolver<Context, IncomingParams> => {
+  return (...args: ResolverArgs<Context, IncomingParams>) => {
     const newArgs: ResolverArgs<Context, RequiredParams | IncomingParams> =
-      middlewares.reduce(
+      middlewares.reduce<
+        ResolverArgs<Context, RequiredParams | IncomingParams>
+      >(
         (
           args: ResolverArgs<Context, RequiredParams | IncomingParams>,
           middleware,

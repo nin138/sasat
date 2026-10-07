@@ -98,9 +98,7 @@ const getHashIdArgs = (
   query: GQLQuery,
 ): HashIdArg[] | null => {
   if (query.type === "primary") {
-    const hashIDs = entity
-      .identifyFields()
-      .filter((it) => it.option.autoIncrementHashId);
+    const hashIDs = entity.identifyFields().filter((it) => it.hashId);
     if (hashIDs.length === 0) return null;
     return hashIDs.map((it) => ({
       encoder: it.hashId!.encoder,
@@ -115,7 +113,8 @@ const getHashIdArgs = (
   ) => {
     const columnName = field.column;
     const column = entity.fields.find((e) => e.columnName === columnName);
-    if (!column?.hashId) return null;
+    if (!column?.hashId || (arg.type !== "ID" && arg.type !== "String"))
+      return null;
     return {
       name: arg.name,
       encoder: column.hashId.encoder,
@@ -123,7 +122,15 @@ const getHashIdArgs = (
     };
   };
   return query.conditions
-    .map((it) => {
+    .flatMap((it) => {
+      if (it.kind === "between" && it.left.kind === "field") {
+        const field = it.left;
+        return [it.begin, it.end]
+          .filter(
+            (value): value is ArgQueryConditionValue => value.kind === "arg",
+          )
+          .map((arg) => getHashIdArg(arg, field));
+      }
       if (it.kind === "comparison") {
         if (it.left.kind === "arg") {
           if (it.right.kind === "field") {
@@ -186,11 +193,10 @@ const makeTypeArgs = (
   const getType = (arg: ArgQueryConditionValue, checkHashId: boolean) => {
     if (arg.type === "PagingOption")
       return tsg.typeRef(arg.type).importFrom("sasat");
-    if (checkHashId && arg.type === "ID") {
+    const hashIdArg = hashIdArgs.find((it) => it.name === arg.name);
+    if (checkHashId && hashIdArg) {
       hashIds = true;
-      return tsg.typeRef(
-        hashIdArgs.find((it) => it.name === arg.name)?.tsType ?? "number",
-      );
+      return tsg.typeRef(hashIdArg.tsType);
     }
     return tsg.typeRef(toTsType(arg.type));
   };

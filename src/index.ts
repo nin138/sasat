@@ -68,8 +68,8 @@ export type {
   SQLExecutor,
   SQLTransaction,
 } from "./db/connectors/dbClient.js";
+export type { HashIdEncoder } from "./runtime/id.js";
 export { makeBigIntIdEncoder } from "./runtime/id.js";
-
 export {
   BigIntScalar,
   DecimalScalar,

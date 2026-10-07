@@ -1,5 +1,10 @@
 import { columnTypeToTsType } from "../../../../migration/column/columnTypes.js";
-import { type TsStatement, type TsType, tsg } from "../../../../tsg/index.js";
+import {
+  KeywordTypeNode,
+  type TsStatement,
+  type TsType,
+  tsg,
+} from "../../../../tsg/index.js";
 import { type Directories, Directory } from "../../../directory.js";
 import type { EntityNode } from "../../../nodes/entityNode.js";
 import type { FieldNode } from "../../../nodes/FieldNode.js";
@@ -37,6 +42,25 @@ const makeEncoder = (name: string) =>
 const makeIdDecodeMiddleware = (fields: FieldNode[], node: MutationNode) => {
   const params = tsg.identifier("args[1]");
   const entityName = node.entity.name.lowerCase();
+  const decoded = fields
+    .filter((it) => it.hashId && it.isGQLOpen)
+    .map((it) => {
+      const value = params.property(entityName).property(it.fieldName);
+      return tsg.propertyAssign(
+        it.fieldName,
+        tsg.ternary(
+          tsg.binary(
+            tsg.binary(value, "===", tsg.identifier("null")),
+            "||",
+            tsg.binary(value, "===", tsg.identifier("undefined")),
+          ),
+          value,
+          makeEncoder(it.hashId!.encoder)
+            .property("decode")
+            .call(value.as(tsg.typeRef("string"))),
+        ),
+      );
+    });
   return tsg.arrowFunc(
     [tsg.parameter("args")],
     undefined,
@@ -51,21 +75,7 @@ const makeIdDecodeMiddleware = (fields: FieldNode[], node: MutationNode) => {
               entityName,
               tsg.object(
                 tsg.spreadAssign(params.property(entityName)),
-                ...fields
-                  .filter((it) => it.hashId && it.isGQLOpen)
-                  .map((it) =>
-                    tsg.propertyAssign(
-                      it.fieldName,
-                      makeEncoder(it.hashId!.encoder)
-                        .property("decode")
-                        .call(
-                          params
-                            .property(entityName)
-                            .property(it.fieldName)
-                            .as(tsg.typeRef("string")),
-                        ),
-                    ),
-                  ),
+                ...decoded,
               ),
             ),
           ),
@@ -82,16 +92,32 @@ const makeResolverMiddleware = (
   fields: FieldNode[],
   node: MutationNode,
 ) => {
-  const sig = fields.map((it) =>
-    tsg.propertySignature(
-      it.fieldName,
-      tsg.typeRef(it.hashId ? "string" : columnTypeToTsType(it.dbType)),
-    ),
-  );
+  const sig = fields
+    .filter((it) => it.isGQLOpen)
+    .map((it) => {
+      const type = tsg.typeRef(
+        it.hashId ? "string" : columnTypeToTsType(it.dbType),
+      );
+      return tsg.propertySignature(
+        it.fieldName,
+        it.isNullable ? tsg.unionType(type, KeywordTypeNode.null) : type,
+        it.isNullable,
+      );
+    });
+  const hidden = fields.filter((it) => !it.isGQLOpen);
+  const paramType =
+    hidden.length === 0
+      ? makeParamType(node)
+      : tsg.typeRef("Omit", [
+          makeParamType(node),
+          tsg.typeRef(
+            hidden.map((it) => JSON.stringify(it.fieldName)).join(" | "),
+          ),
+        ]);
   const requiredType = tsg.typeAlias(
     typeName,
     tsg.typeLiteral([
-      tsg.propertySignature(entity.name.lowerCase(), makeParamType(node)),
+      tsg.propertySignature(entity.name.lowerCase(), paramType),
     ]),
   );
 

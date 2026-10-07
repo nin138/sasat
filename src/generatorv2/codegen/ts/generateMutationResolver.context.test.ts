@@ -254,3 +254,52 @@ test("context-only hash references need no input decoder", async () => {
   });
   expect(s.decode).not.toHaveBeenCalled();
 });
+
+test.each(["create", "update"])(
+  "%s preserves null and omitted hash references without calling a custom decoder",
+  async (method) => {
+    const s = setup({ hashed: true });
+    for (const fields of [
+      { reviewerId: null },
+      {},
+      { reviewerId: undefined },
+    ]) {
+      s.decode.mockClear();
+      const input = {
+        ...(method === "update" ? { id: 7 } : {}),
+        title: "optional",
+        ...fields,
+      };
+      await s.mutation[`${method}Document`](
+        null,
+        { document: input },
+        { currentTenant: 0 },
+      );
+      expect(s.decode).not.toHaveBeenCalled();
+      expect(s[method as "create" | "update"]).toHaveBeenLastCalledWith({
+        ...input,
+        reviewerId: fields.reviewerId,
+        tenantId: 0,
+      });
+    }
+  },
+);
+
+test.each(["create", "update"])(
+  "%s rejects bad client hash IDs before database operations",
+  (method) => {
+    const s = setup({ hashed: true });
+    for (const reviewerId of ["", "!"]) {
+      expect(() =>
+        s.mutation[`${method}Document`](
+          null,
+          { document: { id: 7, title: "invalid", reviewerId } },
+          { currentTenant: 42 },
+        ),
+      ).toThrow("Invalid Hash ID");
+    }
+    expect(s.create).not.toHaveBeenCalled();
+    expect(s.update).not.toHaveBeenCalled();
+    expect(s.findById).not.toHaveBeenCalled();
+  },
+);
