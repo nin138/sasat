@@ -31,6 +31,7 @@ import { makeResolver } from "../../src/runtime/makeResolver.js";
 import { pagingOption } from "../../src/runtime/pagingOption.js";
 import { SasatDBDatasource } from "../../src/runtime/sasatDBDatasource.js";
 import { verifyBulkInsert } from "./bulk-insert-cases.js";
+import { verifyPublishFailure } from "./publish-failure-cases.js";
 
 const options = {
   host: process.env.TEST_DB_HOST ?? "127.0.0.1",
@@ -394,4 +395,8 @@ test("generated create stores the context tenant in a renamed column", async () 
 
 test("bulk inserts preserve mixed fields, defaults, nulls, upserts and atomic failures", async () => {
   await verifyBulkInsert(executor, "mysql");
+});
+
+test("generated mutations succeed after Redis publish failures while DB failures still reject", async () => {
+  await verifyPublishFailure(executor, "mysql");
 });

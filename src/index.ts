@@ -46,6 +46,7 @@ export type { Fields } from "./runtime/field.js";
 export { gqlResolveInfoToField } from "./runtime/gqlResolveInfoToField.js";
 export { makeNumberIdEncoder } from "./runtime/id.js";
 export { makeResolver } from "./runtime/makeResolver.js";
+export { publishAfterWrite } from "./runtime/publishAfterWrite.js";
 export type { ResolverMiddleware } from "./runtime/resolverMiddleware.js";
 export { makeParamsMiddleware } from "./runtime/resolverMiddleware.js";
 export type {

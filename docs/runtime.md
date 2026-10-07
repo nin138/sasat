@@ -127,9 +127,19 @@ PORT=4001 PUBSUB_BACKEND=redis REDIS_URL=redis://127.0.0.1:6379 yarn tsx server.
 
 Subscribe on port 4000 and send a mutation to port 4001. Replace the Redis address with one reachable from your application. Explicit `createPubSub({ backend, redisUrl, channelPrefix })` arguments take precedence over environment variables.
 
-Connections open on first publish/subscribe. Failures reject the operation without falling back to local delivery. A database write may have completed before publishing fails; define retry and duplicate-handling behavior accordingly. There is no replay of missed events after a disconnect. Query current state on reconnect when your application needs to recover missed changes.
+Connections open on first publish/subscribe. Direct PubSub operations reject on failure without falling back to local delivery. Generated mutation notification failures follow the success policy below. There is no replay of missed events after a disconnect. Query current state on reconnect when your application needs to recover missed changes.
 
 During shutdown, finish pending publishes and stop subscriptions before calling `await pubsub.close()`. You can also provide a custom PubSubEngine in pubsub.ts.
+
+## Mutation success and notification failures
+
+Generated create/update/delete mutations treat notifications as best effort. Once the database operation and any configured result refetch succeed, a notification failure is logged and the normal mutation result is returned. Both synchronous publisher exceptions and rejected promises are handled. A database or refetch error still propagates as an error.
+
+The generated code uses the exported `publishAfterWrite(name, publish)` helper around the notification call. Each failed attempt writes `[sasat] Subscription publish failed after database write:` and the publisher function name to `console.error`. It does not log the error object or event payload, which may contain credentials or application data. A failing log sink also does not change the mutation result.
+
+Sasat awaits the notification attempt, so its latency still depends on the publisher's timeout behavior. Sasat adds no application-level retry, durable event queue, or request deduplication. Notifications may be missed; clients can refetch current database state. Direct calls to `pubsub.publish(...)` or generated `publishXxx(...)` functions retain their existing error behavior.
+
+**Upgrade:** rebuild/install the updated library and run `yarn sasat generate` in your application. Previously generated mutations retain their old behavior until regenerated. Existing custom `pubsub.ts` files are preserved, and custom PubSub implementations work with the same wrapper. Custom mutation implementations can opt in by calling `publishAfterWrite` after their database operation.
 
 <a id="limitations"></a>
 

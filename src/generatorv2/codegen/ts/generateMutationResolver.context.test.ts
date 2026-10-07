@@ -9,6 +9,7 @@ import { Queries } from "../../../migration/makeQuery.js";
 import { createTypeDef } from "../../../runtime/createTypeDef.js";
 import { makeNumberIdEncoder } from "../../../runtime/id.js";
 import { makeResolver } from "../../../runtime/makeResolver.js";
+import { publishAfterWrite } from "../../../runtime/publishAfterWrite.js";
 import { pick } from "../../../runtime/util.js";
 import { parse } from "../../parse.js";
 import { generateMutationResolver } from "./generateMutationResolver.js";
@@ -90,7 +91,7 @@ function setup({
     {
       exports,
       require: (name: string) => {
-        if (name === "sasat") return { makeResolver, pick };
+        if (name === "sasat") return { makeResolver, pick, publishAfterWrite };
         if (/dataSources\/db\/Document(\.js)?$/.test(name))
           return {
             DocumentDBDataSource: class {

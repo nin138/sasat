@@ -138,13 +138,26 @@ const makeRefetched = (node: MutationNode) => {
 };
 
 const makePublishCall = (node: MutationNode, identifier: Identifier) => {
+  const publish = publishFunctionName(node.entityName, node.mutationType);
   return tsg
     .await(
       tsg
-        .identifier(publishFunctionName(node.entityName, node.mutationType))
-        .importFrom("./subscription")
+        .identifier("publishAfterWrite")
+        .importFrom("sasat")
         .call(
-          identifier.as(makeTypeRef(node.entityName, "entity", "GENERATED")),
+          tsg.string(publish),
+          tsg.arrowFunc(
+            [],
+            undefined,
+            tsg
+              .identifier(publish)
+              .importFrom("./subscription")
+              .call(
+                identifier.as(
+                  makeTypeRef(node.entityName, "entity", "GENERATED"),
+                ),
+              ),
+          ),
         ),
     )
     .toStatement();

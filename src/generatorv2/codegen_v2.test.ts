@@ -22,6 +22,7 @@ import { createPubSub } from "../runtime/createPubSub.js";
 import { createTypeDef } from "../runtime/createTypeDef.js";
 import { makeNumberIdEncoder } from "../runtime/id.js";
 import { makeResolver } from "../runtime/makeResolver.js";
+import { publishAfterWrite } from "../runtime/publishAfterWrite.js";
 import { pick } from "../runtime/util.js";
 import { CodeGen_v2 } from "./codegen_v2.js";
 import { parse } from "./parse.js";
@@ -222,7 +223,7 @@ test("generated mutations call overrides on the user datasource subclass", async
     require: (name: string) => {
       if (name === "../dataSources/db/User.js") return { UserDBDataSource };
       if (name === "../dataSources/db/Post.js") return {};
-      if (name === "sasat") return { makeResolver, pick };
+      if (name === "sasat") return { makeResolver, pick, publishAfterWrite };
       if (name === "../middlewares.js")
         return { auth: (args: unknown) => args };
       if (name === "../idEncoder.js") return { UserHashId: { decode: Number } };

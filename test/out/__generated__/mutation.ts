@@ -2,7 +2,7 @@
 import {UserCreatable,UserIdentifiable,UserUpdatable,User} from "./entities/User.js";
 import {testMiddleware,hoge} from "../middlewares.js";
 import {GQLContext} from "../context.js";
-import {ResolverMiddleware,makeResolver,CommandResponse,pick} from "sasat";
+import {ResolverMiddleware,makeResolver,publishAfterWrite,CommandResponse,pick} from "sasat";
 import {UserHashId,PostHashId} from "../idEncoder.js";
 import {PostCreatable,PostIdentifiable,PostUpdatable} from "./entities/Post.js";
 import {UserDBDataSource} from "../dataSources/db/User.js";
@@ -24,12 +24,12 @@ const updatePostMiddleware: Array<ResolverMiddleware<GQLContext,PostUpdateInput,
 return args;}];
 export const mutation = {createUser: makeResolver<GQLContext,UserCreateInput>(async (_,{user}) => {const ds = new UserDBDataSource();
 const result = await ds.create(user);
-await publishUserCreated(result as User);
+await publishAfterWrite('publishUserCreated',() => publishUserCreated(result as User));
 return result;},createUserMiddleware),updateUser: makeResolver<GQLContext,UserUpdateInput,GQLUserUpdateInput>(async (_,{user}) => {const ds = new UserDBDataSource();
 const result = await ds.update(user).then((it: CommandResponse): boolean => it.changedRows===1);
 const identifiable = pick(user,['userId']) as unknown as UserIdentifiable;
 const fetched = await ds.findByUserId(identifiable.userId);
-await publishUserUpdated(fetched as User);
+await publishAfterWrite('publishUserUpdated',() => publishUserUpdated(fetched as User));
 return result;},updateUserMiddleware),createPost: makeResolver<GQLContext,PostCreateInput,GQLPostCreateInput>(async (_,{post}) => {const ds = new PostDBDataSource();
 const result = await ds.create(post);
 const identifiable = pick(result,['postId']) as unknown as PostIdentifiable;
