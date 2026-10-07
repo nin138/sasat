@@ -4,6 +4,7 @@ import { MigrationController } from "@/migration/controller.js";
 import { DataStoreHandler } from "@/migration/dataStore.js";
 import { getCurrentMigration } from "@/migration/exec/getCurrentMigration.js";
 import { compileMigrationFiles } from "@/migration/exec/migrationFileCompiler.js";
+import { withMigrationLock } from "@/migration/exec/withMigrationLock.js";
 import { writeCurrentSchema } from "@/util/fsUtil.js";
 import { sqlFor } from "../../db/sqlGenerator.js";
 import { Console } from "../console.js";
@@ -22,18 +23,22 @@ export const migrate = async (
   let current: string | undefined;
   if (!options.silent) Console.log("--migration started--");
   try {
-    if (!options.skipBuild) {
-      await compileMigrationFiles();
-    }
-    const migration = new MigrationController();
-    const currentMigration = await getCurrentMigration(client, options);
-    const result = await migration.migrate(client, currentMigration, options);
-    current = result.currentMigration;
-    if (options.generateFiles && !options.dry) {
-      const storeHandler = new DataStoreHandler(result.store, sqlFor(client));
-      writeCurrentSchema(result.store);
-      await new CodeGen_v2(storeHandler).generate();
-    }
+    const apply = async (client: DBClient) => {
+      if (!options.skipBuild) {
+        await compileMigrationFiles();
+      }
+      const migration = new MigrationController();
+      const currentMigration = await getCurrentMigration(client, options);
+      const result = await migration.migrate(client, currentMigration, options);
+      current = result.currentMigration;
+      if (options.generateFiles && !options.dry) {
+        const storeHandler = new DataStoreHandler(result.store, sqlFor(client));
+        writeCurrentSchema(result.store);
+        await new CodeGen_v2(storeHandler).generate();
+      }
+    };
+    if (options.dry) await apply(client);
+    else await withMigrationLock(client, apply);
     if (!options.silent)
       Console.success(
         options.dry

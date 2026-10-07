@@ -56,6 +56,10 @@ export abstract class SQLClient implements SQLExecutor {
 }
 
 export abstract class SQLTransaction extends SQLClient {
+  /** Discard an unsafe session. Pooled connectors must override to destroy it. */
+  discard(): Promise<void> {
+    return this.rollback();
+  }
   abstract commit(): Promise<void>;
   abstract rollback(): Promise<void>;
 }

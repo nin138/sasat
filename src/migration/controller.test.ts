@@ -55,6 +55,7 @@ test("executes each pending migration with only that migration's SQL", async () 
     expect.anything(),
     "001.ts",
     Direction.Up,
+    expect.any(Function),
   );
 });
 
@@ -72,6 +73,7 @@ test("rolls back to the configured target", async () => {
     expect.anything(),
     "002.ts",
     Direction.Down,
+    expect.any(Function),
   );
 });
 

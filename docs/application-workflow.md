@@ -24,7 +24,7 @@ yarn sasat migrate --generateFiles
 yarn tsc --noEmit
 ```
 
-Restart your server and verify reads, creates, and updates using the changed fields. A dry run still executes migration definitions and hooks. See [dry-run behavior](configuration.md#dry-run).
+Restart your server and verify reads, creates, and updates using the changed fields. A dry run replays migration definitions without running apply hooks. See [dry-run behavior](configuration.md#dry-run).
 
 ## Changing the exposed API
 

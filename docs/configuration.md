@@ -141,19 +141,22 @@ The paths in this table use the README's `migration.dir` and `migration.out` val
 
 `migrate --dry` skips managed SQL execution, creation of the migration history table, and history writes. Adding `--generateFiles` does not generate application code, currentSchema, or test SQL during a dry run.
 
-The command still compiles `.mjs` files and executes migration definitions and hooks to calculate the preview. Use `--skipBuild` when compiled files are already current. Direct database operations or file writes inside your own definitions and hooks are not suppressed. `--silent` suppresses normal progress and SQL output.
+The command still compiles `.mjs` files and replays migration definitions to calculate the preview. Apply hooks are skipped. Use `--skipBuild` when compiled files are already current. Direct database operations or file writes inside your imports, constructors, and definitions are not suppressed. `--silent` suppresses normal progress and SQL output.
 
 Sasat checks the history of up/down operations. It executes each migration through a transaction API, but this is not a guarantee that arbitrary DDL can be rolled back or that partially applied changes are recovered automatically.
 
 ## Migration lifecycle
 
 - Export a default class with up/down methods. Both synchronous and asynchronous definitions are supported.
-- Optional hooks are beforeUp, afterUp, beforeDown, and afterDown. In the current implementation, after hooks run after reading the definition, **before the queued SQL is applied**.
-- Applied up definitions are replayed to reconstruct the schema. Generation and dry runs also execute hooks, so keep definitions replayable.
+- Optional `beforeUp`/`beforeDown` hooks run before queued SQL; `afterUp`/`afterDown` run after queued SQL, before history and commit. Their context supplies the same database executor.
+- `afterCommitUp`/`afterCommitDown` run after a successful commit. A failure is reported as already committed; applied history is retained.
+- Applied up definitions are replayed to reconstruct the schema. Reconstruction, generation, and dry runs skip all apply hooks. Keep definitions replayable.
 - `store.sql` adds custom SQL to the queue. Sasat does not infer schema changes from that SQL; use the schema APIs as well when code generation must reflect a change.
-- `skipOnTest: true` excludes a migration's queued SQL from test-SQL collection. It does not skip execution of its definition or hooks.
+- `skipOnTest: true` excludes a migration's queued SQL from test-SQL collection. It does not skip execution of its definition. Apply hooks are never collected into test SQL.
 
 Migrations run in lexicographic filename order; use zero-padded numbers or timestamps consistently. An unknown explicit target is rejected before compilation or generation writes files, including generate, generate:er, and generate:test. An omitted target selects the last migration; an empty directory with no target represents the initial schema. Existing database history must match filename order, otherwise migration stops without rewriting that history.
+
+Normal CLI migrations acquire a database-scoped lock before reading history; concurrent application fails immediately. See [migration lifecycle and recovery](migration-lifecycle.md) for examples, failure boundaries, and **hook upgrade instructions**.
 
 ## Regeneration
 

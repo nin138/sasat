@@ -133,3 +133,14 @@ test("releasing an unused PostgreSQL client does not initialize a pool", async (
   expect(pool.end).not.toHaveBeenCalled();
   await expect(client.rawQuery("SELECT 1")).rejects.toThrow("released");
 });
+
+test("explicit discard destroys a session instead of returning it to the pool", async () => {
+  const { client, connection } = setup();
+  const tx = await client.transaction();
+  await tx.discard();
+  await tx.rollback();
+  await tx.discard();
+  expect(connection.release).toHaveBeenCalledTimes(1);
+  expect(connection.release).toHaveBeenCalledWith(true);
+  await expect(tx.rawQuery("SELECT 1")).rejects.toThrow("finished");
+});

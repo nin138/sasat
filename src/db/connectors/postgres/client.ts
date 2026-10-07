@@ -118,6 +118,11 @@ class PostgresTransaction extends SQLTransaction {
       this.client.release(failed);
     }
   }
+  override async discard(): Promise<void> {
+    if (this.finished) return;
+    this.finished = true;
+    this.client.release(true);
+  }
   commit() {
     return this.finish("COMMIT");
   }

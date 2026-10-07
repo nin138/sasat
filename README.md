@@ -15,6 +15,7 @@ Sasat works with GraphQL Yoga and Apollo Server. Your application configures the
 | Use PostgreSQL | [PostgreSQL setup and compatibility](docs/postgresql.md) |
 | Understand the application structure | [Application structure and generated files](docs/architecture.md) |
 | Configure the CLI and code generation | [Configuration and migrations](docs/configuration.md) |
+| Use migration hooks and recover failures | [Migration lifecycle](docs/migration-lifecycle.md) |
 | Add context, custom logic, or subscriptions | [Runtime APIs and customization](docs/runtime.md) |
 | Change your schema or update Sasat | [Application workflow](docs/application-workflow.md) |
 | Work on Sasat itself | [Contributor guide](docs/development.md) |
@@ -123,7 +124,7 @@ yarn sasat migrate --generateFiles
 yarn tsc --noEmit
 ```
 
-The `out/` directory now contains types, data sources, and a GraphQL schema and resolvers. `--dry` skips Sasat's SQL application, but still executes migration definitions and hooks. See [dry-run behavior](docs/configuration.md#dry-run).
+The `out/` directory now contains types, data sources, and a GraphQL schema and resolvers. `--dry` skips Sasat's SQL application and apply hooks, but still replays migration definitions. See [dry-run behavior](docs/configuration.md#dry-run).
 
 ### 5. Start a GraphQL server
 

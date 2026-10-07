@@ -97,7 +97,7 @@ TEST_DB_HOST=127.0.0.1 TEST_DB_PORT=3308 yarn test:integration
 
 TEST_DB_USER and TEST_DB_PASSWORD override the default root/empty-password connection. The account needs create/drop database permissions. This command does not load .env or use the application's DATABASE setting.
 
-Fixtures create uniquely named databases and clean them up after use. They cover real CRUD, query conditions, paging, context propagation, authentication boundaries, constraints, and CLI dry runs.
+Fixtures create uniquely named databases and clean them up after use. They cover real CRUD, query conditions, paging, context propagation, authentication boundaries, constraints, and CLI dry runs. Migration lifecycle fixtures also check hook ordering, generation without hooks, concurrent CLI processes, DML/DDL failure recovery, and session-lock cleanup on both engines (including PostgreSQL pools with `max: 1`).
 
 For PostgreSQL:
 

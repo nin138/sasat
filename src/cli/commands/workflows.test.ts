@@ -6,6 +6,7 @@ import { createCurrentMigrationDataStore } from "../../migration/exec/createCurr
 import { getCurrentMigration } from "../../migration/exec/getCurrentMigration.js";
 import { getMigrationFileNames } from "../../migration/exec/getMigrationFiles.js";
 import { compileMigrationFiles } from "../../migration/exec/migrationFileCompiler.js";
+import { withMigrationLock } from "../../migration/exec/withMigrationLock.js";
 import { StoreMigrator } from "../../migration/front/storeMigrator.js";
 import { writeCurrentSchema } from "../../util/fsUtil.js";
 import { Console } from "../console.js";
@@ -36,6 +37,10 @@ jest.mock("../../util/fsUtil.js", () => ({
   writeCurrentSchema: jest.fn(),
 }));
 
+jest.mock("../../migration/exec/withMigrationLock.js", () => ({
+  withMigrationLock: jest.fn(async (client, apply) => apply(client)),
+}));
+
 const empty = { tables: [] };
 const options = {
   silent: true,
@@ -61,6 +66,7 @@ beforeEach(() => {
 
 test("builds migrations and generates schema/code from the resulting store", async () => {
   await migrate({} as DBClient, options);
+  expect(withMigrationLock).toHaveBeenCalledTimes(1);
   expect(compileMigrationFiles).toHaveBeenCalledTimes(1);
   expect(MigrationController.prototype.migrate).toHaveBeenCalledWith(
     {},
@@ -126,6 +132,7 @@ test("dry run skips schema and application generation even when requested", asyn
     "001.ts",
     expect.objectContaining({ dry: true }),
   );
+  expect(withMigrationLock).not.toHaveBeenCalled();
   expect(writeCurrentSchema).not.toHaveBeenCalled();
   expect(CodeGen_v2.prototype.generate).not.toHaveBeenCalled();
 });

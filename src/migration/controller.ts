@@ -10,6 +10,7 @@ import type { Direction } from "./exec/getCurrentMigration.js";
 import { getMigrationTargets } from "./exec/getMigrationTarget.js";
 import { readMigration } from "./exec/readMigrationFile.js";
 import { runMigration } from "./exec/runMigration.js";
+import type { SasatMigration } from "./front/migration.js";
 import type { SerializedStore } from "./serialized/serializedStore.js";
 
 export class MigrationController {
@@ -23,6 +24,7 @@ export class MigrationController {
       migrationName: string,
       direction: Direction,
       options: MigrateCommandOption,
+      migration?: SasatMigration,
     ) => Promise<void> = runMigration,
   ): Promise<{
     store: SerializedStore;
@@ -44,8 +46,23 @@ export class MigrationController {
       if (!options.silent) {
         Console.log("---------\n" + tsFileName);
       }
-      store = await readMigration(store, tsFileName, target.direction);
-      await execute(client, store, tsFileName, target.direction, options);
+      let migration: SasatMigration | undefined;
+      store = await readMigration(
+        store,
+        tsFileName,
+        target.direction,
+        (instance) => {
+          migration = instance;
+        },
+      );
+      await execute(
+        client,
+        store,
+        tsFileName,
+        target.direction,
+        options,
+        migration,
+      );
       store.resetQueue();
     }
     return {

@@ -5,7 +5,7 @@ import { Direction } from "./getCurrentMigration.js";
 import { readMigration } from "./readMigrationFile.js";
 
 test.each([Direction.Up, Direction.Down])(
-  "awaits %s lifecycle hooks in order",
+  "replays %s definitions without apply hooks",
   async (direction) => {
     const calls: string[] = [];
     const migrationName = "__virtual_lifecycle_" + direction + ".ts";
@@ -44,11 +44,7 @@ test.each([Direction.Up, Direction.Down])(
     await expect(readMigration(store, migrationName, direction)).resolves.toBe(
       store,
     );
-    expect(calls).toEqual(
-      direction === Direction.Up
-        ? ["beforeUp", "up", "afterUp"]
-        : ["beforeDown", "down", "afterDown"],
-    );
+    expect(calls).toEqual(direction === Direction.Up ? ["up"] : ["down"]);
     expect(store.currentOption.skipOnTest).toBe(true);
   },
 );
