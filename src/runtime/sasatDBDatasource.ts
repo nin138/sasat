@@ -1,19 +1,12 @@
 import type { SQLExecutor, SqlValueType } from "../db/connectors/dbClient.js";
-import { getDialect, withDialect } from "../db/dialect.js";
+import { type SqlGenerator, sqlFor } from "../db/sqlGenerator.js";
 import {
   type CommandResponse,
   getDbClient,
   qe,
   type RelationMap,
 } from "../index.js";
-import {
-  type Create,
-  createToSql,
-  type Delete,
-  deleteToSql,
-  type Update,
-  updateToSql,
-} from "./dsl/mutation/mutation.js";
+import type { Create, Delete, Update } from "./dsl/mutation/mutation.js";
 import {
   createQueryResolveInfo,
   type TableInfo,
@@ -26,7 +19,6 @@ import type {
   Sort,
 } from "./dsl/query/query.js";
 import { hydrate, type ResultRow } from "./dsl/query/sql/hydrate.js";
-import { queryToSql } from "./dsl/query/sql/queryToSql.js";
 import type { Fields } from "./field.js";
 import {
   createPagingFieldQuery,
@@ -76,9 +68,9 @@ export abstract class SasatDBDatasource<
   protected abstract readonly identifyFields: string[];
   protected abstract readonly autoIncrementColumn?: string | undefined;
 
-  constructor(protected client: SQLExecutor = getDbClient()) {}
-  private sql<T>(build: () => T): T {
-    return withDialect(this.client.dialect ?? getDialect(), build);
+  protected readonly sql: SqlGenerator;
+  constructor(protected client: SQLExecutor = getDbClient()) {
+    this.sql = sqlFor(client);
   }
 
   protected abstract getDefaultValueString():
@@ -110,7 +102,7 @@ export abstract class SasatDBDatasource<
         ? this.fieldToColumn([this.autoIncrementColumn])[0]
         : undefined,
     };
-    const sql = this.sql(() => createToSql(dsl, this.tableInfo));
+    const sql = this.sql.create(dsl, this.tableInfo);
     const response = await this.client.rawCommand(sql);
     if (!this.autoIncrementColumn) return obj;
     return {
@@ -142,7 +134,7 @@ export abstract class SasatDBDatasource<
       conflictColumns: option?.upsert?.conflictColumns,
       ignore: option?.ignore,
     };
-    const sql = this.sql(() => createToSql(dsl, this.tableInfo));
+    const sql = this.sql.create(dsl, this.tableInfo);
     return await this.client.rawCommand(sql);
   }
 
@@ -172,7 +164,7 @@ export abstract class SasatDBDatasource<
         })),
       where: this.createIdentifiableExpression(entity),
     };
-    const sql = this.sql(() => updateToSql(dsl, this.tableInfo));
+    const sql = this.sql.update(dsl, this.tableInfo);
     return this.client.rawCommand(sql);
   }
 
@@ -190,7 +182,7 @@ export abstract class SasatDBDatasource<
         })),
       where: condition,
     };
-    const sql = this.sql(() => updateToSql(dsl, this.tableInfo));
+    const sql = this.sql.update(dsl, this.tableInfo);
     return this.client.rawCommand(sql);
   }
 
@@ -205,7 +197,7 @@ export abstract class SasatDBDatasource<
       table: this.tableName,
       where: condition,
     };
-    const sql = this.sql(() => deleteToSql(dsl));
+    const sql = this.sql.delete(dsl);
     return this.client.rawCommand(sql);
   }
 
@@ -224,15 +216,13 @@ export abstract class SasatDBDatasource<
     options?: QueryOptions,
     context?: unknown,
   ): Promise<QueryResult[]> {
-    const query = this.sql(() =>
-      createQuery(
-        this.tableName,
-        fields as Fields<unknown>,
-        options,
-        this.tableInfo,
-        this.relationMap,
-        context,
-      ),
+    const query = createQuery(
+      this.tableName,
+      fields as Fields<unknown>,
+      options,
+      this.tableInfo,
+      this.relationMap,
+      context,
     );
     return this.executeQuery(query, fields);
   }
@@ -243,17 +233,15 @@ export abstract class SasatDBDatasource<
     options?: QueryOptions,
     context?: unknown,
   ): Promise<QueryResult[]> {
-    const query = this.sql(() =>
-      createPagingFieldQuery({
-        baseTableName: this.tableName,
-        fields: fields as Fields<unknown>,
-        tableInfo: this.tableInfo,
-        relationMap: this.relationMap,
-        pagingOption: paging,
-        queryOption: options,
-        context,
-      }),
-    );
+    const query = createPagingFieldQuery({
+      baseTableName: this.tableName,
+      fields: fields as Fields<unknown>,
+      tableInfo: this.tableInfo,
+      relationMap: this.relationMap,
+      pagingOption: paging,
+      queryOption: options,
+      context,
+    });
     return this.executeQuery(query, fields);
   }
 
@@ -267,7 +255,7 @@ export abstract class SasatDBDatasource<
       this.relationMap,
       this.tableInfo,
     );
-    const sql = this.sql(() => queryToSql(query));
+    const sql = this.sql.query(query);
     const resultRows: ResultRow[] = await this.client.rawQuery(sql);
     return hydrate(resultRows, info) as QueryResult[];
   }

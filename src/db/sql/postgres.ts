@@ -1,8 +1,9 @@
 import { createHash } from "node:crypto";
 import type { SerializedColumn } from "../../migration/serialized/serializedColumn.js";
 import type { SerializedTable } from "../../migration/serialized/serializedStore.js";
-import { SqlString } from "../../runtime/sql/sqlString.js";
-import { withDialect } from "../dialect.js";
+import { getSqlString } from "../../runtime/sql/sqlString.js";
+
+const SqlString = getSqlString("postgres");
 
 export function postgresType(
   column: Pick<SerializedColumn, "type" | "length" | "scale">,
@@ -75,29 +76,23 @@ function timestampFunction(table: string) {
 
 /** Implement the migration API's ON UPDATE timestamp option using a trigger. */
 export function postgresTimestampTrigger(table: SerializedTable): string[] {
-  return withDialect("postgres", () => {
-    const columns = table.columns.filter((c) => c.onUpdateCurrentTimeStamp);
-    if (!columns.length) return [];
-    const q = SqlString.escapeId;
-    const body = `BEGIN IF NEW IS DISTINCT FROM OLD THEN ${columns
-      .map((c) => {
-        const col = q(c.columnName);
-        return `IF NEW.${col} IS NOT DISTINCT FROM OLD.${col} THEN NEW.${col} := CURRENT_TIMESTAMP; END IF;`;
-      })
-      .join(" ")} END IF; RETURN NEW; END`;
-    const fn = q(timestampFunction(table.tableName));
-    return [
-      `CREATE OR REPLACE FUNCTION ${fn}() RETURNS trigger LANGUAGE plpgsql AS ${SqlString.escape(body)}`,
-      `DROP TRIGGER IF EXISTS "sasat_update_timestamp" ON ${q(table.tableName)}`,
-      `CREATE TRIGGER "sasat_update_timestamp" BEFORE UPDATE ON ${q(table.tableName)} FOR EACH ROW EXECUTE FUNCTION ${fn}()`,
-    ];
-  });
+  const columns = table.columns.filter((c) => c.onUpdateCurrentTimeStamp);
+  if (!columns.length) return [];
+  const q = SqlString.escapeId;
+  const body = `BEGIN IF NEW IS DISTINCT FROM OLD THEN ${columns
+    .map((c) => {
+      const col = q(c.columnName);
+      return `IF NEW.${col} IS NOT DISTINCT FROM OLD.${col} THEN NEW.${col} := CURRENT_TIMESTAMP; END IF;`;
+    })
+    .join(" ")} END IF; RETURN NEW; END`;
+  const fn = q(timestampFunction(table.tableName));
+  return [
+    `CREATE OR REPLACE FUNCTION ${fn}() RETURNS trigger LANGUAGE plpgsql AS ${SqlString.escape(body)}`,
+    `DROP TRIGGER IF EXISTS "sasat_update_timestamp" ON ${q(table.tableName)}`,
+    `CREATE TRIGGER "sasat_update_timestamp" BEFORE UPDATE ON ${q(table.tableName)} FOR EACH ROW EXECUTE FUNCTION ${fn}()`,
+  ];
 }
 
 export function dropPostgresTimestampFunction(table: string): string {
-  return withDialect(
-    "postgres",
-    () =>
-      `DROP FUNCTION IF EXISTS ${SqlString.escapeId(timestampFunction(table))}()`,
-  );
+  return `DROP FUNCTION IF EXISTS ${SqlString.escapeId(timestampFunction(table))}()`;
 }

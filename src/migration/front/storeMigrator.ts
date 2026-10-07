@@ -4,12 +4,10 @@ import { config, type SasatConfig } from "@/config/config.js";
 import { SasatError } from "@/error.js";
 import { readInitialSchema } from "@/util/fsUtil.js";
 import type { NestedPartial } from "@/util/type.js";
-import { getDialect } from "../../db/dialect.js";
 import {
-  dropPostgresTimestampFunction,
-  postgresTimestampTrigger,
-} from "../../db/sql/postgres.js";
-import { SqlString } from "../../runtime/sql/sqlString.js";
+  createSqlGenerator,
+  type SqlGenerator,
+} from "../../db/sqlGenerator.js";
 import { type TableBuilder, TableCreator } from "../creators/tableCreator.js";
 import type { DataStore } from "../dataStore.js";
 import type { SerializedStore } from "../serialized/serializedStore.js";
@@ -38,17 +36,20 @@ export class StoreMigrator implements MigrationStore {
     skipOnTest: false,
   };
 
-  private constructor() {}
+  private constructor(readonly sqlGenerator: SqlGenerator) {}
 
-  static new(): StoreMigrator {
+  static new(sqlGenerator: SqlGenerator = createSqlGenerator()): StoreMigrator {
     if (fs.existsSync(path.join(config().migration.dir, "initialSchema.yml"))) {
-      return StoreMigrator.deserialize(readInitialSchema());
+      return StoreMigrator.deserialize(readInitialSchema(), sqlGenerator);
     }
-    return new StoreMigrator();
+    return new StoreMigrator(sqlGenerator);
   }
 
-  static deserialize(data: SerializedStore): StoreMigrator {
-    const store = new StoreMigrator();
+  static deserialize(
+    data: SerializedStore,
+    sqlGenerator: SqlGenerator = createSqlGenerator(),
+  ): StoreMigrator {
+    const store = new StoreMigrator(sqlGenerator);
     store.tables = data.tables.map((it) =>
       TableMigrator.deserialize(it, store),
     );
@@ -77,18 +78,15 @@ export class StoreMigrator implements MigrationStore {
     const table = new TableMigrator(creator.create(), this);
     this.tables.push(table);
     this.addQuery(table.showCreateTable());
-    this.addQuery(...table.getIndexes().map((it) => it.addSql()));
-    if (getDialect() === "postgres")
-      this.addQuery(...postgresTimestampTrigger(table.serialize()));
+    this.addQuery(
+      ...table.getIndexes().map((it) => it.addSql(this.sqlGenerator)),
+    );
+    this.addQuery(...this.sqlGenerator.timestamps(table.serialize()));
     return this;
   }
 
   dropTable(tableName: string): MigrationStore {
-    this.addQuery(
-      `DROP TABLE ${getDialect() === "postgres" ? SqlString.escapeId(tableName) : tableName}`,
-    );
-    if (getDialect() === "postgres")
-      this.addQuery(dropPostgresTimestampFunction(tableName));
+    this.addQuery(...this.sqlGenerator.dropTable(tableName));
     this.tables = this.tables.filter((it) => it.tableName !== tableName);
     return this;
   }

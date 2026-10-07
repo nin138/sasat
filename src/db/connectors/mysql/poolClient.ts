@@ -40,7 +40,7 @@ export class MysqlPoolClient extends DBClient {
     });
     try {
       await connection.beginTransaction();
-      return new MySqlTransaction(connection);
+      return new MySqlTransaction(connection, this.sql);
     } catch (error) {
       await connection.end();
       throw error;

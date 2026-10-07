@@ -1,7 +1,8 @@
-import { getDialect } from "../../../../db/dialect.js";
-import { SqlString } from "../../../sql/sqlString.js";
+import {
+  createSqlGenerator,
+  type SqlGenerator,
+} from "../../../../db/sqlGenerator.js";
 import type { Join, LockMode, Query, QueryTable } from "../query.js";
-import { Sql } from "./nodeToSql.js";
 
 const getJoin = (from: QueryTable): Join[] => {
   return from.joins.flatMap((join) => [join, ...getJoin(join.table)]);
@@ -13,7 +14,12 @@ const getLock = (lock?: LockMode): string => {
   return " FOR SHARE";
 };
 
-export const queryToSql = (query: Query): string => {
+export const queryToSql = (
+  query: Query,
+  generator: SqlGenerator = createSqlGenerator(),
+): string => {
+  const Sql = generator.nodes;
+  const SqlString = generator;
   const select = query.select.map(Sql.select).join(", ");
   const join = [...getJoin(query.from), ...(query.join ?? [])]
     .map(Sql.join)
@@ -50,7 +56,7 @@ export const queryToSql = (query: Query): string => {
     limit +
     offset +
     getLock(query.lock) +
-    (query.lock && getDialect() === "postgres"
+    (query.lock && generator.dialect === "postgres"
       ? " OF " + SqlString.escapeId(query.from.alias)
       : "")
   );

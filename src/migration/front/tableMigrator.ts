@@ -1,11 +1,3 @@
-import { getDialect } from "../../db/dialect.js";
-import {
-  dropPostgresTimestampFunction,
-  postgresTimestampTrigger,
-  postgresType,
-} from "../../db/sql/postgres.js";
-import { SqlCreator } from "../../db/sql/sqlCreater.js";
-import { SqlString } from "../../runtime/sql/sqlString.js";
 import type { DBColumnTypes, DBType } from "../column/columnTypes.js";
 import type { ColumnBuilder } from "../creators/columnBuilder.js";
 import { type CreateColumn, createColumn } from "../creators/createColumn.js";
@@ -82,21 +74,26 @@ export class TableMigrator implements MigrationTable {
   addIndex(...columns: string[]): MigrationTable {
     this.table.addIndex(...columns);
     const index = new DBIndex(this.tableName, columns);
-    this.store.addQuery(index.addSql());
+    this.store.addQuery(index.addSql(this.store.sqlGenerator));
     return this;
   }
 
   removeIndex(...columns: string[]): MigrationTable {
     this.table.removeIndex(...columns);
-    this.store.addQuery(new DBIndex(this.tableName, columns).dropSql());
+    this.store.addQuery(
+      new DBIndex(this.tableName, columns).dropSql(this.store.sqlGenerator),
+    );
     return this;
   }
 
   _addColumn(column: SerializedNormalColumn): MigrationTable {
     this.table.addColumn(new NormalColumn(column, this.table));
-    this.store.addQuery(SqlCreator.addColumn(this.tableName, column));
-    if (getDialect() === "postgres")
-      this.store.addQuery(...postgresTimestampTrigger(this.table.serialize()));
+    this.store.addQuery(
+      this.store.sqlGenerator.alter.addColumn(this.tableName, column),
+    );
+    this.store.addQuery(
+      ...this.store.sqlGenerator.timestamps(this.table.serialize()),
+    );
     return this;
   }
 
@@ -107,14 +104,12 @@ export class TableMigrator implements MigrationTable {
 
   dropColumn(columnName: string): MigrationTable {
     this.table.dropColumn(columnName);
-    this.store.addQuery(SqlCreator.dropColumn(this.tableName, columnName));
-    if (getDialect() === "postgres") {
-      this.store.addQuery(
-        `DROP TRIGGER IF EXISTS "sasat_update_timestamp" ON ${SqlString.escapeId(this.tableName)}`,
-        dropPostgresTimestampFunction(this.tableName),
-        ...postgresTimestampTrigger(this.table.serialize()),
-      );
-    }
+    this.store.addQuery(
+      this.store.sqlGenerator.alter.dropColumn(this.tableName, columnName),
+    );
+    this.store.addQuery(
+      ...this.store.sqlGenerator.refreshTimestamps(this.table.serialize()),
+    );
     return this;
   }
 
@@ -156,7 +151,7 @@ export class TableMigrator implements MigrationTable {
       );
     }
     this.store.addQuery(
-      SqlCreator.addForeignKey(
+      this.store.sqlGenerator.alter.addForeignKey(
         this.tableName,
         column.getConstraintName(),
         reference,
@@ -168,9 +163,11 @@ export class TableMigrator implements MigrationTable {
   changeColumnType(columnName: string, type: DBType): MigrationTable {
     this.table.changeType(columnName, type as DBColumnTypes);
     this.store.addQuery(
-      getDialect() === "postgres"
-        ? `ALTER TABLE ${SqlString.escapeId(this.tableName)} ALTER COLUMN ${SqlString.escapeId(columnName)} TYPE ${postgresType({ type: type as DBColumnTypes, length: undefined, scale: undefined })}`
-        : `ALTER TABLE ${this.tableName} MODIFY ${columnName} ${type}`,
+      this.store.sqlGenerator.alter.changeColumnType(
+        this.tableName,
+        columnName,
+        type,
+      ),
     );
     return this;
   }
@@ -189,11 +186,11 @@ export class TableMigrator implements MigrationTable {
     // ALTER ... SET DEFAULT
     this.table.setDefault(columnName, value);
     this.store.addQuery(
-      `ALTER TABLE ${
-        getDialect() === "postgres"
-          ? SqlString.escapeId(this.tableName)
-          : this.tableName
-      } ALTER ${getDialect() === "postgres" ? SqlString.escapeId(columnName) : columnName} SET DEFAULT ${SqlString.escape(value)}`,
+      this.store.sqlGenerator.alter.setDefault(
+        this.tableName,
+        columnName,
+        value,
+      ),
     );
     return this;
   }

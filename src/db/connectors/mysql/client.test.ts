@@ -47,7 +47,9 @@ test.each(["commit", "rollback"] as const)(
   async (action) => {
     const c = connection();
     jest.mocked(createConnection).mockResolvedValue(c as never);
-    const transaction = await new MysqlClient({}).transaction();
+    const client = new MysqlClient({});
+    const transaction = await client.transaction();
+    expect(transaction.sql).toBe(client.sql);
     expect(c.beginTransaction).toHaveBeenCalledTimes(1);
     await expect(transaction.rawQuery("SELECT 1")).resolves.toEqual([
       { id: 1 },
@@ -64,7 +66,9 @@ test.each(["commit", "rollback"] as const)(
     const c = connection();
     c[action].mockRejectedValue(new Error("transaction failed"));
     jest.mocked(createConnection).mockResolvedValue(c as never);
-    const transaction = await new MysqlClient({}).transaction();
+    const client = new MysqlClient({});
+    const transaction = await client.transaction();
+    expect(transaction.sql).toBe(client.sql);
     await expect(transaction[action]()).rejects.toThrow("transaction failed");
     expect(c.end).toHaveBeenCalledTimes(1);
   },

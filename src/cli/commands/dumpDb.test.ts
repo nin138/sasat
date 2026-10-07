@@ -3,6 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { config } from "../../config/config.js";
 import { getDbClient } from "../../db/getDbClient.js";
+import { createSqlGenerator } from "../../db/sqlGenerator.js";
 import { readYmlFile } from "../../util/fsUtil.js";
 import { Console } from "../console.js";
 import { dumpDB } from "./dumpDb.js";
@@ -24,6 +25,7 @@ afterEach(() => {
 
 test("dumps supported tables and skips those without primary keys", async () => {
   const client = {
+    sql: createSqlGenerator("mysql"),
     rawQuery: jest
       .fn()
       .mockResolvedValueOnce([{ table: "users" }, { table: "logs" }])
@@ -52,6 +54,7 @@ test("dumps supported tables and skips those without primary keys", async () => 
 
 test("releases the client and propagates query failures", async () => {
   const client = {
+    sql: createSqlGenerator("mysql"),
     rawQuery: jest.fn().mockRejectedValue(new Error("offline")),
     release: jest.fn().mockResolvedValue(undefined),
   };

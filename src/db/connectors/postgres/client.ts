@@ -1,5 +1,6 @@
 import type { Pool, PoolClient, PoolConfig, QueryResult, types } from "pg";
 import { loadDriver } from "../../loadDriver.js";
+import { createSqlGenerator, type SqlGenerator } from "../../sqlGenerator.js";
 import {
   type CommandResponse,
   DBClient,
@@ -37,13 +38,12 @@ function commandResponse(result: QueryResult): CommandResponse {
 }
 
 export class PostgresClient extends DBClient {
-  override readonly dialect = "postgres" as const;
   private pool?: Promise<Pool>;
   constructor(
     readonly poolOption: PoolConfig,
     logger?: (query: string) => void,
   ) {
-    super(logger);
+    super(logger, createSqlGenerator("postgres"));
   }
   private getPool(): Promise<Pool> {
     if (this._released) throw new Error("Database client has been released");
@@ -73,7 +73,7 @@ export class PostgresClient extends DBClient {
     const client = await (await this.getPool()).connect();
     try {
       await client.query("BEGIN");
-      return new PostgresTransaction(client, this.logger);
+      return new PostgresTransaction(client, this.logger, this.sql);
     } catch (error) {
       client.release(true);
       throw error;
@@ -88,13 +88,13 @@ export class PostgresClient extends DBClient {
 }
 
 class PostgresTransaction extends SQLTransaction {
-  override readonly dialect = "postgres" as const;
   private finished = false;
   constructor(
     private readonly client: PoolClient,
     logger: (query: string) => void,
+    sql: SqlGenerator,
   ) {
-    super();
+    super(sql);
     this.logger = logger;
   }
   private assertActive() {

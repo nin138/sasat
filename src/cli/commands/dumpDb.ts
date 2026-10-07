@@ -4,7 +4,6 @@ import { serializeCreateTable } from "../../db/sql/createTable/createTableSerial
 import { readPostgresSchema } from "../../db/sql/postgresSchema.js";
 import { DBColumnTypes } from "../../migration/column/columnTypes.js";
 import type { SerializedStore } from "../../migration/serialized/serializedStore.js";
-import { SqlString } from "../../runtime/sql/sqlString.js";
 import { writeYmlFile } from "../../util/fsUtil.js";
 import { Console } from "../console.js";
 
@@ -25,7 +24,7 @@ export const dumpDB = async (): Promise<void> => {
     const serialized = await Promise.all(
       tables.map((table) => {
         return con
-          .rawQuery("show create table " + SqlString.escapeId(table as string))
+          .rawQuery("show create table " + con.sql.escapeId(table as string))
           .then((it) => it[0]["Create Table"] as string)
           .then(serializeCreateTable);
       }),

@@ -18,9 +18,9 @@ import { graphql } from "graphql";
 import { createSchema } from "graphql-yoga";
 import { config, setConfig } from "../../src/config/config.js";
 import { PostgresClient } from "../../src/db/connectors/postgres/client.js";
-import { withDialect } from "../../src/db/dialect.js";
 import { getDbClient } from "../../src/db/getDbClient.js";
 import { readPostgresSchema } from "../../src/db/sql/postgresSchema.js";
+import { createSqlGenerator } from "../../src/db/sqlGenerator.js";
 import { CodeGen_v2 } from "../../src/generatorv2/codegen_v2.js";
 import { DataStoreHandler } from "../../src/migration/dataStore.js";
 import { getCurrentMigration } from "../../src/migration/exec/getCurrentMigration.js";
@@ -29,7 +29,6 @@ import { Mutations } from "../../src/migration/makeMutaion.js";
 import { Queries } from "../../src/migration/makeQuery.js";
 import { QExpr } from "../../src/runtime/dsl/factory.js";
 import { SasatDBDatasource } from "../../src/runtime/sasatDBDatasource.js";
-import { SqlString } from "../../src/runtime/sql/sqlString.js";
 import { makeTestDB } from "../../src/testing/makeTestDB.js";
 import { PostgresTestDBClient } from "../../src/testing/postgresTestDBClient.js";
 
@@ -43,8 +42,7 @@ const database = `sasat_pg_${randomUUID().replaceAll("-", "")}`;
 const admin = new PostgresClient({ ...settings, database: "postgres" });
 let client: PostgresClient;
 let scratch: string;
-const q = (name: string) =>
-  withDialect("postgres", () => SqlString.escapeId(name));
+const q = (name: string) => createSqlGenerator("postgres").escapeId(name);
 const options = {
   silent: true,
   dry: true,
@@ -444,5 +442,56 @@ test("schema imports reject indexes that cannot be represented", async () => {
     );
   } finally {
     await client.rawQuery('DROP INDEX "unsupported_index"');
+  }
+});
+
+test("client-owned generation survives opposite config in DDL, CRUD and transactions", async () => {
+  const original = config().db.dialect ?? "mysql";
+  const table = "generator_boundary";
+  try {
+    setConfig({ db: { dialect: "mysql" } });
+    const store = StoreMigrator.deserialize({ tables: [] }, client.sql);
+    store.createTable(table, (t) => {
+      t.column("id").int().primary().autoIncrement();
+      t.column("name").varchar(40);
+    });
+    for (const sql of store.getSql()) await client.rawQuery(sql);
+    const tx = await client.transaction();
+    assert.equal(tx.sql, client.sql);
+    try {
+      const result = await tx.rawCommand(
+        tx.sql.create(
+          {
+            table,
+            fields: ["name"],
+            entities: [["O'Reilly"]],
+            returning: "id",
+          },
+          {
+            [table]: {
+              identifiableKeys: ["id"],
+              identifiableFields: ["id"],
+              columnMap: { id: "id", name: "name" },
+            },
+          },
+        ),
+      );
+      assert.equal(result.insertId, 1);
+      assert.deepEqual(
+        await tx.query`SELECT name FROM ${() => tx.sql.escapeId(table)} WHERE id = ${1}`,
+        [{ name: "O'Reilly" }],
+      );
+      await tx.commit();
+    } catch (error) {
+      await tx.rollback();
+      throw error;
+    }
+    store.resetQueue();
+    store.table(table).setDefault("name", "guest");
+    store.dropTable(table);
+    for (const sql of store.getSql()) await client.rawQuery(sql);
+  } finally {
+    setConfig({ db: { dialect: original } });
+    await client.rawQuery(`DROP TABLE IF EXISTS ${client.sql.escapeId(table)}`);
   }
 });

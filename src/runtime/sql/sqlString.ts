@@ -1,5 +1,5 @@
 import pkg from "sqlstring";
-import { getDialect } from "../../db/dialect.js";
+import { type DatabaseDialect, getDialect } from "../../db/dialect.js";
 
 const postgresEscape = (value: unknown): string => {
   if (value == null) return "NULL";
@@ -21,18 +21,28 @@ const postgresEscape = (value: unknown): string => {
   return "E'" + value.replaceAll("\\", "\\\\").replaceAll("'", "''") + "'";
 };
 
+function strings(dialect: DatabaseDialect) {
+  return {
+    escape: (value: unknown): string =>
+      dialect === "postgres" ? postgresEscape(value) : pkg.escape(value, true),
+    escapeId: (name: string): string => {
+      if (dialect !== "postgres") return pkg.escapeId(name);
+      if (name.includes("\0"))
+        throw new Error("SQL identifiers cannot contain NUL");
+      return name
+        .split(".")
+        .map((part) => '"' + part.replaceAll('"', '""') + '"')
+        .join(".");
+    },
+  };
+}
+const mysql = Object.freeze(strings("mysql"));
+const postgres = Object.freeze(strings("postgres"));
+export const getSqlString = (dialect: DatabaseDialect) =>
+  dialect === "postgres" ? postgres : mysql;
+
+/** Convenience helpers using the current configuration at the call boundary. */
 export const SqlString = {
-  escape: (value: unknown): string =>
-    getDialect() === "postgres"
-      ? postgresEscape(value)
-      : pkg.escape(value, true),
-  escapeId: (name: string): string => {
-    if (getDialect() !== "postgres") return pkg.escapeId(name);
-    if (name.includes("\0"))
-      throw new Error("SQL identifiers cannot contain NUL");
-    return name
-      .split(".")
-      .map((part) => '"' + part.replaceAll('"', '""') + '"')
-      .join(".");
-  },
+  escape: (value: unknown): string => getSqlString(getDialect()).escape(value),
+  escapeId: (name: string): string => getSqlString(getDialect()).escapeId(name),
 };

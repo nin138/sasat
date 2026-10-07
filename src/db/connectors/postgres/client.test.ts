@@ -53,6 +53,7 @@ test.each(["commit", "rollback"] as const)(
   async (action) => {
     const { client, pool, connection } = setup();
     const tx = await client.transaction();
+    expect(tx.sql).toBe(client.sql);
     await tx.query`SELECT ${"ok"}`;
     await tx[action]();
     await tx[action]();
@@ -75,6 +76,7 @@ test("discards a connection when BEGIN fails", async () => {
 test("discards a connection when COMMIT fails and can release the pool once", async () => {
   const { client, connection, pool } = setup();
   const tx = await client.transaction();
+  expect(tx.sql).toBe(client.sql);
   connection.query.mockRejectedValueOnce(new Error("commit failed"));
   await expect(tx.commit()).rejects.toThrow("commit failed");
   expect(connection.release).toHaveBeenCalledWith(true);

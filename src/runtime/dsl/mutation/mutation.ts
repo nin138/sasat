@@ -1,9 +1,10 @@
 import type { SqlValueType } from "@/db/connectors/dbClient.js";
-import { getDialect } from "../../../db/dialect.js";
-import { SqlString } from "../../sql/sqlString.js";
+import {
+  createSqlGenerator,
+  type SqlGenerator,
+} from "../../../db/sqlGenerator.js";
 import type { TableInfo } from "../query/createQueryResolveInfo.js";
 import type { BooleanValueExpression } from "../query/query.js";
-import { Sql } from "../query/sql/nodeToSql.js";
 
 type ValueSet = {
   field: string;
@@ -31,9 +32,11 @@ export type Delete = {
   where: BooleanValueExpression;
 };
 
-const escapeId = SqlString.escapeId;
-
-const onDuplicateKeyUpdate = (columns: Create["upsert"]): string => {
+const onDuplicateKeyUpdate = (
+  columns: Create["upsert"],
+  generator: SqlGenerator,
+): string => {
+  const escapeId = generator.escapeId;
   if (!columns || columns.length === 0) return "";
   return (
     " ON DUPLICATE KEY UPDATE " +
@@ -44,9 +47,15 @@ const onDuplicateKeyUpdate = (columns: Create["upsert"]): string => {
   );
 };
 
-export const createToSql = (dsl: Create, tableInfo: TableInfo): string => {
+export const createToSql = (
+  dsl: Create,
+  tableInfo: TableInfo,
+  generator: SqlGenerator = createSqlGenerator(),
+): string => {
+  const SqlString = generator;
+  const escapeId = generator.escapeId;
   const map = tableInfo[dsl.table].columnMap;
-  if (getDialect() === "postgres") {
+  if (generator.dialect === "postgres") {
     const columns = dsl.fields.map((it) => escapeId(map[it])).join(",");
     if (dsl.fields.length === 0 && dsl.entities.length !== 1)
       throw new Error(
@@ -72,10 +81,17 @@ export const createToSql = (dsl: Create, tableInfo: TableInfo): string => {
     .join(",");
   return `INSERT ${dsl.ignore ? "IGNORE " : ""}INTO ${escapeId(
     dsl.table,
-  )}(${dsl.fields.map((it) => escapeId(map[it]))}) VALUES ${values} ${onDuplicateKeyUpdate(dsl.upsert)}`;
+  )}(${dsl.fields.map((it) => escapeId(map[it]))}) VALUES ${values} ${onDuplicateKeyUpdate(dsl.upsert, generator)}`;
 };
 
-export const updateToSql = (dsl: Update, tableInfo: TableInfo): string => {
+export const updateToSql = (
+  dsl: Update,
+  tableInfo: TableInfo,
+  generator: SqlGenerator = createSqlGenerator(),
+): string => {
+  const SqlString = generator;
+  const escapeId = generator.escapeId;
+  const Sql = generator.nodes;
   const map = tableInfo[dsl.table].columnMap;
 
   return `UPDATE ${escapeId(dsl.table)} SET ${dsl.values
@@ -83,7 +99,12 @@ export const updateToSql = (dsl: Update, tableInfo: TableInfo): string => {
     .join(", ")} WHERE ${Sql.booleanValue(dsl.where)}`;
 };
 
-export const deleteToSql = (dsl: Delete): string => {
+export const deleteToSql = (
+  dsl: Delete,
+  generator: SqlGenerator = createSqlGenerator(),
+): string => {
+  const escapeId = generator.escapeId;
+  const Sql = generator.nodes;
   return `DELETE FROM ${escapeId(dsl.table)} WHERE ${Sql.booleanValue(
     dsl.where,
   )}`;

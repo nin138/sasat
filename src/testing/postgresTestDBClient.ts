@@ -1,7 +1,5 @@
 import type { SasatDBConfigBase } from "../config/config.js";
 import { PostgresClient } from "../db/connectors/postgres/client.js";
-import { withDialect } from "../db/dialect.js";
-import { SqlString } from "../runtime/sql/sqlString.js";
 
 export class PostgresTestDBClient extends PostgresClient {
   private dropped = false;
@@ -12,10 +10,7 @@ export class PostgresTestDBClient extends PostgresClient {
     const admin = new PostgresClient({ ...settings, database: "postgres" });
     try {
       await admin.rawQuery(
-        withDialect(
-          "postgres",
-          () => `CREATE DATABASE ${SqlString.escapeId(settings.database)}`,
-        ),
+        `CREATE DATABASE ${admin.sql.escapeId(settings.database)}`,
       );
     } finally {
       await admin.release();
@@ -31,11 +26,7 @@ export class PostgresTestDBClient extends PostgresClient {
     });
     try {
       await admin.rawQuery(
-        withDialect(
-          "postgres",
-          () =>
-            `DROP DATABASE IF EXISTS ${SqlString.escapeId(this.settings.database)}`,
-        ),
+        `DROP DATABASE IF EXISTS ${admin.sql.escapeId(this.settings.database)}`,
       );
       this.dropped = true;
     } finally {

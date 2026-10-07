@@ -1,25 +1,27 @@
-import { getDialect } from "../../db/dialect.js";
+import {
+  createSqlGenerator,
+  type SqlGenerator,
+} from "../../db/sqlGenerator.js";
 import { SasatError } from "../../error.js";
 import { EntityName } from "../../generatorv2/nodes/entityName.js";
-import { SqlString } from "../../runtime/sql/sqlString.js";
 import type { DBColumnTypes } from "../column/columnTypes.js";
 import { defaultGQLOption, type GQLOption } from "../data/GQLOption.js";
 import { DBIndex } from "../data/index.js";
 import type { VirtualRelation } from "../data/virtualRelation.js";
 import type { DataStore } from "../dataStore.js";
 import { assembleColumn } from "../functions/assembleColumn.js";
-import {
-  type Reference,
-  referenceToSql,
-  type SerializedColumn,
-  type SerializedNormalColumn,
-  type SerializedReferenceColumn,
+import type {
+  Reference,
+  SerializedColumn,
+  SerializedNormalColumn,
+  SerializedReferenceColumn,
 } from "../serialized/serializedColumn.js";
 import type { SerializedTable } from "../serialized/serializedStore.js";
 import { type BaseColumn, NormalColumn, ReferenceColumn } from "./column.js";
 import type { Serializable } from "./serializable.js";
 
 export interface Table extends Serializable<SerializedTable> {
+  readonly sqlGenerator?: SqlGenerator;
   column(columnName: string): BaseColumn;
   tableName: string;
   gqlOption: GQLOption;
@@ -27,6 +29,7 @@ export interface Table extends Serializable<SerializedTable> {
 }
 
 export class TableHandler implements Table {
+  readonly sqlGenerator: SqlGenerator;
   private indexes: DBIndex[];
 
   get index(): DBIndex[] {
@@ -59,6 +62,7 @@ export class TableHandler implements Table {
     table: Partial<SerializedTable> & Pick<SerializedTable, "tableName">,
     public store: DataStore,
   ) {
+    this.sqlGenerator = store.sqlGenerator ?? createSqlGenerator();
     this.tableName = table.tableName;
     this.primaryKey = table.primaryKey || [];
     this.uniqueKeys = table.uniqueKeys || [];
@@ -152,29 +156,7 @@ export class TableHandler implements Table {
   }
 
   showCreateTable(): string {
-    const columns = this.columns.map((it) => it.toSql());
-    const rows = [...columns];
-    if (this.primaryKey.length !== 0)
-      rows.push(
-        `PRIMARY KEY (${this.primaryKey.map(SqlString.escapeId).join(",")})`,
-      );
-    this.uniqueKeys.forEach((it) => {
-      if (this.uniqueKeys.length !== 0)
-        rows.push(
-          getDialect() === "postgres"
-            ? `UNIQUE (${it.map(SqlString.escapeId).join(",")})`
-            : `UNIQUE KEY (${it.join(",")})`,
-        );
-    });
-    rows.push(
-      ...this._columns
-        .filter((it) => it.isReference() && !it.data.reference.noFKey)
-        .map((it) => {
-          const ref = it as ReferenceColumn;
-          return referenceToSql(ref.getConstraintName(), ref.data.reference);
-        }),
-    );
-    return `CREATE TABLE ${SqlString.escapeId(this.tableName)}(${rows.join(", ")})`;
+    return this.sqlGenerator.createTable(this.serialize());
   }
 
   hasColumn(columnName: string): boolean {

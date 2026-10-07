@@ -24,6 +24,6 @@ export class MockDBClient extends DBClient {
   }
 
   transaction() {
-    return Promise.resolve(new MockDBTransaction());
+    return Promise.resolve(new MockDBTransaction(this.sql));
   }
 }

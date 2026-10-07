@@ -70,7 +70,7 @@ export class BaseColumn implements Column {
   }
 
   toSql(): string {
-    return columnToSql(this.data);
+    return columnToSql(this.data, this.table.sqlGenerator);
   }
   isPrimary(): boolean {
     return this.table.primaryKey.includes(this.columnName());

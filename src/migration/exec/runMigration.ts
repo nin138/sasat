@@ -2,8 +2,7 @@ import type { MigrateCommandOption } from "@/cli/commands/migrate.js";
 import { Console } from "@/cli/console.js";
 import { config, setConfig } from "@/config/config.js";
 import type { DBClient } from "@/db/connectors/dbClient.js";
-import { withDialect } from "../../db/dialect.js";
-import { SqlString } from "../../runtime/sql/sqlString.js";
+import { sqlFor } from "../../db/sqlGenerator.js";
 import type { StoreMigrator } from "../front/storeMigrator.js";
 import type { Direction } from "./getCurrentMigration.js";
 
@@ -37,8 +36,8 @@ export const runMigration = async (
       });
     }
     await transaction.query`insert into ${() =>
-      withDialect(transaction.dialect ?? "mysql", () =>
-        SqlString.escapeId(config().migration.table),
+      sqlFor(transaction).escapeId(
+        config().migration.table,
       )} (name, direction) values (${[migrationName, direction]})`;
     return await transaction.commit();
   } catch (e) {

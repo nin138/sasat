@@ -1,5 +1,5 @@
 import { SasatError } from "../../../error.js";
-import { SqlString } from "../../../runtime/sql/sqlString.js";
+import { createSqlGenerator, type SqlGenerator } from "../../sqlGenerator.js";
 
 export enum Comparison {
   eq = "=",
@@ -30,6 +30,7 @@ export type ComparisonExpression<T> = Partial<{
 
 export const comparisonExpressionToSql = (
   exp: ComparisonExpression<unknown>,
+  SqlString: SqlGenerator = createSqlGenerator(),
 ): string => {
   const type = Object.hasOwn(exp, "__type") ? exp.__type || "AND" : "AND";
   return Object.entries(exp)

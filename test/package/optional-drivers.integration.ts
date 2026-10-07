@@ -87,6 +87,12 @@ for (const driver of [undefined, ...drivers]) {
             const require = createRequire(${JSON.stringify(path.join(directory, "package.json"))});
             ${imports}
             const installed = ${installed};
+            for (const dialect of ["mysql", "postgres"]) {
+              const sql = sasat.createSqlGenerator(dialect);
+              const quote = dialect === "postgres" ? '"' : String.fromCharCode(96);
+              assert.equal(sql.escapeId("users"), quote + "users" + quote);
+              assert.match(sql.createTable({tableName:"users",columns:[],primaryKey:[],uniqueKeys:[]}), /CREATE TABLE/);
+            }
             for (const [driver, dialect] of [["mysql2","mysql"],["pg","postgres"]]) {
               if (driver !== installed) assert.throws(() => require.resolve(driver), {code:"MODULE_NOT_FOUND"});
               sasat.setConfig({db:{dialect,host:"127.0.0.1",port:1,user:"unused",database:"unused",password:""}});
@@ -116,13 +122,16 @@ for (const driver of [undefined, ...drivers]) {
       // Consumers should not need the unselected driver or @types/pg, even with
       // declaration checking enabled, for either the ESM or CommonJS entry point.
       const source = `
-        import {getDbClient, PostgresClient, MysqlClient} from "sasat";
+        import {getDbClient, PostgresClient, MysqlClient, createSqlGenerator, queryToSql, qe} from "sasat";
         import {makeTestDB} from "sasat/testing";
         import type {SasatMigration} from "sasat/migration";
         const pg = new PostgresClient({max:4,host:"localhost"});
         const mysql = new MysqlClient({multipleStatements:true});
         const shared = getDbClient({connectionLimit:4});
-        void [pg,mysql,shared,makeTestDB];
+        const generator = createSqlGenerator("postgres");
+        const sql: string = queryToSql({select:[qe.field("users", "id")],from:qe.table("users", [], "users")}, generator);
+        const quoted: string = shared.sql.escapeId("users");
+        void [pg,mysql,shared,makeTestDB,sql,quoted];
         const migration: SasatMigration = {up() {},down() {}};
         void migration;
       `;

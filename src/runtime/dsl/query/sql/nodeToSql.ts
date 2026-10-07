@@ -1,5 +1,7 @@
-import { SqlString } from "@/runtime/sql/sqlString.js";
-import { getDialect } from "../../../../db/dialect.js";
+import {
+  createSqlGenerator,
+  type SqlGenerator,
+} from "../../../../db/sqlGenerator.js";
 import {
   type BetweenExpression,
   type BooleanValueExpression,
@@ -29,180 +31,214 @@ import {
 } from "../query.js";
 import { queryToSql } from "./queryToSql.js";
 
-function partitionBy(ids?: Identifier[]) {
-  if (!ids || ids.length === 0) return "";
-  return `PARTITION BY ${ids.map(Sql.identifier).join(",")} `;
-}
-function orderBy(sorts?: Sort[]) {
-  if (!sorts || sorts.length === 0) return "";
-  return `ORDER BY ${sorts.map(Sql.sort).join(",")} `;
-}
-
-function windowValue(value: WindowContent) {
-  if (value.type === "FOLLOWING" || value.type === "PRECEDING") {
-    return `${value.value} ${value.type}`;
-  }
-  return value.type;
-}
-function window(window?: Window) {
-  if (!window) return "";
-  if (window.between) {
-    return `${window.type} BETWEEN ${windowValue(window.start)} AND ${windowValue(window.end)}`;
-  }
-  return `${window.type} ${windowValue(window.value)}`;
-}
-
-function over(v?: Over) {
-  if (!v) return "";
-  return `OVER (${partitionBy(v.partitionBy)}${orderBy(v.orderBy)}${window(v.window)})`;
-}
-
 export const SELECT_ALIAS_SEPARATOR = "__";
-export const Sql = {
-  select: (expr: SelectExpr): string => {
-    switch (expr.kind) {
-      case QueryNodeKind.Raw:
-        return expr.expr;
-      case QueryNodeKind.Field:
-        return Sql.fieldInSelect(expr);
-      case QueryNodeKind.Identifier:
-        return Sql.identifier(expr);
-      case QueryNodeKind.Function:
-        return Sql.fn(expr);
+
+export function createSqlNodes(generator: SqlGenerator) {
+  const SqlString = generator;
+  function partitionBy(ids?: Identifier[]) {
+    if (!ids || ids.length === 0) return "";
+    return `PARTITION BY ${ids.map(Sql.identifier).join(",")} `;
+  }
+  function orderBy(sorts?: Sort[]) {
+    if (!sorts || sorts.length === 0) return "";
+    return `ORDER BY ${sorts.map(Sql.sort).join(",")} `;
+  }
+
+  function windowValue(value: WindowContent) {
+    if (value.type === "FOLLOWING" || value.type === "PRECEDING") {
+      return `${value.value} ${value.type}`;
     }
-  },
-  literal: (literal: Literal): string => SqlString.escape(literal.value),
-  fieldInCondition: (identifier: Field): string =>
-    SqlString.escapeId(identifier.table) +
-    "." +
-    SqlString.escapeId(identifier.name),
-  fieldInSelect: (identifier: Field): string => {
-    const alias =
-      identifier.alias && identifier.name !== identifier.alias
-        ? " AS " + SqlString.escapeId(identifier.alias)
-        : "";
-    return (
+    return value.type;
+  }
+  function window(window?: Window) {
+    if (!window) return "";
+    if (window.between) {
+      return `${window.type} BETWEEN ${windowValue(window.start)} AND ${windowValue(window.end)}`;
+    }
+    return `${window.type} ${windowValue(window.value)}`;
+  }
+
+  function over(v?: Over) {
+    if (!v) return "";
+    return `OVER (${partitionBy(v.partitionBy)}${orderBy(v.orderBy)}${window(v.window)})`;
+  }
+
+  const Sql = {
+    select: (expr: SelectExpr): string => {
+      switch (expr.kind) {
+        case QueryNodeKind.Raw:
+          return expr.expr;
+        case QueryNodeKind.Field:
+          return Sql.fieldInSelect(expr);
+        case QueryNodeKind.Identifier:
+          return Sql.identifier(expr);
+        case QueryNodeKind.Function:
+          return Sql.fn(expr);
+      }
+    },
+    literal: (literal: Literal): string => SqlString.escape(literal.value),
+    fieldInCondition: (identifier: Field): string =>
       SqlString.escapeId(identifier.table) +
       "." +
-      SqlString.escapeId(identifier.name) +
-      alias
-    );
-  },
-  identifier: (ident: Identifier): string => {
-    return SqlString.escapeId(ident.identifier);
-  },
-  fn: (fn: Fn): string =>
-    `${fn.fnName}(${fn.args.map(Sql.value).join(",")})${over(fn.over)}${
-      fn.alias
-        ? ` AS ${getDialect() === "postgres" ? SqlString.escapeId(fn.alias) : fn.alias}`
-        : ""
-    }`,
-  value: (v: Value): string => {
-    if (v.kind === QueryNodeKind.Function) return Sql.fn(v);
-    if (v.kind === QueryNodeKind.Field) return Sql.fieldInCondition(v);
-    if (v.kind === QueryNodeKind.Identifier) return Sql.identifier(v);
-    return Sql.literal(v);
-  },
-  between: (expr: BetweenExpression): string =>
-    `${Sql.value(expr.left)} BETWEEN ${Sql.value(expr.begin)} AND ${Sql.value(
-      expr.end,
-    )}`,
-  contains: (expr: ContainsExpression): string => {
-    const operator = expr.isNot ? "NOT LIKE" : "LIKE";
-    const val = (value: string, type: ContainType) => {
-      if (type === "contains") return "%" + value + "%";
-      if (type === "start") return value + "%";
-      return "%" + value;
-    };
-    return `${Sql.value(expr.left)} ${operator} ${SqlString.escape(
-      val(expr.right, expr.type),
-    )}`;
-  },
-  in: (expr: InExpression): string => {
-    if ("right" in expr)
-      return `${Sql.value(expr.left)} ${expr.operator} (${expr.right
-        .map(Sql.value)
-        .join(", ")})`;
-    return `${Sql.value(expr.left)} ${expr.operator} (${Sql.queryOrRaw(
-      expr.query,
-    )})`;
-  },
-  comparison: (expr: ComparisonExpression): string =>
-    `${Sql.value(expr.left)}  ${expr.operator} ${Sql.value(expr.right)}`,
-  compound: (expr: CompoundExpression): string => {
-    const operand = (child: BooleanValueExpression): string => {
-      const sql = Sql.booleanValue(child);
-      // Preserve the AST grouping when AND and OR are nested.
-      return child.kind === QueryNodeKind.CompoundExpr &&
-        child.operator !== expr.operator
-        ? "(" + sql + ")"
-        : sql;
-    };
-    return operand(expr.left) + " " + expr.operator + " " + operand(expr.right);
-  },
-  isNull: (expr: IsNullExpression): string =>
-    `${Sql.value(expr.expr)} ${expr.isNot ? "IS NOT NULL" : "IS NULL"}`,
-  paren: (expr: ParenthesisExpression): string =>
-    "(" + Sql.booleanValue(expr.expression) + ")",
-  table: (table: QueryTable): string => {
-    if (!table.subquery) {
-      if (table.alias === table.name) return SqlString.escapeId(table.name);
+      SqlString.escapeId(identifier.name),
+    fieldInSelect: (identifier: Field): string => {
+      const alias =
+        identifier.alias && identifier.name !== identifier.alias
+          ? " AS " + SqlString.escapeId(identifier.alias)
+          : "";
       return (
-        SqlString.escapeId(table.name) +
-        " AS " +
-        SqlString.escapeId(table.alias)
+        SqlString.escapeId(identifier.table) +
+        "." +
+        SqlString.escapeId(identifier.name) +
+        alias
       );
-    }
-    return `(${queryToSql(table.query)}) AS ${SqlString.escapeId(table.alias)}`;
-  },
-  join: (join: Join): string =>
-    `${join.type ? join.type + " " : ""}JOIN ${Sql.table(join.table)} ON ` +
-    Sql.booleanValue(join.conditions),
-  booleanValue: (expr: BooleanValueExpression): string => {
-    switch (expr.kind) {
-      case QueryNodeKind.BetweenExpr:
-        return Sql.between(expr);
-      case QueryNodeKind.CompoundExpr:
-        return Sql.compound(expr);
-      case QueryNodeKind.ComparisonExpr:
-        return Sql.comparison(expr);
-      case QueryNodeKind.ContainsExpr:
-        return Sql.contains(expr);
-      case QueryNodeKind.Parenthesis:
-        return Sql.paren(expr);
-      case QueryNodeKind.InExpr:
-        return Sql.in(expr);
-      case QueryNodeKind.IsNullExpr:
-        return Sql.isNull(expr);
-      case QueryNodeKind.Exists:
-        return Sql.exists(expr);
-      case QueryNodeKind.Raw:
-        return expr.expr;
-    }
-  },
-  exists: (expr: ExistsExpression): string => {
-    return `EXISTS (${Sql.queryOrRaw(expr.query)})`;
-  },
-  sort: (expr: Sort): string => {
-    const field = () => {
-      switch (expr.field.kind) {
-        case QueryNodeKind.Field:
-          return Sql.fieldInCondition(expr.field);
-        case QueryNodeKind.Identifier:
-          return Sql.identifier(expr.field);
-        default:
-          return Sql.fn(expr.field);
+    },
+    identifier: (ident: Identifier): string => {
+      return SqlString.escapeId(ident.identifier);
+    },
+    fn: (fn: Fn): string =>
+      `${fn.fnName}(${fn.args.map(Sql.value).join(",")})${over(fn.over)}${
+        fn.alias
+          ? ` AS ${generator.dialect === "postgres" ? SqlString.escapeId(fn.alias) : fn.alias}`
+          : ""
+      }`,
+    value: (v: Value): string => {
+      if (v.kind === QueryNodeKind.Function) return Sql.fn(v);
+      if (v.kind === QueryNodeKind.Field) return Sql.fieldInCondition(v);
+      if (v.kind === QueryNodeKind.Identifier) return Sql.identifier(v);
+      return Sql.literal(v);
+    },
+    between: (expr: BetweenExpression): string =>
+      `${Sql.value(expr.left)} BETWEEN ${Sql.value(expr.begin)} AND ${Sql.value(
+        expr.end,
+      )}`,
+    contains: (expr: ContainsExpression): string => {
+      const operator = expr.isNot ? "NOT LIKE" : "LIKE";
+      const val = (value: string, type: ContainType) => {
+        if (type === "contains") return "%" + value + "%";
+        if (type === "start") return value + "%";
+        return "%" + value;
+      };
+      return `${Sql.value(expr.left)} ${operator} ${SqlString.escape(
+        val(expr.right, expr.type),
+      )}`;
+    },
+    in: (expr: InExpression): string => {
+      if ("right" in expr)
+        return `${Sql.value(expr.left)} ${expr.operator} (${expr.right
+          .map(Sql.value)
+          .join(", ")})`;
+      return `${Sql.value(expr.left)} ${expr.operator} (${Sql.queryOrRaw(
+        expr.query,
+      )})`;
+    },
+    comparison: (expr: ComparisonExpression): string =>
+      `${Sql.value(expr.left)}  ${expr.operator} ${Sql.value(expr.right)}`,
+    compound: (expr: CompoundExpression): string => {
+      const operand = (child: BooleanValueExpression): string => {
+        const sql = Sql.booleanValue(child);
+        // Preserve the AST grouping when AND and OR are nested.
+        return child.kind === QueryNodeKind.CompoundExpr &&
+          child.operator !== expr.operator
+          ? "(" + sql + ")"
+          : sql;
+      };
+      return (
+        operand(expr.left) + " " + expr.operator + " " + operand(expr.right)
+      );
+    },
+    isNull: (expr: IsNullExpression): string =>
+      `${Sql.value(expr.expr)} ${expr.isNot ? "IS NOT NULL" : "IS NULL"}`,
+    paren: (expr: ParenthesisExpression): string =>
+      "(" + Sql.booleanValue(expr.expression) + ")",
+    table: (table: QueryTable): string => {
+      if (!table.subquery) {
+        if (table.alias === table.name) return SqlString.escapeId(table.name);
+        return (
+          SqlString.escapeId(table.name) +
+          " AS " +
+          SqlString.escapeId(table.alias)
+        );
       }
-    };
-    if (expr.direction)
-      return `${field()} ${expr.direction === "DESC" ? "DESC" : "ASC"}`;
-    return field();
-  },
-  sorts: (sorts: Sort[]): string => sorts.map(Sql.sort).join(", "),
-  queryOrRaw: (expr: Query | RawExpression) => {
-    if ("kind" in expr) {
-      return expr.expr;
-    }
-    return queryToSql(expr);
-  },
+      return `(${queryToSql(table.query, generator)}) AS ${SqlString.escapeId(table.alias)}`;
+    },
+    join: (join: Join): string =>
+      `${join.type ? join.type + " " : ""}JOIN ${Sql.table(join.table)} ON ` +
+      Sql.booleanValue(join.conditions),
+    booleanValue: (expr: BooleanValueExpression): string => {
+      switch (expr.kind) {
+        case QueryNodeKind.BetweenExpr:
+          return Sql.between(expr);
+        case QueryNodeKind.CompoundExpr:
+          return Sql.compound(expr);
+        case QueryNodeKind.ComparisonExpr:
+          return Sql.comparison(expr);
+        case QueryNodeKind.ContainsExpr:
+          return Sql.contains(expr);
+        case QueryNodeKind.Parenthesis:
+          return Sql.paren(expr);
+        case QueryNodeKind.InExpr:
+          return Sql.in(expr);
+        case QueryNodeKind.IsNullExpr:
+          return Sql.isNull(expr);
+        case QueryNodeKind.Exists:
+          return Sql.exists(expr);
+        case QueryNodeKind.Raw:
+          return expr.expr;
+      }
+    },
+    exists: (expr: ExistsExpression): string => {
+      return `EXISTS (${Sql.queryOrRaw(expr.query)})`;
+    },
+    sort: (expr: Sort): string => {
+      const field = () => {
+        switch (expr.field.kind) {
+          case QueryNodeKind.Field:
+            return Sql.fieldInCondition(expr.field);
+          case QueryNodeKind.Identifier:
+            return Sql.identifier(expr.field);
+          default:
+            return Sql.fn(expr.field);
+        }
+      };
+      if (expr.direction)
+        return `${field()} ${expr.direction === "DESC" ? "DESC" : "ASC"}`;
+      return field();
+    },
+    sorts: (sorts: Sort[]): string => sorts.map(Sql.sort).join(", "),
+    queryOrRaw: (expr: Query | RawExpression): string => {
+      if ("kind" in expr) {
+        return expr.expr;
+      }
+      return queryToSql(expr, generator);
+    },
+  };
+
+  return Object.freeze(Sql);
+}
+
+/** Backward-compatible config-based entry points. */
+export const Sql: ReturnType<typeof createSqlNodes> = {
+  select: (value) => createSqlGenerator().nodes.select(value),
+  literal: (value) => createSqlGenerator().nodes.literal(value),
+  fieldInCondition: (value) =>
+    createSqlGenerator().nodes.fieldInCondition(value),
+  fieldInSelect: (value) => createSqlGenerator().nodes.fieldInSelect(value),
+  identifier: (value) => createSqlGenerator().nodes.identifier(value),
+  fn: (value) => createSqlGenerator().nodes.fn(value),
+  value: (value) => createSqlGenerator().nodes.value(value),
+  between: (value) => createSqlGenerator().nodes.between(value),
+  contains: (value) => createSqlGenerator().nodes.contains(value),
+  in: (value) => createSqlGenerator().nodes.in(value),
+  comparison: (value) => createSqlGenerator().nodes.comparison(value),
+  compound: (value) => createSqlGenerator().nodes.compound(value),
+  isNull: (value) => createSqlGenerator().nodes.isNull(value),
+  paren: (value) => createSqlGenerator().nodes.paren(value),
+  table: (value) => createSqlGenerator().nodes.table(value),
+  join: (value) => createSqlGenerator().nodes.join(value),
+  booleanValue: (value) => createSqlGenerator().nodes.booleanValue(value),
+  exists: (value) => createSqlGenerator().nodes.exists(value),
+  sort: (value) => createSqlGenerator().nodes.sort(value),
+  sorts: (value) => createSqlGenerator().nodes.sorts(value),
+  queryOrRaw: (value) => createSqlGenerator().nodes.queryOrRaw(value),
 };

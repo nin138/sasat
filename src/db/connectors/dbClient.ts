@@ -1,5 +1,5 @@
-import { type DatabaseDialect, withDialect } from "../dialect.js";
-import { formatQuery } from "../formatQuery.js";
+import type { DatabaseDialect } from "../dialect.js";
+import { createSqlGenerator, type SqlGenerator } from "../sqlGenerator.js";
 
 export type QueryResponse = Array<{ [key: string]: SqlValueType }>;
 export interface CommandResponse {
@@ -12,13 +12,17 @@ export type SqlValueType = string | number | boolean | null;
 
 export interface SQLExecutor {
   readonly dialect?: DatabaseDialect;
+  readonly sql?: SqlGenerator;
   rawQuery(sql: string): Promise<QueryResponse>;
   rawCommand(sql: string): Promise<CommandResponse>;
 }
 
 const noop = () => {};
 export abstract class SQLClient implements SQLExecutor {
-  readonly dialect: DatabaseDialect = "mysql";
+  constructor(readonly sql: SqlGenerator = createSqlGenerator("mysql")) {}
+  get dialect(): DatabaseDialect {
+    return this.sql.dialect;
+  }
   protected logger: (query: string) => void = noop;
   rawQuery(sql: string): Promise<QueryResponse> {
     this.logger(sql);
@@ -35,9 +39,7 @@ export abstract class SQLClient implements SQLExecutor {
     // biome-ignore lint/suspicious/noExplicitAny: <>
     ...params: any[]
   ): Promise<QueryResponse> {
-    return this.rawQuery(
-      withDialect(this.dialect, () => formatQuery(templateString, ...params)),
-    );
+    return this.rawQuery(this.sql.format(templateString, ...params));
   }
 
   command(
@@ -45,9 +47,7 @@ export abstract class SQLClient implements SQLExecutor {
     // biome-ignore lint/suspicious/noExplicitAny: <>
     ...params: any[]
   ): Promise<CommandResponse> {
-    return this.rawCommand(
-      withDialect(this.dialect, () => formatQuery(templateString, ...params)),
-    );
+    return this.rawCommand(this.sql.format(templateString, ...params));
   }
 
   protected abstract execSql(
@@ -62,8 +62,11 @@ export abstract class SQLTransaction extends SQLClient {
 
 export abstract class DBClient extends SQLClient {
   protected _released: boolean;
-  protected constructor(logger: (query: string) => void = noop) {
-    super();
+  protected constructor(
+    logger: (query: string) => void = noop,
+    sql: SqlGenerator = createSqlGenerator("mysql"),
+  ) {
+    super(sql);
     this._released = false;
     this.logger = logger;
   }

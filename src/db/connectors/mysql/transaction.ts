@@ -1,4 +1,5 @@
 import type { Connection } from "mysql2/promise";
+import { createSqlGenerator, type SqlGenerator } from "../../sqlGenerator.js";
 import {
   type CommandResponse,
   type QueryResponse,
@@ -6,8 +7,11 @@ import {
 } from "../dbClient.js";
 
 export class MySqlTransaction extends SQLTransaction {
-  constructor(private connection: Connection) {
-    super();
+  constructor(
+    private connection: Connection,
+    sql: SqlGenerator = createSqlGenerator("mysql"),
+  ) {
+    super(sql);
   }
 
   async commit(): Promise<void> {

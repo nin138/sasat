@@ -1,4 +1,5 @@
-import { withDialect } from "../db/dialect.js";
+import { config, setConfig } from "../config/config.js";
+import { createSqlGenerator } from "../db/sqlGenerator.js";
 import { QExpr as q } from "./dsl/factory.js";
 import type { Fields } from "./field.js";
 import { SasatDBDatasource } from "./sasatDBDatasource.js";
@@ -137,24 +138,48 @@ test("propagates database failures", async () => {
   await expect(users.find()).rejects.toThrow("unavailable");
 });
 
-test("injected executors retain their dialect inside the opposite SQL scope", async () => {
-  for (const dialect of ["postgres", "mysql"] as const) {
-    const { client } = fixture();
-    const users = new Users({ ...client, dialect });
-    await withDialect(dialect === "mysql" ? "postgres" : "mysql", async () => {
+test("injected executors retain their generator when global config changes", async () => {
+  const original = config().db.dialect ?? "mysql";
+  try {
+    for (const dialect of ["postgres", "mysql"] as const) {
+      const { client } = fixture();
+      const users = new Users({ ...client, sql: createSqlGenerator(dialect) });
+      setConfig({
+        db: { dialect: dialect === "mysql" ? "postgres" : "mysql" },
+      });
       await users.create({ name: "Ada" });
       await users.find();
-    });
-    const quote = dialect === "postgres" ? '"' : "`";
-    expect(client.rawCommand).toHaveBeenCalledWith(
-      expect.stringContaining(quote + "display_name" + quote),
+      const quote = dialect === "postgres" ? '"' : "`";
+      expect(client.rawCommand).toHaveBeenCalledWith(
+        expect.stringContaining(quote + "display_name" + quote),
+      );
+      expect(client.rawQuery).toHaveBeenCalledWith(
+        expect.stringContaining(quote + "users" + quote),
+      );
+      if (dialect === "postgres")
+        expect(client.rawCommand).toHaveBeenCalledWith(
+          expect.stringContaining('RETURNING "user_id"'),
+        );
+    }
+  } finally {
+    setConfig({ db: { dialect: original } });
+  }
+});
+
+test("legacy dialect-only executors are resolved once when constructing the data source", async () => {
+  const original = config().db.dialect ?? "mysql";
+  try {
+    const { client } = fixture();
+    const users = new Users({ ...client, dialect: "postgres" });
+    setConfig({ db: { dialect: "mysql" } });
+    await users.findPageable({ numberOfItem: 1 }, { fields: ["name"] });
+    expect(client.rawQuery).toHaveBeenCalledWith(
+      expect.stringContaining('FROM (SELECT "t0"."user_id"'),
     );
     expect(client.rawQuery).toHaveBeenCalledWith(
-      expect.stringContaining(quote + "users" + quote),
+      expect.not.stringContaining(String.fromCharCode(96)),
     );
-    if (dialect === "postgres")
-      expect(client.rawCommand).toHaveBeenCalledWith(
-        expect.stringContaining('RETURNING "user_id"'),
-      );
+  } finally {
+    setConfig({ db: { dialect: original } });
   }
 });

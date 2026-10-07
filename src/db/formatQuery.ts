@@ -1,7 +1,8 @@
-import { SqlString } from "../runtime/sql/sqlString.js";
 import type { SqlValueType } from "./connectors/dbClient.js";
+import { createSqlGenerator, type SqlGenerator } from "./sqlGenerator.js";
 
-export const formatQuery = (
+export const formatQueryWith = (
+  SqlString: SqlGenerator,
   str: TemplateStringsArray,
   // biome-ignore lint/suspicious/noExplicitAny: <>
   ...params: any[]
@@ -18,3 +19,8 @@ export const formatQuery = (
   }
   return ret;
 };
+
+export const formatQuery = (
+  str: TemplateStringsArray,
+  ...params: unknown[]
+): string => formatQueryWith(createSqlGenerator(), str, ...params);

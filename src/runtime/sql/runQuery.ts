@@ -1,5 +1,5 @@
 import type { SQLExecutor } from "../../db/connectors/dbClient.js";
-import { getDialect, withDialect } from "../../db/dialect.js";
+import { sqlFor } from "../../db/sqlGenerator.js";
 import { QExpr } from "../dsl/factory.js";
 import type {
   RelationMap,
@@ -19,7 +19,6 @@ import {
   type ResultRow,
 } from "../dsl/query/sql/hydrate.js";
 import { SELECT_ALIAS_SEPARATOR } from "../dsl/query/sql/nodeToSql.js";
-import { queryToSql } from "../dsl/query/sql/queryToSql.js";
 import type { Fields } from "../field.js";
 import type { QueryOptions } from "../sasatDBDatasource.js";
 import { nonNullable, unique } from "../util.js";
@@ -136,7 +135,7 @@ export const runQuery = async (
   resolveInfo: QueryResolveInfo,
 ) => {
   const resultRows: ResultRow[] = await client.rawQuery(
-    withDialect(client.dialect ?? getDialect(), () => queryToSql(query)),
+    sqlFor(client).query(query),
   );
   return hydrate(resultRows, resolveInfo);
 };

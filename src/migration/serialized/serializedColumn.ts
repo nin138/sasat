@@ -1,6 +1,8 @@
 import type { SqlValueType } from "../../db/connectors/dbClient.js";
-import { getDialect } from "../../db/dialect.js";
-import { SqlString } from "../../runtime/sql/sqlString.js";
+import {
+  createSqlGenerator,
+  type SqlGenerator,
+} from "../../db/sqlGenerator.js";
 import type { DBColumnTypes } from "../column/columnTypes.js";
 import type { ForeignKeyReferentialAction } from "../data/foreignKey.js";
 import type { Relation } from "../data/relation.js";
@@ -53,12 +55,14 @@ export interface Reference {
 export const referenceToSql = (
   constraintName: string,
   ref: Reference,
+  generator: SqlGenerator = createSqlGenerator(),
 ): string => {
+  const SqlString = generator;
   const onUpdate = ref.onUpdate ? ` ON UPDATE ${ref.onUpdate}` : "";
   const onDelete = ref.onDelete ? ` ON DELETE ${ref.onDelete}` : "";
   return (
-    `CONSTRAINT ${getDialect() === "postgres" ? SqlString.escapeId(constraintName) : constraintName} ` +
-    `FOREIGN KEY(${getDialect() === "postgres" ? SqlString.escapeId(ref.columnName) : ref.columnName}) ` +
+    `CONSTRAINT ${generator.dialect === "postgres" ? SqlString.escapeId(constraintName) : constraintName} ` +
+    `FOREIGN KEY(${generator.dialect === "postgres" ? SqlString.escapeId(ref.columnName) : ref.columnName}) ` +
     `REFERENCES ${SqlString.escapeId(ref.parentTable)}(${SqlString.escapeId(
       ref.parentColumn,
     )})` +

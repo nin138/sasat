@@ -1,15 +1,20 @@
+import { createSqlGenerator, type SqlGenerator } from "../db/sqlGenerator.js";
 import type { VirtualRelation } from "./data/virtualRelation.js";
 import type { ReferenceColumn } from "./serializable/column.js";
 import { type Table, TableHandler } from "./serializable/table.js";
 import type { SerializedStore } from "./serialized/serializedStore.js";
 
 export interface DataStore {
+  readonly sqlGenerator?: SqlGenerator;
   table(tableName: string): Table;
 }
 
 export class DataStoreHandler implements DataStore {
   tables: TableHandler[];
-  constructor(store: SerializedStore) {
+  constructor(
+    store: SerializedStore,
+    readonly sqlGenerator: SqlGenerator = createSqlGenerator(),
+  ) {
     this.tables = store.tables.map((it) => new TableHandler(it, this));
   }
   table(tableName: string): TableHandler {

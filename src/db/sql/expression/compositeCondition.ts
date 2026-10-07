@@ -1,3 +1,4 @@
+import { createSqlGenerator, type SqlGenerator } from "../../sqlGenerator.js";
 import {
   type ConditionExpression,
   conditionExpressionToSql,
@@ -16,10 +17,12 @@ export class CompositeCondition<T> {
     return new CompositeCondition("AND", conditions);
   }
 
-  toSQL(): string {
+  toSQL(generator: SqlGenerator = createSqlGenerator()): string {
     return (
       "(" +
-      this.conditions.map(conditionExpressionToSql).join(` ${this.type} `) +
+      this.conditions
+        .map((condition) => conditionExpressionToSql(condition, generator))
+        .join(` ${this.type} `) +
       ")"
     );
   }

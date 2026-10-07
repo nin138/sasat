@@ -1,8 +1,9 @@
 export { setConfig } from "./config/config.js";
 export { MysqlClient } from "./db/connectors/mysql/client.js";
 export { PostgresClient } from "./db/connectors/postgres/client.js";
-export { type DatabaseDialect, withDialect } from "./db/dialect.js";
+export type { DatabaseDialect } from "./db/dialect.js";
 export { formatQuery } from "./db/formatQuery.js";
+export { createSqlGenerator, SqlGenerator } from "./db/sqlGenerator.js";
 export { queryToSql } from "./runtime/dsl/query/sql/queryToSql.js";
 
 import type { ListQueryOption } from "./runtime/sasatDBDatasource.js";

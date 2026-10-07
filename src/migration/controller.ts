@@ -3,6 +3,7 @@ import type { StoreMigrator } from "@/migration/front/storeMigrator.js";
 import type { MigrateCommandOption } from "../cli/commands/migrate.js";
 import { Console } from "../cli/console.js";
 import { config, setConfig } from "../config/config.js";
+import { sqlFor } from "../db/sqlGenerator.js";
 import { getMigrationFileNames } from "../migration/exec/getMigrationFiles.js";
 import { createCurrentMigrationDataStore } from "./exec/createCurrentMigrationDataStore.js";
 import type { Direction } from "./exec/getCurrentMigration.js";
@@ -31,7 +32,10 @@ export class MigrationController {
     if (!options.silent) {
       Console.log("--current migration--: " + currentMigration);
     }
-    let store = await createCurrentMigrationDataStore(currentMigration);
+    let store = await createCurrentMigrationDataStore(
+      currentMigration,
+      sqlFor(client),
+    );
     if (store.getUpdateConfig()) {
       setConfig(store.getUpdateConfig()!);
     }

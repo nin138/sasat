@@ -72,9 +72,11 @@ For create/update mutations, `contextFields: [{ column: 'tenant_id', contextName
 
 Add custom methods to the subclasses in `out/dataSources/db/*.ts`. The basic APIs are create/createBulk/upsert/update/delete/find/first/findPageable. You can also use them without GraphQL. Both MySQL and PostgreSQL are supported; see [PostgreSQL upserts and result values](postgresql.md#upserts-and-result-values) for engine-specific behavior. Inspect generated base classes and SasatDBDatasource's TypeScript declarations for argument types and field mappings.
 
-`getDbClient()` returns a shared pool. Changing database settings, explicit options, or the logger while that pool is active throws an error. Finish pending work and release the client before switching settings. For simultaneous access to separate databases, inject independent MysqlClient instances into your data sources.
+`getDbClient()` returns a shared pool. Changing database settings, explicit options, or the logger while that pool is active throws an error. Finish pending work and release the client before switching settings. For simultaneous access to separate databases, inject independent MysqlClient or PostgresClient instances into your data sources.
 
-Data-source constructors accept an SQLExecutor, so multiple operations can share the same transaction. The current pool client's transaction method opens a separate connection; the pool's connection limit does not govern those transaction connections. Generated mutations are not automatically wrapped in a transaction as a whole.
+Data-source constructors accept an SQLExecutor, so multiple operations can share the same transaction. The MySQL pool client's transaction method opens a separate connection; its pool connection limit does not govern those transaction connections. PostgreSQL transactions check out a connection from their pool. Generated mutations are not automatically wrapped in a transaction as a whole.
+
+Each built-in client and its transactions share a fixed SQL generator at `client.sql`. See [SQL generation and connections](sql-generation.md) for offline generation, raw SQL, custom executors, and migration from `withDialect`.
 
 findPageable combines paging.where and options.where with AND before limiting the parent rows. paging.sort takes precedence, and related rows are fetched after selecting the parent page. A page size of zero returns no rows. Invalid limits and offsets, including negative, fractional, or non-finite values, are rejected. Set any business-level maximum page size in your application.
 
