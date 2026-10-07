@@ -39,3 +39,11 @@ test("returns the initial store when there is no current migration", async () =>
   ).toEqual({ tables: [] });
   expect(readMigration).not.toHaveBeenCalled();
 });
+
+test("rejects an unknown reconstruction target instead of returning an empty schema", async () => {
+  await expect(createCurrentMigrationDataStore("missing.ts")).rejects.toThrow(
+    "migration target not found",
+  );
+  expect(StoreMigrator.new).not.toHaveBeenCalled();
+  expect(readMigration).not.toHaveBeenCalled();
+});

@@ -6,6 +6,7 @@ import type {
 import type { TableHandler } from "../../migration/serializable/table.js";
 import type { EntityNode } from "../nodes/entityNode.js";
 import type { ContextField, MutationNode } from "../nodes/mutationNode.js";
+import { subscriptionEnabled } from "./subscriptionEnabled.js";
 
 export const makeEntityMutationNodes = (
   table: TableHandler,
@@ -67,7 +68,7 @@ const makeCreateMutationNode = (
       },
     ],
     mutationType: "create",
-    subscription: mutation.subscription.enabled,
+    subscription: subscriptionEnabled(mutation),
     requireIdDecodeMiddleware: entity.creatable.fields.some(
       (it) => it.hashId && it.isGQLOpen,
     ),
@@ -111,7 +112,7 @@ const makeUpdateMutationNode = (
       },
     ],
     mutationType: "update",
-    subscription: mutation.subscription.enabled,
+    subscription: subscriptionEnabled(mutation),
     requireIdDecodeMiddleware: entity.updateInput.fields.some(
       (it) => it.hashId && it.isGQLOpen,
     ),
@@ -153,7 +154,7 @@ const makeDeleteMutationNode = (
       },
     ],
     mutationType: "delete",
-    subscription: mutation.subscription.enabled,
+    subscription: subscriptionEnabled(mutation),
     requireIdDecodeMiddleware: entity.identifyFields().some((it) => it.hashId),
     middlewares: mutation.middlewares,
   };

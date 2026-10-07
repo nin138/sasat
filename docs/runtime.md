@@ -139,12 +139,12 @@ Check the following cases against the types and inputs your application uses.
 
 | Area | Current behavior |
 | --- | --- |
-| createBulk | Uses the first row's field set, so fields present only in later rows are omitted. Use matching field sets or consider individual inserts |
+| createBulk | Combines fields from all rows in one INSERT. Missing/undefined values use database DEFAULT; explicit null uses NULL. Normal database constraints and upsert rules still apply. No automatic batch splitting |
 | Hash IDs | Zero is not encoded on one output path, and nullable reference input can turn null into undefined. Verify reference clearing and boundary values |
 | decimal / ordinary bigint | Maps to GraphQL Int, which cannot return fractions or values outside its 32-bit range. Plan a representation that preserves the precision you need |
 | first | Does not automatically add LIMIT 1. Inspect returned row counts for large datasets |
 | update with noRefetch | Returns true only when changedRows is 1. MySQL may return false for an unchanged value or a missing row; PostgreSQL returns true for one matched row even when unchanged |
 | Delete events | The payload contains identifying input, not the complete deleted row. Check requested fields and filters |
-| generator.gql.subscription | Setting this global option to false does not currently disable generation. Check table and mutation settings as well |
+| generator.gql.subscription | Set false and regenerate to disable generated subscriptions and mutation publishing globally. Existing custom pubsub.ts is preserved |
 
 Include relevant cases in your application tests when upgrading Sasat. See [application workflow](application-workflow.md).

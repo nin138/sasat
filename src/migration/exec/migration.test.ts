@@ -1,4 +1,4 @@
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import fs, { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { config, setConfig } from "../../config/config.js";
@@ -167,3 +167,29 @@ test.each(["ER_ACCESS_DENIED_ERROR", "ER_BAD_DB_ERROR", "ETIMEDOUT"])(
     expect(rawQuery.mock.calls[0][0]).toMatch(/^SELECT/);
   },
 );
+
+test("sorts filesystem enumeration before selecting up/down targets and comparing history", async () => {
+  jest
+    .spyOn(fs, "readdirSync")
+    .mockReturnValue([names[2], names[0], "ignore.yml", names[1]] as never);
+  const files = getMigrationFileNames();
+  expect(files).toEqual(names);
+  expect(getMigrationTargets(files, undefined).files).toEqual(names);
+  setConfig({ migration: { target: names[0] } });
+  expect(getMigrationTargets(files, names[2]).files).toEqual([
+    names[2],
+    names[1],
+  ]);
+  await expect(
+    getCurrentMigration(
+      clientFor(names.map((name) => ({ name, direction: "up" }))),
+      options,
+    ),
+  ).resolves.toBe(names[2]);
+  await expect(
+    getCurrentMigration(
+      clientFor([{ name: names[2], direction: "up" }]),
+      options,
+    ),
+  ).rejects.toThrow("Invalid migration order");
+});

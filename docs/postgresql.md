@@ -93,7 +93,7 @@ For direct `rawCommand()` inserts, add `RETURNING id AS "__sasat_insert_id"` whe
 
 This file is a starting point for Sasat definitions, not a complete PostgreSQL backup. CHECK constraints, custom functions/triggers (including automatic timestamp behavior), sequence state, index tuning, and privileges are not reconstructed. Review an imported schema before regenerating a database from it. Native UUID, JSON/JSONB, arrays, enums, and timezone-aware column definitions are not yet exposed by the migration API.
 
-Use PostgreSQL-compatible raw SQL. Identifiers and generated aliases must fit PostgreSQL's normal 63-byte identifier limit. Case sensitivity, collation, NULL ordering, and implicit casts follow PostgreSQL rules. Bulk rows must have matching field sets; multiple empty default-only rows are not supported in one bulk insert. Column type changes that require a USING expression need explicit migration SQL.
+Use PostgreSQL-compatible raw SQL. Identifiers and generated aliases must fit PostgreSQL's normal 63-byte identifier limit. Case sensitivity, collation, NULL ordering, and implicit casts follow PostgreSQL rules. Bulk inserts combine the field sets of all rows: missing/undefined values use DEFAULT and explicit null uses NULL. Multiple empty rows use a mapped column with DEFAULT for each row. Column type changes that require a USING expression need explicit migration SQL.
 
 ## Testing
 

@@ -7,6 +7,7 @@ import type {
   SubscriptionFilterNode,
   SubscriptionNode,
 } from "../nodes/subscriptionNode.js";
+import { subscriptionEnabled } from "./subscriptionEnabled.js";
 
 export const makeSubscriptionNodes = (
   store: DataStoreHandler,
@@ -31,7 +32,7 @@ const makeSubscriptionNode = (
   table: TableHandler,
   mutation: GQLMutation,
 ): SubscriptionNode | null => {
-  if (!mutation.subscription.enabled) return null;
+  if (!subscriptionEnabled(mutation)) return null;
   const subscriptionName =
     table.getEntityName().name + subscriptionNamePostfix[mutation.type];
   const filters: SubscriptionFilterNode[] =
@@ -67,6 +68,6 @@ const makeSubscriptionNode = (
     })),
     filters,
     mutationType: mutation.type,
-    gqlEnabled: table.gqlOption.enabled && mutation.subscription.enabled,
+    gqlEnabled: table.gqlOption.enabled,
   };
 };

@@ -4,12 +4,14 @@ import {
   getMigrationFileDir,
   getMigrationFileNames,
 } from "./getMigrationFiles.js";
+import { resolveMigrationTarget } from "./getMigrationTarget.js";
 
 export const changeExtTsToJs = (fileName: string) =>
   fileName.slice(0, -3) + ".mjs";
 
 export const compileMigrationFiles = () => {
   const tsFiles = getMigrationFileNames();
+  resolveMigrationTarget(tsFiles);
   const stubServerOnlyPlugin: Plugin = {
     name: "stub-server-only",
     setup(build) {

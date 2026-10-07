@@ -31,6 +31,7 @@ import { QExpr } from "../../src/runtime/dsl/factory.js";
 import { SasatDBDatasource } from "../../src/runtime/sasatDBDatasource.js";
 import { makeTestDB } from "../../src/testing/makeTestDB.js";
 import { PostgresTestDBClient } from "../../src/testing/postgresTestDBClient.js";
+import { verifyBulkInsert } from "../integration/bulk-insert-cases.js";
 
 const settings = {
   host: process.env.TEST_PG_HOST ?? "127.0.0.1",
@@ -494,4 +495,8 @@ test("client-owned generation survives opposite config in DDL, CRUD and transact
     setConfig({ db: { dialect: original } });
     await client.rawQuery(`DROP TABLE IF EXISTS ${client.sql.escapeId(table)}`);
   }
+});
+
+test("bulk inserts preserve mixed fields, defaults, nulls, upserts and atomic failures", async () => {
+  await verifyBulkInsert(client, "postgres");
 });

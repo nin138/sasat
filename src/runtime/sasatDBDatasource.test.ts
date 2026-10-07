@@ -26,7 +26,7 @@ class Users extends SasatDBDatasource<
       columnMap: { id: "user_id", name: "display_name", active: "active" },
     },
   };
-  getDefaultValueString() {
+  getDefaultValueString(): Partial<User> {
     return { active: true };
   }
 }
@@ -183,3 +183,69 @@ test("legacy dialect-only executors are resolved once when constructing the data
     setConfig({ db: { dialect: original } });
   }
 });
+
+test.each(["mysql", "postgres"] as const)(
+  "bulk inserts preserve later columns and omitted/default/null values (%s)",
+  async (dialect) => {
+    class OptionalUsers extends Users {
+      getDefaultValueString() {
+        return {};
+      }
+    }
+    const { client } = fixture();
+    const users = new OptionalUsers({
+      ...client,
+      sql: createSqlGenerator(dialect),
+    });
+    const input = [
+      { name: "Ada" },
+      { name: "Lin", active: null },
+      { name: "Sam", active: true },
+      { name: "Uma", active: undefined },
+    ];
+    for (const rows of [input, [...input].reverse()]) {
+      await users.createBulk(rows);
+      const sql = client.rawCommand.mock.calls.at(-1)![0] as string;
+      expect(sql).toContain(dialect === "postgres" ? '"active"' : "`active`");
+      expect(sql).toContain("DEFAULT");
+      expect(sql).toContain("NULL");
+      expect(sql).toContain(dialect === "postgres" ? "TRUE" : "true");
+      expect(client.rawCommand).toHaveBeenCalledTimes(rows === input ? 1 : 2);
+    }
+  },
+);
+
+test("PostgreSQL bulk default-only rows use a mapped column without splitting the statement", async () => {
+  class OptionalUsers extends Users {
+    getDefaultValueString() {
+      return {};
+    }
+  }
+  const { client } = fixture();
+  const users = new OptionalUsers({
+    ...client,
+    sql: createSqlGenerator("postgres"),
+  });
+  await users.createBulk([{}, {}] as never);
+  expect(client.rawCommand).toHaveBeenCalledWith(
+    'INSERT INTO "users" ("user_id") VALUES (DEFAULT),(DEFAULT)',
+  );
+});
+
+test.each(["mysql", "postgres"] as const)(
+  "an empty low-level INSERT cannot accidentally insert a default row (%s)",
+  (dialect) => {
+    expect(() =>
+      createSqlGenerator(dialect).create(
+        { table: "users", fields: [], entities: [] },
+        {
+          users: {
+            columnMap: { id: "id" },
+            identifiableKeys: ["id"],
+            identifiableFields: ["id"],
+          },
+        },
+      ),
+    ).toThrow("INSERT requires at least one row");
+  },
+);

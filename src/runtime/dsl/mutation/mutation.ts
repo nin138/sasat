@@ -14,7 +14,8 @@ type ValueSet = {
 export type Create = {
   table: string;
   fields: string[];
-  entities: SqlValueType[][];
+  /** undefined represents an omitted value and emits SQL DEFAULT; null emits NULL. */
+  entities: (SqlValueType | undefined)[][];
   upsert?: string[];
   ignore?: boolean;
   returning?: string;
@@ -52,17 +53,27 @@ export const createToSql = (
   tableInfo: TableInfo,
   generator: SqlGenerator = createSqlGenerator(),
 ): string => {
+  if (dsl.entities.length === 0)
+    throw new Error("INSERT requires at least one row");
   const SqlString = generator;
   const escapeId = generator.escapeId;
   const map = tableInfo[dsl.table].columnMap;
+  const valueToSql = (value: SqlValueType | undefined): string =>
+    value === undefined ? "DEFAULT" : SqlString.escape(value);
   if (generator.dialect === "postgres") {
-    const columns = dsl.fields.map((it) => escapeId(map[it])).join(",");
-    if (dsl.fields.length === 0 && dsl.entities.length !== 1)
-      throw new Error(
-        "PostgreSQL bulk default inserts require at least one column",
-      );
-    const values = dsl.fields.length
-      ? `(${columns}) VALUES ${dsl.entities.map((row) => `(${row.map((value) => SqlString.escape(value)).join(",")})`).join(",")}`
+    // PostgreSQL has no multi-row DEFAULT VALUES syntax; use a mapped column.
+    const fields =
+      dsl.fields.length === 0 && dsl.entities.length > 1
+        ? [Object.keys(map)[0]]
+        : dsl.fields;
+    if (fields.some((field) => field === undefined))
+      throw new Error("Bulk default inserts require a mapped column");
+    const entities = dsl.fields.length
+      ? dsl.entities
+      : dsl.entities.map(() => fields.map(() => undefined));
+    const columns = fields.map((it) => escapeId(map[it])).join(",");
+    const values = fields.length
+      ? `(${columns}) VALUES ${entities.map((row) => `(${row.map(valueToSql).join(",")})`).join(",")}`
       : "DEFAULT VALUES";
     let conflict = dsl.ignore ? " ON CONFLICT DO NOTHING" : "";
     if (dsl.upsert?.length) {
@@ -77,7 +88,7 @@ export const createToSql = (
     return `INSERT INTO ${escapeId(dsl.table)} ${values}${conflict}${returning}`;
   }
   const values = dsl.entities
-    .map((it) => `(${it.map((it) => SqlString.escape(it)).join(",")})`)
+    .map((it) => `(${it.map(valueToSql).join(",")})`)
     .join(",");
   return `INSERT ${dsl.ignore ? "IGNORE " : ""}INTO ${escapeId(
     dsl.table,

@@ -411,3 +411,18 @@ test.each([
     }
   },
 );
+
+test("disabling subscriptions removes generated publishers and imports while preserving custom pubsub", async () => {
+  await new CodeGen_v2(fixture()).generate();
+  const custom = "// user-owned pubsub; generation must preserve this file\n";
+  writeFileSync(join(dir, "pubsub.ts"), custom);
+  config().generator.gql.subscription = false;
+  await new CodeGen_v2(fixture()).generate();
+  expect(readFileSync(join(dir, "pubsub.ts"), "utf8")).toBe(custom);
+  for (const file of ["mutation.ts", "resolver.ts", "subscription.ts"]) {
+    const code = readFileSync(join(dir, "__generated__", file), "utf8");
+    expect(code).not.toContain("publishUserCreated");
+    expect(code).not.toContain("from '../pubsub");
+    expect(code).not.toContain("from './subscription");
+  }
+});

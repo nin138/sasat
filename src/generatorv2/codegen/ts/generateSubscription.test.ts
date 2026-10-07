@@ -3,6 +3,7 @@ import { buildSchema } from "graphql";
 import { withFilter } from "graphql-subscriptions";
 import Hashids from "hashids";
 import ts from "typescript";
+import { config } from "../../../config/config.js";
 import { DataStoreHandler } from "../../../migration/dataStore.js";
 import { StoreMigrator } from "../../../migration/front/storeMigrator.js";
 import { Mutations } from "../../../migration/makeMutaion.js";
@@ -10,20 +11,22 @@ import { Queries } from "../../../migration/makeQuery.js";
 import { createTypeDef } from "../../../runtime/createTypeDef.js";
 import { makeNumberIdEncoder } from "../../../runtime/id.js";
 import { parse } from "../../parse.js";
+import { generateMutationResolver } from "./generateMutationResolver.js";
+import { generateResolver } from "./generateResolver.js";
 import { generateSubscription } from "./generateSubscription.js";
 import { generateTypeDefs } from "./generateTypeDefs.js";
 
 const AccountHashId = makeNumberIdEncoder(new Hashids("accounts"));
 const MessageHashId = makeNumberIdEncoder(new Hashids("messages"));
 
-function fixture() {
+function fixture(enabled = true) {
   const store = StoreMigrator.deserialize({ tables: [] });
   store.createTable("account", (table) => {
     table.autoIncrementHashId("id");
     table.column("name").varchar(20);
     table.enableGQL();
     table.addGQLQuery(Queries.primary());
-    const subscription = { enabled: true, subscriptionFilter: ["id"] };
+    const subscription = { enabled, subscriptionFilter: ["id"] };
     table.addGQLMutation(
       Mutations.create({ subscription }),
       Mutations.update({ subscription }),
@@ -46,7 +49,7 @@ function fixture() {
     table.addGQLMutation(
       Mutations.create({
         subscription: {
-          enabled: true,
+          enabled,
           subscriptionFilter: ["account_id", "status", "rank"],
         },
       }),
@@ -172,3 +175,46 @@ test("invalid encoded IDs never match, including absent payload keys", async () 
     });
   }
 });
+
+test.each([
+  [true, true],
+  [true, false],
+  [false, true],
+  [false, false],
+])(
+  "subscription global=%s and mutation=%s agree across schema, resolver and publishing",
+  (global, individual) => {
+    const previous = config().generator.gql.subscription;
+    try {
+      config().generator.gql.subscription = global;
+      const root = fixture(individual);
+      const enabled = global && individual;
+      expect(root.subscriptions.length > 0).toBe(enabled);
+      expect(
+        root.entities.flatMap((e) => e.mutations).some((m) => m.subscription),
+      ).toBe(enabled);
+      const mutation = generateMutationResolver(root).toString();
+      const subscription = generateSubscription(root).toString();
+      const resolver = generateResolver(root).toString();
+      expect(mutation.includes("publishAccountCreated")).toBe(enabled);
+      expect(subscription.includes("pubsub")).toBe(enabled);
+      expect(resolver.includes("./subscription")).toBe(enabled);
+      const exports = {} as {
+        typeDefs: Parameters<typeof createTypeDef>[0];
+        inputs: Parameters<typeof createTypeDef>[1];
+      };
+      runInNewContext(
+        ts.transpileModule(generateTypeDefs(root).toString(), {
+          compilerOptions: { module: ts.ModuleKind.CommonJS },
+        }).outputText,
+        { exports },
+      );
+      const schema = buildSchema(
+        createTypeDef(exports.typeDefs, exports.inputs),
+      );
+      expect(!!schema.getSubscriptionType()).toBe(enabled);
+    } finally {
+      config().generator.gql.subscription = previous;
+    }
+  },
+);

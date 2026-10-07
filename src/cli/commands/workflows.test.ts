@@ -9,6 +9,7 @@ import { compileMigrationFiles } from "../../migration/exec/migrationFileCompile
 import { StoreMigrator } from "../../migration/front/storeMigrator.js";
 import { writeCurrentSchema } from "../../util/fsUtil.js";
 import { Console } from "../console.js";
+import { writeDiagram } from "./erDiagram.js";
 import { generate } from "./generate.js";
 import { generateTestMigFileCommand } from "./generateTestMigFileCommand.js";
 import { getCurrentStore } from "./getCurrentStore.js";
@@ -127,4 +128,34 @@ test("dry run skips schema and application generation even when requested", asyn
   );
   expect(writeCurrentSchema).not.toHaveBeenCalled();
   expect(CodeGen_v2.prototype.generate).not.toHaveBeenCalled();
+});
+
+test.each([getCurrentStore, generate, writeDiagram])(
+  "rejects unknown targets before compiling or overwriting generated artifacts (%p)",
+  async (run) => {
+    const previous = config().migration.target;
+    try {
+      config().migration.target = "missing.ts";
+      await expect(run()).rejects.toThrow("migration target not found");
+      expect(compileMigrationFiles).not.toHaveBeenCalled();
+      expect(createCurrentMigrationDataStore).not.toHaveBeenCalled();
+      expect(writeCurrentSchema).not.toHaveBeenCalled();
+      expect(CodeGen_v2.prototype.generate).not.toHaveBeenCalled();
+      expect(generateTestMigFileCommand).not.toHaveBeenCalled();
+    } finally {
+      config().migration.target = previous;
+    }
+  },
+);
+
+test("loads an empty migration directory without a target", async () => {
+  const previous = config().migration.target;
+  try {
+    config().migration.target = undefined;
+    jest.mocked(getMigrationFileNames).mockReturnValue([]);
+    await expect(getCurrentStore()).resolves.toEqual(empty);
+    expect(createCurrentMigrationDataStore).toHaveBeenCalledWith(undefined);
+  } finally {
+    config().migration.target = previous;
+  }
 });

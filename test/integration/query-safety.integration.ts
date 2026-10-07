@@ -30,6 +30,7 @@ import { gqlResolveInfoToField } from "../../src/runtime/gqlResolveInfoToField.j
 import { makeResolver } from "../../src/runtime/makeResolver.js";
 import { pagingOption } from "../../src/runtime/pagingOption.js";
 import { SasatDBDatasource } from "../../src/runtime/sasatDBDatasource.js";
+import { verifyBulkInsert } from "./bulk-insert-cases.js";
 
 const options = {
   host: process.env.TEST_DB_HOST ?? "127.0.0.1",
@@ -389,4 +390,8 @@ test("generated create stores the context tenant in a renamed column", async () 
     "SELECT id, tenant_id FROM scope WHERE id IN (101,102) ORDER BY id",
   );
   assert.deepEqual(rows, [{ id: 101, tenant_id: 42 }]);
+});
+
+test("bulk inserts preserve mixed fields, defaults, nulls, upserts and atomic failures", async () => {
+  await verifyBulkInsert(executor, "mysql");
 });

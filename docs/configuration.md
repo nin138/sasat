@@ -19,6 +19,7 @@ Sasat merges defaults with `sasat.yml` in the current working directory on first
 | `migration.target` | Optional exact migration filename, including `.ts` |
 | `migration.db` | Optional connection override used by migration and generation commands |
 | `testDB` | Connection settings for test-database creation; must use the application dialect |
+| `generator.gql.subscription` | Defaults to true; set false and regenerate to disable subscriptions and mutation publishing |
 | `generator.addJsExtToImportStatement` | Defaults to false; set true for the README's ESM example |
 
 For PostgreSQL, explicitly set the port and user; the shared defaults remain MySQL-compatible. See [PostgreSQL configuration and SQL differences](postgresql.md).
@@ -69,7 +70,7 @@ Sasat checks the history of up/down operations. It executes each migration throu
 - `store.sql` adds custom SQL to the queue. Sasat does not infer schema changes from that SQL; use the schema APIs as well when code generation must reflect a change.
 - `skipOnTest: true` excludes a migration's queued SQL from test-SQL collection. It does not skip execution of its definition or hooks.
 
-File enumeration currently has no explicit sort. Also, migrate rejects an unknown target, while schema reconstruction for generation can fall back to the last file. Check the exact target when changing migration positions or rolling back.
+Migrations run in lexicographic filename order; use zero-padded numbers or timestamps consistently. An unknown explicit target is rejected before compilation or generation writes files, including generate, generate:er, and generate:test. An omitted target selects the last migration; an empty directory with no target represents the initial schema. Existing database history must match filename order, otherwise migration stops without rewriting that history.
 
 ## Regeneration
 

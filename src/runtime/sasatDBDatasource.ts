@@ -123,7 +123,7 @@ export abstract class SasatDBDatasource<
       ...this.getDefaultValueString(),
       ...it,
     })) as unknown[] as Entity[];
-    const keys = Object.keys(objects[0]);
+    const keys = [...new Set(objects.flatMap((object) => Object.keys(object)))];
     const values = objects.map((it) => keys.map((key) => it[key]));
 
     const dsl: Create = {

@@ -9,5 +9,6 @@ export const getMigrationFileDir = () => {
 export const getMigrationFileNames = (): string[] => {
   return fs
     .readdirSync(getMigrationFileDir())
-    .filter((it) => it.split(".").pop() === "ts");
+    .filter((it) => it.split(".").pop() === "ts")
+    .sort();
 };
