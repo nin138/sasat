@@ -13,6 +13,8 @@
       "test/**/*.spec.ts",
       "test/helpers/**",
       "test/integration/**",
+      "test/postgres/**",
+      "test/package/**",
       "test/serverSchema.ts",
       "test/testServer.ts",
       "test/yogaServer.ts",

@@ -1,4 +1,5 @@
 import type { SqlValueType } from "../../db/connectors/dbClient.js";
+import { getDialect } from "../../db/dialect.js";
 import { SqlString } from "../../runtime/sql/sqlString.js";
 import type { DBColumnTypes } from "../column/columnTypes.js";
 import type { ForeignKeyReferentialAction } from "../data/foreignKey.js";
@@ -56,8 +57,8 @@ export const referenceToSql = (
   const onUpdate = ref.onUpdate ? ` ON UPDATE ${ref.onUpdate}` : "";
   const onDelete = ref.onDelete ? ` ON DELETE ${ref.onDelete}` : "";
   return (
-    `CONSTRAINT ${constraintName} ` +
-    `FOREIGN KEY(${ref.columnName}) ` +
+    `CONSTRAINT ${getDialect() === "postgres" ? SqlString.escapeId(constraintName) : constraintName} ` +
+    `FOREIGN KEY(${getDialect() === "postgres" ? SqlString.escapeId(ref.columnName) : ref.columnName}) ` +
     `REFERENCES ${SqlString.escapeId(ref.parentTable)}(${SqlString.escapeId(
       ref.parentColumn,
     )})` +

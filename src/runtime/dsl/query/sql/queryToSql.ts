@@ -1,3 +1,5 @@
+import { getDialect } from "../../../../db/dialect.js";
+import { SqlString } from "../../../sql/sqlString.js";
 import type { Join, LockMode, Query, QueryTable } from "../query.js";
 import { Sql } from "./nodeToSql.js";
 
@@ -47,6 +49,9 @@ export const queryToSql = (query: Query): string => {
     sort +
     limit +
     offset +
-    getLock(query.lock)
+    getLock(query.lock) +
+    (query.lock && getDialect() === "postgres"
+      ? " OF " + SqlString.escapeId(query.from.alias)
+      : "")
   );
 };

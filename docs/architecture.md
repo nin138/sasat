@@ -34,7 +34,7 @@ Generated code becomes part of your application. Put custom logic in extension f
 flowchart TD
   Definition[Define tables and API operations] --> Migrate[Apply migrations]
   Definition --> Generate[Generate application code]
-  Migrate --> DB[(MySQL)]
+  Migrate --> DB[(MySQL / PostgreSQL)]
   Generate --> Code[Types, data sources, schema, resolvers]
   Code --> Server[Application GraphQL server]
   Request[Client request] --> Server

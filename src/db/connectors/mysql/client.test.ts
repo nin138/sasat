@@ -111,6 +111,7 @@ test("rejects changed explicit connection options without replacing or closing t
   const pool = connection();
   jest.mocked(createPool).mockReturnValue(pool as never);
   const first = getDbClient({ database: "tenant_a" });
+  await first.rawQuery("SELECT 1");
   try {
     expect(getDbClient({ database: "tenant_a" })).toBe(first);
     expect(getDbClient()).toBe(first);
@@ -125,6 +126,7 @@ test("rejects changed explicit connection options without replacing or closing t
     await first.release();
   }
   const second = getDbClient({ database: "tenant_b" });
+  await second.rawQuery("SELECT 1");
   expect(createPool).toHaveBeenLastCalledWith(
     expect.objectContaining({ database: "tenant_b" }),
   );
@@ -179,4 +181,22 @@ test("pool client closes the dedicated connection when BEGIN fails", async () =>
   } finally {
     await client.release();
   }
+});
+
+test("initializes one MySQL pool for concurrent first queries", async () => {
+  const pool = connection();
+  jest.mocked(createPool).mockReturnValue(pool as never);
+  const client = new MysqlPoolClient({});
+  expect(createPool).not.toHaveBeenCalled();
+  await Promise.all([client.rawQuery("SELECT 1"), client.rawQuery("SELECT 2")]);
+  expect(createPool).toHaveBeenCalledTimes(1);
+  await client.release();
+});
+
+test("releasing an unused MySQL pool does not initialize it", async () => {
+  const client = new MysqlPoolClient({});
+  await client.release();
+  await client.release();
+  expect(createPool).not.toHaveBeenCalled();
+  await expect(client.rawQuery("SELECT 1")).rejects.toThrow("released");
 });

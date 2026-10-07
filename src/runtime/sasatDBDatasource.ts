@@ -1,4 +1,5 @@
 import type { SQLExecutor, SqlValueType } from "../db/connectors/dbClient.js";
+import { getDialect, withDialect } from "../db/dialect.js";
 import {
   type CommandResponse,
   getDbClient,
@@ -76,6 +77,10 @@ export abstract class SasatDBDatasource<
   protected abstract readonly autoIncrementColumn?: string | undefined;
 
   constructor(protected client: SQLExecutor = getDbClient()) {}
+  private sql<T>(build: () => T): T {
+    return withDialect(this.client.dialect ?? getDialect(), build);
+  }
+
   protected abstract getDefaultValueString():
     | Partial<{
         [P in keyof Entity]: Entity[P] | string | null | never;
@@ -86,7 +91,7 @@ export abstract class SasatDBDatasource<
     entity: Creatable,
     option?: {
       ignore?: boolean;
-      upsert?: { updateColumns: string[] };
+      upsert?: { updateColumns: string[]; conflictColumns?: string[] };
     },
   ): Promise<Entity> {
     const obj: Entity = {
@@ -99,9 +104,13 @@ export abstract class SasatDBDatasource<
       fields: fields,
       entities: [fields.map((key) => obj[key])],
       upsert: option?.upsert?.updateColumns,
+      conflictColumns: option?.upsert?.conflictColumns,
       ignore: option?.ignore,
+      returning: this.autoIncrementColumn
+        ? this.fieldToColumn([this.autoIncrementColumn])[0]
+        : undefined,
     };
-    const sql = createToSql(dsl, this.tableInfo);
+    const sql = this.sql(() => createToSql(dsl, this.tableInfo));
     const response = await this.client.rawCommand(sql);
     if (!this.autoIncrementColumn) return obj;
     return {
@@ -114,7 +123,7 @@ export abstract class SasatDBDatasource<
     entities: Creatable[],
     option?: {
       ignore?: boolean;
-      upsert?: { updateColumns: string[] };
+      upsert?: { updateColumns: string[]; conflictColumns?: string[] };
     },
   ): Promise<CommandResponse | null> {
     if (entities.length === 0) return null;
@@ -130,19 +139,24 @@ export abstract class SasatDBDatasource<
       fields: keys,
       entities: values,
       upsert: option?.upsert?.updateColumns,
+      conflictColumns: option?.upsert?.conflictColumns,
       ignore: option?.ignore,
     };
-    const sql = createToSql(dsl, this.tableInfo);
+    const sql = this.sql(() => createToSql(dsl, this.tableInfo));
     return await this.client.rawCommand(sql);
   }
 
   async upsert<T extends Creatable & Partial<Entity>>(
     entity: T,
     updateFields: (keyof T)[] = this.primaryKeys,
+    conflictFields?: (keyof T)[],
   ): Promise<Entity> {
     return this.create(entity, {
       upsert: {
         updateColumns: this.fieldToColumn(updateFields as string[]),
+        conflictColumns: conflictFields
+          ? this.fieldToColumn(conflictFields as string[])
+          : undefined,
       },
     });
   }
@@ -158,7 +172,7 @@ export abstract class SasatDBDatasource<
         })),
       where: this.createIdentifiableExpression(entity),
     };
-    const sql = updateToSql(dsl, this.tableInfo);
+    const sql = this.sql(() => updateToSql(dsl, this.tableInfo));
     return this.client.rawCommand(sql);
   }
 
@@ -176,7 +190,7 @@ export abstract class SasatDBDatasource<
         })),
       where: condition,
     };
-    const sql = updateToSql(dsl, this.tableInfo);
+    const sql = this.sql(() => updateToSql(dsl, this.tableInfo));
     return this.client.rawCommand(sql);
   }
 
@@ -191,7 +205,7 @@ export abstract class SasatDBDatasource<
       table: this.tableName,
       where: condition,
     };
-    const sql = deleteToSql(dsl);
+    const sql = this.sql(() => deleteToSql(dsl));
     return this.client.rawCommand(sql);
   }
 
@@ -210,13 +224,15 @@ export abstract class SasatDBDatasource<
     options?: QueryOptions,
     context?: unknown,
   ): Promise<QueryResult[]> {
-    const query = createQuery(
-      this.tableName,
-      fields as Fields<unknown>,
-      options,
-      this.tableInfo,
-      this.relationMap,
-      context,
+    const query = this.sql(() =>
+      createQuery(
+        this.tableName,
+        fields as Fields<unknown>,
+        options,
+        this.tableInfo,
+        this.relationMap,
+        context,
+      ),
     );
     return this.executeQuery(query, fields);
   }
@@ -227,15 +243,17 @@ export abstract class SasatDBDatasource<
     options?: QueryOptions,
     context?: unknown,
   ): Promise<QueryResult[]> {
-    const query = createPagingFieldQuery({
-      baseTableName: this.tableName,
-      fields: fields as Fields<unknown>,
-      tableInfo: this.tableInfo,
-      relationMap: this.relationMap,
-      pagingOption: paging,
-      queryOption: options,
-      context,
-    });
+    const query = this.sql(() =>
+      createPagingFieldQuery({
+        baseTableName: this.tableName,
+        fields: fields as Fields<unknown>,
+        tableInfo: this.tableInfo,
+        relationMap: this.relationMap,
+        pagingOption: paging,
+        queryOption: options,
+        context,
+      }),
+    );
     return this.executeQuery(query, fields);
   }
 
@@ -249,7 +267,7 @@ export abstract class SasatDBDatasource<
       this.relationMap,
       this.tableInfo,
     );
-    const sql = queryToSql(query);
+    const sql = this.sql(() => queryToSql(query));
     const resultRows: ResultRow[] = await this.client.rawQuery(sql);
     return hydrate(resultRows, info) as QueryResult[];
   }

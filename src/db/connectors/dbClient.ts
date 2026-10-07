@@ -1,3 +1,4 @@
+import { type DatabaseDialect, withDialect } from "../dialect.js";
 import { formatQuery } from "../formatQuery.js";
 
 export type QueryResponse = Array<{ [key: string]: SqlValueType }>;
@@ -10,12 +11,14 @@ export interface CommandResponse {
 export type SqlValueType = string | number | boolean | null;
 
 export interface SQLExecutor {
+  readonly dialect?: DatabaseDialect;
   rawQuery(sql: string): Promise<QueryResponse>;
   rawCommand(sql: string): Promise<CommandResponse>;
 }
 
 const noop = () => {};
 export abstract class SQLClient implements SQLExecutor {
+  readonly dialect: DatabaseDialect = "mysql";
   protected logger: (query: string) => void = noop;
   rawQuery(sql: string): Promise<QueryResponse> {
     this.logger(sql);
@@ -32,7 +35,9 @@ export abstract class SQLClient implements SQLExecutor {
     // biome-ignore lint/suspicious/noExplicitAny: <>
     ...params: any[]
   ): Promise<QueryResponse> {
-    return this.rawQuery(formatQuery(templateString, ...params));
+    return this.rawQuery(
+      withDialect(this.dialect, () => formatQuery(templateString, ...params)),
+    );
   }
 
   command(
@@ -40,7 +45,9 @@ export abstract class SQLClient implements SQLExecutor {
     // biome-ignore lint/suspicious/noExplicitAny: <>
     ...params: any[]
   ): Promise<CommandResponse> {
-    return this.rawCommand(formatQuery(templateString, ...params));
+    return this.rawCommand(
+      withDialect(this.dialect, () => formatQuery(templateString, ...params)),
+    );
   }
 
   protected abstract execSql(

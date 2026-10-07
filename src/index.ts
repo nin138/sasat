@@ -1,5 +1,7 @@
 export { setConfig } from "./config/config.js";
 export { MysqlClient } from "./db/connectors/mysql/client.js";
+export { PostgresClient } from "./db/connectors/postgres/client.js";
+export { type DatabaseDialect, withDialect } from "./db/dialect.js";
 export { formatQuery } from "./db/formatQuery.js";
 export { queryToSql } from "./runtime/dsl/query/sql/queryToSql.js";
 

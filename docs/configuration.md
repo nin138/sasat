@@ -8,6 +8,7 @@ Sasat merges defaults with `sasat.yml` in the current working directory on first
 
 | Setting | Default or purpose |
 | --- | --- |
+| `db.dialect` | `mysql` by default; set `postgres` for PostgreSQL |
 | `db.host` / `db.port` | `127.0.0.1` / `3306` |
 | `db.user` / `db.database` | `root` / `sasat` |
 | `db.password` | Empty string by default |
@@ -16,13 +17,21 @@ Sasat merges defaults with `sasat.yml` in the current working directory on first
 | `migration.table` | `__migrate__` |
 | `migration.out` | `sasat` |
 | `migration.target` | Optional exact migration filename, including `.ts` |
-| `migration.db` | Optional connection override used by migrate and test-SQL generation commands |
-| `testDB` | Connection settings for test-database creation |
+| `migration.db` | Optional connection override used by migration and generation commands |
+| `testDB` | Connection settings for test-database creation; must use the application dialect |
 | `generator.addJsExtToImportStatement` | Defaults to false; set true for the README's ESM example |
+
+For PostgreSQL, explicitly set the port and user; the shared defaults remain MySQL-compatible. See [PostgreSQL configuration and SQL differences](postgresql.md).
 
 A string starting with `$` is replaced with the environment variable named by the entire remaining string. `$DB_HOST` works; embedded substitutions such as `prefix-$NAME` are not supported. Missing variables become undefined, and environment values remain strings after substitution. The loader does not validate the full configuration at runtime, so check required variables and numeric settings.
 
 If you use `.env`, load it through your application's startup tooling. Supply the connection settings to both the CLI and the server. Sasat itself does not automatically load this file.
+
+## Database drivers
+
+Install `mysql2` for `db.dialect: mysql` (the default), or `pg` for `db.dialect: postgres`. They are optional peer dependencies and are not installed automatically. The first database operation loads the selected driver; an absent driver produces an error with the installation command.
+
+When upgrading from a release that included the drivers as dependencies, add the one you use to your application dependencies explicitly. `getDbClient()` still returns a client synchronously; pool creation is deferred until its first database operation. Calling `release()` before use does not load the driver.
 
 ## CLI commands
 
@@ -40,7 +49,7 @@ Run these commands from the application root containing `sasat.yml`.
 | `yarn sasat generate:er` | Write `out/__generated__/er-diagram.mermaid`; create the output directory first |
 | `yarn sasat dump-db` | Convert the connected database schema to `migrations/initialSchema.yml` |
 
-The paths in this table use the README's `migration.dir` and `migration.out` values. `dump-db` exports schema information, not data rows. Tables without primary keys or with unsupported column types may be excluded.
+The paths in this table use the README's `migration.dir` and `migration.out` values. `dump-db` exports schema information, not data rows. Tables without primary keys are excluded. MySQL may exclude unsupported column types; PostgreSQL rejects unsupported types or expressions. See [PostgreSQL import boundaries](postgresql.md#schema-imports-and-boundaries).
 
 <a id="dry-run"></a>
 

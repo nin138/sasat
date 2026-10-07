@@ -27,7 +27,9 @@
     "test:coverage": "jest --runInBand --coverage",
     "test:integration": "tsx --test test/integration/*.integration.ts",
     "test:integration:redis": "env PUBSUB_BACKEND=redis tsx --test test/integration/*.integration.ts",
-    "test:typecheck": "tsc --project tsconfig.test.json --noEmit && tsc --project tsconfig.servers.json"
+    "test:typecheck": "tsc --project tsconfig.test.json --noEmit && tsc --project tsconfig.servers.json",
+    "test:integration:postgres": "tsx --test test/postgres/*.integration.ts",
+    "test:package": "tsx --test test/package/*.integration.ts"
   },
   "dependencies": {
     "@biomejs/biome": "^2.5.14",
@@ -38,7 +40,6 @@
     "graphql-subscriptions": "^3.0.0",
     "hashids": "^2.3.0",
     "js-yaml": "^5.4.2",
-    "mysql2": "^3.24.4",
     "pluralize": "^8.0.0",
     "sqlstring": "^2.3.3",
     "typescript": "^6.0.3"
@@ -48,6 +49,7 @@
     "@types/jest": "^30.0.0",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^25.9.8",
+    "@types/pg": "8.15.5",
     "@types/pluralize": "0.0.33",
     "@types/sqlstring": "2.3.2",
     "env-cmd": "^11.0.0",
@@ -57,6 +59,8 @@
     "ioredis": "^5.11.1",
     "jest": "^30.5.2",
     "lint-staged": "^17.5.1",
+    "mysql2": "^3.24.4",
+    "pg": "8.16.3",
     "sasat": "link:./dist",
     "ts-jest": "^29.4.13",
     "tsdown": "^0.23.0",
@@ -89,7 +93,7 @@
     }
   },
   "main": "dist/index.mjs",
-  "types": "./dist/index.d.ts",
+  "types": "./dist/index.d.mts",
   "files": [
     "dist"
   ],
@@ -98,5 +102,17 @@
   },
   "engines": {
     "node": ">=22"
+  },
+  "peerDependencies": {
+    "mysql2": "^3.24.4",
+    "pg": "^8.16.3"
+  },
+  "peerDependenciesMeta": {
+    "mysql2": {
+      "optional": true
+    },
+    "pg": {
+      "optional": true
+    }
   }
 }

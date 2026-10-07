@@ -1,3 +1,4 @@
+import { getDialect } from "../../db/dialect.js";
 import { SasatError } from "../../error.js";
 import { EntityName } from "../../generatorv2/nodes/entityName.js";
 import { SqlString } from "../../runtime/sql/sqlString.js";
@@ -159,7 +160,11 @@ export class TableHandler implements Table {
       );
     this.uniqueKeys.forEach((it) => {
       if (this.uniqueKeys.length !== 0)
-        rows.push(`UNIQUE KEY (${it.join(",")})`);
+        rows.push(
+          getDialect() === "postgres"
+            ? `UNIQUE (${it.map(SqlString.escapeId).join(",")})`
+            : `UNIQUE KEY (${it.join(",")})`,
+        );
     });
     rows.push(
       ...this._columns

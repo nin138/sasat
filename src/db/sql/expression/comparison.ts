@@ -1,5 +1,5 @@
-import * as SqlString from "sqlstring";
 import { SasatError } from "../../../error.js";
+import { SqlString } from "../../../runtime/sql/sqlString.js";
 
 export enum Comparison {
   eq = "=",

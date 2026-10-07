@@ -4,6 +4,12 @@ import { config, type SasatConfig } from "@/config/config.js";
 import { SasatError } from "@/error.js";
 import { readInitialSchema } from "@/util/fsUtil.js";
 import type { NestedPartial } from "@/util/type.js";
+import { getDialect } from "../../db/dialect.js";
+import {
+  dropPostgresTimestampFunction,
+  postgresTimestampTrigger,
+} from "../../db/sql/postgres.js";
+import { SqlString } from "../../runtime/sql/sqlString.js";
 import { type TableBuilder, TableCreator } from "../creators/tableCreator.js";
 import type { DataStore } from "../dataStore.js";
 import type { SerializedStore } from "../serialized/serializedStore.js";
@@ -72,11 +78,17 @@ export class StoreMigrator implements MigrationStore {
     this.tables.push(table);
     this.addQuery(table.showCreateTable());
     this.addQuery(...table.getIndexes().map((it) => it.addSql()));
+    if (getDialect() === "postgres")
+      this.addQuery(...postgresTimestampTrigger(table.serialize()));
     return this;
   }
 
   dropTable(tableName: string): MigrationStore {
-    this.addQuery(`DROP TABLE ${tableName}`);
+    this.addQuery(
+      `DROP TABLE ${getDialect() === "postgres" ? SqlString.escapeId(tableName) : tableName}`,
+    );
+    if (getDialect() === "postgres")
+      this.addQuery(dropPostgresTimestampFunction(tableName));
     this.tables = this.tables.filter((it) => it.tableName !== tableName);
     return this;
   }

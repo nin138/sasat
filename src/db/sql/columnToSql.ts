@@ -1,8 +1,11 @@
 import { DBColumnTypes } from "../../migration/column/columnTypes.js";
 import type { SerializedColumn } from "../../migration/serialized/serializedColumn.js";
 import { SqlString } from "../../runtime/sql/sqlString.js";
+import { getDialect } from "../dialect.js";
+import { postgresColumn } from "./postgres.js";
 
 export const columnToSql = (column: SerializedColumn): string => {
+  if (getDialect() === "postgres") return postgresColumn(column);
   const words = [SqlString.escapeId(column.columnName), column.type];
   if (column.length)
     words.push(

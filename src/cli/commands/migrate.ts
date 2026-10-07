@@ -5,6 +5,7 @@ import { DataStoreHandler } from "@/migration/dataStore.js";
 import { getCurrentMigration } from "@/migration/exec/getCurrentMigration.js";
 import { compileMigrationFiles } from "@/migration/exec/migrationFileCompiler.js";
 import { writeCurrentSchema } from "@/util/fsUtil.js";
+import { withDialect } from "../../db/dialect.js";
 import { Console } from "../console.js";
 
 export type MigrateCommandOption = {
@@ -17,30 +18,31 @@ export type MigrateCommandOption = {
 export const migrate = async (
   client: DBClient,
   options: MigrateCommandOption,
-): Promise<void> => {
-  let current: string | undefined;
-  if (!options.silent) Console.log("--migration started--");
-  try {
-    if (!options.skipBuild) {
-      await compileMigrationFiles();
+): Promise<void> =>
+  withDialect(client.dialect, async () => {
+    let current: string | undefined;
+    if (!options.silent) Console.log("--migration started--");
+    try {
+      if (!options.skipBuild) {
+        await compileMigrationFiles();
+      }
+      const migration = new MigrationController();
+      const currentMigration = await getCurrentMigration(client, options);
+      const result = await migration.migrate(client, currentMigration, options);
+      current = result.currentMigration;
+      if (options.generateFiles && !options.dry) {
+        const storeHandler = new DataStoreHandler(result.store);
+        writeCurrentSchema(result.store);
+        await new CodeGen_v2(storeHandler).generate();
+      }
+      if (!options.silent)
+        Console.success(
+          options.dry
+            ? `dry run target is ${current}`
+            : `current migration is ${current}`,
+        );
+    } catch (e: unknown) {
+      Console.error((e as Error).message);
+      throw e;
     }
-    const migration = new MigrationController();
-    const currentMigration = await getCurrentMigration(client, options);
-    const result = await migration.migrate(client, currentMigration, options);
-    current = result.currentMigration;
-    if (options.generateFiles && !options.dry) {
-      const storeHandler = new DataStoreHandler(result.store);
-      writeCurrentSchema(result.store);
-      await new CodeGen_v2(storeHandler).generate();
-    }
-    if (!options.silent)
-      Console.success(
-        options.dry
-          ? `dry run target is ${current}`
-          : `current migration is ${current}`,
-      );
-  } catch (e: unknown) {
-    Console.error((e as Error).message);
-    throw e;
-  }
-};
+  });

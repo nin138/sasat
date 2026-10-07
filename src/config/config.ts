@@ -3,6 +3,8 @@ import type { NestedPartial } from "../util/type.js";
 import { SasatConfigLoader } from "./loader.js";
 
 export type SasatDBConfigBase = {
+  /** Defaults to mysql for backward compatibility. */
+  dialect?: "mysql" | "postgres";
   host: string;
   port: number;
   user: string;

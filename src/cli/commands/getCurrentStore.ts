@@ -1,9 +1,10 @@
-import { config } from "../../config/config.js";
+import { config, setConfig } from "../../config/config.js";
 import { createCurrentMigrationDataStore } from "../../migration/exec/createCurrentMigrationDataStore.js";
 import { getMigrationFileNames } from "../../migration/exec/getMigrationFiles.js";
 import { compileMigrationFiles } from "../../migration/exec/migrationFileCompiler.js";
 
 export async function getCurrentStore() {
+  if (config().migration.db) setConfig({ db: config().migration.db });
   await compileMigrationFiles();
   const files = getMigrationFileNames();
   const targetFile =

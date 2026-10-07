@@ -1,3 +1,4 @@
+import { withDialect } from "../db/dialect.js";
 import { QExpr as q } from "./dsl/factory.js";
 import type { Fields } from "./field.js";
 import { SasatDBDatasource } from "./sasatDBDatasource.js";
@@ -134,4 +135,26 @@ test("propagates database failures", async () => {
   const { users, client } = fixture();
   client.rawQuery.mockRejectedValue(new Error("unavailable"));
   await expect(users.find()).rejects.toThrow("unavailable");
+});
+
+test("injected executors retain their dialect inside the opposite SQL scope", async () => {
+  for (const dialect of ["postgres", "mysql"] as const) {
+    const { client } = fixture();
+    const users = new Users({ ...client, dialect });
+    await withDialect(dialect === "mysql" ? "postgres" : "mysql", async () => {
+      await users.create({ name: "Ada" });
+      await users.find();
+    });
+    const quote = dialect === "postgres" ? '"' : "`";
+    expect(client.rawCommand).toHaveBeenCalledWith(
+      expect.stringContaining(quote + "display_name" + quote),
+    );
+    expect(client.rawQuery).toHaveBeenCalledWith(
+      expect.stringContaining(quote + "users" + quote),
+    );
+    if (dialect === "postgres")
+      expect(client.rawCommand).toHaveBeenCalledWith(
+        expect.stringContaining('RETURNING "user_id"'),
+      );
+  }
 });

@@ -1,6 +1,6 @@
 # Sasat
 
-**Generate TypeScript data sources and a GraphQL API from MySQL migration definitions.**
+**Generate TypeScript data sources and a GraphQL API from MySQL or PostgreSQL migration definitions.**
 
 Define tables, relationships, queries, and mutations in TypeScript. Use those definitions to apply database changes and generate application code, then extend the generated data sources and schema with your own logic.
 
@@ -11,6 +11,7 @@ Sasat works with GraphQL Yoga and Apollo Server. Your application configures the
 | Goal | Guide |
 | --- | --- |
 | Add Sasat to an application | Quick start below |
+| Use PostgreSQL | [PostgreSQL setup and compatibility](docs/postgresql.md) |
 | Understand the application structure | [Application structure and generated files](docs/architecture.md) |
 | Configure the CLI and code generation | [Configuration and migrations](docs/configuration.md) |
 | Add context, custom logic, or subscriptions | [Runtime APIs and customization](docs/runtime.md) |
@@ -19,7 +20,7 @@ Sasat works with GraphQL Yoga and Apollo Server. Your application configures the
 
 ## Quick start
 
-You need Node.js 22 or later, Yarn, and a running MySQL 8 instance. This example creates an application with a user registration and query API. Redis is not required.
+You need Node.js 22 or later, Yarn, and a running MySQL 8 instance. This example creates an application with a user registration and query API. Redis is not required. For PostgreSQL, use the [PostgreSQL connection settings and database-creation statement](docs/postgresql.md#configure-an-application), then follow the same migration and server steps.
 
 ### 1. Install the packages
 
@@ -27,10 +28,12 @@ You need Node.js 22 or later, Yarn, and a running MySQL 8 instance. This example
 mkdir sasat-example
 cd sasat-example
 yarn init
-yarn add sasat graphql@^16 graphql-yoga@^5
+yarn add sasat mysql2 graphql@^16 graphql-yoga@^5
 yarn add --dev typescript tsx @types/node
 yarn sasat init
 ```
+
+Install only the database driver you use: `mysql2` for MySQL or `pg` for PostgreSQL. Both are optional peer dependencies; Sasat loads the selected driver on the first database operation. PostgreSQL users should replace `mysql2` with `pg` in the command above.
 
 Add `"type": "module"` to your `package.json`. Create `tsconfig.json`:
 
@@ -172,7 +175,7 @@ Add database changes in new migrations rather than rewriting applied definitions
 
 ## Current limitations
 
-- The database implementation targets MySQL; PostgreSQL and other connectors are not provided.
+- MySQL and PostgreSQL are supported. Database-specific SQL and native PostgreSQL types have [compatibility limits](docs/postgresql.md#schema-imports-and-boundaries).
 - `contextFields` supplies server-side input values. It does not automatically enforce tenant authorization for every operation.
 - Generation clears the old `__generated__` directory before writing new files. A failed run does not restore the previous output.
 - Decimal/bigint GraphQL types, zero/null Hash IDs, and bulk inserts with different field sets have known limitations. See [usage considerations](docs/runtime.md#limitations).

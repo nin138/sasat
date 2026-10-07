@@ -1,4 +1,5 @@
 import { SqlString } from "@/runtime/sql/sqlString.js";
+import { getDialect } from "../../../../db/dialect.js";
 import {
   type BetweenExpression,
   type BooleanValueExpression,
@@ -92,7 +93,9 @@ export const Sql = {
   },
   fn: (fn: Fn): string =>
     `${fn.fnName}(${fn.args.map(Sql.value).join(",")})${over(fn.over)}${
-      fn.alias ? ` AS ${fn.alias}` : ""
+      fn.alias
+        ? ` AS ${getDialect() === "postgres" ? SqlString.escapeId(fn.alias) : fn.alias}`
+        : ""
     }`,
   value: (v: Value): string => {
     if (v.kind === QueryNodeKind.Function) return Sql.fn(v);

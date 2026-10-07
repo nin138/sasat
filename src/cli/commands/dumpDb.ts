@@ -1,6 +1,7 @@
 import { config } from "../../config/config.js";
 import { getDbClient } from "../../db/getDbClient.js";
 import { serializeCreateTable } from "../../db/sql/createTable/createTableSerializer.js";
+import { readPostgresSchema } from "../../db/sql/postgresSchema.js";
 import { DBColumnTypes } from "../../migration/column/columnTypes.js";
 import type { SerializedStore } from "../../migration/serialized/serializedStore.js";
 import { SqlString } from "../../runtime/sql/sqlString.js";
@@ -10,6 +11,14 @@ import { Console } from "../console.js";
 export const dumpDB = async (): Promise<void> => {
   const con = getDbClient();
   try {
+    if (con.dialect === "postgres") {
+      writeYmlFile(
+        config().migration.dir,
+        "initialSchema.yml",
+        (await readPostgresSchema(con)) as never,
+      );
+      return;
+    }
     const tables = await con
       .rawQuery("show tables")
       .then((it) => it.flatMap((it) => Object.values(it)));

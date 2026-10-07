@@ -1,6 +1,6 @@
 import { generateTestMigFileCommand } from "@/cli/commands/generateTestMigFileCommand.js";
 import { getCurrentStore } from "@/cli/commands/getCurrentStore.js";
-import { config } from "@/config/config.js";
+import { config, setConfig } from "@/config/config.js";
 import { CodeGen_v2 } from "@/generatorv2/codegen_v2.js";
 import { DataStoreHandler } from "@/migration/dataStore.js";
 import { getMigrationFileNames } from "@/migration/exec/getMigrationFiles.js";
@@ -10,6 +10,7 @@ import { Console } from "../console.js";
 
 export const generate = async (): Promise<void> => {
   try {
+    if (config().migration.db) setConfig({ db: config().migration.db });
     await compileMigrationFiles();
     const files = getMigrationFileNames();
     const targetFile =

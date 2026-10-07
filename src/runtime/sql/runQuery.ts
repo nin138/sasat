@@ -1,4 +1,5 @@
 import type { SQLExecutor } from "../../db/connectors/dbClient.js";
+import { getDialect, withDialect } from "../../db/dialect.js";
 import { QExpr } from "../dsl/factory.js";
 import type {
   RelationMap,
@@ -134,7 +135,9 @@ export const runQuery = async (
   query: Query,
   resolveInfo: QueryResolveInfo,
 ) => {
-  const resultRows: ResultRow[] = await client.rawQuery(queryToSql(query));
+  const resultRows: ResultRow[] = await client.rawQuery(
+    withDialect(client.dialect ?? getDialect(), () => queryToSql(query)),
+  );
   return hydrate(resultRows, resolveInfo);
 };
 

@@ -1,3 +1,9 @@
+import { getDialect } from "../../db/dialect.js";
+import {
+  dropPostgresTimestampFunction,
+  postgresTimestampTrigger,
+  postgresType,
+} from "../../db/sql/postgres.js";
 import { SqlCreator } from "../../db/sql/sqlCreater.js";
 import { SqlString } from "../../runtime/sql/sqlString.js";
 import type { DBColumnTypes, DBType } from "../column/columnTypes.js";
@@ -89,6 +95,8 @@ export class TableMigrator implements MigrationTable {
   _addColumn(column: SerializedNormalColumn): MigrationTable {
     this.table.addColumn(new NormalColumn(column, this.table));
     this.store.addQuery(SqlCreator.addColumn(this.tableName, column));
+    if (getDialect() === "postgres")
+      this.store.addQuery(...postgresTimestampTrigger(this.table.serialize()));
     return this;
   }
 
@@ -100,6 +108,13 @@ export class TableMigrator implements MigrationTable {
   dropColumn(columnName: string): MigrationTable {
     this.table.dropColumn(columnName);
     this.store.addQuery(SqlCreator.dropColumn(this.tableName, columnName));
+    if (getDialect() === "postgres") {
+      this.store.addQuery(
+        `DROP TRIGGER IF EXISTS "sasat_update_timestamp" ON ${SqlString.escapeId(this.tableName)}`,
+        dropPostgresTimestampFunction(this.tableName),
+        ...postgresTimestampTrigger(this.table.serialize()),
+      );
+    }
     return this;
   }
 
@@ -153,7 +168,9 @@ export class TableMigrator implements MigrationTable {
   changeColumnType(columnName: string, type: DBType): MigrationTable {
     this.table.changeType(columnName, type as DBColumnTypes);
     this.store.addQuery(
-      `ALTER TABLE ${this.tableName} MODIFY ${columnName} ${type}`,
+      getDialect() === "postgres"
+        ? `ALTER TABLE ${SqlString.escapeId(this.tableName)} ALTER COLUMN ${SqlString.escapeId(columnName)} TYPE ${postgresType({ type: type as DBColumnTypes, length: undefined, scale: undefined })}`
+        : `ALTER TABLE ${this.tableName} MODIFY ${columnName} ${type}`,
     );
     return this;
   }
@@ -173,8 +190,10 @@ export class TableMigrator implements MigrationTable {
     this.table.setDefault(columnName, value);
     this.store.addQuery(
       `ALTER TABLE ${
-        this.tableName
-      } ALTER ${columnName} SET DEFAULT ${SqlString.escape(value)}`,
+        getDialect() === "postgres"
+          ? SqlString.escapeId(this.tableName)
+          : this.tableName
+      } ALTER ${getDialect() === "postgres" ? SqlString.escapeId(columnName) : columnName} SET DEFAULT ${SqlString.escape(value)}`,
     );
     return this;
   }

@@ -1,4 +1,5 @@
-import { type ConnectionOptions, createConnection } from "mysql2/promise";
+import type { ConnectionOptions } from "mysql2/promise";
+import { loadDriver } from "../../loadDriver.js";
 import {
   type CommandResponse,
   DBClient,
@@ -18,7 +19,11 @@ export class MysqlClient extends DBClient {
     super(logger);
   }
 
-  protected getConnection() {
+  protected async getConnection() {
+    const { createConnection } = await loadDriver(
+      "mysql2",
+      () => import("mysql2/promise"),
+    );
     return createConnection({
       dateStrings: true,
       ...this.connectionOption,

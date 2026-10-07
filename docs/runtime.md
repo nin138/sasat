@@ -70,7 +70,7 @@ For create/update mutations, `contextFields: [{ column: 'tenant_id', contextName
 
 ## Data sources, connections, and paging
 
-Add custom methods to the subclasses in `out/dataSources/db/*.ts`. The basic APIs are create/createBulk/upsert/update/delete/find/first/findPageable. You can also use them without GraphQL. Inspect generated base classes and SasatDBDatasource's TypeScript declarations for argument types and field mappings.
+Add custom methods to the subclasses in `out/dataSources/db/*.ts`. The basic APIs are create/createBulk/upsert/update/delete/find/first/findPageable. You can also use them without GraphQL. Both MySQL and PostgreSQL are supported; see [PostgreSQL upserts and result values](postgresql.md#upserts-and-result-values) for engine-specific behavior. Inspect generated base classes and SasatDBDatasource's TypeScript declarations for argument types and field mappings.
 
 `getDbClient()` returns a shared pool. Changing database settings, explicit options, or the logger while that pool is active throws an error. Finish pending work and release the client before switching settings. For simultaneous access to separate databases, inject independent MysqlClient instances into your data sources.
 
@@ -141,7 +141,7 @@ Check the following cases against the types and inputs your application uses.
 | Hash IDs | Zero is not encoded on one output path, and nullable reference input can turn null into undefined. Verify reference clearing and boundary values |
 | decimal / ordinary bigint | Maps to GraphQL Int, which cannot return fractions or values outside its 32-bit range. Plan a representation that preserves the precision you need |
 | first | Does not automatically add LIMIT 1. Inspect returned row counts for large datasets |
-| update with noRefetch | Returns true only when changedRows is 1. An unchanged value and a missing row can both return false |
+| update with noRefetch | Returns true only when changedRows is 1. MySQL may return false for an unchanged value or a missing row; PostgreSQL returns true for one matched row even when unchanged |
 | Delete events | The payload contains identifying input, not the complete deleted row. Check requested fields and filters |
 | generator.gql.subscription | Setting this global option to false does not currently disable generation. Check table and mutation settings as well |
 

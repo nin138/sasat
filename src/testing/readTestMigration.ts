@@ -4,6 +4,7 @@ import { generateTestMigrationFile } from "@/cli/commands/generateTestMigrationF
 import { Console } from "@/cli/console.js";
 import { config, setConfig } from "@/config/config.js";
 import { MysqlClient } from "@/db/connectors/mysql/client.js";
+import { PostgresClient } from "../db/connectors/postgres/client.js";
 
 export async function readTestMigration() {
   let d = readTestMigFile();
@@ -12,9 +13,11 @@ export async function readTestMigration() {
     if (conf.migration.db) {
       setConfig({ db: conf.migration.db });
     }
-    const client = new MysqlClient({
-      ...(config().migration.db ?? config().db),
-    });
+    const settings = config().migration.db ?? config().db;
+    const client =
+      settings.dialect === "postgres"
+        ? new PostgresClient(settings)
+        : new MysqlClient(settings);
     await generateTestMigrationFile(client).catch(async (e) => {
       await client.release();
       Console.error(e);

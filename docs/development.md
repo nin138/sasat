@@ -22,7 +22,7 @@ yarn test:unit
 
 Make sure Yarn matches the configured version. If Corepack is already installed, `corepack enable` enables its package-manager shims. Manage dependencies with Yarn and keep yarn.lock consistent.
 
-Build output in dist includes ESM, CommonJS, and type declarations. The unit and HTTP smoke suites do not require MySQL or a local .env file.
+Build output in dist includes ESM, CommonJS, and type declarations. Both database drivers are devDependencies for repository testing and optional peers for applications. Their JavaScript remains external and loads on demand; their public option declarations are bundled with attribution in dist/licenses. The unit and HTTP smoke suites do not require a database or a local .env file.
 
 ## Validation commands
 
@@ -35,6 +35,8 @@ Build output in dist includes ESM, CommonJS, and type declarations. The unit and
 | `yarn test:unit test/servers.test.ts` | Start Apollo/Yoga and compare HTTP and schemas |
 | `yarn test:coverage` | Write coverage reports under coverage |
 | `yarn test:integration` | Run live MySQL integration tests |
+| `yarn test:package` | Check built ESM/CJS entry points and strict consumer types with neither driver, MySQL only, or PostgreSQL only installed; run build first |
+| `yarn test:integration:postgres` | Run live PostgreSQL integration tests |
 | `yarn test:integration:redis` | Run MySQL and Redis integration tests |
 | `yarn lint` | Run Biome lint |
 | `yarn biome check <changed-files>` | Check selected code without rewriting it |
@@ -97,6 +99,16 @@ TEST_DB_USER and TEST_DB_PASSWORD override the default root/empty-password conne
 
 Fixtures create uniquely named databases and clean them up after use. They cover real CRUD, query conditions, paging, context propagation, authentication boundaries, constraints, and CLI dry runs.
 
+For PostgreSQL:
+
+```sh
+docker compose up -d postgres
+yarn build
+TEST_PG_HOST=127.0.0.1 TEST_PG_PORT=5433 yarn test:integration:postgres
+```
+
+The Compose PostgreSQL service is for local development, uses trust authentication, and binds its host port to loopback. POSTGRES_PORT changes that host port. Without Compose, TEST_PG_PORT defaults to 5432. TEST_PG_USER defaults to postgres and TEST_PG_PASSWORD to an empty string. The test account needs CREATE/DROP DATABASE permissions and access to the postgres maintenance database. Tests use randomly named databases and remove them afterward; they do not migrate the application database. Build first because CLI and generated-code checks exercise distribution files. Inside dev, use TEST_PG_HOST=postgres and TEST_PG_PORT=5432.
+
 For Redis:
 
 ```sh
@@ -123,8 +135,8 @@ Apollo and Yoga retain their default error handling in comparison tests. For exa
 | SQL expressions and hydration | [runtime/dsl](../src/runtime/dsl) |
 | GraphQL selections | [gqlResolveInfoToField.ts](../src/runtime/gqlResolveInfoToField.ts) |
 | PubSub | [createPubSub.ts](../src/runtime/createPubSub.ts) |
-| Active database connectors | [getDbClient.ts](../src/db/getDbClient.ts), [connectors/mysql](../src/db/connectors/mysql) |
-| Generated examples and integration tests | [test/out](../test/out), [test/integration](../test/integration) |
+| Active database connectors | [getDbClient.ts](../src/db/getDbClient.ts), [connectors/mysql](../src/db/connectors/mysql), [connectors/postgres](../src/db/connectors/postgres) |
+| Generated examples and integration tests | [test/out](../test/out), [test/integration](../test/integration), [test/postgres](../test/postgres) |
 
 The connectors_v2 directory also exists, but the current public connection path uses connectors. Trace the active call path before choosing an implementation to change.
 
