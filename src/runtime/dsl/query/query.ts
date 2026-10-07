@@ -204,7 +204,7 @@ export type Identifier = {
 
 export type Literal = {
   kind: QueryNodeKind.Literal;
-  value: string | boolean | number | null;
+  value: string | boolean | number | bigint | null;
 };
 
 export type SortDirection = "ASC" | "DESC";

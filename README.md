@@ -179,7 +179,8 @@ Add database changes in new migrations rather than rewriting applied definitions
 - MySQL and PostgreSQL are supported. Database-specific SQL and native PostgreSQL types have [compatibility limits](docs/postgresql.md#schema-imports-and-boundaries).
 - `contextFields` supplies server-side input values. It does not automatically enforce tenant authorization for every operation.
 - Generation clears the old `__generated__` directory before writing new files. A failed run does not restore the previous output.
-- Decimal/bigint GraphQL types, zero/null Hash IDs, and bulk inserts with different field sets have known limitations. See [usage considerations](docs/runtime.md#limitations).
+- Decimal uses GraphQL `Decimal` / TypeScript `string`; bigint uses GraphQL `BigInt` / TypeScript `bigint`. Both use strings in GraphQL JSON. See [numeric types and upgrading](docs/numeric-types.md).
+- Check [usage considerations](docs/runtime.md#limitations) for Hash IDs, bulk inserts, and other runtime behavior.
 - A failed Redis publish does not undo an already completed database write.
 
 The package exports `sasat` for runtime APIs, `sasat/migration` for migration definitions, and `sasat/testing` for test-database helpers. ESM, CommonJS, and TypeScript declarations are provided.

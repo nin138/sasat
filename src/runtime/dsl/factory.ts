@@ -105,7 +105,7 @@ const paren = (expression: BooleanValueExpression): ParenthesisExpression => ({
   expression,
 });
 
-type StrOrNum = string | number;
+type StrOrNum = string | number | bigint;
 const In = (
   left: Value,
   right: StrOrNum[] | Query | RawExpression,
@@ -232,7 +232,7 @@ const join = (
   conditions,
 });
 
-type ValueType = string | boolean | number | null;
+type ValueType = string | boolean | number | bigint | null;
 const literal = (value: ValueType): Literal => ({
   kind: QueryNodeKind.Literal,
   value,

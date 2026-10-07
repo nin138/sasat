@@ -67,6 +67,8 @@ export abstract class SasatDBDatasource<
   protected abstract readonly primaryKeys: string[];
   protected abstract readonly identifyFields: string[];
   protected abstract readonly autoIncrementColumn?: string | undefined;
+  protected readonly autoIncrementBigInt: boolean = false;
+  protected readonly autoIncrementUnsigned: boolean = false;
 
   protected readonly sql: SqlGenerator;
   constructor(protected client: SQLExecutor = getDbClient()) {
@@ -105,9 +107,20 @@ export abstract class SasatDBDatasource<
     const sql = this.sql.create(dsl, this.tableInfo);
     const response = await this.client.rawCommand(sql);
     if (!this.autoIncrementColumn) return obj;
+    let insertId = this.autoIncrementBigInt
+      ? BigInt(response.insertId)
+      : response.insertId;
+    // mysql2 decodes OK-packet IDs as signed 64-bit integers. Only column
+    // metadata can distinguish unsigned IDs from explicitly inserted negative IDs.
+    if (
+      this.sql.dialect === "mysql" &&
+      this.autoIncrementUnsigned &&
+      insertId < 0
+    )
+      insertId = BigInt.asUintN(64, BigInt(insertId));
     return {
       ...obj,
-      [this.autoIncrementColumn]: response.insertId,
+      [this.autoIncrementColumn]: insertId,
     } as unknown as Entity;
   }
 

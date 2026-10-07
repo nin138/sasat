@@ -7,16 +7,14 @@ import {
   type QueryResponse,
   SQLTransaction,
 } from "../dbClient.js";
+import { normalizeInsertId } from "../numeric.js";
 
 // Preserve SQL date strings without changing pg's global type parsers.
 const typeOverrides = (parsers: typeof types) => ({
   getTypeParser(oid: number, format?: "text" | "binary") {
     if (format !== "binary" && oid === 20)
-      return (value: string) => {
-        const number = Number(value);
-        return Number.isSafeInteger(number) ? number : value;
-      };
-    if (format !== "binary" && [1082, 1114, 1184].includes(oid))
+      return (value: string) => BigInt(value);
+    if (format !== "binary" && [1700, 1082, 1114, 1184].includes(oid))
       return (value: string) => value;
     return parsers.getTypeParser(oid, format);
   },
@@ -27,9 +25,7 @@ function lastResult(result: QueryResult | QueryResult[]): QueryResult {
 }
 function commandResponse(result: QueryResult): CommandResponse {
   const id = result.rows[0]?.__sasat_insert_id;
-  const insertId = id == null ? 0 : Number(id);
-  if (!Number.isSafeInteger(insertId))
-    throw new Error("Inserted ID exceeds JavaScript's safe integer range");
+  const insertId = normalizeInsertId(id);
   return {
     insertId,
     affectedRows: result.rowCount ?? 0,

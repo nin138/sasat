@@ -225,3 +225,22 @@ test("isolates child indexes by parent, relation, and hydrate invocation", () =>
   expect(hydrate([...rows, ...rows], metadata)).toEqual(expected);
   expect(hydrate(rows, metadata)).toEqual(expected);
 });
+
+test("deduplicates bigint composite keys without colliding with string keys", () => {
+  const metadata = flatInfo(["tenant", "id"]);
+  expect(
+    hydrate(
+      [
+        { t__tenant: 1n, t__id: 9007199254740992n },
+        { t__tenant: 1n, t__id: 9007199254740993n },
+        { t__tenant: 1n, t__id: 9007199254740993n },
+        { t__tenant: "1", t__id: "9007199254740993" },
+      ],
+      metadata,
+    ),
+  ).toEqual([
+    { tenant: 1n, id: 9007199254740992n },
+    { tenant: 1n, id: 9007199254740993n },
+    { tenant: "1", id: "9007199254740993" },
+  ]);
+});

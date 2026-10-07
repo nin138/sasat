@@ -3,12 +3,14 @@ import type { GQLPrimitive } from "./gqlTypes.js";
 
 export const columnTypeToGqlPrimitive = (type: DBColumnTypes): GQLPrimitive => {
   switch (type) {
+    case DBColumnTypes.bigInt:
+      return "BigInt";
+    case DBColumnTypes.decimal:
+      return "Decimal";
     case DBColumnTypes.tinyInt:
     case DBColumnTypes.smallInt:
     case DBColumnTypes.mediumInt:
     case DBColumnTypes.int:
-    case DBColumnTypes.bigInt:
-    case DBColumnTypes.decimal:
     case DBColumnTypes.year:
       return "Int";
     case DBColumnTypes.float:

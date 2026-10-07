@@ -1,4 +1,6 @@
 /* eslint-disable */
+import {numericScalarResolvers} from "sasat";
+import {typeDefs,inputs} from "./typeDefs.js";
 import {query} from "./query.js";
 import {mutation} from "./mutation.js";
 import {subscription} from "./subscription.js";
@@ -7,7 +9,7 @@ import {UserHashId,PostHashId} from "../idEncoder.js";
 import {GQLContext} from "../context.js";
 import {PostDBDataSource} from "../dataSources/db/Post.js";
 import {UserDBDataSource} from "../dataSources/db/User.js";
-export const resolvers = {Query: query,Mutation: mutation,Subscription: subscription,...{User: {userId: (user: UserResult) => user.userId&&UserHashId.encode(user.userId),uPost: (user: UserResult,_args: unknown,context: GQLContext) => {if(user.uPost!==undefined)return user.uPost;
+export const resolvers = {...numericScalarResolvers(typeDefs,inputs),Query: query,Mutation: mutation,Subscription: subscription,...{User: {userId: (user: UserResult) => user.userId&&UserHashId.encode(user.userId),uPost: (user: UserResult,_args: unknown,context: GQLContext) => {if(user.uPost!==undefined)return user.uPost;
 const ds = new PostDBDataSource();
 const where = new UserDBDataSource().getRelationMap().uPost.condition({parent: user,childTableAlias: 't0',context});
 return ds.find(undefined,{where},context);},vP: (user: UserResult,_args: unknown,context: GQLContext) => {if(user.vP!==undefined)return user.vP;

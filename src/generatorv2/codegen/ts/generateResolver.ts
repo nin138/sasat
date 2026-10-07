@@ -24,6 +24,15 @@ import { tsFileNames } from "./tsFileNames.js";
 export const generateResolver = (root: RootNode): TsFile => {
   const hasSubscription = root.subscriptions.some((it) => it.gqlEnabled);
   const properties = [
+    tsg.spreadAssign(
+      tsg
+        .identifier("numericScalarResolvers")
+        .importFrom("sasat")
+        .call(
+          tsg.identifier("typeDefs").importFrom("./typeDefs"),
+          tsg.identifier("inputs").importFrom("./typeDefs"),
+        ),
+    ),
     tsg.propertyAssign("Query", tsg.identifier("query").importFrom("./query")),
     tsg.propertyAssign(
       "Mutation",

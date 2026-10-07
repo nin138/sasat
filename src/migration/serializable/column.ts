@@ -66,7 +66,11 @@ export class BaseColumn implements Column {
   }
 
   serialize(): SerializedColumn {
-    return JSON.parse(JSON.stringify(this.data));
+    return JSON.parse(
+      JSON.stringify(this.data, (_key, value) =>
+        typeof value === "bigint" ? String(value) : value,
+      ),
+    );
   }
 
   toSql(): string {

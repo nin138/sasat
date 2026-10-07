@@ -1,4 +1,5 @@
 import type { TypeFieldDefinition } from "../generatorv2/codegen/ts/scripts/typeDefinition.js";
+import { numericScalarResolvers } from "./numericScalars.js";
 
 type TypeDef = Record<string, TypeFieldDefinition>;
 
@@ -37,5 +38,8 @@ export const createTypeDef = (
   const input = Object.entries(inputs).map(([type, fields]) =>
     makeTypedefString(type, fields, "input"),
   );
-  return types.join("\n") + input.join("\n");
+  const scalars = Object.keys(numericScalarResolvers(typeDefs, inputs))
+    .map((name) => `scalar ${name}\n`)
+    .join("");
+  return scalars + types.join("\n") + input.join("\n");
 };

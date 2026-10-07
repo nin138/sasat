@@ -68,5 +68,12 @@ export type {
   SQLExecutor,
   SQLTransaction,
 } from "./db/connectors/dbClient.js";
+export { makeBigIntIdEncoder } from "./runtime/id.js";
+
+export {
+  BigIntScalar,
+  DecimalScalar,
+  numericScalarResolvers,
+} from "./runtime/numericScalars.js";
 // export {PagingOption} from "./runtime/sql/runQuery.js";
 export { pagingOption } from "./runtime/pagingOption.js";

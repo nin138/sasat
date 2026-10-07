@@ -30,7 +30,15 @@ const rowToObjs = (row: ResultRow): ParsedObjs => {
 const getUnique = (obj: Entity, info: QueryResolveInfo) =>
   info.keyAliases.length === 1
     ? obj[info.keyAliases[0]]
-    : JSON.stringify(info.keyAliases.map((key) => obj[key]));
+    : JSON.stringify(
+        info.keyAliases.map((key) => {
+          const value = obj[key];
+          return [
+            typeof value,
+            typeof value === "bigint" ? String(value) : value,
+          ];
+        }),
+      );
 
 const execTable = (
   info: QueryResolveInfo,

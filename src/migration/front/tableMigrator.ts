@@ -28,7 +28,10 @@ export interface MigrationTable extends Table {
   dropColumn(columnName: string): MigrationTable;
   addForeignKey(reference: Reference): MigrationTable;
   changeColumnType(columnName: string, type: DBType): MigrationTable;
-  setDefault(columnName: string, value: string | number | null): MigrationTable;
+  setDefault(
+    columnName: string,
+    value: string | number | bigint | null,
+  ): MigrationTable;
   enableGQL(): MigrationTable;
   setGQLOption(option: GQLOption): MigrationTable;
   addGQLQuery(...queries: GQLQuery[]): MigrationTable;
@@ -181,7 +184,7 @@ export class TableMigrator implements MigrationTable {
 
   setDefault(
     columnName: string,
-    value: string | number | null,
+    value: string | number | bigint | null,
   ): MigrationTable {
     // ALTER ... SET DEFAULT
     this.table.setDefault(columnName, value);

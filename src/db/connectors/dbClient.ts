@@ -3,12 +3,12 @@ import { createSqlGenerator, type SqlGenerator } from "../sqlGenerator.js";
 
 export type QueryResponse = Array<{ [key: string]: SqlValueType }>;
 export interface CommandResponse {
-  insertId: number;
+  insertId: number | bigint;
   affectedRows: number;
   changedRows: number;
 }
 
-export type SqlValueType = string | number | boolean | null;
+export type SqlValueType = string | number | bigint | boolean | null;
 
 export interface SQLExecutor {
   readonly dialect?: DatabaseDialect;

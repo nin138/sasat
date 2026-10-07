@@ -53,7 +53,7 @@ export function createSqlCreator(generator: SqlGenerator) {
     setDefault: (
       table: string,
       column: string,
-      value: string | number | null,
+      value: string | number | bigint | null,
     ): string =>
       `ALTER TABLE ${generator.dialect === "postgres" ? generator.escapeId(table) : table} ALTER ${generator.dialect === "postgres" ? generator.escapeId(column) : column} SET DEFAULT ${generator.escape(value)}`,
   });

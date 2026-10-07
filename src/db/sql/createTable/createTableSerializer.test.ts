@@ -38,7 +38,7 @@ test("parses decimal precision and scale", () => {
   expect(table.columns[0]).toMatchObject({
     length: 10,
     scale: 2,
-    default: 1.25,
+    default: "1.25",
   });
 });
 
@@ -79,4 +79,14 @@ test("normalizes numeric field names and parses timestamp options", () => {
     defaultCurrentTimeStamp: true,
     onUpdateCurrentTimeStamp: true,
   });
+});
+
+test("imports bigint and decimal defaults without converting through number", () => {
+  const table = serializeCreateTable(
+    "CREATE TABLE exact_values (id bigint DEFAULT 9007199254740993, amount decimal(38,18) DEFAULT 12345678901234567890.123456789012345678)",
+  );
+  expect(table.columns.map((column) => column.default)).toEqual([
+    "9007199254740993",
+    "12345678901234567890.123456789012345678",
+  ]);
 });

@@ -101,7 +101,10 @@ export abstract class ColumnBuilder extends ColumnBuilderBase {
         zerofill: this._zerofill,
         signed: this._signed,
         autoIncrement: this._autoIncrement,
-        default: this._default,
+        default:
+          typeof this._default === "bigint"
+            ? String(this._default)
+            : this._default,
         defaultCurrentTimeStamp: this._defaultCurrentTimeStamp,
         onUpdateCurrentTimeStamp: this._onUpdateCurrentTimeStamp,
         option: this._option,
@@ -154,7 +157,7 @@ export class NumberColumnBuilder extends ColumnBuilder {
     this._zerofill = true;
     return this;
   }
-  default(value: number | null | undefined): this {
+  default(value: number | string | bigint | null | undefined): this {
     this._default = value;
     return this;
   }

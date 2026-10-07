@@ -22,6 +22,7 @@ import { createPubSub } from "../runtime/createPubSub.js";
 import { createTypeDef } from "../runtime/createTypeDef.js";
 import { makeNumberIdEncoder } from "../runtime/id.js";
 import { makeResolver } from "../runtime/makeResolver.js";
+import { numericScalarResolvers } from "../runtime/numericScalars.js";
 import { publishAfterWrite } from "../runtime/publishAfterWrite.js";
 import { pick } from "../runtime/util.js";
 import { CodeGen_v2 } from "./codegen_v2.js";
@@ -287,6 +288,8 @@ test("generated relation resolvers use the owning relation map and GraphQL conte
   runInNewContext(code.outputText, {
     exports,
     require: (name: string) => {
+      if (name === "sasat") return { numericScalarResolvers };
+      if (name.includes("typeDefs")) return { typeDefs: {}, inputs: {} };
       if (name.includes("dataSources/db/User")) return { UserDBDataSource };
       if (name.includes("dataSources/db/Post")) return { PostDBDataSource };
       if (

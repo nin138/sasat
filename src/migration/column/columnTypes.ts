@@ -58,14 +58,16 @@ export type DBDateTypes =
 
 export const columnTypeToTsType = (type: DBColumnTypes): string => {
   switch (type) {
+    case DBColumnTypes.bigInt:
+      return "bigint";
+    case DBColumnTypes.decimal:
+      return "string";
     case DBColumnTypes.tinyInt:
     case DBColumnTypes.smallInt:
     case DBColumnTypes.mediumInt:
     case DBColumnTypes.int:
-    case DBColumnTypes.bigInt:
     case DBColumnTypes.float:
     case DBColumnTypes.double:
-    case DBColumnTypes.decimal:
     case DBColumnTypes.year:
       return "number";
     case DBColumnTypes.char:

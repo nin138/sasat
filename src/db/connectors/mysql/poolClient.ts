@@ -7,6 +7,7 @@ import {
   type QueryResponse,
   type SQLTransaction,
 } from "../dbClient.js";
+import { mysqlNumericOptions, normalizeMysqlResult } from "./numeric.js";
 import { MySqlTransaction } from "./transaction.js";
 
 export class MysqlPoolClient extends DBClient {
@@ -22,7 +23,12 @@ export class MysqlPoolClient extends DBClient {
   private getPool(): Promise<Pool> {
     if (this._released) throw new Error("Database client has been released");
     this.pool ??= loadDriver("mysql2", () => import("mysql2/promise")).then(
-      ({ createPool }) => createPool({ dateStrings: true, ...this.poolOption }),
+      ({ createPool }) =>
+        createPool({
+          dateStrings: true,
+          ...mysqlNumericOptions,
+          ...this.poolOption,
+        }),
     );
     return this.pool;
   }
@@ -33,9 +39,11 @@ export class MysqlPoolClient extends DBClient {
       "mysql2",
       () => import("mysql2/promise"),
     );
+    const { dialect: _dialect, ...connectionConfig } = config().db;
     const connection = await createConnection({
-      ...config().db,
+      ...connectionConfig,
       dateStrings: true,
+      ...mysqlNumericOptions,
       ...this.poolOption,
     });
     try {
@@ -57,8 +65,6 @@ export class MysqlPoolClient extends DBClient {
   protected async execSql(
     sql: string,
   ): Promise<QueryResponse | CommandResponse> {
-    return (await (await this.getPool()).query(sql))[0] as
-      | QueryResponse
-      | CommandResponse;
+    return normalizeMysqlResult((await (await this.getPool()).query(sql))[0]);
   }
 }

@@ -2,6 +2,8 @@ import type { SqlValueType } from "../../../../db/connectors/dbClient.js";
 import { type TsExpression, tsg } from "../../../../tsg/index.js";
 
 export const sqlValueToTsExpression = (value: SqlValueType): TsExpression => {
+  if (typeof value === "bigint")
+    return tsg.identifier("BigInt").call(tsg.string(String(value)));
   if (typeof value === "string") {
     return tsg.string(value);
   }

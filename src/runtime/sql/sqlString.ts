@@ -24,7 +24,11 @@ const postgresEscape = (value: unknown): string => {
 function strings(dialect: DatabaseDialect) {
   return {
     escape: (value: unknown): string =>
-      dialect === "postgres" ? postgresEscape(value) : pkg.escape(value, true),
+      typeof value === "bigint"
+        ? String(value)
+        : dialect === "postgres"
+          ? postgresEscape(value)
+          : pkg.escape(value, true),
     escapeId: (name: string): string => {
       if (dialect !== "postgres") return pkg.escapeId(name);
       if (name.includes("\0"))

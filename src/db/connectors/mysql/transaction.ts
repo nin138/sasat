@@ -5,6 +5,7 @@ import {
   type QueryResponse,
   SQLTransaction,
 } from "../dbClient.js";
+import { normalizeMysqlResult } from "./numeric.js";
 
 export class MySqlTransaction extends SQLTransaction {
   constructor(
@@ -33,8 +34,6 @@ export class MySqlTransaction extends SQLTransaction {
   protected async execSql(
     sql: string,
   ): Promise<QueryResponse | CommandResponse> {
-    return (await this.connection.query(sql))[0] as
-      | QueryResponse
-      | CommandResponse;
+    return normalizeMysqlResult((await this.connection.query(sql))[0]);
   }
 }

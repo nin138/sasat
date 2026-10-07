@@ -65,7 +65,11 @@ export async function readPostgresSchema(
       if (/^NULL(?:::.*)?$/i.test(expression)) value = null;
       else if (expression === "true" || expression === "false")
         value = expression === "true";
-      else if (/^-?\d+(\.\d+)?$/.test(expression)) value = Number(expression);
+      else if (/^-?\d+(\.\d+)?$/.test(expression))
+        value =
+          type === DBColumnTypes.bigInt || type === DBColumnTypes.decimal
+            ? expression
+            : Number(expression);
       else {
         const quoted = expression.match(/^'((?:''|[^'])*)'(?:::.*)?$/s);
         if (!quoted)

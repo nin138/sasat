@@ -1,4 +1,5 @@
 import { Console } from "../../../cli/console.js";
+import { columnTypeToTsType } from "../../../migration/column/columnTypes.js";
 import { type GQLQuery, getArgs } from "../../../migration/data/GQLOption.js";
 import { nonNullable } from "../../../runtime/util.js";
 import {
@@ -82,13 +83,14 @@ const makeGQLQuery = (
           makeMiddlewares(entity, query),
         ].filter(nonNullable),
       )
-      .typeArgs(...makeTypeArgs(args)),
+      .typeArgs(...makeTypeArgs(args, getHashIdArgs(entity, query) ?? [])),
   );
 };
 
 type HashIdArg = {
   name: string;
   encoder: string;
+  tsType: string;
 };
 
 const getHashIdArgs = (
@@ -102,6 +104,7 @@ const getHashIdArgs = (
     if (hashIDs.length === 0) return null;
     return hashIDs.map((it) => ({
       encoder: it.hashId!.encoder,
+      tsType: columnTypeToTsType(it.dbType),
       name: it.fieldName,
     }));
   }
@@ -111,13 +114,12 @@ const getHashIdArgs = (
     field: FieldQueryConditionValue,
   ) => {
     const columnName = field.column;
-    const hashIdOpt = entity.fields.find(
-      (e) => e.columnName === columnName,
-    )?.hashId;
-    if (!hashIdOpt) return null;
+    const column = entity.fields.find((e) => e.columnName === columnName);
+    if (!column?.hashId) return null;
     return {
       name: arg.name,
-      encoder: hashIdOpt.encoder,
+      encoder: column.hashId.encoder,
+      tsType: columnTypeToTsType(column.dbType),
     };
   };
   return query.conditions
@@ -176,14 +178,19 @@ const makeMiddlewares = (entity: EntityNode, query: GQLQuery) => {
   return tsg.array([hashId, ...middlewares]);
 };
 
-const makeTypeArgs = (args: ArgQueryConditionValue[]): TsType[] => {
+const makeTypeArgs = (
+  args: ArgQueryConditionValue[],
+  hashIdArgs: HashIdArg[],
+): TsType[] => {
   let hashIds = false;
   const getType = (arg: ArgQueryConditionValue, checkHashId: boolean) => {
     if (arg.type === "PagingOption")
       return tsg.typeRef(arg.type).importFrom("sasat");
     if (checkHashId && arg.type === "ID") {
       hashIds = true;
-      return tsg.typeRef("number");
+      return tsg.typeRef(
+        hashIdArgs.find((it) => it.name === arg.name)?.tsType ?? "number",
+      );
     }
     return tsg.typeRef(toTsType(arg.type));
   };

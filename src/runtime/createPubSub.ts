@@ -1,5 +1,6 @@
 import { PubSub, type PubSubEngine } from "graphql-subscriptions";
 import { Redis } from "ioredis";
+import { parsePubSubPayload, serializePubSubPayload } from "./pubSubPayload.js";
 
 export type PubSubOptions = {
   backend?: "local" | "redis";
@@ -47,7 +48,7 @@ class SharedRedisPubSub extends PubSub<Record<string, unknown>> {
     this.subscriber.on("message", (channel: string, message: string) => {
       let payload: unknown;
       try {
-        payload = JSON.parse(message);
+        payload = parsePubSubPayload(message);
       } catch {
         console.error("Redis PubSub received invalid JSON");
         return;
@@ -59,7 +60,7 @@ class SharedRedisPubSub extends PubSub<Record<string, unknown>> {
   override async publish(trigger: string, payload: unknown): Promise<void> {
     await this.publisher.publish(
       this.prefix + trigger,
-      JSON.stringify(payload),
+      serializePubSubPayload(payload),
     );
   }
 

@@ -426,8 +426,8 @@ test("preserves PostgreSQL scalar values without unsafe bigint rounding", async 
   );
   assert.deepEqual(row, {
     active: true,
-    small: 123,
-    large: "9223372036854775807",
+    small: 123n,
+    large: 9223372036854775807n,
     amount: "1.25",
     date: "2026-10-07",
   });

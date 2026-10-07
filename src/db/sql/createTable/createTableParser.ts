@@ -114,6 +114,11 @@ export class CreateTableParser {
       const next = tokens[defaultTokenIndex + 1];
       if (next.kind === "NULL") return undefined;
       if (
+        (gqlType === "BigInt" || gqlType === "Decimal") &&
+        (next.kind === TokenKind.Number || next.kind === TokenKind.String)
+      )
+        return next.value;
+      if (
         next.kind === TokenKind.Number ||
         gqlType === "Float" ||
         gqlType === "Int"

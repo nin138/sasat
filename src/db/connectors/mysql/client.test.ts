@@ -28,6 +28,9 @@ test("formats tagged queries, logs SQL, unwraps results, and closes connections"
   expect(c.end).toHaveBeenCalledTimes(1);
   expect(createConnection).toHaveBeenCalledWith({
     dateStrings: true,
+    supportBigNumbers: true,
+    bigNumberStrings: true,
+    typeCast: expect.any(Function),
     database: "test",
   });
 });

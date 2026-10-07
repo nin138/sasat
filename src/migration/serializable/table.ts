@@ -200,7 +200,7 @@ export class TableHandler implements Table {
     this.updateColumn(columnName, { type });
   }
 
-  setDefault(columnName: string, value: string | number | null): void {
+  setDefault(columnName: string, value: string | number | bigint | null): void {
     this.updateColumn(columnName, { default: value });
   }
 
