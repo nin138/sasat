@@ -21,10 +21,14 @@ import type {
 import { hydrate, type ResultRow } from "./dsl/query/sql/hydrate.js";
 import type { Fields } from "./field.js";
 import {
+  createFirstQuery,
   createPagingFieldQuery,
   createQuery,
   type PagingOption,
 } from "./sql/runQuery.js";
+
+// Keep first routed through overridable find; the marker is private to this module.
+const firstQuery = Symbol("firstQuery");
 
 export type EntityType = Record<string, SqlValueType>;
 export type EntityResult<Entity, Identifiable> = Identifiable & Partial<Entity>;
@@ -219,7 +223,8 @@ export abstract class SasatDBDatasource<
     option?: QueryOptions,
     context?: unknown,
   ): Promise<QueryResult | null> {
-    const result = await this.find(fields, option, context);
+    const options = { ...option, [firstQuery]: true };
+    const result = await this.find(fields, options, context);
     if (result.length !== 0) return result[0];
     return null;
   }
@@ -229,7 +234,12 @@ export abstract class SasatDBDatasource<
     options?: QueryOptions,
     context?: unknown,
   ): Promise<QueryResult[]> {
-    const query = createQuery(
+    const buildQuery = (options as QueryOptions & { [firstQuery]?: boolean })?.[
+      firstQuery
+    ]
+      ? createFirstQuery
+      : createQuery;
+    const query = buildQuery(
       this.tableName,
       fields as Fields<unknown>,
       options,

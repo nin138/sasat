@@ -65,7 +65,6 @@ const makeMutationBody = (node: MutationNode) => {
   return makeDeleteMutationBody(node);
 };
 
-// TODO refetch should use resolveInfo for avoiding n+1
 const makeResolver = tsg.identifier("makeResolver").importFrom("sasat");
 const context = tsg
   .typeRef("GQLContext")
@@ -74,7 +73,12 @@ const makeResolverArgs = (node: MutationNode) =>
   [
     tsg.parameter("_"),
     tsg.parameter(`{${node.entityName.lowerCase()}}`),
-    node.contextFields.length === 0 ? null : tsg.parameter("context"),
+    node.contextFields.length !== 0 ||
+    node.refetch ||
+    (node.mutationType === "update" && node.subscription)
+      ? tsg.parameter("context")
+      : null,
+    node.refetch ? tsg.parameter("info") : null,
   ].filter(nonNullable);
 
 const makeCreateMutationBody = (node: MutationNode) => {
@@ -109,7 +113,45 @@ const makeCreateMutationBody = (node: MutationNode) => {
 };
 
 const makeRefetched = (node: MutationNode) => {
+  const fields = tsg.identifier("fields");
   return [
+    ...(node.refetch
+      ? [
+          tsg.variable(
+            "const",
+            fields,
+            tsg.ternary(
+              tsg.identifier("info"),
+              tsg
+                .identifier("gqlResolveInfoToField")
+                .importFrom("sasat")
+                .call(tsg.identifier("info"))
+                .as(makeTypeRef(node.entityName, "fields", "GENERATED")),
+              tsg.identifier("undefined"),
+            ),
+          ),
+          ...(node.subscription
+            ? [
+                tsg.if(
+                  fields,
+                  tsg.block(
+                    tsg
+                      .binary(
+                        fields.property("fields"),
+                        "=",
+                        tsg.array(
+                          node.entity.fields.map((field) =>
+                            tsg.string(field.fieldName),
+                          ),
+                        ),
+                      )
+                      .toStatement(),
+                  ),
+                ),
+              ]
+            : []),
+        ]
+      : []),
     tsg.variable(
       "const",
       ident,
@@ -131,7 +173,12 @@ const makeRefetched = (node: MutationNode) => {
       tsg.await(
         ds
           .property(makeFindQueryName(node.identifyFields))
-          .call(...node.identifyFields.map((it) => ident.property(it))),
+          .call(
+            ...node.identifyFields.map((it) => ident.property(it)),
+            node.refetch ? fields : tsg.identifier("undefined"),
+            tsg.identifier("undefined"),
+            tsg.identifier("context"),
+          ),
       ),
     ),
   ];
@@ -153,9 +200,28 @@ const makePublishCall = (node: MutationNode, identifier: Identifier) => {
               .identifier(publish)
               .importFrom("./subscription")
               .call(
-                identifier.as(
-                  makeTypeRef(node.entityName, "entity", "GENERATED"),
-                ),
+                tsg
+                  .parenthesis(
+                    identifier === refetched
+                      ? tsg.ternary(
+                          identifier,
+                          tsg
+                            .identifier("pick")
+                            .importFrom("sasat")
+                            .call(
+                              identifier,
+                              tsg.array(
+                                node.entity.fields.map((field) =>
+                                  tsg.string(field.fieldName),
+                                ),
+                              ),
+                            ),
+                          identifier,
+                        )
+                      : identifier,
+                  )
+                  .as(KeywordTypeNode.unknown)
+                  .as(makeTypeRef(node.entityName, "entity", "GENERATED")),
               ),
           ),
         ),
@@ -208,7 +274,18 @@ const makeUpdateMutationBody = (node: MutationNode): Block => {
         ),
     ),
   );
-  const statements: TsStatement[] = [dsV, resultV];
+  const statements: TsStatement[] = [
+    dsV,
+    node.refetch
+      ? tsg
+          .await(
+            ds
+              .property("update")
+              .call(makeDatasourceParam(entity, node.contextFields)),
+          )
+          .toStatement()
+      : resultV,
+  ];
   if (!node.refetch && !node.subscription) {
     return tsg.block(...statements, tsg.return(result));
   }

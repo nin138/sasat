@@ -201,3 +201,71 @@ export const createPagingFieldQuery = ({
     },
   };
 };
+
+/** Restrict the parent identity, never the rows used to hydrate its children. */
+export const createFirstQuery = (
+  tableName: string,
+  fields: Fields<unknown>,
+  options: QueryOptions | undefined,
+  tableInfo: TableInfo,
+  relationMap: RelationMap,
+  context?: unknown,
+): Query => {
+  // Validate before capping: an invalid caller limit must not become a valid 1.
+  for (const [name, value] of [
+    ["LIMIT", options?.limit],
+    ["OFFSET", options?.offset],
+  ] as const) {
+    if (value != null && (!Number.isSafeInteger(value) || value < 0))
+      throw new Error(name + " must be a non-negative safe integer");
+  }
+  const query = createQuery(
+    tableName,
+    fields,
+    options,
+    tableInfo,
+    relationMap,
+    context,
+  );
+  const limit = options?.limit === 0 ? 0 : 1;
+  if (query.from.joins.length === 0 && !query.join?.length)
+    return { ...query, limit };
+  const aliases = new Set<string>();
+  const collect = (table: QueryTable) => {
+    aliases.add(table.alias);
+    table.joins.forEach((join) => collect(join.table));
+  };
+  collect(query.from);
+  query.join?.forEach((join) => collect(join.table));
+  let alias = "sasat_first";
+  while (aliases.has(alias)) alias += "_";
+  const keys = tableInfo[tableName].identifiableKeys;
+  const parent: Query = {
+    ...query,
+    select: [
+      ...query.select,
+      ...keys.map((key) => QExpr.field(query.from.alias, key)),
+    ],
+    limit,
+  };
+  return {
+    ...query,
+    limit: undefined,
+    offset: undefined,
+    join: [
+      ...(query.join ?? []),
+      QExpr.join(
+        { ...QExpr.table(tableName, [], alias), subquery: true, query: parent },
+        QExpr.and(
+          ...keys.map((key) =>
+            QExpr.eq(
+              QExpr.field(query.from.alias, key),
+              QExpr.field(alias, key),
+            ),
+          ),
+        ),
+        "INNER",
+      ),
+    ],
+  };
+};

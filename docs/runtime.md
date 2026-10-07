@@ -80,7 +80,7 @@ Each built-in client and its transactions share a fixed SQL generator at `client
 
 findPageable combines paging.where and options.where with AND before limiting the parent rows. paging.sort takes precedence, and related rows are fetched after selecting the parent page. A page size of zero returns no rows. Invalid limits and offsets, including negative, fractional, or non-finite values, are rejected. Set any business-level maximum page size in your application.
 
-GraphQL selection handling supports named/inline fragments, multiple fieldNodes, skip/include directives, and type conditions. Additional relationship resolution and mutation refetches can issue more queries; inspect query counts for your application's requests.
+GraphQL selection handling supports named/inline fragments, multiple fieldNodes, skip/include directives, and type conditions. Generated mutation refetches now use the selection and request context, including selected relations. See [query performance](query-performance.md) for first-row selection, notification payloads, measurements, and regeneration. Custom relationship resolution can still issue additional queries.
 
 ## Receiving subscriptions
 
@@ -152,7 +152,7 @@ Check the following cases against the types and inputs your application uses.
 | createBulk | Combines fields from all rows in one INSERT. Missing/undefined values use database DEFAULT; explicit null uses NULL. Normal database constraints and upsert rules still apply. No automatic batch splitting |
 | Hash IDs | Zero is encoded normally; null clears nullable references and omission leaves them unchanged. Undecodable IDs return BAD_USER_INPUT. See [Hash IDs and upgrading](hash-ids.md) |
 | decimal / ordinary bigint | GraphQL `Decimal` / `BigInt`; TypeScript `string` / `bigint`. Both use strings in GraphQL JSON. See [numeric types](numeric-types.md) for input rules and upgrading |
-| first | Does not automatically add LIMIT 1. Inspect returned row counts for large datasets |
+| first | Selects one parent before hydrating its matching children; limit 0 returns null. See [query performance](query-performance.md) for joins, offsets, refetches, and measurements |
 | update with noRefetch | Returns true only when changedRows is 1. MySQL may return false for an unchanged value or a missing row; PostgreSQL returns true for one matched row even when unchanged |
 | Delete events | The payload contains identifying input, not the complete deleted row. Check requested fields and filters |
 | generator.gql.subscription | Set false and regenerate to disable generated subscriptions and mutation publishing globally. Existing custom pubsub.ts is preserved |

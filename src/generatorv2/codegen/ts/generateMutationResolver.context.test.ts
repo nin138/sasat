@@ -7,6 +7,7 @@ import { StoreMigrator } from "../../../migration/front/storeMigrator.js";
 import { Mutations } from "../../../migration/makeMutaion.js";
 import { Queries } from "../../../migration/makeQuery.js";
 import { createTypeDef } from "../../../runtime/createTypeDef.js";
+import { gqlResolveInfoToField } from "../../../runtime/gqlResolveInfoToField.js";
 import { makeNumberIdEncoder } from "../../../runtime/id.js";
 import { makeResolver } from "../../../runtime/makeResolver.js";
 import { publishAfterWrite } from "../../../runtime/publishAfterWrite.js";
@@ -91,7 +92,13 @@ function setup({
     {
       exports,
       require: (name: string) => {
-        if (name === "sasat") return { makeResolver, pick, publishAfterWrite };
+        if (name === "sasat")
+          return {
+            makeResolver,
+            pick,
+            publishAfterWrite,
+            gqlResolveInfoToField,
+          };
         if (/dataSources\/db\/Document(\.js)?$/.test(name))
           return {
             DocumentDBDataSource: class {
@@ -140,7 +147,10 @@ test.each(
   expect(s.create).toHaveBeenCalledWith({ title: "input", [s.field]: 42 });
   expect(input[s.field]).toBe(999);
   expect(result).toEqual(options.refetch ? s.fetched : saved);
-  if (options.refetch) expect(s.findById).toHaveBeenCalledWith(7);
+  if (options.refetch)
+    expect(s.findById).toHaveBeenCalledWith(7, undefined, undefined, {
+      currentTenant: 42,
+    });
   else expect(s.findById).not.toHaveBeenCalled();
   if (options.subscription)
     expect(s.publishDocumentCreated).toHaveBeenCalledWith(
@@ -301,5 +311,44 @@ test.each(["create", "update"])(
     expect(s.create).not.toHaveBeenCalled();
     expect(s.update).not.toHaveBeenCalled();
     expect(s.findById).not.toHaveBeenCalled();
+  },
+);
+
+test.each([false, true])(
+  "mutation refetch passes selections and context (subscription=%s)",
+  async (subscription) => {
+    const s = setup({ refetch: true, subscription });
+    const exports = {} as {
+      typeDefs: Parameters<typeof createTypeDef>[0];
+      inputs: Parameters<typeof createTypeDef>[1];
+    };
+    runInNewContext(
+      ts.transpileModule(generateTypeDefs(s.root).toString(), {
+        compilerOptions: { module: ts.ModuleKind.CommonJS },
+      }).outputText,
+      { exports },
+    );
+    const schema = buildSchema(createTypeDef(exports.typeDefs, exports.inputs));
+    const result = await graphql({
+      schema,
+      source:
+        'mutation { createDocument(document:{title:"input"}) { alias:title } }',
+      contextValue: { currentTenant: 42 },
+      rootValue: {
+        createDocument: (args: unknown, context: unknown, info: unknown) =>
+          s.mutation.createDocument(null, args, context, info),
+      },
+    });
+    expect(result.errors).toBeUndefined();
+    expect(s.findById).toHaveBeenCalledWith(
+      7,
+      {
+        fields: subscription ? ["id", "title", "tenantId"] : ["title"],
+        relations: {},
+        tableAlias: "t0",
+      },
+      undefined,
+      { currentTenant: 42 },
+    );
   },
 );

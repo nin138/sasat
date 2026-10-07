@@ -249,3 +249,66 @@ test.each(["mysql", "postgres"] as const)(
     ).toThrow("INSERT requires at least one row");
   },
 );
+
+test.each(["mysql", "postgres"] as const)(
+  "first bounds the SQL and preserves options (%s)",
+  async (dialect) => {
+    const { client } = fixture();
+    const users = new Users({ ...client, sql: createSqlGenerator(dialect) });
+    await users.first(undefined, {
+      limit: 50,
+      offset: 2,
+      sort: [q.sort(q.field("t0", "user_id"), "DESC")],
+      where: q.eq(q.field("t0", "active"), q.value(true)),
+      lock: "FOR UPDATE",
+    });
+    const sql = client.rawQuery.mock.calls[0][0];
+    expect(sql).toContain("LIMIT 1 OFFSET 2");
+    expect(sql).toContain("ORDER BY");
+    expect(sql).toContain("WHERE");
+    expect(sql).toContain("FOR UPDATE");
+    await users.first(undefined, { limit: 0 });
+    expect(client.rawQuery.mock.calls[1][0]).toContain("LIMIT 0");
+    for (const limit of [-1, NaN, Infinity, 0.5])
+      await expect(users.first(undefined, { limit })).rejects.toThrow(
+        "LIMIT must be",
+      );
+    for (const offset of [-1, NaN, Infinity, 0.5])
+      await expect(users.first(undefined, { offset })).rejects.toThrow(
+        "OFFSET must be",
+      );
+    expect(client.rawQuery).toHaveBeenCalledTimes(2);
+  },
+);
+
+test("first retains overridden find filters when delegating to the base query", async () => {
+  class ScopedUsers extends Users {
+    override find(...args: Parameters<Users["find"]>) {
+      const [fields, options, context] = args;
+      return super.find(
+        fields,
+        {
+          ...options,
+          where: q.and(
+            options?.where,
+            q.eq(q.field("t0", "active"), q.value(true)),
+          ),
+        },
+        context,
+      );
+    }
+  }
+  const { client } = fixture();
+  const users = new ScopedUsers(client);
+  const find = jest.spyOn(users, "find");
+  await users.first(
+    { fields: ["name"] },
+    { where: q.eq(q.field("t0", "user_id"), q.value(7)) },
+    { tenant: 42 },
+  );
+  expect(find).toHaveBeenCalledTimes(1);
+  expect(find.mock.calls[0][2]).toEqual({ tenant: 42 });
+  const sql = client.rawQuery.mock.calls[0][0];
+  expect(sql).toContain("LIMIT 1");
+  expect(sql).toContain("`t0`.`user_id`  = 7 AND `t0`.`active`  = true");
+});

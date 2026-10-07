@@ -236,7 +236,12 @@ test("generated mutations call overrides on the user datasource subclass", async
     exports.mutation.createUser(null, { user: { name: "input" } }, {}),
   ).resolves.toEqual(saved);
   expect(instances[0].create).toHaveBeenCalledWith({ name: "input" });
-  expect(instances[0].findById).toHaveBeenCalledWith(1);
+  expect(instances[0].findById).toHaveBeenCalledWith(
+    1,
+    undefined,
+    undefined,
+    {},
+  );
   expect(publishUserCreated).toHaveBeenCalledWith(saved);
   await expect(
     exports.mutation.updateUser(
@@ -246,7 +251,12 @@ test("generated mutations call overrides on the user datasource subclass", async
     ),
   ).resolves.toEqual(saved);
   expect(instances[1].update).toHaveBeenCalledWith({ id: 1, name: "updated" });
-  expect(instances[1].findById).toHaveBeenCalledWith(1);
+  expect(instances[1].findById).toHaveBeenCalledWith(
+    1,
+    undefined,
+    undefined,
+    {},
+  );
   await expect(
     exports.mutation.deleteUser(null, { user: { id: "1" } }, {}),
   ).resolves.toBe(true);

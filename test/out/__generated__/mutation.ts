@@ -2,12 +2,13 @@
 import {UserCreatable,UserIdentifiable,UserUpdatable,User} from "./entities/User.js";
 import {testMiddleware,hoge} from "../middlewares.js";
 import {GQLContext} from "../context.js";
-import {ResolverMiddleware,makeResolver,publishAfterWrite,CommandResponse,pick} from "sasat";
+import {ResolverMiddleware,makeResolver,publishAfterWrite,CommandResponse,pick,gqlResolveInfoToField} from "sasat";
 import {UserHashId,PostHashId} from "../idEncoder.js";
 import {PostCreatable,PostIdentifiable,PostUpdatable} from "./entities/Post.js";
 import {UserDBDataSource} from "../dataSources/db/User.js";
 import {publishUserCreated,publishUserUpdated} from "./subscription.js";
 import {PostDBDataSource} from "../dataSources/db/Post.js";
+import {PostFields} from "./fields.js";
 type UserCreateInput = {user: UserCreatable}
 const createUserMiddleware: Array<ResolverMiddleware<GQLContext,UserCreateInput>> = [testMiddleware,hoge];
 type GQLUserUpdateInput = {user: {userId: string;NNN?: string | null;nick?: string | null;foo?: string | null}}
@@ -24,18 +25,20 @@ const updatePostMiddleware: Array<ResolverMiddleware<GQLContext,PostUpdateInput,
 return args;}];
 export const mutation = {createUser: makeResolver<GQLContext,UserCreateInput>(async (_,{user}) => {const ds = new UserDBDataSource();
 const result = await ds.create(user);
-await publishAfterWrite('publishUserCreated',() => publishUserCreated(result as User));
-return result;},createUserMiddleware),updateUser: makeResolver<GQLContext,UserUpdateInput,GQLUserUpdateInput>(async (_,{user}) => {const ds = new UserDBDataSource();
+await publishAfterWrite('publishUserCreated',() => publishUserCreated((result) as unknown as User));
+return result;},createUserMiddleware),updateUser: makeResolver<GQLContext,UserUpdateInput,GQLUserUpdateInput>(async (_,{user},context) => {const ds = new UserDBDataSource();
 const result = await ds.update(user).then((it: CommandResponse): boolean => it.changedRows===1);
 const identifiable = pick(user,['userId']) as unknown as UserIdentifiable;
-const fetched = await ds.findByUserId(identifiable.userId);
-await publishAfterWrite('publishUserUpdated',() => publishUserUpdated(fetched as User));
-return result;},updateUserMiddleware),createPost: makeResolver<GQLContext,PostCreateInput,GQLPostCreateInput>(async (_,{post}) => {const ds = new PostDBDataSource();
+const fetched = await ds.findByUserId(identifiable.userId,undefined,undefined,context);
+await publishAfterWrite('publishUserUpdated',() => publishUserUpdated(((fetched)?pick(fetched,['userId','NNN','nick','createdAt','updatedAt','foo']):fetched) as unknown as User));
+return result;},updateUserMiddleware),createPost: makeResolver<GQLContext,PostCreateInput,GQLPostCreateInput>(async (_,{post},context,info) => {const ds = new PostDBDataSource();
 const result = await ds.create(post);
+const fields = (info)?gqlResolveInfoToField(info) as PostFields:undefined;
 const identifiable = pick(result,['postId']) as unknown as PostIdentifiable;
-const fetched = await ds.findByPostId(identifiable.postId);
-return fetched;},createPostMiddleware),updatePost: makeResolver<GQLContext,PostUpdateInput,GQLPostUpdateInput>(async (_,{post}) => {const ds = new PostDBDataSource();
-const result = await ds.update(post).then((it: CommandResponse): boolean => it.changedRows===1);
+const fetched = await ds.findByPostId(identifiable.postId,fields,undefined,context);
+return fetched;},createPostMiddleware),updatePost: makeResolver<GQLContext,PostUpdateInput,GQLPostUpdateInput>(async (_,{post},context,info) => {const ds = new PostDBDataSource();
+await ds.update(post);
+const fields = (info)?gqlResolveInfoToField(info) as PostFields:undefined;
 const identifiable = pick(post,['postId']) as unknown as PostIdentifiable;
-const fetched = await ds.findByPostId(identifiable.postId);
+const fetched = await ds.findByPostId(identifiable.postId,fields,undefined,context);
 return fetched;},updatePostMiddleware)};
