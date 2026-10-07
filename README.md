@@ -1,414 +1,187 @@
 # Sasat
-rdb migration based graphql source code generator.
-resolve relations without N + 1.
 
-## getting stared
-Requires Node.js 22 or later.
+**Generate TypeScript data sources and a GraphQL API from MySQL migration definitions.**
+
+Define tables, relationships, queries, and mutations in TypeScript. Use those definitions to apply database changes and generate application code, then extend the generated data sources and schema with your own logic.
+
+Sasat works with GraphQL Yoga and Apollo Server. Your application configures the HTTP server, authentication, authorization, and request context. Redis is optional and enables subscription events across processes.
+
+## Start here
+
+| Goal | Guide |
+| --- | --- |
+| Add Sasat to an application | Quick start below |
+| Understand the application structure | [Application structure and generated files](docs/architecture.md) |
+| Configure the CLI and code generation | [Configuration and migrations](docs/configuration.md) |
+| Add context, custom logic, or subscriptions | [Runtime APIs and customization](docs/runtime.md) |
+| Change your schema or update Sasat | [Application workflow](docs/application-workflow.md) |
+| Work on Sasat itself | [Contributor guide](docs/development.md) |
+
+## Quick start
+
+You need Node.js 22 or later, Yarn, and a running MySQL 8 instance. This example creates an application with a user registration and query API. Redis is not required.
+
+### 1. Install the packages
 
 ```sh
-$ npm i sasat
-$ npm run sasat init
+mkdir sasat-example
+cd sasat-example
+yarn init
+yarn add sasat graphql@^16 graphql-yoga@^5
+yarn add --dev typescript tsx @types/node
+yarn sasat init
 ```
 
-## commands
-```sh
-# make migration file
-$ npm sasat migration:create ${migration name}
+Add `"type": "module"` to your `package.json`. Create `tsconfig.json`:
 
-# generate file
-$ npm sasat generate
-
-# migrate
-$ npm sasat migrate
-```
-
-`sasat migrate --dry` previews pending SQL without creating the migration
-history table or applying migrations. With `--generateFiles`, dry runs also skip
-application code, `currentSchema.yml`, and `test.migration.json` generation.
-Migration sources are still compiled to `.mjs` to calculate the preview; use
-`--skipBuild` when those compiled files are already up to date.
-
-## config file
-`projectroot/sasat.yml`
-```yml
-migration:
-  dir:   # migration file dir
-  table: # migration table name
-  out:   # generate file output dir
-generator:
-  addJsExtToImportStatement: # add `.js` ext to import statement when this value is true
-db:
-  host: # if value starts with `$` read from environment variable. (e.g. $DB_HOST => process.env.DB_HOST)
-  port:
-  user:
-  password:
-  database:
-```
-
-## migration
-- 1_ create migration file `$npm sasat migration:create ${migration name}
-- 2_ edit migration file
-
-```typescript
-// sample migraiton
-import {
-  Queries,
-  SasatMigration,
-  MigrationStore,
-  Conditions,
-  Mutations,
-} from '../../src/index.js';
-
-export default class CreateUser implements SasatMigration {
-  up: (store: MigrationStore) => void = store => {
-    return store.createTable('user' /* tableName */, table => {
-      table.autoIncrementHashId('userId'); // create userId column primary key
-      table
-        .column('name')
-        .varchar(20)
-        .default('no name')
-        .notNull();
-      table
-        .column('nickName')
-        .varchar(20)
-        .nullable()
-        .unique();
-      table.createdAt().updatedAt();
-      table.enableGQL(); // enable Graphql
-      table.addGQLQuery(
-        Queries.primary(), // add query
-      );
-      table.addGQLMutation(
-        Mutations.create(), // add create mutation
-      );
-    });
-  };
-  down: (store: MigrationStore) => void = store => {
-    store.dropTable('user');
-  };
+```json
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "noEmit": true
+  },
+  "include": ["server.ts", "migrations/**/*.ts", "out/**/*.ts"]
 }
 ```
-- 3_ run `$ npm run sasat migrate -g`
-- 4_ add server file
-```typescript
-import { ApolloServer } from '@apollo/server';
-import { resolvers } from './out/__generated__/resolver.js';
-import { inputs, typeDefs } from './out/__generated__/typeDefs.js';
-import { createTypeDef } from 'sasat';
-import { startStandaloneServer } from '@apollo/server/standalone';
 
-const server = new ApolloServer<Context>({
-  typeDefs: createTypeDef(typeDefs, inputs),
-  resolvers,
-});
+### 2. Configure the database
 
-const { url } = await startStandaloneServer(server, { listen: { port: 4000 } });
-console.log(`🚀 Server ready at ${url}`);
+Create an empty database for this example. The normal `migrate` command does not create the database itself.
+
+```sql
+CREATE DATABASE sasat_example CHARACTER SET utf8mb4;
 ```
-- 5_ run server!
 
-## Using GraphQL Yoga
+Set `DB_USER` and `DB_PASSWORD` in your shell environment to the credentials of your MySQL account. Replace the generated `sasat.yml` with:
 
-Install Yoga in your application and use the generated schema and resolvers:
+```yaml
+db:
+  host: 127.0.0.1
+  port: 3306
+  user: $DB_USER
+  password: $DB_PASSWORD
+  database: sasat_example
+migration:
+  dir: migrations
+  table: __migrate__
+  out: out
+generator:
+  addJsExtToImportStatement: true
+```
+
+`$NAME` reads a process environment variable. Sasat does not load `.env` automatically. Run commands from the application directory containing `sasat.yml`, and adjust the host and port for your database. The CLI and application server both need the connection environment variables.
+
+### 3. Define a migration
 
 ```sh
-yarn add sasat graphql@^16 graphql-yoga@^5
-yarn add --dev tsx typescript
+yarn sasat migration:create createUser
 ```
 
-The following example assumes `migration.out: ./out` and generated files with
-`.js` import extensions. Add application context fields to the user-editable
-`out/context.ts`:
+Replace the contents of the new `migrations/<timestamp>createUser.ts` file with:
 
 ```typescript
-import type { BaseGQLContext } from './__generated__/context.js';
+import { Mutations, Queries } from 'sasat/migration';
+import type { MigrationStore, SasatMigration } from 'sasat/migration';
 
-export type GQLContext = BaseGQLContext & { requestId: string };
+export default class CreateUser implements SasatMigration {
+  up(store: MigrationStore): void {
+    store.createTable('user', table => {
+      table.autoIncrementHashId('userId');
+      table.column('name').varchar(100);
+      table.enableGQL();
+      table.addGQLQuery(Queries.primary(), Queries.paging('users'));
+      table.addGQLMutation(
+        Mutations.create({ subscription: true }),
+        Mutations.update({ noRefetch: true }),
+        Mutations.delete(),
+      );
+    });
+  }
+
+  down(store: MigrationStore): void {
+    store.dropTable('user');
+  }
+}
 ```
 
-Create `server.ts` in the application root:
+The database stores a numeric primary key; GraphQL exposes it as an encoded Hash ID. `enableGQL()` enables the table for GraphQL, and the query/mutation declarations select the operations to expose.
+
+### 4. Apply the migration and generate code
+
+```sh
+yarn sasat migrate --dry
+yarn sasat migrate --generateFiles
+yarn tsc --noEmit
+```
+
+The `out/` directory now contains types, data sources, and a GraphQL schema and resolvers. `--dry` skips Sasat's SQL application, but still executes migration definitions and hooks. See [dry-run behavior](docs/configuration.md#dry-run).
+
+### 5. Start a GraphQL server
+
+Create `server.ts` in your application root:
 
 ```typescript
-import { randomUUID } from 'node:crypto';
 import { createServer } from 'node:http';
 import { createSchema, createYoga } from 'graphql-yoga';
-import { createTypeDef } from 'sasat';
-import type { GQLContext } from './out/context.js';
-import { resolvers } from './out/__generated__/resolver.js';
-import { inputs, typeDefs } from './out/__generated__/typeDefs.js';
+import { schema } from './out/schema.js';
 
-const yoga = createYoga({
-  schema: createSchema({
-    typeDefs: createTypeDef(typeDefs, inputs),
-    resolvers,
-  }),
-  context: ({ request }): GQLContext => ({
-    requestId: request.headers.get('x-request-id') ?? randomUUID(),
-  }),
-});
-
+const yoga = createYoga({ schema: createSchema(schema) });
 const port = Number(process.env.PORT ?? 4000);
+
 createServer(yoga).listen(port, () => {
-  console.log(`Yoga ready at http://localhost:${port}/graphql`);
+  console.log(`GraphQL ready at http://localhost:${port}/graphql`);
 });
 ```
 
-Run `yarn tsx server.ts` after configuring the generated database connection and
-applying your migrations. Yoga creates context for each request; Sasat resolvers
-and resolver middleware receive it as their third argument. If your migrations
-define required context fields, also supply those fields in the factory above.
-See the [Yoga context documentation](https://the-guild.dev/graphql/yoga-server/docs/features/context).
-
-For example, export this middleware from `out/middlewares.ts` and register its
-name in a migration with
-`Queries.primary(['logRequest'])`, then regenerate:
-
-```typescript
-import type { ResolverMiddleware } from 'sasat';
-import type { GQLContext } from './context.js';
-
-export const logRequest: ResolverMiddleware<GQLContext> = args => {
-  console.log(args[2].requestId);
-  return args;
-};
+```sh
+yarn tsx server.ts
 ```
 
-Authentication is application-defined: verify credentials in your context
-factory and use middleware to enforce access before running a resolver.
-The request ID above only demonstrates context propagation. Continue overriding
-generated DataSource methods in `out/dataSources/db/*.ts`; Yoga uses the same
-user-editable subclasses as Apollo.
-
-### Connecting to subscriptions
-
-Enable subscriptions in the relevant migration, for example
-`Mutations.create({ subscription: true })`, and regenerate. Yoga serves
-subscriptions over SSE at the same `/graphql` endpoint. See the
-[Yoga subscription documentation](https://the-guild.dev/graphql/yoga-server/docs/features/subscriptions).
-
-For create and update mutations, `contextFields` supplies values from the server
-context and takes precedence over input values. Configure database column names
-in `contextFields`; generated resolvers map them to renamed entity fields.
-These fields are excluded from GraphQL input. Context values use database types
-(for example, numeric foreign keys), so they are not decoded as client Hash IDs.
-Regenerate existing code to apply these fixes.
-
-Subscription filters on Hash ID columns (including references) accept encoded
-`ID!` arguments and decode them with the corresponding column encoder before
-comparing event data. Other filter types are unchanged. Arguments retain the
-configured database column names even when entity fields are renamed. Regenerate
-existing code to apply this fix; clients using `Int!` variables for these filters
-must switch to `ID!` and pass the encoded ID.
-
-To try the repository's generated `UserCreated` subscription, start
-`yarn server:yoga` with the migrated test database, then keep this request open:
+Open `http://localhost:4000/graphql` in your browser, or create and query a user from another terminal:
 
 ```sh
-curl -N http://localhost:4445/graphql \
+curl http://localhost:4000/graphql \
   -H 'Content-Type: application/json' \
-  -H 'Accept: text/event-stream' \
-  --data '{"query":"subscription { UserCreated { userId NNN } }"}'
-```
+  --data '{"query":"mutation { createUser(user: { name: \"Alice\" }) { userId name } }"}'
 
-In another terminal, send a mutation to the same Yoga process:
-
-```sh
-curl http://localhost:4445/graphql \
+curl http://localhost:4000/graphql \
   -H 'Content-Type: application/json' \
-  --data '{"query":"mutation { createUser(user: { NNN: \"Yoga example\" }) { userId NNN } }"}'
+  --data '{"query":"{ users(option: { numberOfItem: 10, offset: 0 }) { userId name } }"}'
 ```
 
-The first terminal receives an `event: next` with the created user. Press Ctrl+C
-to disconnect and release the subscription. Replace the URL and fields with
-your application's generated schema when using the `server.ts` example above.
-For a JavaScript client, run `yarn add graphql-sse` and use distinct connections mode:
+The mutation returns an encoded `userId` and `name: "Alice"`. The list query includes the new user. The exact ID depends on the generated database ID and encoder configuration.
 
-```typescript
-import { createClient } from 'graphql-sse';
+Use the returned ID with `user(userId: "...")` to fetch one user. See [runtime customization](docs/runtime.md) for Apollo Server, context, and subscription examples.
 
-const client = createClient({ url: 'http://localhost:4445/graphql' });
-const unsubscribe = client.subscribe(
-  { query: 'subscription { UserCreated { userId NNN } }' },
-  {
-    next: result => console.log(result),
-    error: error => console.error(error),
-    complete: () => console.log('Subscription complete'),
-  },
-);
+## Where to add your code
 
-// Call when the UI is unmounted or the subscription is no longer needed.
-// unsubscribe();
-// client.dispose(); // Dispose the client when all subscriptions are finished.
-```
+| Location | Purpose and regeneration behavior |
+| --- | --- |
+| `migrations/*.ts` | Source definitions for the database schema and exposed API |
+| `out/__generated__/` | Recreated on every generation; do not edit directly |
+| `out/dataSources/db/*.ts` | Application data-source subclasses; existing files are preserved |
+| `out/schema.ts`, `context.ts`, `pubsub.ts`, `baseDBDataSource.ts` | Created once, then maintained by your application |
+| `out/conditions.ts`, `idEncoder.ts`, `middlewares.ts` | Existing content is read and missing declarations are added |
 
-### Shared database client
+Add database changes in new migrations rather than rewriting applied definitions. Use `yarn sasat generate` to regenerate code from existing definitions. Files created only once are not automatically updated when Sasat changes; review and apply any required updates yourself.
 
-`getDbClient()` reuses the active connection pool. Calls with the same explicit
-connection options and logger also reuse it. While the pool is active, changing
-explicit options, supplying a different logger, or changing `config().db` throws
-an error instead of silently using the previous database. Stop pending work and
-`await client.release()` before changing settings. For simultaneous connections
-to different databases, construct separate `MysqlClient` instances and inject
-them into your data sources.
+## Current limitations
 
-`findPageable(paging, fields, options)` combines `paging.where` and
-`options.where` with AND before applying the page's limit and offset. Explicit
-joins from both options participate in that parent query. `paging.sort` takes
-precedence over `options.sort`; `options.lock` applies to both the parent
-subquery and the outer query. Related rows are loaded after the parent page
-has been selected. A `limit` or `numberOfItem` of `0` returns no rows. Limits
-and offsets must be non-negative safe integers; negative, fractional, and
-non-finite values are rejected before SQL execution.
+- The database implementation targets MySQL; PostgreSQL and other connectors are not provided.
+- `contextFields` supplies server-side input values. It does not automatically enforce tenant authorization for every operation.
+- Generation clears the old `__generated__` directory before writing new files. A failed run does not restore the previous output.
+- Decimal/bigint GraphQL types, zero/null Hash IDs, and bulk inserts with different field sets have known limitations. See [usage considerations](docs/runtime.md#limitations).
+- A failed Redis publish does not undo an already completed database write.
 
-### Selecting local or Redis PubSub
+The package exports `sasat` for runtime APIs, `sasat/migration` for migration definitions, and `sasat/testing` for test-database helpers. ESM, CommonJS, and TypeScript declarations are provided.
 
-Newly generated `out/pubsub.ts` uses Sasat's configurable PubSub factory:
+## Contributing
 
-```typescript
-import { createPubSub } from 'sasat';
+To build or change Sasat itself, see the [contributor guide](docs/development.md) for setup, tests, sample servers, and a source-code map. Read [AGENTS.md](AGENTS.md) before making changes; it provides repository instructions for human and AI contributors.
 
-export const pubsub = createPubSub();
-```
-
-Existing `pubsub.ts` files are user-owned and preserved during regeneration.
-To opt in, replace the original `new PubSub()` setup with the code above; keep
-any application-specific customization you need.
-
-| Environment variable | Default | Meaning |
-| --- | --- | --- |
-| `PUBSUB_BACKEND` | `local` | `local` for in-process events, `redis` for shared events |
-| `REDIS_URL` | none | Required for Redis; accepts `redis://` or TLS `rediss://` URLs |
-| `PUBSUB_PREFIX` | `sasat:` | Redis channel prefix; use the same value on communicating servers and different values for separate applications/environments |
-
-Local mode works without Redis. To use Redis from the host, start the Compose
-service and run the application servers in separate terminals:
-
-```sh
-docker compose up -d redis
-
-# Terminal 1
-PUBSUB_BACKEND=redis REDIS_URL=redis://127.0.0.1:6379 yarn server:apollo
-
-# Terminal 2
-PUBSUB_BACKEND=redis REDIS_URL=redis://127.0.0.1:6379 yarn server:yoga
-```
-
-The Compose `dev` service sets `REDIS_URL=redis://redis:6379`; recreate an existing
-`dev` container to pick up that setting, or pass the URL explicitly. Inside it,
-run `PUBSUB_BACKEND=redis yarn server:apollo` and
-`PUBSUB_BACKEND=redis yarn server:yoga`. The Redis host port is loopback-only and
-can be changed with `REDIS_PORT`. This development Redis has persistence disabled.
-
-An Apollo mutation can now publish to a Yoga SSE subscriber in another process.
-To return to local delivery, restart each application with `PUBSUB_BACKEND=local`.
-Redis connections open on first publish/subscribe; connection failures reject
-operations and do not fall back to local mode. A mutation's database write may
-already have completed when publishing fails. Redis Pub/Sub does not replay
-missed events after a disconnect; clients should query current state on reconnect.
-
-You can also pass explicit `backend`, `redisUrl`, and `channelPrefix` options to
-`createPubSub()`. Explicit options take precedence over environment variables.
-Await pending publishes and stop subscriptions before calling
-`await pubsub.close()` during application shutdown. Custom `PubSubEngine`
-implementations remain supported in the user-editable `out/pubsub.ts`.
-
-## Development servers
-
-Both servers use GraphQL 16 and share the generated schema, resolvers, and
-custom fields in `test/serverSchema.ts`.
-
-Sasat does not require Apollo Server. Install the server you want to use in your
-application; this repository keeps both Apollo Server and Yoga as development
-dependencies for compatibility testing.
-
-| Command | Server | Endpoint |
-| --- | --- | --- |
-| `yarn server` or `yarn server:apollo` | Apollo Server | `http://localhost:4444/` |
-| `yarn server:yoga` | GraphQL Yoga | `http://localhost:4445/graphql` |
-
-Run the commands in separate terminals to use both at the same time. Set `PORT`
-to override the port. Both commands load `.env` when present; a missing `.env`
-does not prevent startup. Queries and mutations that access data require the
-configured MySQL database and migrations. Starting the servers does not reset
-the database or run migrations.
-
-## Testing
-
-Install the locked dependencies with `yarn install --immutable`. Unit and HTTP smoke tests run without a MySQL server or a local `.env` file.
-
-- `yarn test:unit`: run the unit and file-generation integration tests.
-- `yarn test:coverage`: run the same suite and write coverage reports to `coverage/` (HTML: `coverage/lcov-report/index.html`).
-- `yarn test:typecheck`: type-check the implementation, tests, and both development servers.
-- `yarn test:unit src/runtime/date.test.ts`: run a specific test file.
-- `yarn test:unit test/servers.test.ts`: start both servers on temporary ports and
-  check their HTTP query/mutation handling, schema parity, and validation without
-  database access.
-
-Tests use temporary directories for filesystem operations, mock database connections, and run clock-dependent cases in UTC. They cover SQL generation, migration execution and rollback, configuration, GraphQL resolvers, generated TypeScript and GraphQL schemas, and preservation of user edits during regeneration. Type-only declarations are checked by TypeScript; generated output is verified through the generator tests.
-
-The existing `yarn test` command still runs its database reset and migration pretest step; use it only with a disposable test database. Live MySQL compatibility is not covered by the mocked connector tests.
-
-### MySQL integration tests
-
-Start the development MySQL instance with `docker compose up -d db`, then run:
-
-```sh
-TEST_DB_HOST=127.0.0.1 TEST_DB_PORT=3308 yarn test:integration
-```
-
-From the existing `dev` container, use `TEST_DB_HOST=db TEST_DB_PORT=3306`.
-Optional `TEST_DB_USER` and `TEST_DB_PASSWORD` configure the test connection
-(defaults: `root` and an empty password). The account must be allowed to create
-and drop databases. This command uses only these explicit test settings; it does
-not load `.env` or use the application's `DATABASE` setting.
-
-The server tests create two uniquely named `sasat_it_*` databases, apply the test
-migrations and seed data, and start Apollo and Yoga on temporary ports. They
-compare queries, pagination, nested relations, creates and updates against real
-MySQL. They also check nonexistent IDs, duplicate-key errors, and application-defined
-authentication around a generated mutation (missing/invalid credentials reject
-writes; valid credentials allow them). Authentication fixtures use temporary,
-random test tokens and do not change the development servers' authentication.
-Yoga tests also cover mutation-triggered SSE events, renamed-field
-filters, and server-side subscription cleanup after disconnects. The servers
-stop and their databases are dropped on completion, including test failures.
-Additional tests use their own disposable databases to check query conditions,
-zero-sized pages, and migration CLI dry runs with both missing and existing
-history tables. Temporary CLI files are removed afterward. This suite is
-separate from `test:unit` and never resets an existing database.
-
-The default integration run uses local PubSub. To test Redis delivery across
-processes, start both services and run:
-
-```sh
-docker compose up -d db redis
-TEST_DB_HOST=127.0.0.1 TEST_DB_PORT=3308 \
-  TEST_REDIS_URL=redis://127.0.0.1:6379 yarn test:integration:redis
-```
-
-Inside `dev`, use `TEST_DB_HOST=db TEST_DB_PORT=3306` and
-`TEST_REDIS_URL=redis://redis:6379`. Redis tests publish mutations through Apollo
-and receive/filter events on Yoga, verify disconnect cleanup, and check channel
-prefix isolation. Each run uses a unique prefix and never flushes Redis.
-
-The error tests run in production mode and preserve each server's default error
-handling. A missing row returns `user: null` and updating a missing row returns
-`updateUser: false`. A middleware `GraphQLError` with code `UNAUTHENTICATED` is
-exposed by both servers. For a database constraint error, Apollo returns the
-database message while Yoga masks it as `Unexpected error.`; both use code
-`INTERNAL_SERVER_ERROR`. These execution failures return HTTP 200 with `errors`
-and `data: null` because the tested mutation field is non-null. This is an
-intentional comparison of current defaults, not a shared error-format policy.
-See [Yoga error masking](https://the-guild.dev/graphql/yoga-server/docs/features/error-masking)
-when defining your application's public errors.
-
-Query selection handling expands named and inline fragments, merges all
-`fieldNodes` and repeated relation selections, and respects `@skip`, `@include`,
-and fragment type conditions. SQL aliases are assigned after merging, so nested
-selections keep unique aliases. This runtime fix applies to existing generated
-resolvers after updating Sasat; regeneration is not required for fragment support.
-
-If generated code predates these fixes, regenerate it to update relation
-resolvers and subscription filters. Paging now sorts against the root table
-alias, and subscription arguments retain their existing names when a database
-column has a different public field name.
+License: MIT, as declared in [package.json](package.json).
