@@ -18,7 +18,7 @@ services:
     ports:
       - '3308:3306'
   postgres:
-    image: postgres:16-alpine
+    image: postgres:18-alpine
     environment:
       POSTGRES_HOST_AUTH_METHOD: trust
     ports:
