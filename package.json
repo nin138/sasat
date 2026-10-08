@@ -42,7 +42,7 @@
     "js-yaml": "^5.4.2",
     "pluralize": "^8.0.0",
     "sqlstring": "^2.3.3",
-    "typescript": "^6.0.3"
+    "typescript": "^7.0.0"
   },
   "devDependencies": {
     "@apollo/server": "^5.5.1",
