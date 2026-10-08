@@ -3,6 +3,7 @@ import {
   type QueryResponse,
   SQLTransaction,
 } from "../../db/connectors/dbClient.js";
+import type { SqlStatement } from "../../db/sqlStatement.js";
 
 // A reserved session carries both the advisory lock and each migration transaction.
 // This also works with a PostgreSQL pool whose maximum size is one.
@@ -14,6 +15,12 @@ class MigrationSession extends DBClient {
   protected execSql(sql: string): Promise<QueryResponse> {
     if (this._released) throw new Error("Migration session has been released");
     return this.session.rawQuery(sql);
+  }
+  protected execStatement(statement: SqlStatement, kind: "query" | "command") {
+    if (this._released) throw new Error("Migration session has been released");
+    return kind === "query"
+      ? this.session.executeQuery(statement)
+      : this.session.executeCommand(statement);
   }
   override rawCommand(sql: string) {
     if (this._released) throw new Error("Migration session has been released");
@@ -52,6 +59,12 @@ class MigrationTransaction extends SQLTransaction {
   protected execSql(sql: string) {
     this.assertActive();
     return this.session.rawQuery(sql);
+  }
+  protected execStatement(statement: SqlStatement, kind: "query" | "command") {
+    this.assertActive();
+    return kind === "query"
+      ? this.session.executeQuery(statement)
+      : this.session.executeCommand(statement);
   }
   override rawCommand(sql: string) {
     this.assertActive();

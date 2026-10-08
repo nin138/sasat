@@ -144,3 +144,65 @@ test("explicit discard destroys a session instead of returning it to the pool", 
   expect(connection.release).toHaveBeenCalledWith(true);
   await expect(tx.rawQuery("SELECT 1")).rejects.toThrow("finished");
 });
+
+test("bound PostgreSQL queries pass text and values separately without a statement name", async () => {
+  const { client, pool } = setup();
+  const text = "SELECT $1::bigint AS id, $2::text AS label";
+  await expect(
+    client.executeQuery({ text, values: [9007199254740993n, "a'\\文字"] }),
+  ).resolves.toEqual([{ id: 1 }]);
+  expect(pool.query).toHaveBeenCalledWith(text, [
+    "9007199254740993",
+    "a'\\文字",
+  ]);
+  await client.release();
+  await expect(client.executeQuery({ text, values: [1, "x"] })).rejects.toThrow(
+    "released",
+  );
+  expect(pool.query).toHaveBeenCalledTimes(1);
+});
+
+test("bound PostgreSQL commands preserve insert IDs and update counts", async () => {
+  const { client, pool } = setup();
+  pool.query.mockResolvedValueOnce({
+    rows: [{ __sasat_insert_id: "9007199254740993" }],
+    rowCount: 1,
+    command: "INSERT",
+  } as never);
+  await expect(
+    client.executeCommand({ text: "INSERT", values: [] }),
+  ).resolves.toEqual({
+    insertId: 9007199254740993n,
+    affectedRows: 1,
+    changedRows: 0,
+  });
+  pool.query.mockResolvedValueOnce({
+    rows: [],
+    rowCount: 2,
+    command: "UPDATE",
+  });
+  await expect(
+    client.executeCommand({ text: "UPDATE", values: [] }),
+  ).resolves.toEqual({ insertId: 0, affectedRows: 2, changedRows: 2 });
+});
+
+test("bound PostgreSQL transactions share the session and can roll back after failure", async () => {
+  const { client, pool, connection } = setup();
+  const tx = await client.transaction();
+  await tx.executeQuery({ text: "SELECT $1", values: [42] });
+  expect(connection.query).toHaveBeenCalledWith("SELECT $1", [42]);
+  connection.query.mockRejectedValueOnce(new Error("statement failed"));
+  await expect(
+    tx.executeCommand({ text: "INSERT $1", values: [null] }),
+  ).rejects.toThrow("statement failed");
+  expect(connection.release).not.toHaveBeenCalled();
+  await tx.rollback();
+  await expect(
+    tx.executeQuery({ text: "SELECT $1", values: [1] }),
+  ).rejects.toThrow("finished");
+  await expect(
+    tx.executeCommand({ text: "DELETE", values: [] }),
+  ).rejects.toThrow("finished");
+  expect(connection.release).toHaveBeenCalledTimes(1);
+  expect(pool.query).not.toHaveBeenCalled();
+});

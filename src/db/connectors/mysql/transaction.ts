@@ -1,5 +1,6 @@
 import type { Connection } from "mysql2/promise";
 import { createSqlGenerator, type SqlGenerator } from "../../sqlGenerator.js";
+import type { SqlStatement } from "../../sqlStatement.js";
 import {
   type CommandResponse,
   type QueryResponse,
@@ -29,6 +30,14 @@ export class MySqlTransaction extends SQLTransaction {
     } finally {
       await this.connection.end();
     }
+  }
+
+  protected async execStatement(
+    statement: SqlStatement,
+  ): Promise<QueryResponse | CommandResponse> {
+    return normalizeMysqlResult(
+      (await this.connection.execute(statement.text, [...statement.values]))[0],
+    );
   }
 
   protected async execSql(

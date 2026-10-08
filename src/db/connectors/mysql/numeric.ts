@@ -7,8 +7,17 @@ export const mysqlNumericOptions: ConnectionOptions = {
   bigNumberStrings: true,
   typeCast(field, next) {
     if (field.type === "LONGLONG") {
-      const value = field.string();
-      return value === null ? null : BigInt(value);
+      // next() decodes both text and binary LONGLONG packets correctly.
+      // field.string() assumes a length-prefixed string in binary results.
+      const value = next();
+      if (value === null) return null;
+      if (
+        typeof value === "string" ||
+        typeof value === "bigint" ||
+        (typeof value === "number" && Number.isSafeInteger(value))
+      )
+        return BigInt(value);
+      throw new Error("MySQL BIGINT was not decoded as an exact integer");
     }
     if (field.type === "NEWDECIMAL" || field.type === "DECIMAL")
       return field.string();

@@ -29,6 +29,10 @@ The generator also provides `escape`, `escapeId`, `format`, `create`, `update`, 
 
 `createSqlGenerator()` without an argument, `queryToSql(query)`, `SqlString`, `Sql`, and `formatQuery` continue to use the current `db.dialect`, defaulting to MySQL. An explicitly created generator retains its dialect and can be reused across asynchronous operations. Factory-created generators are shared by dialect and have no per-query state.
 
+## Execute SQL with bind values
+
+Built-in clients provide `executeQuery({ text, values })` and `executeCommand({ text, values })` for native parameter binding. See [parameterized SQL and the rollout plan](prepared-statements.md) for examples, value types, compatibility, and the current migration stage. The tagged templates below retain their existing string-formatting behavior.
+
 ## Use a connection's generator
 
 ```typescript

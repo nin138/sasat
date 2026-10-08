@@ -1,5 +1,6 @@
 import type { DatabaseDialect } from "../dialect.js";
 import { createSqlGenerator, type SqlGenerator } from "../sqlGenerator.js";
+import { type SqlStatement, snapshotStatement } from "../sqlStatement.js";
 
 export type QueryResponse = Array<{ [key: string]: SqlValueType }>;
 export interface CommandResponse {
@@ -17,8 +18,14 @@ export interface SQLExecutor {
   rawCommand(sql: string): Promise<CommandResponse>;
 }
 
+/** Optional capability for executors implementing native parameter binding. */
+export interface ParameterizedSQLExecutor extends SQLExecutor {
+  executeQuery(statement: SqlStatement): Promise<QueryResponse>;
+  executeCommand(statement: SqlStatement): Promise<CommandResponse>;
+}
+
 const noop = () => {};
-export abstract class SQLClient implements SQLExecutor {
+export abstract class SQLClient implements ParameterizedSQLExecutor {
   constructor(readonly sql: SqlGenerator = createSqlGenerator("mysql")) {}
   get dialect(): DatabaseDialect {
     return this.sql.dialect;
@@ -32,6 +39,27 @@ export abstract class SQLClient implements SQLExecutor {
   rawCommand(sql: string): Promise<CommandResponse> {
     this.logger(sql);
     return this.execSql(sql) as Promise<CommandResponse>;
+  }
+
+  async executeQuery(statement: SqlStatement): Promise<QueryResponse> {
+    const snapshot = snapshotStatement(statement);
+    this.logger(snapshot.text);
+    return this.execStatement(snapshot, "query") as Promise<QueryResponse>;
+  }
+
+  async executeCommand(statement: SqlStatement): Promise<CommandResponse> {
+    const snapshot = snapshotStatement(statement);
+    this.logger(snapshot.text);
+    return this.execStatement(snapshot, "command") as Promise<CommandResponse>;
+  }
+
+  protected execStatement(
+    _statement: SqlStatement,
+    _kind: "query" | "command",
+  ): Promise<QueryResponse | CommandResponse> {
+    return Promise.reject(
+      new Error("This SQL client does not support parameterized statements"),
+    );
   }
 
   query(

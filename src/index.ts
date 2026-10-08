@@ -4,6 +4,7 @@ export { PostgresClient } from "./db/connectors/postgres/client.js";
 export type { DatabaseDialect } from "./db/dialect.js";
 export { formatQuery } from "./db/formatQuery.js";
 export { createSqlGenerator, SqlGenerator } from "./db/sqlGenerator.js";
+export type { SqlParameter, SqlStatement } from "./db/sqlStatement.js";
 export { queryToSql } from "./runtime/dsl/query/sql/queryToSql.js";
 
 import type { ListQueryOption } from "./runtime/sasatDBDatasource.js";
@@ -64,6 +65,7 @@ export { getCurrentDateTimeString } from "./util/dateUtil.js";
 export type PagingOption = ListQueryOption; // TODO
 
 export type {
+  ParameterizedSQLExecutor,
   SQLClient,
   SQLExecutor,
   SQLTransaction,

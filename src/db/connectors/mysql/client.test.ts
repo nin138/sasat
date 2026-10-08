@@ -207,3 +207,89 @@ test("releasing an unused MySQL pool does not initialize it", async () => {
   expect(createPool).not.toHaveBeenCalled();
   await expect(client.rawQuery("SELECT 1")).rejects.toThrow("released");
 });
+
+test("bound MySQL calls use execute and log only SQL text", async () => {
+  const c = {
+    ...connection(),
+    execute: jest.fn().mockResolvedValue([[{ id: 1 }], []]),
+  };
+  jest.mocked(createConnection).mockResolvedValue(c as never);
+  const logger = jest.fn();
+  const client = new MysqlClient({}, logger);
+  const text = "SELECT ? AS id, ? AS label";
+  await expect(
+    client.executeQuery({ text, values: [9007199254740993n, "secret'\\文字"] }),
+  ).resolves.toEqual([{ id: 1 }]);
+  expect(c.execute).toHaveBeenCalledWith(text, [
+    "9007199254740993",
+    "secret'\\文字",
+  ]);
+  expect(c.query).not.toHaveBeenCalled();
+  expect(logger.mock.calls).toEqual([[text]]);
+  expect(c.end).toHaveBeenCalledTimes(1);
+});
+
+test.each(["executeQuery", "executeCommand"] as const)(
+  "closes a dedicated connection when %s fails",
+  async (method) => {
+    const c = {
+      ...connection(),
+      execute: jest.fn().mockRejectedValue(new Error("execute failed")),
+    };
+    jest.mocked(createConnection).mockResolvedValue(c as never);
+    await expect(
+      new MysqlClient({})[method]({ text: "broken ?", values: [1] }),
+    ).rejects.toThrow("execute failed");
+    expect(c.end).toHaveBeenCalledTimes(1);
+  },
+);
+
+test("bound pool commands normalize insert IDs, and release prevents further execution", async () => {
+  const pool = {
+    ...connection(),
+    execute: jest
+      .fn()
+      .mockResolvedValue([
+        { insertId: "9007199254740993", affectedRows: 1, changedRows: 0 },
+        [],
+      ]),
+  };
+  jest.mocked(createPool).mockReturnValue(pool as never);
+  const client = new MysqlPoolClient({});
+  await expect(
+    client.executeCommand({
+      text: "INSERT INTO t VALUES (?)",
+      values: ["1.25"],
+    }),
+  ).resolves.toEqual({
+    insertId: 9007199254740993n,
+    affectedRows: 1,
+    changedRows: 0,
+  });
+  expect(pool.query).not.toHaveBeenCalled();
+  expect(pool.end).not.toHaveBeenCalled();
+  await client.release();
+  await expect(
+    client.executeQuery({ text: "SELECT ?", values: [1] }),
+  ).rejects.toThrow("released");
+  expect(pool.execute).toHaveBeenCalledTimes(1);
+});
+
+test("bound transaction calls reuse its connection and remain rollbackable after failure", async () => {
+  const c = {
+    ...connection(),
+    execute: jest.fn().mockResolvedValue([[{ id: 1 }], []]),
+  };
+  jest.mocked(createConnection).mockResolvedValue(c as never);
+  const tx = await new MysqlClient({}).transaction();
+  await tx.executeQuery({ text: "SELECT ?", values: [1] });
+  c.execute.mockRejectedValueOnce(new Error("statement failed"));
+  await expect(
+    tx.executeCommand({ text: "INSERT ?", values: [null] }),
+  ).rejects.toThrow("statement failed");
+  expect(c.end).not.toHaveBeenCalled();
+  await tx.rollback();
+  expect(createConnection).toHaveBeenCalledTimes(1);
+  expect(c.rollback).toHaveBeenCalledTimes(1);
+  expect(c.end).toHaveBeenCalledTimes(1);
+});

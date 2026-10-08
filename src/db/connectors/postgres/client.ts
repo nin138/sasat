@@ -1,6 +1,7 @@
 import type { Pool, PoolClient, PoolConfig, QueryResult, types } from "pg";
 import { loadDriver } from "../../loadDriver.js";
 import { createSqlGenerator, type SqlGenerator } from "../../sqlGenerator.js";
+import type { SqlStatement } from "../../sqlStatement.js";
 import {
   type CommandResponse,
   DBClient,
@@ -57,6 +58,17 @@ export class PostgresClient extends DBClient {
     );
     return this.pool;
   }
+  protected async execStatement(
+    statement: SqlStatement,
+    kind: "query" | "command",
+  ): Promise<QueryResponse | CommandResponse> {
+    const result = lastResult(
+      await (await this.getPool()).query(statement.text, [...statement.values]),
+    );
+    return kind === "command"
+      ? commandResponse(result)
+      : (result.rows as QueryResponse);
+  }
   protected async execSql(sql: string): Promise<QueryResponse> {
     return lastResult(await (await this.getPool()).query(sql))
       .rows as QueryResponse;
@@ -95,6 +107,18 @@ class PostgresTransaction extends SQLTransaction {
   }
   private assertActive() {
     if (this.finished) throw new Error("Transaction has already finished");
+  }
+  protected async execStatement(
+    statement: SqlStatement,
+    kind: "query" | "command",
+  ): Promise<QueryResponse | CommandResponse> {
+    this.assertActive();
+    const result = lastResult(
+      await this.client.query(statement.text, [...statement.values]),
+    );
+    return kind === "command"
+      ? commandResponse(result)
+      : (result.rows as QueryResponse);
   }
   protected async execSql(sql: string): Promise<QueryResponse> {
     this.assertActive();

@@ -12,6 +12,7 @@ Sasat works with GraphQL Yoga and Apollo Server. Your application configures the
 | --- | --- |
 | Add Sasat to an application | Quick start below |
 | Generate SQL or use multiple database engines | [SQL generation and connections](docs/sql-generation.md) |
+| Execute SQL with bind values | [Parameterized SQL and prepared statements](docs/prepared-statements.md) |
 | Use PostgreSQL | [PostgreSQL setup and compatibility](docs/postgresql.md) |
 | Understand the application structure | [Application structure and generated files](docs/architecture.md) |
 | Configure the CLI and code generation | [Configuration and migrations](docs/configuration.md) |

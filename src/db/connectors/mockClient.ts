@@ -1,8 +1,15 @@
+import type { SqlStatement } from "../sqlStatement.js";
 import { DBClient, SQLTransaction } from "./dbClient.js";
 
 class MockDBTransaction extends SQLTransaction {
   commit(): Promise<void> {
     return Promise.resolve();
+  }
+
+  protected execStatement(_statement: SqlStatement, kind: "query" | "command") {
+    return Promise.resolve(
+      kind === "query" ? [] : { insertId: 0, affectedRows: 0, changedRows: 0 },
+    );
   }
 
   protected execSql() {
@@ -15,6 +22,12 @@ class MockDBTransaction extends SQLTransaction {
 }
 
 export class MockDBClient extends DBClient {
+  protected execStatement(_statement: SqlStatement, kind: "query" | "command") {
+    return Promise.resolve(
+      kind === "query" ? [] : { insertId: 0, affectedRows: 0, changedRows: 0 },
+    );
+  }
+
   protected execSql() {
     return Promise.resolve([]);
   }

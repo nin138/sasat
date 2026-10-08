@@ -123,6 +123,7 @@ for (const driver of [undefined, ...drivers]) {
       // declaration checking enabled, for either the ESM or CommonJS entry point.
       const source = `
         import {getDbClient, PostgresClient, MysqlClient, createSqlGenerator, queryToSql, qe} from "sasat";
+        import type {SqlStatement, SqlParameter, ParameterizedSQLExecutor, QueryResponse, CommandResponse} from "sasat";
         import {makeTestDB} from "sasat/testing";
         import type {SasatMigration} from "sasat/migration";
         const pg = new PostgresClient({max:4,host:"localhost"});
@@ -131,6 +132,12 @@ for (const driver of [undefined, ...drivers]) {
         const generator = createSqlGenerator("postgres");
         const sql: string = queryToSql({select:[qe.field("users", "id")],from:qe.table("users", [], "users")}, generator);
         const quoted: string = shared.sql.escapeId("users");
+        const parameters: readonly SqlParameter[] = [9007199254740993n, "1.25", null, new Date(), Buffer.from("value")];
+        const statement: SqlStatement = {text:"SELECT $1", values:parameters};
+        const executor: ParameterizedSQLExecutor = pg;
+        const boundRows: Promise<QueryResponse> = executor.executeQuery(statement);
+        const boundCommand: Promise<CommandResponse> = mysql.executeCommand({text:"SELECT ?", values:[1]});
+        void [boundRows, boundCommand];
         void [pg,mysql,shared,makeTestDB,sql,quoted];
         const migration: SasatMigration = {up() {},down() {}};
         void migration;

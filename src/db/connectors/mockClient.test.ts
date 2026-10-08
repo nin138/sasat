@@ -16,3 +16,15 @@ test("provides no-op queries and transactions without connecting to a database",
   await expect(transaction.rollback()).resolves.toBeUndefined();
   await expect(client.release()).resolves.toBeUndefined();
 });
+
+test("supports parameterized no-op queries and commands on the client and transaction", async () => {
+  const client = new Client();
+  for (const executor of [client, await client.transaction()]) {
+    await expect(
+      executor.executeQuery({ text: "SELECT ?", values: [1] }),
+    ).resolves.toEqual([]);
+    await expect(
+      executor.executeCommand({ text: "INSERT ?", values: [1] }),
+    ).resolves.toEqual({ insertId: 0, affectedRows: 0, changedRows: 0 });
+  }
+});

@@ -1,5 +1,6 @@
 import type { ConnectionOptions } from "mysql2/promise";
 import { loadDriver } from "../../loadDriver.js";
+import type { SqlStatement } from "../../sqlStatement.js";
 import {
   type CommandResponse,
   DBClient,
@@ -40,6 +41,19 @@ export class MysqlClient extends DBClient {
     } catch (error) {
       await connection.end();
       throw error;
+    }
+  }
+
+  protected async execStatement(
+    statement: SqlStatement,
+  ): Promise<QueryResponse | CommandResponse> {
+    const connection = await this.getConnection();
+    try {
+      return normalizeMysqlResult(
+        (await connection.execute(statement.text, [...statement.values]))[0],
+      );
+    } finally {
+      await connection.end();
     }
   }
 

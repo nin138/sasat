@@ -1,6 +1,7 @@
 import type { Pool, PoolOptions } from "mysql2/promise";
 import { config } from "@/config/config.js";
 import { loadDriver } from "../../loadDriver.js";
+import type { SqlStatement } from "../../sqlStatement.js";
 import {
   type CommandResponse,
   DBClient,
@@ -60,6 +61,18 @@ export class MysqlPoolClient extends DBClient {
     this._released = true;
     const pool = await this.pool?.catch(() => undefined);
     await pool?.end();
+  }
+
+  protected async execStatement(
+    statement: SqlStatement,
+  ): Promise<QueryResponse | CommandResponse> {
+    return normalizeMysqlResult(
+      (
+        await (
+          await this.getPool()
+        ).execute(statement.text, [...statement.values])
+      )[0],
+    );
   }
 
   protected async execSql(

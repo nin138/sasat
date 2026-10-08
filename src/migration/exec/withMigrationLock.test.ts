@@ -172,3 +172,34 @@ test.each([0, 0n])("recognizes MySQL lock contention as %s", async (value) => {
     "Another Sasat migration",
   );
 });
+
+test("forwards bound statements through the reserved migration session and rejects late calls", async () => {
+  const { client, session } = setup();
+  const executeQuery = jest.fn(async () => [{ id: 1 }]);
+  const executeCommand = jest.fn(async () => ({
+    insertId: 0,
+    affectedRows: 1,
+    changedRows: 1,
+  }));
+  Object.assign(session, { executeQuery, executeCommand });
+  const statement = { text: "SELECT $1", values: [1] };
+  let scoped!: DBClient;
+  await withMigrationLock(client, async (db) => {
+    scoped = db;
+    await expect(db.executeQuery(statement)).resolves.toEqual([{ id: 1 }]);
+    const tx = await db.transaction();
+    await tx.executeQuery(statement);
+    await expect(tx.executeCommand(statement)).resolves.toEqual({
+      insertId: 0,
+      affectedRows: 1,
+      changedRows: 1,
+    });
+    await tx.commit();
+    await expect(tx.executeQuery(statement)).rejects.toThrow("finished");
+    await expect(tx.executeCommand(statement)).rejects.toThrow("finished");
+  });
+  await expect(scoped.executeQuery(statement)).rejects.toThrow("released");
+  await expect(scoped.executeCommand(statement)).rejects.toThrow("released");
+  expect(executeQuery.mock.calls).toHaveLength(2);
+  expect(executeCommand).toHaveBeenCalledWith(statement);
+});
