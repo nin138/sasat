@@ -1,5 +1,5 @@
 import type { SQLExecutor } from "../../db/connectors/dbClient.js";
-import { sqlFor } from "../../db/sqlGenerator.js";
+import { executeSelect } from "../../db/executeSelect.js";
 import { QExpr } from "../dsl/factory.js";
 import type {
   RelationMap,
@@ -134,9 +134,7 @@ export const runQuery = async (
   query: Query,
   resolveInfo: QueryResolveInfo,
 ) => {
-  const resultRows: ResultRow[] = await client.rawQuery(
-    sqlFor(client).query(query),
-  );
+  const resultRows: ResultRow[] = await executeSelect(client, query);
   return hydrate(resultRows, resolveInfo);
 };
 

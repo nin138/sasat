@@ -70,6 +70,11 @@ after(async () => {
 });
 
 const executor: SQLExecutor = {
+  supportsParameterizedStatements: true,
+  executeQuery: async (statement) =>
+    (
+      await connection!.execute(statement.text, [...statement.values])
+    )[0] as Awaited<ReturnType<SQLExecutor["rawQuery"]>>,
   rawQuery: async (sql) =>
     (await connection!.query(sql))[0] as Awaited<
       ReturnType<SQLExecutor["rawQuery"]>

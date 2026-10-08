@@ -8,6 +8,9 @@ import type { SqlStatement } from "../../db/sqlStatement.js";
 // A reserved session carries both the advisory lock and each migration transaction.
 // This also works with a PostgreSQL pool whose maximum size is one.
 class MigrationSession extends DBClient {
+  override get supportsParameterizedStatements(): boolean {
+    return this.session.supportsParameterizedStatements;
+  }
   private active = false;
   constructor(private readonly session: SQLTransaction) {
     super(undefined, session.sql);
@@ -46,6 +49,9 @@ class MigrationSession extends DBClient {
 }
 
 class MigrationTransaction extends SQLTransaction {
+  override get supportsParameterizedStatements(): boolean {
+    return this.session.supportsParameterizedStatements;
+  }
   private finished = false;
   constructor(
     private readonly session: MigrationSession,

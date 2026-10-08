@@ -9,6 +9,9 @@ import {
 import { normalizeMysqlResult } from "./numeric.js";
 
 export class MySqlTransaction extends SQLTransaction {
+  override get supportsParameterizedStatements(): boolean {
+    return true;
+  }
   constructor(
     private connection: Connection,
     sql: SqlGenerator = createSqlGenerator("mysql"),

@@ -1,4 +1,5 @@
 import type { SQLExecutor, SqlValueType } from "../db/connectors/dbClient.js";
+import { executeSelect } from "../db/executeSelect.js";
 import { type SqlGenerator, sqlFor } from "../db/sqlGenerator.js";
 import {
   type CommandResponse,
@@ -278,8 +279,11 @@ export abstract class SasatDBDatasource<
       this.relationMap,
       this.tableInfo,
     );
-    const sql = this.sql.query(query);
-    const resultRows: ResultRow[] = await this.client.rawQuery(sql);
+    const resultRows: ResultRow[] = await executeSelect(
+      this.client,
+      query,
+      this.sql,
+    );
     return hydrate(resultRows, info) as QueryResult[];
   }
 

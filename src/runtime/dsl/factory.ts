@@ -3,6 +3,7 @@ import { nonNullable } from "../util.js";
 import {
   type BetweenExpression,
   type BooleanValueExpression,
+  type CastExpression,
   type ComparisonExpression,
   type CompoundOperator,
   type ContainType,
@@ -253,6 +254,11 @@ const ident = (identifier: string): Identifier => ({
 });
 
 export const QExpr = {
+  cast: (value: Value, sqlType: string): CastExpression => ({
+    kind: QueryNodeKind.Cast,
+    value,
+    sqlType,
+  }),
   conditions,
   ...conditions,
   field,

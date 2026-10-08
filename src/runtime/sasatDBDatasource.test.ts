@@ -312,3 +312,47 @@ test("first retains overridden find filters when delegating to the base query", 
   expect(sql).toContain("LIMIT 1");
   expect(sql).toContain("`t0`.`user_id`  = 7 AND `t0`.`active`  = true");
 });
+
+test.each(["mysql", "postgres"] as const)(
+  "parameterized finds, first and paging hydrate results with the captured dialect (%s)",
+  async (dialect) => {
+    const original = config().db.dialect ?? "mysql";
+    const { client: legacy } = fixture();
+    const client = {
+      ...legacy,
+      sql: createSqlGenerator(dialect),
+      supportsParameterizedStatements: true,
+      executeQuery: jest
+        .fn()
+        .mockResolvedValue([{ t0__id: 1, t0__name: "Ada" }]),
+    };
+    const users = new Users(client);
+    try {
+      setConfig({
+        db: { dialect: dialect === "mysql" ? "postgres" : "mysql" },
+      });
+      const where = q.eq(q.field("t0", "display_name"), q.value("O'Reilly"));
+      await expect(users.find(undefined, { where })).resolves.toEqual([
+        { id: 1, name: "Ada" },
+      ]);
+      await users.first(undefined, { where, offset: 2 });
+      await users.findPageable({ numberOfItem: 3, offset: 4 }, undefined, {
+        where,
+      });
+      expect(
+        client.executeQuery.mock.calls.map(([statement]) => statement.values),
+      ).toEqual([["O'Reilly"], ["O'Reilly", "1", "2"], ["O'Reilly", "3", "4"]]);
+      const firstSql = client.executeQuery.mock.calls[1][0].text;
+      expect(firstSql).toContain(
+        dialect === "mysql" ? "LIMIT ? OFFSET ?" : "LIMIT $2 OFFSET $3",
+      );
+      expect(firstSql).not.toContain("O'Reilly");
+      expect(client.rawQuery).not.toHaveBeenCalled();
+      client.executeQuery.mockRejectedValueOnce(new Error("bound failure"));
+      await expect(users.find()).rejects.toThrow("bound failure");
+      expect(client.rawQuery).not.toHaveBeenCalled();
+    } finally {
+      setConfig({ db: { dialect: original } });
+    }
+  },
+);

@@ -2,6 +2,9 @@ import type { SqlStatement } from "../sqlStatement.js";
 import { DBClient, SQLTransaction } from "./dbClient.js";
 
 class MockDBTransaction extends SQLTransaction {
+  override get supportsParameterizedStatements(): boolean {
+    return true;
+  }
   commit(): Promise<void> {
     return Promise.resolve();
   }
@@ -22,6 +25,9 @@ class MockDBTransaction extends SQLTransaction {
 }
 
 export class MockDBClient extends DBClient {
+  override get supportsParameterizedStatements(): boolean {
+    return true;
+  }
   protected execStatement(_statement: SqlStatement, kind: "query" | "command") {
     return Promise.resolve(
       kind === "query" ? [] : { insertId: 0, affectedRows: 0, changedRows: 0 },

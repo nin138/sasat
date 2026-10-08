@@ -35,6 +35,9 @@ function commandResponse(result: QueryResult): CommandResponse {
 }
 
 export class PostgresClient extends DBClient {
+  override get supportsParameterizedStatements(): boolean {
+    return true;
+  }
   private pool?: Promise<Pool>;
   constructor(
     readonly poolOption: PoolConfig,
@@ -96,6 +99,9 @@ export class PostgresClient extends DBClient {
 }
 
 class PostgresTransaction extends SQLTransaction {
+  override get supportsParameterizedStatements(): boolean {
+    return true;
+  }
   private finished = false;
   constructor(
     private readonly client: PoolClient,

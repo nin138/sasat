@@ -14,6 +14,9 @@ export type SqlValueType = string | number | bigint | boolean | null;
 export interface SQLExecutor {
   readonly dialect?: DatabaseDialect;
   readonly sql?: SqlGenerator;
+  readonly supportsParameterizedStatements?: boolean;
+  executeQuery?(statement: SqlStatement): Promise<QueryResponse>;
+  executeCommand?(statement: SqlStatement): Promise<CommandResponse>;
   rawQuery(sql: string): Promise<QueryResponse>;
   rawCommand(sql: string): Promise<CommandResponse>;
 }
@@ -26,6 +29,9 @@ export interface ParameterizedSQLExecutor extends SQLExecutor {
 
 const noop = () => {};
 export abstract class SQLClient implements ParameterizedSQLExecutor {
+  get supportsParameterizedStatements(): boolean {
+    return false;
+  }
   constructor(readonly sql: SqlGenerator = createSqlGenerator("mysql")) {}
   get dialect(): DatabaseDialect {
     return this.sql.dialect;

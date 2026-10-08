@@ -134,6 +134,9 @@ for (const driver of [undefined, ...drivers]) {
         const quoted: string = shared.sql.escapeId("users");
         const parameters: readonly SqlParameter[] = [9007199254740993n, "1.25", null, new Date(), Buffer.from("value")];
         const statement: SqlStatement = {text:"SELECT $1", values:parameters};
+        const compiled: SqlStatement = generator.compileQuery({select:[qe.fn("ABS", [qe.cast(qe.value("-1.25"), "DECIMAL(10,2)")])],from:qe.table("users", [], "users")});
+        const boundQuery: Promise<QueryResponse> = shared.executeQuery(compiled);
+        void boundQuery;
         const executor: ParameterizedSQLExecutor = pg;
         const boundRows: Promise<QueryResponse> = executor.executeQuery(statement);
         const boundCommand: Promise<CommandResponse> = mysql.executeCommand({text:"SELECT ?", values:[1]});

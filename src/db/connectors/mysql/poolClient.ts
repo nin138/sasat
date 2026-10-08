@@ -12,6 +12,9 @@ import { mysqlNumericOptions, normalizeMysqlResult } from "./numeric.js";
 import { MySqlTransaction } from "./transaction.js";
 
 export class MysqlPoolClient extends DBClient {
+  override get supportsParameterizedStatements(): boolean {
+    return true;
+  }
   private pool?: Promise<Pool>;
   constructor(
     readonly poolOption: PoolOptions,

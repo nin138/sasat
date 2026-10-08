@@ -20,6 +20,7 @@ export enum QueryNodeKind {
   GroupBy,
   Over,
   Window,
+  Cast,
 }
 
 export type LockMode = "FOR UPDATE" | "FOR SHARE";
@@ -94,7 +95,12 @@ export type WindowContent =
       value: number;
     };
 
-export type SelectExpr = Field | Fn | Identifier | RawExpression;
+export type SelectExpr =
+  | Field
+  | Fn
+  | Identifier
+  | RawExpression
+  | CastExpression;
 
 export type QueryTable = {
   kind: QueryNodeKind.Table;
@@ -195,7 +201,14 @@ export type BetweenExpression = {
   end: Value;
 };
 
-export type Value = Literal | Field | Fn | Identifier;
+export type CastExpression = {
+  kind: QueryNodeKind.Cast;
+  value: Value;
+  /** Trusted SQL type syntax, selected by the application, never by user input. */
+  sqlType: string;
+};
+
+export type Value = Literal | Field | Fn | Identifier | CastExpression;
 
 export type Identifier = {
   kind: QueryNodeKind.Identifier;
@@ -215,6 +228,7 @@ export type Sort = {
 };
 
 export type QueryNode =
+  | CastExpression
   | Field
   | Fn
   | QueryTable

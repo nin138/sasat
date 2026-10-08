@@ -11,6 +11,9 @@ import { mysqlNumericOptions, normalizeMysqlResult } from "./numeric.js";
 import { MySqlTransaction } from "./transaction.js";
 
 export class MysqlClient extends DBClient {
+  override get supportsParameterizedStatements(): boolean {
+    return true;
+  }
   async release(): Promise<void> {
     return;
   }

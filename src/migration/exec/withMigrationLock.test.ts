@@ -10,6 +10,7 @@ import { withMigrationLock } from "./withMigrationLock.js";
 function setup(dialect: DatabaseDialect = "postgres") {
   const session = {
     sql: createSqlGenerator(dialect),
+    supportsParameterizedStatements: true,
     rawQuery: jest.fn(
       async (sql: string): Promise<QueryResponse> =>
         sql.includes("AS acquired")
@@ -42,9 +43,11 @@ test.each(["postgres", "mysql"] as const)(
       withMigrationLock(client, async (db) => {
         scoped = db;
         expect(db.sql).toBe(session.sql);
+        expect(db.supportsParameterizedStatements).toBe(true);
         await db.rawQuery("history read");
         for (let i = 0; i < 2; i++) {
           const tx = await db.transaction();
+          expect(tx.supportsParameterizedStatements).toBe(true);
           await tx.rawQuery("SQL");
           expect(await tx.rawCommand("DML")).toEqual({
             insertId: 0,

@@ -15,6 +15,7 @@ import {
 } from "../runtime/dsl/mutation/mutation.js";
 import type { TableInfo } from "../runtime/dsl/query/createQueryResolveInfo.js";
 import type { Query } from "../runtime/dsl/query/query.js";
+import { compileQuery } from "../runtime/dsl/query/sql/compileQuery.js";
 import { createSqlNodes } from "../runtime/dsl/query/sql/nodeToSql.js";
 import { queryToSql } from "../runtime/dsl/query/sql/queryToSql.js";
 import { getSqlString } from "../runtime/sql/sqlString.js";
@@ -48,6 +49,9 @@ export class SqlGenerator {
 
   query(query: Query): string {
     return queryToSql(query, this);
+  }
+  compileQuery(query: Query) {
+    return compileQuery(query, this);
   }
   create(dsl: Create, tables: TableInfo): string {
     return createToSql(dsl, tables, this);

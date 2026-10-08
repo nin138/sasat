@@ -14,13 +14,16 @@ const getLock = (lock?: LockMode): string => {
   return " FOR SHARE";
 };
 
-export const queryToSql = (
+/** Shared renderer. Visit clauses in SQL order so positional binds stay aligned. */
+export const renderQuery = (
   query: Query,
-  generator: SqlGenerator = createSqlGenerator(),
+  generator: SqlGenerator,
+  Sql = generator.nodes,
+  paginationValue: (value: number) => string = String,
 ): string => {
-  const Sql = generator.nodes;
   const SqlString = generator;
   const select = query.select.map(Sql.select).join(", ");
+  const from = Sql.table(query.from);
   const join = [...getJoin(query.from), ...(query.join ?? [])]
     .map(Sql.join)
     .join(" ");
@@ -43,11 +46,12 @@ export const queryToSql = (
       throw new Error(name + " must be a non-negative safe integer");
     }
   }
-  const limit = query.limit != null ? " LIMIT " + query.limit : "";
-  const offset = query.offset ? " OFFSET " + query.offset : "";
+  const limit =
+    query.limit != null ? " LIMIT " + paginationValue(query.limit) : "";
+  const offset = query.offset ? " OFFSET " + paginationValue(query.offset) : "";
   if (offset && !limit) throw new Error("LIMIT is required to use OFFSET.");
   return (
-    `SELECT ${select} FROM ${Sql.table(query.from)}` +
+    `SELECT ${select} FROM ${from}` +
     (join ? " " + join : "") +
     where +
     groupBy +
@@ -61,3 +65,8 @@ export const queryToSql = (
       : "")
   );
 };
+
+export const queryToSql = (
+  query: Query,
+  generator: SqlGenerator = createSqlGenerator(),
+): string => renderQuery(query, generator);

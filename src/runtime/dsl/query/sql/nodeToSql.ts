@@ -5,6 +5,7 @@ import {
 import {
   type BetweenExpression,
   type BooleanValueExpression,
+  type CastExpression,
   type ComparisonExpression,
   type CompoundExpression,
   type ContainsExpression,
@@ -33,8 +34,19 @@ import { queryToSql } from "./queryToSql.js";
 
 export const SELECT_ALIAS_SEPARATOR = "__";
 
-export function createSqlNodes(generator: SqlGenerator) {
+export function createSqlNodes(
+  generator: SqlGenerator,
+  options?: {
+    value: (value: unknown) => string;
+    query: (query: Query) => string;
+    functionValue?: (value: unknown, functionName: string) => string;
+    frameValue?: (value: number) => string;
+  },
+) {
   const SqlString = generator;
+  const renderValue = options?.value ?? SqlString.escape;
+  const renderQuery =
+    options?.query ?? ((query: Query) => queryToSql(query, generator));
   function partitionBy(ids?: Identifier[]) {
     if (!ids || ids.length === 0) return "";
     return `PARTITION BY ${ids.map(Sql.identifier).join(",")} `;
@@ -46,7 +58,8 @@ export function createSqlNodes(generator: SqlGenerator) {
 
   function windowValue(value: WindowContent) {
     if (value.type === "FOLLOWING" || value.type === "PRECEDING") {
-      return `${value.value} ${value.type}`;
+      const frame = options?.frameValue ?? renderValue;
+      return `${frame(value.value)} ${value.type}`;
     }
     return value.type;
   }
@@ -74,9 +87,11 @@ export function createSqlNodes(generator: SqlGenerator) {
           return Sql.identifier(expr);
         case QueryNodeKind.Function:
           return Sql.fn(expr);
+        case QueryNodeKind.Cast:
+          return Sql.cast(expr);
       }
     },
-    literal: (literal: Literal): string => SqlString.escape(literal.value),
+    literal: (literal: Literal): string => renderValue(literal.value),
     fieldInCondition: (identifier: Field): string =>
       SqlString.escapeId(identifier.table) +
       "." +
@@ -96,16 +111,27 @@ export function createSqlNodes(generator: SqlGenerator) {
     identifier: (ident: Identifier): string => {
       return SqlString.escapeId(ident.identifier);
     },
-    fn: (fn: Fn): string =>
-      `${fn.fnName}(${fn.args.map(Sql.value).join(",")})${over(fn.over)}${
+    cast: (expr: CastExpression): string =>
+      `CAST(${Sql.value(expr.value)} AS ${expr.sqlType})`,
+    fn: (fn: Fn): string => {
+      const args = fn.args
+        .map((arg) =>
+          arg.kind === QueryNodeKind.Literal && options?.functionValue
+            ? options.functionValue(arg.value, fn.fnName)
+            : Sql.value(arg),
+        )
+        .join(",");
+      return `${fn.fnName}(${args})${over(fn.over)}${
         fn.alias
           ? ` AS ${generator.dialect === "postgres" ? SqlString.escapeId(fn.alias) : fn.alias}`
           : ""
-      }`,
+      }`;
+    },
     value: (v: Value): string => {
       if (v.kind === QueryNodeKind.Function) return Sql.fn(v);
       if (v.kind === QueryNodeKind.Field) return Sql.fieldInCondition(v);
       if (v.kind === QueryNodeKind.Identifier) return Sql.identifier(v);
+      if (v.kind === QueryNodeKind.Cast) return Sql.cast(v);
       return Sql.literal(v);
     },
     between: (expr: BetweenExpression): string =>
@@ -119,11 +145,13 @@ export function createSqlNodes(generator: SqlGenerator) {
         if (type === "start") return value + "%";
         return "%" + value;
       };
-      return `${Sql.value(expr.left)} ${operator} ${SqlString.escape(
+      return `${Sql.value(expr.left)} ${operator} ${renderValue(
         val(expr.right, expr.type),
       )}`;
     },
     in: (expr: InExpression): string => {
+      if ("right" in expr && expr.right.length === 0)
+        return expr.operator === "IN" ? "0 = 1" : "1 = 1";
       if ("right" in expr)
         return `${Sql.value(expr.left)} ${expr.operator} (${expr.right
           .map(Sql.value)
@@ -160,7 +188,7 @@ export function createSqlNodes(generator: SqlGenerator) {
           SqlString.escapeId(table.alias)
         );
       }
-      return `(${queryToSql(table.query, generator)}) AS ${SqlString.escapeId(table.alias)}`;
+      return `(${renderQuery(table.query)}) AS ${SqlString.escapeId(table.alias)}`;
     },
     join: (join: Join): string =>
       `${join.type ? join.type + " " : ""}JOIN ${Sql.table(join.table)} ON ` +
@@ -210,7 +238,7 @@ export function createSqlNodes(generator: SqlGenerator) {
       if ("kind" in expr) {
         return expr.expr;
       }
-      return queryToSql(expr, generator);
+      return renderQuery(expr);
     },
   };
 
@@ -219,6 +247,7 @@ export function createSqlNodes(generator: SqlGenerator) {
 
 /** Backward-compatible config-based entry points. */
 export const Sql: ReturnType<typeof createSqlNodes> = {
+  cast: (value) => createSqlGenerator().nodes.cast(value),
   select: (value) => createSqlGenerator().nodes.select(value),
   literal: (value) => createSqlGenerator().nodes.literal(value),
   fieldInCondition: (value) =>

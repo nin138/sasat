@@ -191,3 +191,33 @@ test("applies query-only conditions with their joins, ordering and locks inside 
   expect(sql.match(/INNER JOIN/g)).toHaveLength(1);
   expect(query.lock).toBe("FOR UPDATE");
 });
+
+test("runQuery uses the opted-in binding API and hydrates its result", async () => {
+  const client = {
+    supportsParameterizedStatements: true,
+    rawQuery: jest.fn(),
+    rawCommand: jest.fn(),
+    executeQuery: jest.fn().mockResolvedValue([{ u__id: 1 }]),
+  };
+  const rows = await runQuery(
+    client,
+    {
+      select: [q.field("u", "id", "u__id")],
+      from: q.table("users", [], "u"),
+      where: q.eq(q.field("u", "id"), q.value(1)),
+    },
+    {
+      tableAlias: "u",
+      property: "",
+      isArray: true,
+      keyAliases: ["id"],
+      joins: [],
+    },
+  );
+  expect(rows).toEqual([{ id: 1 }]);
+  expect(client.executeQuery).toHaveBeenCalledWith({
+    text: expect.stringContaining("WHERE `u`.`id`  = CAST(? AS SIGNED)"),
+    values: [1],
+  });
+  expect(client.rawQuery).not.toHaveBeenCalled();
+});

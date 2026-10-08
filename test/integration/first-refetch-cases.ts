@@ -243,6 +243,20 @@ export async function verifyFirstRefetch(dialect: DatabaseDialect) {
         return values;
       };
     }
+    for (const actual of new Set([executor, getDbClient()])) {
+      const executeQuery = actual.executeQuery.bind(actual);
+      actual.executeQuery = async (statement) => {
+        const start = performance.now();
+        const values = await executeQuery(statement);
+        samples.push({
+          sql: statement.text,
+          rows: values.length,
+          dbMs: performance.now() - start,
+          values,
+        });
+        return values;
+      };
+    }
     const selection = () => ({
       fields: ["id", "name", "bio"],
       relations: {
