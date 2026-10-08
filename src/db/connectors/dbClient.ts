@@ -52,15 +52,21 @@ export abstract class SQLClient implements ParameterizedSQLExecutor {
     return this.execSql(sql) as Promise<CommandResponse>;
   }
 
-  executeQuery(statement: SqlStatement): Promise<QueryResponse> {
+  // async converts synchronous validation/dispatch errors into Promise rejections.
+  // Input validation and snapshots still run immediately, before any async wait.
+  async executeQuery(statement: SqlStatement): Promise<QueryResponse> {
     const snapshot = snapshotStatement(statement);
     this.logger(snapshot.text);
+    // No await is needed: returning the executor's Promise forwards its outcome.
     return this.execStatement(snapshot, "query") as Promise<QueryResponse>;
   }
 
-  executeCommand(statement: SqlStatement): Promise<CommandResponse> {
+  // async converts synchronous validation/dispatch errors into Promise rejections.
+  // Input validation and snapshots still run immediately, before any async wait.
+  async executeCommand(statement: SqlStatement): Promise<CommandResponse> {
     const snapshot = snapshotStatement(statement);
     this.logger(snapshot.text);
+    // No await is needed: returning the executor's Promise forwards its outcome.
     return this.execStatement(snapshot, "command") as Promise<CommandResponse>;
   }
 

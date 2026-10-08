@@ -18,75 +18,89 @@ test("legacy custom clients retain raw execution but explicitly reject binding",
     ).rejects.toThrow("does not support parameterized");
 });
 
-test.each([
-  undefined,
-  NaN,
-  Infinity,
-  -Infinity,
-  {},
-  [1],
-  () => "secret",
-  new Date(NaN),
-])(
-  "rejects unsupported bind values without dispatch or disclosure (%p)",
-  async (value) => {
+describe.each(["executeQuery", "executeCommand"] as const)("%s", (method) => {
+  test.each([
+    undefined,
+    NaN,
+    Infinity,
+    -Infinity,
+    {},
+    [1],
+    () => "secret",
+    new Date(NaN),
+  ])(
+    "rejects unsupported bind values without dispatch or disclosure (%p)",
+    async (value) => {
+      const client = new BoundClient();
+      await expect(
+        client[method]({
+          text: "SELECT ?",
+          values: [value],
+        } as unknown as SqlStatement),
+      ).rejects.toThrow("Invalid SQL parameter at index 0");
+      expect(client.inspect).not.toHaveBeenCalled();
+    },
+  );
+
+  test("rejects sparse arrays and malformed statements", async () => {
     const client = new BoundClient();
     await expect(
-      client.executeQuery({
-        text: "SELECT ?",
-        values: [value],
-      } as unknown as SqlStatement),
-    ).rejects.toThrow("Invalid SQL parameter at index 0");
+      client[method]({ text: "SELECT ?", values: Array(1) }),
+    ).rejects.toThrow("index 0");
+    await expect(
+      client[method]({ text: "SELECT 1" } as SqlStatement),
+    ).rejects.toThrow("values array");
     expect(client.inspect).not.toHaveBeenCalled();
-  },
-);
+  });
 
-test("rejects sparse arrays and malformed statements", async () => {
-  const client = new BoundClient();
-  await expect(
-    client.executeQuery({ text: "SELECT ?", values: Array(1) }),
-  ).rejects.toThrow("index 0");
-  await expect(
-    client.executeQuery({ text: "SELECT 1" } as SqlStatement),
-  ).rejects.toThrow("values array");
-  expect(client.inspect).not.toHaveBeenCalled();
-});
-
-test("snapshots mutable inputs and preserves exact bigint values before dispatch", async () => {
-  const client = new BoundClient();
-  const date = new Date("2026-01-01T00:00:00Z");
-  const buffer = Buffer.from("original");
-  const statement = {
-    text: "SELECT ?, ?, ?, ?, ?, ?, ?",
-    values: [
-      date,
-      buffer,
-      9007199254740993n,
-      "0.123456789012345678",
-      null,
-      false,
-      0,
-    ],
-  };
-  const pending = client.executeQuery(statement);
-  statement.text = "changed";
-  statement.values[2] = 1n;
-  date.setUTCFullYear(2000);
-  buffer.fill(0);
-  await pending;
-  expect(client.inspect).toHaveBeenCalledWith(
-    {
+  test("snapshots mutable inputs and preserves exact bigint values before dispatch", async () => {
+    const client = new BoundClient();
+    const date = new Date("2026-01-01T00:00:00Z");
+    const buffer = Buffer.from("original");
+    const statement = {
       text: "SELECT ?, ?, ?, ?, ?, ?, ?",
       values: [
-        new Date("2026-01-01T00:00:00Z"),
-        Buffer.from("original"),
-        "9007199254740993",
+        date,
+        buffer,
+        9007199254740993n,
         "0.123456789012345678",
         null,
         false,
         0,
       ],
-    },
-    "query",
-  );
+    };
+    const pending = client[method](statement);
+    statement.text = "changed";
+    statement.values[2] = 1n;
+    date.setUTCFullYear(2000);
+    buffer.fill(0);
+    await pending;
+    expect(client.inspect).toHaveBeenCalledWith(
+      {
+        text: "SELECT ?, ?, ?, ?, ?, ?, ?",
+        values: [
+          new Date("2026-01-01T00:00:00Z"),
+          Buffer.from("original"),
+          "9007199254740993",
+          "0.123456789012345678",
+          null,
+          false,
+          0,
+        ],
+      },
+      method === "executeQuery" ? "query" : "command",
+    );
+  });
+
+  test("returns synchronous executor failures through .catch without replacing the error", async () => {
+    const client = new BoundClient();
+    const error = new Error("executor failed");
+    client.inspect.mockImplementationOnce(() => {
+      throw error;
+    });
+    await expect(
+      client[method]({ text: "SELECT 1", values: [] }).catch((cause) => cause),
+    ).resolves.toBe(error);
+    expect(client.inspect).toHaveBeenCalledTimes(1);
+  });
 });

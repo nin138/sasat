@@ -23,7 +23,8 @@ For MySQL, use `?` placeholders instead of `$1`, `$2`, etc. With `getDbClient()`
 
 ## Execution contract
 
-- `executeQuery` returns `QueryResponse`; `executeCommand` returns `CommandResponse` with `insertId`, `affectedRows`, and `changedRows`.
+- `executeQuery` returns `Promise<QueryResponse>`; `executeCommand` returns `Promise<CommandResponse>` with `insertId`, `affectedRows`, and `changedRows`.
+- The common client implementation reports validation errors and synchronous execution errors as Promise rejections, including calls through finished migration transactions or released migration sessions. Use `await` inside `try/catch` or attach `.catch(...)`. Input validation and snapshots still happen immediately at method invocation, before any asynchronous wait.
 - PostgreSQL inserts need `RETURNING id AS __sasat_insert_id` to populate `insertId`, just as with `rawCommand`.
 - Both methods work inside transactions and migration apply hooks using the existing reserved connection. Mock clients return empty rows or a command response with zero counts.
 - Values may be strings, finite numbers, bigint, booleans, `null`, valid `Date` instances, or Node.js `Buffer` instances. Decimal values should be strings. Use bigint for integers outside JavaScript's safe integer range. Bigints are sent as exact decimal strings; database BIGINT columns are still returned as bigint, and DECIMAL columns as strings with the built-in defaults.
