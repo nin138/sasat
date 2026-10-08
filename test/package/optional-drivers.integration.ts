@@ -123,13 +123,25 @@ for (const driver of [undefined, ...drivers]) {
       // Consumers should not need the unselected driver or @types/pg, even with
       // declaration checking enabled, for either the ESM or CommonJS entry point.
       const source = `
-        import {getDbClient, PostgresClient, MysqlClient, createSqlGenerator, queryToSql, qe, TransactionCommitError} from "sasat";
+        import {getDbClient, PostgresClient, MysqlClient, MysqlPoolClient, createSqlGenerator, queryToSql, qe, TransactionCommitError} from "sasat";
+        import type {MysqlDriver, PostgresDriver, DatabaseDriver} from "sasat";
         import type {SqlStatement, SqlParameter, ParameterizedSQLExecutor, QueryResponse, CommandResponse, TransactionExecutor, TransactionOptions} from "sasat";
         import {makeTestDB} from "sasat/testing";
         import type {SasatMigration} from "sasat/migration";
         const pg = new PostgresClient({max:4,host:"localhost"});
         const mysql = new MysqlClient({multipleStatements:true});
         const shared = getDbClient({connectionLimit:4});
+        declare const mysqlDriver: MysqlDriver;
+        declare const pgDriver: PostgresDriver;
+        const injectedMysql = new MysqlPoolClient({}, undefined, mysqlDriver);
+        const injectedConnection = new MysqlClient({}, undefined, mysqlDriver);
+        const injectedPg = new PostgresClient({}, undefined, pgDriver);
+        const selection: DatabaseDriver = {dialect:"mysql",driver:mysqlDriver};
+        getDbClient(undefined, undefined, selection);
+        getDbClient(undefined, undefined, {dialect:"postgres",driver:pgDriver});
+        // @ts-expect-error A PostgreSQL driver cannot be injected as a MySQL driver.
+        getDbClient(undefined, undefined, {dialect:"mysql",driver:pgDriver});
+        void [injectedMysql, injectedConnection, injectedPg];
         const generator = createSqlGenerator("postgres");
         const sql: string = queryToSql({select:[qe.field("users", "id")],from:qe.table("users", [], "users")}, generator);
         const quoted: string = shared.sql.escapeId("users");
@@ -165,8 +177,22 @@ for (const driver of [undefined, ...drivers]) {
         const migration: SasatMigration = {up() {},down() {}};
         void migration;
       `;
-      writeFileSync(path.join(directory, "consumer.mts"), source);
-      writeFileSync(path.join(directory, "consumer.cts"), source);
+      const dedicatedSource = driver
+        ? `
+        import {getDbClient as selectedClient, ${driver === "mysql2" ? "MysqlPoolClient" : "PostgresClient"} as SelectedPool} from "sasat/${driver === "mysql2" ? "mysql" : "postgres"}";
+        const selected = selectedClient({${driver === "mysql2" ? "connectionLimit" : "max"}:2});
+        const independent = new SelectedPool({});
+        void [selected, independent];
+      `
+        : "";
+      writeFileSync(
+        path.join(directory, "consumer.mts"),
+        source + dedicatedSource,
+      );
+      writeFileSync(
+        path.join(directory, "consumer.cts"),
+        source + dedicatedSource,
+      );
       writeFileSync(
         path.join(directory, "tsconfig.json"),
         JSON.stringify({
@@ -261,4 +287,109 @@ for (const driver of [undefined, ...drivers]) {
       rmSync(directory, { recursive: true, force: true });
     }
   });
+}
+
+for (const driver of drivers) {
+  for (const api of ["entry", "injection"] as const) {
+    test(`${driver} ${api} bundles the driver and runs without node_modules`, () => {
+      const directory = fixture(driver);
+      const deployment = mkdtempSync(
+        path.join(tmpdir(), "sasat-bundle-deployment-"),
+      );
+      try {
+        const dialect = driver === "mysql2" ? "mysql" : "postgres";
+        const className =
+          driver === "mysql2" ? "MysqlPoolClient" : "PostgresClient";
+        const specifier = driver === "mysql2" ? "mysql2/promise" : "pg";
+        for (const format of ["esm", "cjs"] as const) {
+          const extension = format === "esm" ? "mjs" : "cjs";
+          const source = path.join(directory, `embed.${extension}`);
+          const imports =
+            format === "esm"
+              ? `import {setConfig, getDbClient as shared, ${className} as BaseClient} from 'sasat';
+               import assert from 'node:assert/strict'; import {createRequire} from 'node:module';
+               ${api === "entry" ? `import {getDbClient, ${className} as Client} from 'sasat/${dialect}';` : `import driver from '${specifier}';`}
+               const resolve = createRequire(import.meta.url).resolve;`
+              : `const {setConfig, getDbClient: shared, ${className}: BaseClient} = require('sasat');
+               const assert = require('node:assert/strict'); const {createRequire} = require('node:module');
+               ${api === "entry" ? `const {getDbClient, ${className}: Client} = require('sasat/${dialect}');` : `const driver = require('${specifier}');`}
+               const resolve = createRequire(__filename).resolve;`;
+          writeFileSync(
+            source,
+            imports +
+              `
+            (async () => {
+              assert.throws(() => resolve('${driver}'), {code:'MODULE_NOT_FOUND'});
+              const live = process.env.SASAT_BUNDLE_LIVE === '1';
+              const options = live ? {
+                host: process.env.${driver === "mysql2" ? "TEST_DB_HOST" : "TEST_PG_HOST"},
+                port: Number(process.env.${driver === "mysql2" ? "TEST_DB_PORT" : "TEST_PG_PORT"}),
+                user: process.env.${driver === "mysql2" ? "TEST_DB_USER" : "TEST_PG_USER"} || '${driver === "mysql2" ? "root" : "postgres"}',
+                password: process.env.${driver === "mysql2" ? "TEST_DB_PASSWORD" : "TEST_PG_PASSWORD"} || '',
+                database: '${driver === "mysql2" ? "mysql" : "postgres"}'
+              } : {host:'127.0.0.1',port:1,user:'unused',database:'unused',password:''};
+              setConfig({db:{dialect:'${dialect}', ...options}});
+              const tuning = ${driver === "mysql2" ? "{connectTimeout:1000}" : "{connectionTimeoutMillis:1000}"};
+              const client = ${api === "entry" ? "getDbClient(tuning)" : `shared(tuning, undefined, {dialect:'${dialect}',driver})`};
+              assert.equal(shared(), client);
+              const independent = ${api === "entry" ? "new Client({...options, ...tuning})" : "new BaseClient({...options, ...tuning}, undefined, driver)"};
+              for (const db of [client, independent]) {
+                try {
+                  if (live) {
+                    const rows = await db.executeQuery({text:'SELECT ${driver === "mysql2" ? "?" : "$1::int"} AS value',values:[42]});
+                    assert.equal(rows[0].value,42);
+                    await db.withTransaction(async tx => {
+                      const result = await tx.rawQuery('SELECT 7 AS value');
+                      assert.equal(result[0].value,${driver === "mysql2" ? "7n" : "7"});
+                    });
+                  } else await assert.rejects(db.rawQuery('SELECT 1'), {code:'ECONNREFUSED'});
+                } finally { await db.release(); }
+              }
+            })().catch(error => { console.error(error); process.exitCode = 1; });
+          `,
+          );
+          const outfile = path.join(deployment, `bundle.${extension}`);
+          const result = buildSync({
+            absWorkingDir: directory,
+            entryPoints: [source],
+            outfile,
+            bundle: true,
+            platform: "node",
+            format,
+            minify: true,
+            // CommonJS driver dependencies still require Node built-ins in ESM output.
+            banner:
+              format === "esm"
+                ? {
+                    js: "import {createRequire as bundleCreateRequire} from 'node:module'; const require = bundleCreateRequire(import.meta.url);",
+                  }
+                : undefined,
+            metafile: true,
+            logLevel: "silent",
+          });
+          const inputs = Object.keys(result.metafile!.inputs).map((name) =>
+            name.replaceAll("\\", "/"),
+          );
+          assert.ok(
+            inputs.some((name) => name.includes(`/node_modules/${driver}/`)),
+          );
+          assert.ok(
+            !inputs.some((name) =>
+              name.includes(
+                `/node_modules/${driver === "mysql2" ? "pg" : "mysql2"}/`,
+              ),
+            ),
+          );
+          execute(deployment, [outfile]);
+        }
+      } catch (error) {
+        if (error && typeof error === "object" && "stderr" in error)
+          console.error(String(error.stderr));
+        throw error;
+      } finally {
+        rmSync(directory, { recursive: true, force: true });
+        rmSync(deployment, { recursive: true, force: true });
+      }
+    });
+  }
 }

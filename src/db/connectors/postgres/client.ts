@@ -1,4 +1,5 @@
 import type { Pool, PoolClient, PoolConfig, QueryResult, types } from "pg";
+import type { PostgresDriver } from "../../drivers.js";
 import { loadDriver } from "../../loadDriver.js";
 import {
   finishAndRelease,
@@ -50,12 +51,15 @@ export class PostgresClient extends DBClient {
   constructor(
     readonly poolOption: PoolConfig,
     logger?: (query: string) => void,
+    private readonly driver?: PostgresDriver,
   ) {
     super(logger, createSqlGenerator("postgres"));
   }
   private getPool(): Promise<Pool> {
     if (this._released) throw new Error("Database client has been released");
-    this.pool ??= loadDriver("pg").then(({ Pool, types }) => {
+    this.pool ??= (
+      this.driver ? Promise.resolve(this.driver) : loadDriver("pg")
+    ).then(({ Pool, types }) => {
       const pool = new Pool({
         types: typeOverrides(types),
         ...this.poolOption,

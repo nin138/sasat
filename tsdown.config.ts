@@ -1,7 +1,7 @@
 import { defineConfig } from 'tsdown';
 
 export default defineConfig({
-  entry: ['src/index.ts', 'src/cli/index.ts', "src/testing/index.ts", "src/migration/index.ts"],
+  entry: ['src/index.ts', 'src/cli/index.ts', "src/testing/index.ts", "src/migration/index.ts", "src/mysql/index.ts", "src/postgres/index.ts"],
   format: ['esm', 'cjs'],
   outDir: 'dist',
   dts: { resolver: "tsc" },

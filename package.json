@@ -91,6 +91,14 @@
     "./testing": {
       "import": "./dist/testing/index.mjs",
       "require": "./dist/testing/index.cjs"
+    },
+    "./mysql": {
+      "import": "./dist/mysql/index.mjs",
+      "require": "./dist/mysql/index.cjs"
+    },
+    "./postgres": {
+      "import": "./dist/postgres/index.mjs",
+      "require": "./dist/postgres/index.cjs"
     }
   },
   "main": "dist/index.mjs",

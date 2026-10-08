@@ -1,7 +1,13 @@
 export { setConfig } from "./config/config.js";
 export { MysqlClient } from "./db/connectors/mysql/client.js";
+export { MysqlPoolClient } from "./db/connectors/mysql/poolClient.js";
 export { PostgresClient } from "./db/connectors/postgres/client.js";
 export type { DatabaseDialect } from "./db/dialect.js";
+export type {
+  DatabaseDriver,
+  MysqlDriver,
+  PostgresDriver,
+} from "./db/drivers.js";
 export { formatQuery } from "./db/formatQuery.js";
 export { createSqlGenerator, SqlGenerator } from "./db/sqlGenerator.js";
 export type { SqlParameter, SqlStatement } from "./db/sqlStatement.js";

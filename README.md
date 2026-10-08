@@ -37,9 +37,9 @@ yarn add --dev typescript tsx @types/node
 yarn sasat init
 ```
 
-Install only the database driver you use: `mysql2` for MySQL or `pg` for PostgreSQL. Both are optional peer dependencies; Sasat loads the selected driver on the first database operation. PostgreSQL users should replace `mysql2` with `pg` in the command above.
+Install only the database driver you use: `mysql2` for MySQL or `pg` for PostgreSQL. Both are optional peer dependencies. PostgreSQL users should replace `mysql2` with `pg` in the command above.
 
-For bundled Node.js applications, deploy the selected driver alongside the bundle. Sasat resolves it at runtime; the unused driver does not need to be installed for bundling. See [database drivers](docs/configuration.md#database-drivers).
+Use `getDbClient` from `sasat/mysql` or `sasat/postgres` to make the selected driver available to your bundler. You can also [inject a driver explicitly](docs/bundling.md#inject-a-driver-explicitly). The unused driver need not be installed. See [bundling and deployment](docs/bundling.md) for a complete build example.
 
 Add `"type": "module"` to your `package.json`. Create `tsconfig.json`:
 
@@ -137,7 +137,10 @@ Create `server.ts` in your application root:
 ```typescript
 import { createServer } from 'node:http';
 import { createSchema, createYoga } from 'graphql-yoga';
-import { schema } from './out/schema.js';
+import { getDbClient } from 'sasat/mysql'; // PostgreSQL: sasat/postgres
+
+getDbClient();
+const { schema } = await import('./out/schema.js');
 
 const yoga = createYoga({ schema: createSchema(schema) });
 const port = Number(process.env.PORT ?? 4000);
@@ -183,12 +186,12 @@ Add database changes in new migrations rather than rewriting applied definitions
 
 - MySQL and PostgreSQL are supported. Database-specific SQL and native PostgreSQL types have [compatibility limits](docs/postgresql.md#schema-imports-and-boundaries).
 - `contextFields` supplies server-side input values. It does not automatically enforce tenant authorization for every operation.
-- Generation clears the old `__generated__` directory before writing new files. A failed run does not restore the previous output.
+- Generation restores previous output on ordinary publication errors. Process termination and concurrent writers are outside that guarantee; see [generation recovery](docs/migration-lifecycle.md#generation-failure-and-recovery).
 - Decimal uses GraphQL `Decimal` / TypeScript `string`; bigint uses GraphQL `BigInt` / TypeScript `bigint`. Both use strings in GraphQL JSON. See [numeric types and upgrading](docs/numeric-types.md).
 - Check [usage considerations](docs/runtime.md#limitations) for Hash IDs, bulk inserts, and other runtime behavior.
 - A failed Redis publish does not undo an already completed database write.
 
-The package exports `sasat` for runtime APIs, `sasat/migration` for migration definitions, and `sasat/testing` for test-database helpers. ESM, CommonJS, and TypeScript declarations are provided.
+The package exports `sasat` for runtime APIs, `sasat/mysql` and `sasat/postgres` for explicit driver entry points, `sasat/migration` for migration definitions, and `sasat/testing` for test-database helpers. ESM, CommonJS, and TypeScript declarations are provided.
 
 ## Contributing
 

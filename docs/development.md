@@ -22,7 +22,7 @@ yarn test:unit
 
 Make sure Yarn matches the configured version. If Corepack is already installed, `corepack enable` enables its package-manager shims. Manage dependencies with Yarn and keep yarn.lock consistent.
 
-Build output in dist includes ESM, CommonJS, and type declarations. Both database drivers are devDependencies for repository testing and optional peers for applications. Their JavaScript remains external and loads on demand; their public option declarations are bundled with attribution in dist/licenses. The unit and HTTP smoke suites do not require a database or a local .env file.
+Build output in dist includes ESM, CommonJS, and type declarations. Both database drivers are devDependencies for repository testing and optional peers for applications. Driver JavaScript stays external to Sasat's own distribution. The common entry point loads it on demand; `sasat/mysql` and `sasat/postgres` statically import only their driver so application bundlers can embed it. Public option declarations are bundled with attribution in dist/licenses. The unit and HTTP smoke suites do not require a database or a local .env file.
 
 ## Validation commands
 
@@ -42,6 +42,14 @@ Build output in dist includes ESM, CommonJS, and type declarations. Both databas
 | `yarn biome check <changed-files>` | Check selected code without rewriting it |
 
 **`yarn test` resets the database and runs migrations in pretest.** Use it only after confirming that its connection targets a disposable database. Prefer test:unit for routine unit checks. `yarn check` and `yarn format` modify files; scope them and inspect the diff.
+
+The package suite also builds ESM/CommonJS applications through database entry points and explicit driver injection, verifies the selected driver is embedded and the other is absent, and executes the output without `node_modules`. By default these checks expect a refused connection. To exercise those isolated bundles against the Compose databases, run this after `yarn build`:
+
+```sh
+SASAT_BUNDLE_LIVE=1 TEST_DB_HOST=db TEST_DB_PORT=3306 TEST_PG_HOST=postgres TEST_PG_PORT=5432 yarn test:package
+```
+
+Set `TEST_DB_USER`/`TEST_DB_PASSWORD` or `TEST_PG_USER`/`TEST_PG_PASSWORD` for other environments. These bundle checks only execute constant SELECTs and managed transactions against the `mysql`/`postgres` maintenance databases.
 
 ## Sample servers
 

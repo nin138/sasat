@@ -1,4 +1,5 @@
 import type { Pool, PoolOptions } from "mysql2/promise";
+import type { MysqlDriver } from "../../drivers.js";
 import { loadDriver } from "../../loadDriver.js";
 import {
   finishAndRelease,
@@ -26,6 +27,7 @@ export class MysqlPoolClient extends DBClient {
   constructor(
     readonly poolOption: PoolOptions,
     logger?: (query: string) => void,
+    private readonly driver?: MysqlDriver,
   ) {
     super(logger);
     this.release = this.release.bind(this);
@@ -33,7 +35,9 @@ export class MysqlPoolClient extends DBClient {
 
   private getPool(): Promise<Pool> {
     if (this._released) throw new Error("Database client has been released");
-    this.pool ??= loadDriver("mysql2").then(({ createPool }) =>
+    this.pool ??= (
+      this.driver ? Promise.resolve(this.driver) : loadDriver("mysql2")
+    ).then(({ createPool }) =>
       createPool({
         dateStrings: true,
         ...mysqlNumericOptions,
