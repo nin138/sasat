@@ -121,6 +121,10 @@ Inside dev, use TEST_DB_HOST=db, TEST_DB_PORT=3306, and TEST_REDIS_URL=redis://r
 
 Apollo and Yoga retain their default error handling in comparison tests. For example, database errors may be exposed by Apollo and masked by Yoga; Sasat does not impose a shared public error policy.
 
+## SQL performance measurements
+
+`yarn bench:prepared` compares raw and compiled SQL on isolated MySQL and PostgreSQL databases. It emits JSONL with latency distributions, transaction connection counts, MySQL cache counters, and a PostgreSQL named-statement probe. Run it separately from builds and other tests. See [setup, methodology and recorded results](prepared-statements-performance.md).
+
 ## Source map
 
 | Area | Start here |

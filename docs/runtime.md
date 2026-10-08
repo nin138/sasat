@@ -74,7 +74,9 @@ Add custom methods to the subclasses in `out/dataSources/db/*.ts`. The basic API
 
 `getDbClient()` returns a shared pool. Changing database settings, explicit options, or the logger while that pool is active throws an error. Finish pending work and release the client before switching settings. For simultaneous access to separate databases, inject independent MysqlClient or PostgresClient instances into your data sources.
 
-Data-source constructors accept an SQLExecutor, so multiple operations can share the same transaction. The MySQL pool client's transaction method opens a separate connection; its pool connection limit does not govern those transaction connections. PostgreSQL transactions check out a connection from their pool. Generated mutations are not automatically wrapped in a transaction as a whole.
+Data-source constructors accept an SQLExecutor, so multiple operations can share the same transaction. Both MySQL and PostgreSQL pool clients reserve a connection from their ordinary-query pool; the pool's capacity and acquisition policy apply to transactions too. Successful completion returns the connection, while failed completion or explicit discard removes it. Use the transaction executor for all work inside a transaction to avoid waiting on an exhausted parent pool. Generated mutations are not automatically wrapped in a transaction as a whole. See [pool lifecycle and measurements](prepared-statements-performance.md#pool-transaction-contract).
+
+Prefer `client.withTransaction(async (tx) => { ... })` to manage commit, rollback and cleanup. Construct data sources with `tx`. Any SQL failure makes the callback rollback-only, even if caught. For session-changing work, pass `{ connection: 'discard' }` to commit or roll back before destroying the connection. The existing manual `transaction()` API remains available. See [managed transactions](transactions.md) for examples, errors and custom client compatibility.
 
 Each built-in client and its transactions share a fixed SQL generator at `client.sql`. See [SQL generation and connections](sql-generation.md) for offline generation, raw SQL, custom executors, and migration from `withDialect`.
 

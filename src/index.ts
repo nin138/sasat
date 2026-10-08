@@ -70,6 +70,11 @@ export type {
   SQLExecutor,
   SQLTransaction,
 } from "./db/connectors/dbClient.js";
+export type {
+  TransactionExecutor,
+  TransactionOptions,
+} from "./db/managedTransaction.js";
+export { TransactionCommitError } from "./db/managedTransaction.js";
 export type { HashIdEncoder } from "./runtime/id.js";
 export { makeBigIntIdEncoder } from "./runtime/id.js";
 export {

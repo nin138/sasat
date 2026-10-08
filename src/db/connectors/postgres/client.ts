@@ -1,5 +1,10 @@
 import type { Pool, PoolClient, PoolConfig, QueryResult, types } from "pg";
 import { loadDriver } from "../../loadDriver.js";
+import {
+  finishAndRelease,
+  type TransactionOptions,
+  transactionConnectionPolicy,
+} from "../../managedTransaction.js";
 import { createSqlGenerator, type SqlGenerator } from "../../sqlGenerator.js";
 import type { SqlStatement } from "../../sqlStatement.js";
 import {
@@ -35,6 +40,9 @@ function commandResponse(result: QueryResult): CommandResponse {
 }
 
 export class PostgresClient extends DBClient {
+  override get supportsTransactionConnectionPolicy(): boolean {
+    return true;
+  }
   override get supportsParameterizedStatements(): boolean {
     return true;
   }
@@ -80,13 +88,17 @@ export class PostgresClient extends DBClient {
     this.logger(sql);
     return commandResponse(lastResult(await (await this.getPool()).query(sql)));
   }
-  async transaction(): Promise<SQLTransaction> {
+  async transaction(options?: TransactionOptions): Promise<SQLTransaction> {
+    const policy = transactionConnectionPolicy(options);
     const client = await (await this.getPool()).connect();
     try {
       await client.query("BEGIN");
-      return new PostgresTransaction(client, this.logger, this.sql);
+      return new PostgresTransaction(client, this.logger, this.sql, policy);
     } catch (error) {
-      client.release(true);
+      await finishAndRelease(
+        () => Promise.reject(error),
+        () => client.release(true),
+      );
       throw error;
     }
   }
@@ -107,6 +119,7 @@ class PostgresTransaction extends SQLTransaction {
     private readonly client: PoolClient,
     logger: (query: string) => void,
     sql: SqlGenerator,
+    private readonly connectionPolicy: "reuse" | "discard" = "reuse",
   ) {
     super(sql);
     this.logger = logger;
@@ -138,15 +151,13 @@ class PostgresTransaction extends SQLTransaction {
   private async finish(command: "COMMIT" | "ROLLBACK") {
     if (this.finished) return;
     this.finished = true;
-    let failed = false;
-    try {
-      await this.client.query(command);
-    } catch (error) {
-      failed = true;
-      throw error;
-    } finally {
-      this.client.release(failed);
-    }
+    await finishAndRelease(
+      async () => {
+        await this.client.query(command);
+      },
+      (failed) =>
+        this.client.release(failed || this.connectionPolicy === "discard"),
+    );
   }
   override async discard(): Promise<void> {
     if (this.finished) return;

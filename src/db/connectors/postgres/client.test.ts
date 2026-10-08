@@ -206,3 +206,43 @@ test("bound PostgreSQL transactions share the session and can roll back after fa
   expect(connection.release).toHaveBeenCalledTimes(1);
   expect(pool.query).not.toHaveBeenCalled();
 });
+
+test.each(["commit", "rollback"] as const)(
+  "discard policy completes %s before destroying the PG session",
+  async (action) => {
+    const { client, connection } = setup();
+    const options: { connection: "reuse" | "discard" } = {
+      connection: "discard",
+    };
+    const pending = client.transaction(options);
+    options.connection = "reuse";
+    const tx = await pending;
+    await tx[action]();
+    await tx.discard();
+    expect(connection.query.mock.calls.map((c) => c[0])).toEqual([
+      "BEGIN",
+      action.toUpperCase(),
+    ]);
+    expect(connection.release).toHaveBeenCalledTimes(1);
+    expect(connection.release).toHaveBeenCalledWith(true);
+    expect(connection.release.mock.invocationCallOrder[0]).toBeGreaterThan(
+      connection.query.mock.invocationCallOrder[1],
+    );
+    await client.release();
+  },
+);
+
+test("PostgreSQL preserves both BEGIN and release failures", async () => {
+  const { client, connection } = setup();
+  const begin = new Error("begin");
+  const release = new Error("release");
+  connection.query.mockRejectedValueOnce(begin);
+  connection.release.mockImplementation(() => {
+    throw release;
+  });
+  await expect(client.withTransaction(async () => 1)).rejects.toMatchObject({
+    cause: begin,
+    errors: [begin, release],
+  });
+  await client.release();
+});

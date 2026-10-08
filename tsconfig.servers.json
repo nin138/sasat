@@ -9,7 +9,8 @@
     "test/yogaServer.ts",
     "test/integration/**/*.ts",
     "test/postgres/**/*.ts",
-    "test/package/**/*.ts"
+    "test/package/**/*.ts",
+    "test/bench/**/*.ts"
   ],
   "exclude": [
     "node_modules",

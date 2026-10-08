@@ -15,6 +15,7 @@
       "test/integration/**",
       "test/postgres/**",
       "test/package/**",
+      "test/bench/**",
       "test/serverSchema.ts",
       "test/testServer.ts",
       "test/yogaServer.ts",

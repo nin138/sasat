@@ -1,6 +1,10 @@
 import type { Pool, PoolOptions } from "mysql2/promise";
-import { config } from "@/config/config.js";
 import { loadDriver } from "../../loadDriver.js";
+import {
+  finishAndRelease,
+  type TransactionOptions,
+  transactionConnectionPolicy,
+} from "../../managedTransaction.js";
 import type { SqlStatement } from "../../sqlStatement.js";
 import {
   type CommandResponse,
@@ -12,6 +16,9 @@ import { mysqlNumericOptions, normalizeMysqlResult } from "./numeric.js";
 import { MySqlTransaction } from "./transaction.js";
 
 export class MysqlPoolClient extends DBClient {
+  override get supportsTransactionConnectionPolicy(): boolean {
+    return true;
+  }
   override get supportsParameterizedStatements(): boolean {
     return true;
   }
@@ -37,24 +44,20 @@ export class MysqlPoolClient extends DBClient {
     return this.pool;
   }
 
-  async transaction(): Promise<SQLTransaction> {
-    if (this._released) throw new Error("Database client has been released");
-    const { createConnection } = await loadDriver(
-      "mysql2",
-      () => import("mysql2/promise"),
-    );
-    const { dialect: _dialect, ...connectionConfig } = config().db;
-    const connection = await createConnection({
-      ...connectionConfig,
-      dateStrings: true,
-      ...mysqlNumericOptions,
-      ...this.poolOption,
-    });
+  async transaction(options?: TransactionOptions): Promise<SQLTransaction> {
+    const policy = transactionConnectionPolicy(options);
+    const connection = await (await this.getPool()).getConnection();
     try {
       await connection.beginTransaction();
-      return new MySqlTransaction(connection, this.sql);
+      return new MySqlTransaction(connection, this.sql, (discard) => {
+        if (discard || policy === "discard") connection.destroy();
+        else connection.release();
+      });
     } catch (error) {
-      await connection.end();
+      await finishAndRelease(
+        () => Promise.reject(error),
+        () => connection.destroy(),
+      );
       throw error;
     }
   }

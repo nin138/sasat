@@ -15,6 +15,8 @@ const connection = () => ({
   commit: jest.fn().mockResolvedValue(undefined),
   rollback: jest.fn().mockResolvedValue(undefined),
   end: jest.fn().mockResolvedValue(undefined),
+  destroy: jest.fn(),
+  release: jest.fn(),
 });
 
 test("formats tagged queries, logs SQL, unwraps results, and closes connections", async () => {
@@ -170,17 +172,20 @@ test("detects changes to the default database configuration", async () => {
   }
 });
 
-test("pool client closes the dedicated connection when BEGIN fails", async () => {
+test("pool client discards the borrowed connection when BEGIN fails", async () => {
   const c = connection();
   const error = new Error("begin failed");
   c.beginTransaction.mockRejectedValue(error);
   const pool = connection();
-  jest.mocked(createPool).mockReturnValue(pool as never);
-  jest.mocked(createConnection).mockResolvedValue(c as never);
+  const getConnection = jest.fn().mockResolvedValue(c);
+  jest.mocked(createPool).mockReturnValue({ ...pool, getConnection } as never);
   const client = new MysqlPoolClient({ database: "test" });
   try {
     await expect(client.transaction()).rejects.toBe(error);
-    expect(c.end).toHaveBeenCalledTimes(1);
+    expect(c.destroy).toHaveBeenCalledTimes(1);
+    expect(c.release).not.toHaveBeenCalled();
+    expect(c.end).not.toHaveBeenCalled();
+    expect(createConnection).not.toHaveBeenCalled();
     expect(c.commit).not.toHaveBeenCalled();
     expect(c.rollback).not.toHaveBeenCalled();
     expect(pool.end).not.toHaveBeenCalled();
@@ -292,4 +297,192 @@ test("bound transaction calls reuse its connection and remain rollbackable after
   expect(createConnection).toHaveBeenCalledTimes(1);
   expect(c.rollback).toHaveBeenCalledTimes(1);
   expect(c.end).toHaveBeenCalledTimes(1);
+});
+
+test.each(["commit", "rollback"] as const)(
+  "pooled transactions return a healthy session once after %s",
+  async (action) => {
+    const c = {
+      ...connection(),
+      execute: jest.fn().mockResolvedValue([[{ id: 1 }], []]),
+    };
+    const pool = {
+      ...connection(),
+      getConnection: jest.fn().mockResolvedValue(c),
+    };
+    jest.mocked(createPool).mockReturnValue(pool as never);
+    const client = new MysqlPoolClient({
+      database: "isolated",
+      connectionLimit: 2,
+    });
+    const tx = await client.transaction();
+    expect(tx.sql).toBe(client.sql);
+    await tx.rawQuery("SELECT 1");
+    await tx.executeQuery({ text: "SELECT ? AS id", values: [1] });
+    await tx[action]();
+    await tx.commit();
+    await tx.rollback();
+    await tx.discard();
+    expect(c[action]).toHaveBeenCalledTimes(1);
+    expect(c.release).toHaveBeenCalledTimes(1);
+    expect(c.end).not.toHaveBeenCalled();
+    expect(c.destroy).not.toHaveBeenCalled();
+    expect(createConnection).not.toHaveBeenCalled();
+    expect(createPool).toHaveBeenCalledWith(
+      expect.objectContaining({ database: "isolated", connectionLimit: 2 }),
+    );
+    await expect(tx.rawQuery("SELECT 1")).rejects.toThrow("finished");
+    await expect(
+      tx.executeCommand({ text: "UPDATE t SET n=?", values: [1] }),
+    ).rejects.toThrow("finished");
+    expect(c.query).toHaveBeenCalledTimes(1);
+    expect(c.execute).toHaveBeenCalledTimes(1);
+    await client.release();
+  },
+);
+
+test.each(["commit", "rollback"] as const)(
+  "pooled transactions discard an unsafe session when %s fails",
+  async (action) => {
+    const c = connection();
+    const error = new Error("finish failed");
+    c[action].mockRejectedValue(error);
+    jest.mocked(createPool).mockReturnValue({
+      ...connection(),
+      getConnection: jest.fn().mockResolvedValue(c),
+    } as never);
+    const client = new MysqlPoolClient({});
+    const tx = await client.transaction();
+    await expect(tx[action]()).rejects.toBe(error);
+    await tx.rollback();
+    await tx.discard();
+    expect(c.destroy).toHaveBeenCalledTimes(1);
+    expect(c.release).not.toHaveBeenCalled();
+    expect(c.end).not.toHaveBeenCalled();
+    await client.release();
+  },
+);
+
+test("discard destroys a reserved session and never sends COMMIT or ROLLBACK", async () => {
+  const c = connection();
+  jest.mocked(createPool).mockReturnValue({
+    ...connection(),
+    getConnection: jest.fn().mockResolvedValue(c),
+  } as never);
+  const client = new MysqlPoolClient({});
+  const tx = await client.transaction();
+  await tx.discard();
+  await tx.discard();
+  await tx.rollback();
+  expect(c.destroy).toHaveBeenCalledTimes(1);
+  expect(c.release).not.toHaveBeenCalled();
+  expect(c.commit).not.toHaveBeenCalled();
+  expect(c.rollback).not.toHaveBeenCalled();
+  await expect(tx.rawQuery("SELECT 1")).rejects.toThrow("finished");
+  await client.release();
+});
+
+test("an acquisition failure never falls back to a dedicated connection", async () => {
+  const error = new Error("pool capacity exhausted");
+  const getConnection = jest.fn().mockRejectedValue(error);
+  jest
+    .mocked(createPool)
+    .mockReturnValue({ ...connection(), getConnection } as never);
+  const client = new MysqlPoolClient({});
+  await expect(client.transaction()).rejects.toBe(error);
+  expect(createConnection).not.toHaveBeenCalled();
+  await client.release();
+  await expect(client.transaction()).rejects.toThrow("released");
+  expect(getConnection).toHaveBeenCalledTimes(1);
+});
+
+test("statement failure keeps the borrowed session available for rollback", async () => {
+  const c = {
+    ...connection(),
+    execute: jest.fn().mockRejectedValue(new Error("constraint failed")),
+  };
+  jest.mocked(createPool).mockReturnValue({
+    ...connection(),
+    getConnection: jest.fn().mockResolvedValue(c),
+  } as never);
+  const client = new MysqlPoolClient({});
+  const tx = await client.transaction();
+  await expect(
+    tx.executeCommand({ text: "INSERT INTO t VALUES (?)", values: [1] }),
+  ).rejects.toThrow("constraint failed");
+  expect(c.release).not.toHaveBeenCalled();
+  expect(c.destroy).not.toHaveBeenCalled();
+  await tx.rollback();
+  expect(c.release).toHaveBeenCalledTimes(1);
+  expect(c.destroy).not.toHaveBeenCalled();
+  await client.release();
+});
+
+test.each(["commit", "rollback"] as const)(
+  "discard policy completes %s before destroying the pooled connection",
+  async (action) => {
+    const c = connection();
+    const order: string[] = [];
+    c[action].mockImplementation(async () => {
+      order.push(action);
+    });
+    c.destroy.mockImplementation(() => {
+      order.push("destroy");
+    });
+    jest.mocked(createPool).mockReturnValue({
+      ...connection(),
+      getConnection: jest.fn().mockResolvedValue(c),
+    } as never);
+    const client = new MysqlPoolClient({});
+    const options: { connection: "reuse" | "discard" } = {
+      connection: "discard",
+    };
+    const pending = client.transaction(options);
+    options.connection = "reuse";
+    const tx = await pending;
+    await tx[action]();
+    await tx.discard();
+    expect(order).toEqual([action, "destroy"]);
+    expect(c.release).not.toHaveBeenCalled();
+    expect(c.end).not.toHaveBeenCalled();
+    await client.release();
+  },
+);
+
+test("BEGIN and destroy failures both survive acquisition rejection", async () => {
+  const c = connection();
+  const begin = new Error("begin");
+  const destroy = new Error("destroy");
+  c.beginTransaction.mockRejectedValue(begin);
+  c.destroy.mockImplementation(() => {
+    throw destroy;
+  });
+  jest.mocked(createPool).mockReturnValue({
+    ...connection(),
+    getConnection: jest.fn().mockResolvedValue(c),
+  } as never);
+  const client = new MysqlPoolClient({});
+  await expect(client.withTransaction(async () => 1)).rejects.toMatchObject({
+    cause: begin,
+    errors: [begin, destroy],
+  });
+  await client.release();
+});
+
+test("dedicated MySQL clients implement the managed discard policy by closing", async () => {
+  const c = connection();
+  jest.mocked(createConnection).mockResolvedValue(c as never);
+  const client = new MysqlClient({});
+  await expect(
+    client.withTransaction(
+      async (tx) => {
+        await tx.rawQuery("SELECT 1");
+        return 5;
+      },
+      { connection: "discard" },
+    ),
+  ).resolves.toBe(5);
+  expect(c.commit).toHaveBeenCalledTimes(1);
+  expect(c.end).toHaveBeenCalledTimes(1);
+  expect(c.release).not.toHaveBeenCalled();
 });

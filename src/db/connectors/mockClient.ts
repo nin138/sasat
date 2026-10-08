@@ -1,3 +1,7 @@
+import {
+  type TransactionOptions,
+  transactionConnectionPolicy,
+} from "../managedTransaction.js";
 import type { SqlStatement } from "../sqlStatement.js";
 import { DBClient, SQLTransaction } from "./dbClient.js";
 
@@ -25,6 +29,9 @@ class MockDBTransaction extends SQLTransaction {
 }
 
 export class MockDBClient extends DBClient {
+  override get supportsTransactionConnectionPolicy(): boolean {
+    return true;
+  }
   override get supportsParameterizedStatements(): boolean {
     return true;
   }
@@ -42,7 +49,8 @@ export class MockDBClient extends DBClient {
     return Promise.resolve(undefined);
   }
 
-  transaction() {
+  transaction(options?: TransactionOptions) {
+    transactionConnectionPolicy(options);
     return Promise.resolve(new MockDBTransaction(this.sql));
   }
 }

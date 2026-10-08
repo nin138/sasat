@@ -122,8 +122,8 @@ for (const driver of [undefined, ...drivers]) {
       // Consumers should not need the unselected driver or @types/pg, even with
       // declaration checking enabled, for either the ESM or CommonJS entry point.
       const source = `
-        import {getDbClient, PostgresClient, MysqlClient, createSqlGenerator, queryToSql, qe} from "sasat";
-        import type {SqlStatement, SqlParameter, ParameterizedSQLExecutor, QueryResponse, CommandResponse} from "sasat";
+        import {getDbClient, PostgresClient, MysqlClient, createSqlGenerator, queryToSql, qe, TransactionCommitError} from "sasat";
+        import type {SqlStatement, SqlParameter, ParameterizedSQLExecutor, QueryResponse, CommandResponse, TransactionExecutor, TransactionOptions} from "sasat";
         import {makeTestDB} from "sasat/testing";
         import type {SasatMigration} from "sasat/migration";
         const pg = new PostgresClient({max:4,host:"localhost"});
@@ -144,6 +144,18 @@ for (const driver of [undefined, ...drivers]) {
         const deleted: SqlStatement = generator.compileDelete({table:"users",where});
         const write: Promise<CommandResponse> = shared.executeCommand(created);
         void [updated, deleted, write];
+        const options: TransactionOptions = {connection:"discard"};
+        const managed: Promise<number> = pg.withTransaction(async (tx: TransactionExecutor) => {
+          const command: CommandResponse = await tx.executeCommand(created);
+          // @ts-expect-error Completion is owned by withTransaction.
+          tx.commit;
+          // @ts-expect-error The callback cannot acquire a nested transaction.
+          tx.transaction;
+          return command.affectedRows;
+        }, options);
+        const same: Promise<string> = mysql.withTransaction(async tx => { await tx.query\`SELECT 1\`; return "ok"; });
+        const manual = shared.transaction({connection:"discard"});
+        void [managed, same, manual, TransactionCommitError];
         const executor: ParameterizedSQLExecutor = pg;
         const boundRows: Promise<QueryResponse> = executor.executeQuery(statement);
         const boundCommand: Promise<CommandResponse> = mysql.executeCommand({text:"SELECT ?", values:[1]});

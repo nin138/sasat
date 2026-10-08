@@ -1,4 +1,5 @@
 import type { Connection } from "mysql2/promise";
+import { finishAndRelease } from "../../managedTransaction.js";
 import { createSqlGenerator, type SqlGenerator } from "../../sqlGenerator.js";
 import type { SqlStatement } from "../../sqlStatement.js";
 import {
@@ -12,32 +13,48 @@ export class MySqlTransaction extends SQLTransaction {
   override get supportsParameterizedStatements(): boolean {
     return true;
   }
+  private finished = false;
   constructor(
     private connection: Connection,
     sql: SqlGenerator = createSqlGenerator("mysql"),
+    private readonly releaseConnection: (
+      discard: boolean,
+    ) => void | Promise<void> = () => connection.end(),
   ) {
     super(sql);
   }
 
-  async commit(): Promise<void> {
-    try {
-      await this.connection.commit();
-    } finally {
-      await this.connection.end();
-    }
+  private assertActive() {
+    if (this.finished) throw new Error("Transaction has already finished");
   }
 
-  async rollback(): Promise<void> {
-    try {
-      await this.connection.rollback();
-    } finally {
-      await this.connection.end();
-    }
+  private async finish(action: "commit" | "rollback"): Promise<void> {
+    if (this.finished) return;
+    this.finished = true;
+    await finishAndRelease(
+      () => this.connection[action](),
+      this.releaseConnection,
+    );
+  }
+
+  commit(): Promise<void> {
+    return this.finish("commit");
+  }
+
+  rollback(): Promise<void> {
+    return this.finish("rollback");
+  }
+
+  override async discard(): Promise<void> {
+    if (this.finished) return;
+    this.finished = true;
+    await this.releaseConnection(true);
   }
 
   protected async execStatement(
     statement: SqlStatement,
   ): Promise<QueryResponse | CommandResponse> {
+    this.assertActive();
     return normalizeMysqlResult(
       (await this.connection.execute(statement.text, [...statement.values]))[0],
     );
@@ -46,6 +63,7 @@ export class MySqlTransaction extends SQLTransaction {
   protected async execSql(
     sql: string,
   ): Promise<QueryResponse | CommandResponse> {
+    this.assertActive();
     return normalizeMysqlResult((await this.connection.query(sql))[0]);
   }
 }

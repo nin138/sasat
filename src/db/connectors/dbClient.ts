@@ -1,4 +1,9 @@
 import type { DatabaseDialect } from "../dialect.js";
+import {
+  runManagedTransaction,
+  type TransactionExecutor,
+  type TransactionOptions,
+} from "../managedTransaction.js";
 import { createSqlGenerator, type SqlGenerator } from "../sqlGenerator.js";
 import { type SqlStatement, snapshotStatement } from "../sqlStatement.js";
 
@@ -47,13 +52,13 @@ export abstract class SQLClient implements ParameterizedSQLExecutor {
     return this.execSql(sql) as Promise<CommandResponse>;
   }
 
-  async executeQuery(statement: SqlStatement): Promise<QueryResponse> {
+  executeQuery(statement: SqlStatement): Promise<QueryResponse> {
     const snapshot = snapshotStatement(statement);
     this.logger(snapshot.text);
     return this.execStatement(snapshot, "query") as Promise<QueryResponse>;
   }
 
-  async executeCommand(statement: SqlStatement): Promise<CommandResponse> {
+  executeCommand(statement: SqlStatement): Promise<CommandResponse> {
     const snapshot = snapshotStatement(statement);
     this.logger(snapshot.text);
     return this.execStatement(snapshot, "command") as Promise<CommandResponse>;
@@ -99,6 +104,10 @@ export abstract class SQLTransaction extends SQLClient {
 }
 
 export abstract class DBClient extends SQLClient {
+  /** Custom clients must explicitly implement transaction(options) before opting in. */
+  get supportsTransactionConnectionPolicy(): boolean {
+    return false;
+  }
   protected _released: boolean;
   protected constructor(
     logger: (query: string) => void = noop,
@@ -111,6 +120,12 @@ export abstract class DBClient extends SQLClient {
   public isReleased(): boolean {
     return this._released;
   }
-  abstract transaction(): Promise<SQLTransaction>;
+  withTransaction<T>(
+    callback: (transaction: TransactionExecutor) => Promise<T>,
+    options?: TransactionOptions,
+  ): Promise<T> {
+    return runManagedTransaction(this, callback, options);
+  }
+  abstract transaction(options?: TransactionOptions): Promise<SQLTransaction>;
   abstract release(): Promise<void>;
 }

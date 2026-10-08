@@ -28,3 +28,23 @@ test("supports parameterized no-op queries and commands on the client and transa
     ).resolves.toEqual({ insertId: 0, affectedRows: 0, changedRows: 0 });
   }
 });
+
+test("mock clients expose the same managed transaction surface", async () => {
+  const client = new Client();
+  await expect(
+    client.withTransaction(
+      async (tx) => {
+        expect(tx.supportsParameterizedStatements).toBe(true);
+        await tx.executeCommand({ text: "INSERT ?", values: [1] });
+        return "mock";
+      },
+      { connection: "discard" },
+    ),
+  ).resolves.toBe("mock");
+  const error = new Error("failed");
+  await expect(
+    client.withTransaction(async () => {
+      throw error;
+    }),
+  ).rejects.toBe(error);
+});

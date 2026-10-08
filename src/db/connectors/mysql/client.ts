@@ -1,5 +1,10 @@
 import type { ConnectionOptions } from "mysql2/promise";
 import { loadDriver } from "../../loadDriver.js";
+import {
+  finishAndRelease,
+  type TransactionOptions,
+  transactionConnectionPolicy,
+} from "../../managedTransaction.js";
 import type { SqlStatement } from "../../sqlStatement.js";
 import {
   type CommandResponse,
@@ -11,6 +16,9 @@ import { mysqlNumericOptions, normalizeMysqlResult } from "./numeric.js";
 import { MySqlTransaction } from "./transaction.js";
 
 export class MysqlClient extends DBClient {
+  override get supportsTransactionConnectionPolicy(): boolean {
+    return true;
+  }
   override get supportsParameterizedStatements(): boolean {
     return true;
   }
@@ -36,13 +44,17 @@ export class MysqlClient extends DBClient {
     });
   }
 
-  async transaction(): Promise<SQLTransaction> {
+  async transaction(options?: TransactionOptions): Promise<SQLTransaction> {
+    transactionConnectionPolicy(options);
     const connection = await this.getConnection();
     try {
       await connection.beginTransaction();
       return new MySqlTransaction(connection, this.sql);
     } catch (error) {
-      await connection.end();
+      await finishAndRelease(
+        () => Promise.reject(error),
+        () => connection.end(),
+      );
       throw error;
     }
   }

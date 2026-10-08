@@ -50,15 +50,10 @@ try {
     client.sql.escapeId(table)} WHERE id = ${id}`;
   console.log(rows);
 
-  const transaction = await client.transaction();
-  try {
+  await client.withTransaction(async (transaction) => {
     // transaction.sql === client.sql
     await transaction.query`SELECT ${'example'}`;
-    await transaction.commit();
-  } catch (error) {
-    await transaction.rollback();
-    throw error;
-  }
+  });
 } finally {
   await client.release();
 }
