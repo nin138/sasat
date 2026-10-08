@@ -24,6 +24,20 @@ export const writeFileIfNotExist = (
   return writeFile(path, data);
 };
 
+export const serializeYml = (obj: object): string =>
+  dump(obj, {
+    skipInvalid: true,
+    noRefs: true,
+    sortKeys: (a, b) => {
+      if (b === "tableName") return 1;
+      if (a === "tableName") return -1;
+
+      if (a > b) return 1;
+      if (a < b) return -1;
+      return 0;
+    },
+  });
+
 export const writeYmlFile = (
   path: string,
   fileName: string,
@@ -31,21 +45,7 @@ export const writeYmlFile = (
   obj: Record<string, any>,
 ): void => {
   mkDirIfNotExist(path);
-  writeFileSync(
-    join(path, fileName),
-    dump(obj, {
-      skipInvalid: true,
-      noRefs: true,
-      sortKeys: (a, b) => {
-        if (b === "tableName") return 1;
-        if (a === "tableName") return -1;
-
-        if (a > b) return 1;
-        if (a < b) return -1;
-        return 0;
-      },
-    }),
-  );
+  writeFileSync(join(path, fileName), serializeYml(obj));
 };
 
 export const readInitialSchema = (): SerializedStore => {

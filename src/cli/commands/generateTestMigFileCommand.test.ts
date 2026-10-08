@@ -21,3 +21,15 @@ test.each([true, false])(
     expect(Console.success).toHaveBeenCalledTimes(silent ? 0 : 1);
   },
 );
+
+test("propagates failures and releases the client without exiting the process", async () => {
+  const client = { release: jest.fn().mockResolvedValue(undefined) };
+  jest.mocked(getDbClient).mockReturnValue(client as never);
+  jest
+    .mocked(generateTestMigrationFile)
+    .mockRejectedValueOnce(new Error("generation failed"));
+  await expect(generateTestMigFileCommand({ silent: true })).rejects.toThrow(
+    "generation failed",
+  );
+  expect(client.release).toHaveBeenCalledTimes(1);
+});

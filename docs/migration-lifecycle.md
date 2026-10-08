@@ -79,9 +79,29 @@ For a failed MySQL migration that created a table, check the history and the act
 
 External work is not exactly-once: a crash can happen after commit and before notification, or after a notification was delivered but before its hook returned. There is no durable notification retry queue. Use your own persistent delivery mechanism when required.
 
+## Generation failure and recovery
+
+`generate` and `migrate --generateFiles` prepare the following output before publishing any of it:
+
+- The complete `migration.out/__generated__` directory.
+- Missing extension files and additions to conditions, ID encoders, and middleware files. Existing user-owned files keep their normal preservation rules.
+- `migration.dir/currentSchema.yml` and `migration.dir/test.migration.json`.
+
+Sasat renders the files, checks the syntax of new or updated TypeScript, and writes staging files beside each destination. Only then does it replace destinations using renames. Old versions remain in temporary backups until all replacements succeed. Rendering, syntax-validation, and staging errors leave existing output untouched. If a replacement fails, Sasat attempts to restore every changed destination, including extension updates and schema/test-SQL files. A successful run also removes obsolete files from `__generated__`.
+
+Existing POSIX file and directory modes are copied to replacement paths. Existing extension files that need no update are left untouched. Paths being replaced must be regular files or directories; symbolic-link targets are rejected. Ownership, ACLs, and extended attributes are not copied.
+
+If restoration itself fails, the error lists the retained `.sasat-codegen-*` directories. Each affected directory can contain `previous` (the old artifact) and `next` (the new artifact). Preserve these directories, inspect the destinations, and restore the old artifacts before retrying. A failure to remove temporary files after successful publication produces a warning with the cleanup path; the published output stays in place.
+
+This is recovery from ordinary errors, not a filesystem transaction across all paths. Readers may observe intermediate states during replacement. Process termination, power loss, concurrent generation, and edits made while generation runs are not covered. Stop watchers or servers that consume these files while generating, and run only one writer per output directory. TypeScript validation checks syntax, not project-wide types or GraphQL schema validity; run your application's checks afterward.
+
+Generation failure does **not** undo applied database migrations or migration history. After fixing the cause, rerun `generate` to rebuild files for the intended target. Compiled migration `.mjs` files and arbitrary side effects inside migration definitions are outside file-publication recovery.
+
+Application code and test SQL reuse one compilation per `generate` or `migrate --generateFiles` run; `migrate --skipBuild` uses existing compiled definitions for both. Definitions are still replayed separately for schema reconstruction and test SQL. Standalone `generate:test` compiles definitions and safely replaces only `test.migration.json`.
+
 ## Concurrent migrations
 
-Normal CLI `migrate` acquires a database-scoped advisory lock **before compilation and history reads**. Another Sasat migration against that database fails immediately; rerun it after the first finishes. The lock covers all history-table names within that database and is held through hooks, commits, and the command's application-code generation.
+Normal CLI `migrate` acquires a database-scoped advisory lock **before compilation and history reads**. Another Sasat migration against that database fails immediately; rerun it after the first finishes. The lock covers all history-table names within that database and is held through hooks, commits, and the command's application-code and test-SQL generation.
 
 The reserved database session runs each migration in a separate transaction; it does not require an additional pooled connection. PostgreSQL pools with `max: 1` are supported. The lock is released on success or failure. If releasing the lock is uncertain, the built-in connector discards the session rather than returning a possibly locked connection to the pool. Custom pooled transaction implementations must override `SQLTransaction.discard()` to destroy their session.
 

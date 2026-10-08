@@ -1,3 +1,5 @@
+import { join } from "node:path";
+import { config } from "@/config/config.js";
 import type { DBClient } from "@/db/connectors/dbClient.js";
 import { CodeGen_v2 } from "@/generatorv2/codegen_v2.js";
 import { MigrationController } from "@/migration/controller.js";
@@ -5,9 +7,10 @@ import { DataStoreHandler } from "@/migration/dataStore.js";
 import { getCurrentMigration } from "@/migration/exec/getCurrentMigration.js";
 import { compileMigrationFiles } from "@/migration/exec/migrationFileCompiler.js";
 import { withMigrationLock } from "@/migration/exec/withMigrationLock.js";
-import { writeCurrentSchema } from "@/util/fsUtil.js";
+import { serializeYml } from "@/util/fsUtil.js";
 import { sqlFor } from "../../db/sqlGenerator.js";
 import { Console } from "../console.js";
+import { renderTestMigrationFile } from "./generateTestMigrationFile.js";
 
 export type MigrateCommandOption = {
   generateFiles: boolean;
@@ -33,8 +36,17 @@ export const migrate = async (
       current = result.currentMigration;
       if (options.generateFiles && !options.dry) {
         const storeHandler = new DataStoreHandler(result.store, sqlFor(client));
-        writeCurrentSchema(result.store);
-        await new CodeGen_v2(storeHandler).generate();
+        const testSql = await renderTestMigrationFile(client, true);
+        await new CodeGen_v2(storeHandler).generate([
+          {
+            path: join(config().migration.dir, "currentSchema.yml"),
+            content: serializeYml(result.store),
+          },
+          {
+            path: join(config().migration.dir, "test.migration.json"),
+            content: testSql,
+          },
+        ]);
       }
     };
     if (options.dry) await apply(client);

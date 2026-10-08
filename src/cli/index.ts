@@ -5,7 +5,6 @@ import { dumpDB } from "@/cli/commands/dumpDb.js";
 import { writeDiagram } from "@/cli/commands/erDiagram.js";
 import { generate } from "@/cli/commands/generate.js";
 import { generateTestMigFileCommand } from "@/cli/commands/generateTestMigFileCommand.js";
-import { generateTestMigrationFile } from "@/cli/commands/generateTestMigrationFile.js";
 import { init } from "@/cli/commands/init.js";
 import { migrate } from "@/cli/commands/migrate.js";
 import { migrationBuild } from "@/cli/commands/migrationBuild.js";
@@ -31,9 +30,6 @@ try {
         console.error(e);
         process.exit(1);
       });
-      if (options.generateFiles && !options.dry) {
-        await generateTestMigrationFile(client);
-      }
       await client.release();
     });
   index

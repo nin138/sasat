@@ -13,12 +13,11 @@ export async function generateTestMigFileCommand({
     setConfig({ db: conf.migration.db });
   }
   const client = getDbClient();
-  await generateTestMigrationFile(client).catch(async (e) => {
+  try {
+    await generateTestMigrationFile(client);
+  } finally {
     await client.release();
-    Console.error(e);
-    process.exit(1);
-  });
-  await client.release();
+  }
   if (!silent) {
     Console.success("successfully generated");
   }

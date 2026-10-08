@@ -1,4 +1,4 @@
-import {
+import fs, {
   existsSync,
   mkdtempSync,
   readdirSync,
@@ -439,4 +439,104 @@ test("disabling subscriptions removes generated publishers and imports while pre
     expect(code).not.toContain("from '../pubsub");
     expect(code).not.toContain("from './subscription");
   }
+});
+
+function outputSnapshot() {
+  return Object.fromEntries(
+    readdirSync(dir, { recursive: true })
+      .map(String)
+      .filter(
+        (name) =>
+          name.endsWith(".ts") ||
+          name.endsWith(".yml") ||
+          name.endsWith(".json"),
+      )
+      .sort()
+      .map((name) => [name, readFileSync(join(dir, name), "utf8")]),
+  );
+}
+test.each(["render", "syntax"])(
+  "keeps all previous output after a late %s failure",
+  async (failure) => {
+    await new CodeGen_v2(fixture()).generate();
+    const before = outputSnapshot();
+    const generator = new CodeGen_v2(fixture("displayName"));
+    const renderer = (
+      generator as unknown as {
+        codeGen: { generateGqlMutation: () => Promise<string> };
+      }
+    ).codeGen;
+    const mock = jest.spyOn(renderer, "generateGqlMutation");
+    if (failure === "render")
+      mock.mockRejectedValueOnce(new Error("late render failure"));
+    else mock.mockResolvedValueOnce("export const broken = ;");
+    await expect(
+      generator.generate([
+        { path: join(dir, "currentSchema.yml"), content: "new schema" },
+      ]),
+    ).rejects.toThrow(
+      failure === "render"
+        ? "late render failure"
+        : "Invalid generated TypeScript",
+    );
+    expect(outputSnapshot()).toEqual(before);
+    expect(
+      readdirSync(dir).some((name) => name.startsWith(".sasat-codegen-")),
+    ).toBe(false);
+    // The same instance remains usable after failure.
+    await generator.generate();
+    expect(
+      readFileSync(join(dir, "__generated__/entities/User.ts"), "utf8"),
+    ).toContain("displayName");
+  },
+);
+
+test("restores generated code, appended extensions, schema and test SQL on publication failure", async () => {
+  const schema = join(dir, "currentSchema.yml");
+  const sql = join(dir, "test.migration.json");
+  await new CodeGen_v2(fixture()).generate([
+    { path: schema, content: "old schema" },
+    { path: sql, content: "old SQL" },
+  ]);
+  const middleware = join(dir, "middlewares.ts");
+  writeFileSync(
+    middleware,
+    readFileSync(middleware, "utf8") + "\n// custom auth\n",
+  );
+  const before = outputSnapshot();
+  const generator = new CodeGen_v2(fixture("displayName"));
+  const renderer = (
+    generator as unknown as {
+      codeGen: {
+        generateMiddlewares: (root: unknown, current: string) => string | null;
+        generateOnceFiles: () => { name: string; body: string }[];
+      };
+    }
+  ).codeGen;
+  jest
+    .spyOn(renderer, "generateMiddlewares")
+    .mockImplementation(
+      (_root, current) => current + "\nexport const newMiddleware = 1;\n",
+    );
+  jest
+    .spyOn(renderer, "generateOnceFiles")
+    .mockReturnValue([{ name: "newCustom", body: "export {};" }]);
+  const rename = fs.renameSync;
+  jest.spyOn(fs, "renameSync").mockImplementation((source, target) => {
+    if (String(source).endsWith("/next") && target === sql)
+      throw new Error("publish SQL failed");
+    return rename(source, target);
+  });
+  await expect(
+    generator.generate([
+      { path: schema, content: "new schema" },
+      { path: sql, content: "new SQL" },
+    ]),
+  ).rejects.toThrow("publish SQL failed");
+  expect(outputSnapshot()).toEqual(before);
+  expect(
+    readdirSync(dir, { recursive: true }).some((name) =>
+      String(name).includes(".sasat-codegen-"),
+    ),
+  ).toBe(false);
 });

@@ -76,7 +76,7 @@ After updating the Sasat version in your application:
 4. Run `yarn tsc --noEmit` and your application tests.
 5. Update API clients if field names, types, or required inputs have changed.
 
-Generation replaces __generated__. Keep generated output and custom extensions under your normal change-management process so you can compare or restore them if needed.
+Generation prepares and syntax-checks TypeScript before replacing output. `generate` and `migrate --generateFiles` publish generated code, extension updates, `currentSchema.yml`, and `test.migration.json` together, with rollback on ordinary filesystem errors. Existing custom files retain their preservation rules. See [generation failure and recovery](migration-lifecycle.md#generation-failure-and-recovery) for the scope and limitations. Keep generated output and custom extensions under version control.
 
 ## Applying changes in another environment
 
