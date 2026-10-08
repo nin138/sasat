@@ -1,6 +1,7 @@
 FROM node:24-slim
 
 # curl / dig / jq / ipset / iptables / ip are all required by project-firewall.sh
+# procps provides ps for Codex remote-control daemon management.
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     curl \
@@ -10,6 +11,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ipset \
     iptables \
     jq \
+    procps \
     && rm -rf /var/lib/apt/lists/*
 
 RUN npm install -g @anthropic-ai/claude-code @openai/codex

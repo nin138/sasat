@@ -8,7 +8,7 @@ This guide is for contributors changing the library itself. To use Sasat in your
 
 Read [AGENTS.md](../AGENTS.md), plus AGENTS.override.md if present locally. Check `git status` before editing and preserve unrelated changes.
 
-Node.js 22 or later is required. The repository specifies Node 24.15.0 through Volta and Yarn 4.18.0 through packageManager. Use [package.json](../package.json) and [.yarnrc.yml](../.yarnrc.yml) as the source of truth.
+Node.js 22 or later is required. The repository specifies Node 24.15.0 through Volta and Yarn 4.18.1 through packageManager. Use [package.json](../package.json) and [.yarnrc.yml](../.yarnrc.yml) as the source of truth.
 
 ```sh
 git clone https://github.com/nin138/sasat.git

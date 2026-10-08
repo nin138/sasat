@@ -99,6 +99,8 @@ Configure filters with database column names, for example `subscription: { enabl
 
 ## Redis delivery across processes
 
+Sasat uses ioredis 6 with RESP2 explicitly selected, preserving the existing Redis wire protocol. The PubSub API and environment settings are unchanged.
+
 Newly generated `out/pubsub.ts` contains:
 
 ```typescript

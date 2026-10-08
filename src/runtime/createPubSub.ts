@@ -34,6 +34,8 @@ class SharedRedisPubSub extends PubSub<Record<string, unknown>> {
   ) {
     super();
     const options = {
+      // Preserve the existing wire protocol when upgrading to ioredis 6.
+      protocol: 2 as const,
       lazyConnect: true,
       connectTimeout: 5_000,
       commandTimeout: 5_000,

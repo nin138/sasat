@@ -60,6 +60,7 @@ test("Redis publishes JSON payloads to the configured namespace", async () => {
   const pubsub = createPubSub();
   try {
     await pubsub.publish("UserCreated", { userId: 1, name: "Alice" });
+    expect((publish.mock.contexts[0] as Redis).options.protocol).toBe(2);
     expect(publish).toHaveBeenCalledWith(
       "application:test:UserCreated",
       JSON.stringify({ userId: 1, name: "Alice" }),
@@ -104,6 +105,7 @@ test("Redis fans out messages and keeps a channel until its last subscriber leav
     const secondId = await pubsub.subscribe("UserCreated", second);
     expect(subscribe).toHaveBeenCalledWith("test:UserCreated");
     const subscriber = subscribe.mock.contexts[0] as Redis;
+    expect(subscriber.options.protocol).toBe(2);
     subscriber.emit("message", "test:UserCreated", '{"userId":1}');
     expect(first).toHaveBeenCalledWith({ userId: 1 });
     expect(second).toHaveBeenCalledWith({ userId: 1 });
