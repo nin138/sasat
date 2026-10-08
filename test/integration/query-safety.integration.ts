@@ -75,6 +75,10 @@ const executor: SQLExecutor = {
     (
       await connection!.execute(statement.text, [...statement.values])
     )[0] as Awaited<ReturnType<SQLExecutor["rawQuery"]>>,
+  executeCommand: async (statement) =>
+    (
+      await connection!.execute(statement.text, [...statement.values])
+    )[0] as CommandResponse,
   rawQuery: async (sql) =>
     (await connection!.query(sql))[0] as Awaited<
       ReturnType<SQLExecutor["rawQuery"]>

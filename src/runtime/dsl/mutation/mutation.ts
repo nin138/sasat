@@ -48,18 +48,18 @@ const onDuplicateKeyUpdate = (
   );
 };
 
-export const createToSql = (
+export const renderCreate = (
   dsl: Create,
   tableInfo: TableInfo,
-  generator: SqlGenerator = createSqlGenerator(),
+  generator: SqlGenerator,
+  renderValue: (value: SqlValueType) => string = generator.escape,
 ): string => {
   if (dsl.entities.length === 0)
     throw new Error("INSERT requires at least one row");
-  const SqlString = generator;
   const escapeId = generator.escapeId;
   const map = tableInfo[dsl.table].columnMap;
   const valueToSql = (value: SqlValueType | undefined): string =>
-    value === undefined ? "DEFAULT" : SqlString.escape(value);
+    value === undefined ? "DEFAULT" : renderValue(value);
   if (generator.dialect === "postgres") {
     // PostgreSQL has no multi-row DEFAULT VALUES syntax; use a mapped column.
     const fields =
@@ -95,28 +95,45 @@ export const createToSql = (
   )}(${dsl.fields.map((it) => escapeId(map[it]))}) VALUES ${values} ${onDuplicateKeyUpdate(dsl.upsert, generator)}`;
 };
 
-export const updateToSql = (
+export const renderUpdate = (
   dsl: Update,
   tableInfo: TableInfo,
-  generator: SqlGenerator = createSqlGenerator(),
+  generator: SqlGenerator,
+  renderValue: (value: SqlValueType) => string = generator.escape,
+  Sql = generator.nodes,
 ): string => {
-  const SqlString = generator;
   const escapeId = generator.escapeId;
-  const Sql = generator.nodes;
   const map = tableInfo[dsl.table].columnMap;
 
   return `UPDATE ${escapeId(dsl.table)} SET ${dsl.values
-    .map((it) => escapeId(map[it.field]) + " = " + SqlString.escape(it.value))
+    .map((it) => escapeId(map[it.field]) + " = " + renderValue(it.value))
     .join(", ")} WHERE ${Sql.booleanValue(dsl.where)}`;
 };
 
-export const deleteToSql = (
+export const renderDelete = (
   dsl: Delete,
-  generator: SqlGenerator = createSqlGenerator(),
+  generator: SqlGenerator,
+  Sql = generator.nodes,
 ): string => {
   const escapeId = generator.escapeId;
-  const Sql = generator.nodes;
   return `DELETE FROM ${escapeId(dsl.table)} WHERE ${Sql.booleanValue(
     dsl.where,
   )}`;
 };
+
+export const createToSql = (
+  dsl: Create,
+  tableInfo: TableInfo,
+  generator: SqlGenerator = createSqlGenerator(),
+): string => renderCreate(dsl, tableInfo, generator);
+
+export const updateToSql = (
+  dsl: Update,
+  tableInfo: TableInfo,
+  generator: SqlGenerator = createSqlGenerator(),
+): string => renderUpdate(dsl, tableInfo, generator);
+
+export const deleteToSql = (
+  dsl: Delete,
+  generator: SqlGenerator = createSqlGenerator(),
+): string => renderDelete(dsl, generator);

@@ -6,6 +6,11 @@ import {
 } from "../migration/serialized/serializedColumn.js";
 import type { SerializedTable } from "../migration/serialized/serializedStore.js";
 import {
+  compileCreate,
+  compileDelete,
+  compileUpdate,
+} from "../runtime/dsl/mutation/compileMutation.js";
+import {
   type Create,
   createToSql,
   type Delete,
@@ -56,11 +61,20 @@ export class SqlGenerator {
   create(dsl: Create, tables: TableInfo): string {
     return createToSql(dsl, tables, this);
   }
+  compileCreate(dsl: Create, tables: TableInfo) {
+    return compileCreate(dsl, tables, this);
+  }
   update(dsl: Update, tables: TableInfo): string {
     return updateToSql(dsl, tables, this);
   }
+  compileUpdate(dsl: Update, tables: TableInfo) {
+    return compileUpdate(dsl, tables, this);
+  }
   delete(dsl: Delete): string {
     return deleteToSql(dsl, this);
+  }
+  compileDelete(dsl: Delete) {
+    return compileDelete(dsl, this);
   }
   column(column: SerializedColumn): string {
     return columnToSql(column, this);

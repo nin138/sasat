@@ -356,3 +356,55 @@ test.each(["mysql", "postgres"] as const)(
     }
   },
 );
+
+test.each(["mysql", "postgres"] as const)(
+  "parameterized writes keep ID/default/undefined/null behavior and never use rawCommand (%s)",
+  async (dialect) => {
+    const { client: legacy } = fixture();
+    const client = {
+      ...legacy,
+      sql: createSqlGenerator(dialect),
+      supportsParameterizedStatements: true,
+      executeCommand: jest
+        .fn()
+        .mockResolvedValue({ insertId: 7, affectedRows: 1, changedRows: 1 }),
+    };
+    const users = new Users(client);
+    await expect(users.create({ name: "O'Reilly" })).resolves.toEqual({
+      id: 7,
+      active: true,
+      name: "O'Reilly",
+    });
+    expect(client.executeCommand.mock.calls[0][0].values).toEqual([
+      true,
+      "O'Reilly",
+    ]);
+    await users.createBulk([
+      { name: "one" },
+      { name: "two", active: undefined } as never,
+    ]);
+    expect(client.executeCommand.mock.calls[1][0].values).toEqual([
+      true,
+      "one",
+      "two",
+    ]);
+    expect(client.executeCommand.mock.calls[1][0].text).toContain("DEFAULT");
+    await users.upsert({ name: "upsert" }, ["name"]);
+    expect(client.executeCommand.mock.calls[2][0].text).toContain(
+      dialect === "mysql" ? "ON DUPLICATE KEY UPDATE" : "ON CONFLICT",
+    );
+    await users.update({ id: 0, name: undefined });
+    expect(client.executeCommand.mock.calls[3][0].values).toEqual([0, 0]);
+    await users.updateWhere(
+      { name: null as never },
+      q.eq(q.field("users", "user_id"), q.value(7)),
+    );
+    expect(client.executeCommand.mock.calls[4][0].values).toEqual([null, 7]);
+    await users.delete({ id: 0 });
+    expect(client.executeCommand.mock.calls[5][0].values).toEqual([0]);
+    const calls = client.executeCommand.mock.calls.length;
+    await expect(users.createBulk([])).resolves.toBeNull();
+    expect(client.executeCommand).toHaveBeenCalledTimes(calls);
+    expect(client.rawCommand).not.toHaveBeenCalled();
+  },
+);

@@ -42,6 +42,14 @@ export async function verifyBulkInsert(
   let statements = 0;
   const rows = new BulkRows({
     sql,
+    supportsParameterizedStatements: executor.supportsParameterizedStatements,
+    executeQuery: executor.executeQuery?.bind(executor),
+    executeCommand: executor.executeCommand
+      ? (statement) => {
+          statements++;
+          return executor.executeCommand!(statement);
+        }
+      : undefined,
     rawQuery: (query) => executor.rawQuery(query),
     rawCommand: (query) => {
       statements++;

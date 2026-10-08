@@ -116,6 +116,10 @@ export async function verifyPublishFailure(
                   super({
                     ...executor,
                     sql,
+                    supportsParameterizedStatements:
+                      executor.supportsParameterizedStatements,
+                    executeQuery: executor.executeQuery?.bind(executor),
+                    executeCommand: executor.executeCommand?.bind(executor),
                     rawQuery: (query) => executor.rawQuery(query),
                     rawCommand: (query) => executor.rawCommand(query),
                   });

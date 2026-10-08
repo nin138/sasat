@@ -31,7 +31,7 @@ The generator also provides `escape`, `escapeId`, `format`, `create`, `update`, 
 
 ## Execute SQL with bind values
 
-Built-in clients provide `executeQuery({ text, values })` and `executeCommand({ text, values })` for native parameter binding. Use `client.sql.compileQuery(query)` to produce a statement from the query AST. Generated searches and mutation refetches use compiled statements automatically with built-in clients. See [parameterized SQL and the rollout plan](prepared-statements.md) for examples, value types, compatibility, and the current migration stage. The tagged templates below retain their existing string-formatting behavior.
+Built-in clients provide `executeQuery({ text, values })` and `executeCommand({ text, values })` for native parameter binding. Use `client.sql.compileQuery(query)` for searches and `compileCreate` / `compileUpdate` / `compileDelete` for mutations. Generated CRUD, related-row reads, and mutation refetches use compiled statements automatically with built-in clients. See [parameterized SQL and the rollout plan](prepared-statements.md) for examples, value types, compatibility, and the current migration stage. The tagged templates below retain their existing string-formatting behavior.
 
 ## Use a connection's generator
 
@@ -66,7 +66,7 @@ try {
 
 Normal template values are escaped by the connection's generator. Function substitutions insert raw SQL; explicitly use that generator when building identifiers or SQL fragments. Raw strings and raw AST expressions are passed through unchanged.
 
-Generated data-source CRUD methods and constructors keep their existing signatures. Custom executors can provide `sql: createSqlGenerator('postgres')` alongside `rawQuery` and `rawCommand`. They retain string execution unless they opt into [parameterized searches](prepared-statements.md#compatibility-and-rollout). For compatibility, executors with only a `dialect` property still work; if both are omitted, the data source captures the configured dialect at construction.
+Generated data-source CRUD methods and constructors keep their existing signatures. Custom executors can provide `sql: createSqlGenerator('postgres')` alongside `rawQuery` and `rawCommand`. They retain string execution unless they opt into [parameterized CRUD](prepared-statements.md#compatibility-and-rollout). For compatibility, executors with only a `dialect` property still work; if both are omitted, the data source captures the configured dialect at construction.
 
 ## Migrating from scoped dialects
 

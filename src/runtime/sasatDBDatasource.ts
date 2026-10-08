@@ -1,4 +1,5 @@
 import type { SQLExecutor, SqlValueType } from "../db/connectors/dbClient.js";
+import { executeMutation } from "../db/executeMutation.js";
 import { executeSelect } from "../db/executeSelect.js";
 import { type SqlGenerator, sqlFor } from "../db/sqlGenerator.js";
 import {
@@ -109,8 +110,11 @@ export abstract class SasatDBDatasource<
         ? this.fieldToColumn([this.autoIncrementColumn])[0]
         : undefined,
     };
-    const sql = this.sql.create(dsl, this.tableInfo);
-    const response = await this.client.rawCommand(sql);
+    const response = await executeMutation(
+      this.client,
+      { kind: "create", dsl, tableInfo: this.tableInfo },
+      this.sql,
+    );
     if (!this.autoIncrementColumn) return obj;
     let insertId = this.autoIncrementBigInt
       ? BigInt(response.insertId)
@@ -152,8 +156,11 @@ export abstract class SasatDBDatasource<
       conflictColumns: option?.upsert?.conflictColumns,
       ignore: option?.ignore,
     };
-    const sql = this.sql.create(dsl, this.tableInfo);
-    return await this.client.rawCommand(sql);
+    return executeMutation(
+      this.client,
+      { kind: "create", dsl, tableInfo: this.tableInfo },
+      this.sql,
+    );
   }
 
   async upsert<T extends Creatable & Partial<Entity>>(
@@ -182,8 +189,11 @@ export abstract class SasatDBDatasource<
         })),
       where: this.createIdentifiableExpression(entity),
     };
-    const sql = this.sql.update(dsl, this.tableInfo);
-    return this.client.rawCommand(sql);
+    return executeMutation(
+      this.client,
+      { kind: "update", dsl, tableInfo: this.tableInfo },
+      this.sql,
+    );
   }
 
   updateWhere(
@@ -200,8 +210,11 @@ export abstract class SasatDBDatasource<
         })),
       where: condition,
     };
-    const sql = this.sql.update(dsl, this.tableInfo);
-    return this.client.rawCommand(sql);
+    return executeMutation(
+      this.client,
+      { kind: "update", dsl, tableInfo: this.tableInfo },
+      this.sql,
+    );
   }
 
   async delete(entity: Identifiable): Promise<CommandResponse> {
@@ -215,8 +228,7 @@ export abstract class SasatDBDatasource<
       table: this.tableName,
       where: condition,
     };
-    const sql = this.sql.delete(dsl);
-    return this.client.rawCommand(sql);
+    return executeMutation(this.client, { kind: "delete", dsl }, this.sql);
   }
 
   async first(

@@ -5,6 +5,7 @@ import { MysqlClient } from "../../src/db/connectors/mysql/client.js";
 import { MysqlPoolClient } from "../../src/db/connectors/mysql/poolClient.js";
 import { PostgresClient } from "../../src/db/connectors/postgres/client.js";
 import type { SqlParameter } from "../../src/db/sqlStatement.js";
+import { verifyCompiledMutations } from "./compiled-mutation-cases.js";
 import { verifyCompiledQueries } from "./compiled-query-cases.js";
 
 export async function verifyPreparedStatements(
@@ -101,6 +102,7 @@ export async function verifyPreparedStatements(
       [],
     );
     await verifyCompiledQueries(client);
+    await verifyCompiledMutations(client);
     const changed = await client.executeCommand(
       statement(
         `UPDATE samples SET amount = ${idParam} WHERE id = ${postgres ? "$2" : "?"}`,

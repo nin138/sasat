@@ -137,6 +137,13 @@ for (const driver of [undefined, ...drivers]) {
         const compiled: SqlStatement = generator.compileQuery({select:[qe.fn("ABS", [qe.cast(qe.value("-1.25"), "DECIMAL(10,2)")])],from:qe.table("users", [], "users")});
         const boundQuery: Promise<QueryResponse> = shared.executeQuery(compiled);
         void boundQuery;
+        const tables = {users:{identifiableKeys:["id"],identifiableFields:["id"],columnMap:{id:"id",name:"name"}}};
+        const created: SqlStatement = generator.compileCreate({table:"users",fields:["name"],entities:[["O'Reilly"]],returning:"id"}, tables);
+        const where = qe.eq(qe.field("users", "id"), qe.value(1));
+        const updated: SqlStatement = generator.compileUpdate({table:"users",values:[{field:"name",value:null}],where}, tables);
+        const deleted: SqlStatement = generator.compileDelete({table:"users",where});
+        const write: Promise<CommandResponse> = shared.executeCommand(created);
+        void [updated, deleted, write];
         const executor: ParameterizedSQLExecutor = pg;
         const boundRows: Promise<QueryResponse> = executor.executeQuery(statement);
         const boundCommand: Promise<CommandResponse> = mysql.executeCommand({text:"SELECT ?", values:[1]});
