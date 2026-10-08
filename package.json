@@ -70,7 +70,7 @@
   "resolutions": {
     "qs": "^6.16.0",
     "tar": "^7.5.22",
-    "undici": "~6.29.0"
+    "undici": "~8.11.0"
   },
   "lint-staged": {
     "*.ts": [
