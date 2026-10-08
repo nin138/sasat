@@ -33,10 +33,7 @@ export class MysqlClient extends DBClient {
   }
 
   protected async getConnection() {
-    const { createConnection } = await loadDriver(
-      "mysql2",
-      () => import("mysql2/promise"),
-    );
+    const { createConnection } = await loadDriver("mysql2");
     return createConnection({
       dateStrings: true,
       ...mysqlNumericOptions,

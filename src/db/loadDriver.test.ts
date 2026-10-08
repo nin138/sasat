@@ -28,3 +28,14 @@ test("preserves a failure in a driver's own dependency", async () => {
     }),
   ).rejects.toBe(error);
 });
+
+test.each([
+  ["mysql2", "mysql2/promise"],
+  ["pg", "pg"],
+] as const)("resolves only the selected %s driver", async (name, specifier) => {
+  const driver = {} as never;
+  const load = jest.fn().mockResolvedValue(driver);
+  await expect(loadDriver(name, load)).resolves.toBe(driver);
+  expect(load).toHaveBeenCalledTimes(1);
+  expect(load).toHaveBeenCalledWith(specifier);
+});

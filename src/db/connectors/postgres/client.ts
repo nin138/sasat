@@ -55,18 +55,14 @@ export class PostgresClient extends DBClient {
   }
   private getPool(): Promise<Pool> {
     if (this._released) throw new Error("Database client has been released");
-    this.pool ??= loadDriver("pg", () => import("pg")).then(
-      ({ Pool, types }) => {
-        const pool = new Pool({
-          types: typeOverrides(types),
-          ...this.poolOption,
-        });
-        pool.on("error", () =>
-          console.error("PostgreSQL idle connection error"),
-        );
-        return pool;
-      },
-    );
+    this.pool ??= loadDriver("pg").then(({ Pool, types }) => {
+      const pool = new Pool({
+        types: typeOverrides(types),
+        ...this.poolOption,
+      });
+      pool.on("error", () => console.error("PostgreSQL idle connection error"));
+      return pool;
+    });
     return this.pool;
   }
   protected async execStatement(

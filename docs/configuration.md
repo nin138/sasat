@@ -117,6 +117,10 @@ Install `mysql2` for `db.dialect: mysql` (the default), or `pg` for `db.dialect:
 
 When upgrading from a release that included the drivers as dependencies, add the one you use to your application dependencies explicitly. `getDbClient()` still returns a client synchronously; pool creation is deferred until its first database operation. Calling `release()` before use does not load the driver.
 
+For Node.js application bundles, driver resolution stays at runtime. Install and deploy the selected driver in `node_modules` where Node can resolve it from the deployed bundle. The unused driver requires no installation or bundler `external` override. This also means the selected driver is not automatically embedded in a standalone bundle. Public driver option types are included in Sasat's declarations, so checking types does not require the unused driver or `@types/pg`.
+
+For CommonJS bundles, consume Sasat's CommonJS export through `require("sasat")`. Converting its ESM export to CommonJS also requires the bundler to handle `import.meta.url` used by the distribution's Node compatibility code.
+
 ## CLI commands
 
 Run these commands from the application root containing `sasat.yml`.

@@ -39,6 +39,8 @@ yarn sasat init
 
 Install only the database driver you use: `mysql2` for MySQL or `pg` for PostgreSQL. Both are optional peer dependencies; Sasat loads the selected driver on the first database operation. PostgreSQL users should replace `mysql2` with `pg` in the command above.
 
+For bundled Node.js applications, deploy the selected driver alongside the bundle. Sasat resolves it at runtime; the unused driver does not need to be installed for bundling. See [database drivers](docs/configuration.md#database-drivers).
+
 Add `"type": "module"` to your `package.json`. Create `tsconfig.json`:
 
 ```json

@@ -12,6 +12,7 @@ import {
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
+import { buildSync } from "esbuild";
 
 const root = process.cwd();
 const manifest = JSON.parse(
@@ -189,6 +190,70 @@ for (const driver of [undefined, ...drivers]) {
     } catch (error) {
       if (error && typeof error === "object" && "stdout" in error)
         console.error(String(error.stdout));
+      if (error && typeof error === "object" && "stderr" in error)
+        console.error(String(error.stderr));
+      throw error;
+    } finally {
+      rmSync(directory, { recursive: true, force: true });
+    }
+  });
+}
+
+for (const driver of [undefined, ...drivers]) {
+  test(`Node bundles work with ${driver ?? "no drivers"} installed`, () => {
+    const directory = fixture(driver);
+    try {
+      const body = `
+        (async () => {
+          for (const [driver, dialect] of [["mysql2", "mysql"], ["pg", "postgres"]]) {
+            setConfig({db:{dialect,host:"127.0.0.1",port:1,user:"unused",database:"unused",password:""}});
+            const client = getDbClient({connectTimeout:1000,connectionTimeoutMillis:1000});
+            try {
+              await assert.rejects(client.rawQuery("SELECT 1"), error => driver === ${JSON.stringify(driver ?? null)}
+                ? error.code === "ECONNREFUSED" : error.message.includes("yarn add " + driver));
+            } finally { await client.release(); }
+          }
+        })().catch(error => { console.error(error); process.exitCode = 1; });
+      `;
+      for (const format of ["esm", "cjs"] as const) {
+        const source = path.join(
+          directory,
+          format === "esm" ? "consumer.mjs" : "consumer.cjs",
+        );
+        const imports =
+          format === "esm"
+            ? 'import {getDbClient, setConfig} from "sasat"; import assert from "node:assert/strict";'
+            : 'const {getDbClient, setConfig} = require("sasat"); const assert = require("node:assert/strict");';
+        writeFileSync(source, imports + body);
+        const outfile = path.join(
+          directory,
+          format === "esm" ? "bundle.mjs" : "bundle.cjs",
+        );
+        const result = buildSync({
+          absWorkingDir: directory,
+          entryPoints: [source],
+          outfile,
+          bundle: true,
+          platform: "node",
+          format,
+          minify: true,
+          // Bundle Sasat itself. Only installed dependencies are external;
+          // missing optional drivers must not need an external override.
+          external: [
+            ...Object.keys(manifest.dependencies),
+            ...(driver ? [driver] : []),
+          ],
+          metafile: true,
+          logLevel: "silent",
+        });
+        assert.ok(
+          Object.keys(result.metafile!.inputs).some((name) =>
+            name.includes("sasat/dist/"),
+          ),
+        );
+        execute(directory, [outfile]);
+      }
+    } catch (error) {
       if (error && typeof error === "object" && "stderr" in error)
         console.error(String(error.stderr));
       throw error;

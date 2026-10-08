@@ -33,13 +33,12 @@ export class MysqlPoolClient extends DBClient {
 
   private getPool(): Promise<Pool> {
     if (this._released) throw new Error("Database client has been released");
-    this.pool ??= loadDriver("mysql2", () => import("mysql2/promise")).then(
-      ({ createPool }) =>
-        createPool({
-          dateStrings: true,
-          ...mysqlNumericOptions,
-          ...this.poolOption,
-        }),
+    this.pool ??= loadDriver("mysql2").then(({ createPool }) =>
+      createPool({
+        dateStrings: true,
+        ...mysqlNumericOptions,
+        ...this.poolOption,
+      }),
     );
     return this.pool;
   }
