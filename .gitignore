@@ -125,3 +125,4 @@ typings/
 AGENTS.override.md
 _logs
 _docs
+migration.cjs
