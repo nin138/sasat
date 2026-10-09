@@ -25,7 +25,15 @@ export class MysqlPoolClient extends BaseMysqlPoolClient {
   }
 }
 
-/** Initialize the shared client for db.dialect: mysql (the default). */
+/** Creates an independent pool with a statically imported driver. */
+export function createMysqlPoolClient(
+  options: ConstructorParameters<typeof BaseMysqlPoolClient>[0],
+  logger?: (query: string) => void,
+) {
+  return new MysqlPoolClient(options, logger);
+}
+
+/** @deprecated Use your generated dbClient module or createMysqlPoolClient. */
 export function getDbClient(
   options?: ConstructorParameters<typeof BaseMysqlPoolClient>[0],
   logger?: (query: string) => void,

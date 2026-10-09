@@ -175,6 +175,27 @@ test("generated pubsub uses the configurable runtime factory", async () => {
   await exports.pubsub.close();
 });
 
+test("regenerates only the selected driver and preserves database customizations", async () => {
+  config().db.dialect = "mysql";
+  await new CodeGen_v2(fixture()).generate();
+  const generated = join(dir, "__generated__/dbClient.ts");
+  expect(readFileSync(generated, "utf8")).toContain("from 'sasat/mysql'");
+  expect(readFileSync(generated, "utf8")).not.toContain("sasat/postgres");
+  const base = join(dir, "baseDBDataSource.ts");
+  const oldBase = readFileSync(base, "utf8");
+  expect(oldBase).toContain("= getDbClient)");
+  expect(oldBase).not.toContain("= getDbClient())");
+  const extension = join(dir, "dbClient.ts");
+  const custom = readFileSync(extension, "utf8") + "\n// application tuning\n";
+  writeFileSync(extension, custom);
+  config().db.dialect = "postgres";
+  await new CodeGen_v2(fixture()).generate();
+  expect(readFileSync(generated, "utf8")).toContain("from 'sasat/postgres'");
+  expect(readFileSync(generated, "utf8")).not.toContain("sasat/mysql");
+  expect(readFileSync(extension, "utf8")).toBe(custom);
+  expect(readFileSync(base, "utf8")).toBe(oldBase);
+});
+
 test("rejects tables without a primary key", () => {
   const store = StoreMigrator.deserialize({ tables: [] });
   store.createTable("invalid", (table) => table.column("name").text());

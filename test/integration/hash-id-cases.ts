@@ -57,6 +57,7 @@ export async function verifyHashIds(dialect: DatabaseDialect) {
   const runtime = (await import(
     pathToFileURL(path.resolve("dist/index.mjs")).href
   )) as typeof import("../../src/index.js");
+  let releaseGeneratedClient: (() => Promise<void>) | undefined;
   let created = false;
   try {
     await admin.rawCommand(`CREATE DATABASE ${sql.escapeId(database)}`);
@@ -70,7 +71,6 @@ export async function verifyHashIds(dialect: DatabaseDialect) {
     const statements: string[] = [],
       logger = (query: string) => statements.push(query);
     getDbClient(undefined, logger);
-    runtime.getDbClient(undefined, logger);
     const store = StoreMigrator.deserialize({ tables: [] }, sql);
     for (const kind of ["number", "bigint"]) {
       const suffix = kind === "number" ? "Number" : "Bigint";
@@ -262,6 +262,11 @@ const missing: NumberUpdate = { hashDocumentNumber: { title: 'bad' } };
       ],
       { stdio: "inherit" },
     );
+    const databaseModule = await import(
+      pathToFileURL(path.join(out, "dbClient.ts")).href
+    );
+    releaseGeneratedClient = databaseModule.releaseDbClient;
+    databaseModule.getDbClient(undefined, logger);
     const generated = await import(
       pathToFileURL(path.join(out, "schema.ts")).href
     );
@@ -501,7 +506,7 @@ const missing: NumberUpdate = { hashDocumentNumber: { title: 'bad' } };
       }
     }
   } finally {
-    await runtime.getDbClient().release();
+    await releaseGeneratedClient?.();
     await getDbClient().release();
     await client.release();
     if (created)

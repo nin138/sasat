@@ -39,7 +39,7 @@ yarn sasat init
 
 Install only the database driver you use: `mysql2` for MySQL or `pg` for PostgreSQL. Both are optional peer dependencies. PostgreSQL users should replace `mysql2` with `pg` in the command above.
 
-Use `getDbClient` from `sasat/mysql` or `sasat/postgres` to make the selected driver available to your bundler. You can also [inject a driver explicitly](docs/bundling.md#inject-a-driver-explicitly). The unused driver need not be installed. See [bundling and deployment](docs/bundling.md) for a complete build example.
+Generated data sources use `out/dbClient.ts`, which statically selects the configured database driver for bundling. Import `getDbClient` from that generated module for direct SQL or transactions. You can also [inject a driver explicitly](docs/bundling.md#inject-a-driver-explicitly). The unused driver need not be installed. See [bundling and deployment](docs/bundling.md) for a complete build example.
 
 Add `"type": "module"` to your `package.json`. Create `tsconfig.json`:
 
@@ -137,10 +137,7 @@ Create `server.ts` in your application root:
 ```typescript
 import { createServer } from 'node:http';
 import { createSchema, createYoga } from 'graphql-yoga';
-import { getDbClient } from 'sasat/mysql'; // PostgreSQL: sasat/postgres
-
-getDbClient();
-const { schema } = await import('./out/schema.js');
+import { schema } from './out/schema.js';
 
 const yoga = createYoga({ schema: createSchema(schema) });
 const port = Number(process.env.PORT ?? 4000);
@@ -177,10 +174,10 @@ Use the returned ID with `user(userId: "...")` to fetch one user. See [runtime c
 | `migrations/*.ts` | Source definitions for the database schema and exposed API |
 | `out/__generated__/` | Recreated on every generation; do not edit directly |
 | `out/dataSources/db/*.ts` | Application data-source subclasses; existing files are preserved |
-| `out/schema.ts`, `context.ts`, `pubsub.ts`, `baseDBDataSource.ts` | Created once, then maintained by your application |
+| `out/schema.ts`, `context.ts`, `pubsub.ts`, `baseDBDataSource.ts`, `dbClient.ts` | Created once, then maintained by your application |
 | `out/conditions.ts`, `idEncoder.ts`, `middlewares.ts` | Existing content is read and missing declarations are added |
 
-Add database changes in new migrations rather than rewriting applied definitions. Use `yarn sasat generate` to regenerate code from existing definitions. Files created only once are not automatically updated when Sasat changes; review and apply any required updates yourself.
+Add database changes in new migrations rather than rewriting applied definitions. Use `yarn sasat generate` to regenerate code from existing definitions. Files created only once are not automatically updated when Sasat changes; review and apply any required updates yourself. Existing applications must [update their base data-source constructor](docs/bundling.md#upgrade-existing-generated-code) when adopting the generated database client.
 
 ## Current limitations
 

@@ -1,8 +1,11 @@
 import { config, setConfig } from "../config/config.js";
+import type { DBClient, SQLExecutor } from "../db/connectors/dbClient.js";
 import { createSqlGenerator } from "../db/sqlGenerator.js";
 import { QExpr as q } from "./dsl/factory.js";
 import type { Fields } from "./field.js";
 import { SasatDBDatasource } from "./sasatDBDatasource.js";
+
+const getDbClient = jest.fn<DBClient, []>();
 
 type User = { id: number; name: string; active: boolean };
 class Users extends SasatDBDatasource<
@@ -40,6 +43,96 @@ function fixture() {
   };
   return { client, users: new Users(client) };
 }
+
+test("provider storage does not conflict with a subclass executor accessor", async () => {
+  class InspectableUsers extends Users {
+    get executor() {
+      return this.client;
+    }
+  }
+  const { client } = fixture();
+  const provider = jest.fn(() => client);
+  const users = new InspectableUsers(provider);
+  expect(provider).not.toHaveBeenCalled();
+  expect(users.executor).toBe(client);
+  await users.find();
+  expect(provider).toHaveBeenCalledTimes(1);
+});
+
+test.each(["mysql", "postgres"] as const)(
+  "defers the shared client and dialect until first use (%s)",
+  async (dialect) => {
+    const users = new Users(getDbClient);
+    expect(users.getRelationMap()).toEqual({});
+    await expect(users.createBulk([])).resolves.toBeNull();
+    expect(getDbClient).not.toHaveBeenCalled();
+
+    const { client } = fixture();
+    jest.mocked(getDbClient).mockReturnValue({
+      ...client,
+      sql: createSqlGenerator(dialect),
+    } as unknown as DBClient);
+    await users.find();
+    await users.create({ name: "Ada" });
+    await users.delete({ id: 7 });
+    expect(getDbClient).toHaveBeenCalledTimes(1);
+    const quote = dialect === "mysql" ? "`" : '"';
+    expect(client.rawQuery).toHaveBeenCalledWith(
+      expect.stringContaining(`${quote}users${quote}`),
+    );
+    expect(client.rawCommand).toHaveBeenLastCalledWith(
+      expect.stringContaining(`${quote}users${quote}`),
+    );
+  },
+);
+
+test("retries shared initialization after a failure", async () => {
+  const users = new Users(getDbClient);
+  const { client } = fixture();
+  jest
+    .mocked(getDbClient)
+    .mockImplementationOnce(() => {
+      throw new Error("not configured");
+    })
+    .mockReturnValue(client as unknown as DBClient);
+  await expect(users.find()).rejects.toThrow("not configured");
+  await expect(users.find()).resolves.toEqual([]);
+  expect(getDbClient).toHaveBeenCalledTimes(2);
+});
+
+test("retains the resolved client even if the shared client changes", async () => {
+  const users = new Users(getDbClient);
+  const first = fixture().client;
+  const second = fixture().client;
+  jest.mocked(getDbClient).mockReturnValue(first as unknown as DBClient);
+  await users.find();
+  jest.mocked(getDbClient).mockReturnValue(second as unknown as DBClient);
+  await users.find();
+  expect(first.rawQuery).toHaveBeenCalledTimes(2);
+  expect(second.rawQuery).not.toHaveBeenCalled();
+  expect(getDbClient).toHaveBeenCalledTimes(1);
+});
+
+test("explicit executors never acquire the shared client and remain replaceable by subclasses", async () => {
+  class CustomUsers extends Users {
+    use(client: SQLExecutor) {
+      this.client = client;
+    }
+  }
+  const first = fixture().client;
+  const second = fixture().client;
+  const users = new CustomUsers({ ...first, dialect: "mysql" });
+  await users.find();
+  users.use({ ...second, dialect: "postgres" });
+  await users.find();
+  expect(first.rawQuery).toHaveBeenCalledWith(
+    expect.stringContaining("`users`"),
+  );
+  expect(second.rawQuery).toHaveBeenCalledWith(
+    expect.stringContaining('"users"'),
+  );
+  expect(getDbClient).not.toHaveBeenCalled();
+});
 
 test("creates an entity using defaults and the returned auto-increment ID", async () => {
   const { users, client } = fixture();

@@ -11,10 +11,11 @@ import type { RootNode } from "./nodes/rootNode.js";
 import { parse } from "./parse.js";
 
 export class CodeGen_v2 {
-  private codeGen = new TsCodegen_v2();
+  private codeGen: TsCodegen_v2;
   private outDir = config().migration.out;
   private readonly root: RootNode;
   constructor(store: DataStoreHandler) {
+    this.codeGen = new TsCodegen_v2(store.sqlGenerator.dialect);
     this.root = parse(store);
   }
 

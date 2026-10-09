@@ -1,68 +1,87 @@
 # Database drivers and application bundles
 
-Install the driver you use in your application: `yarn add mysql2` or `yarn add pg`. Sasat provides explicit database entry points so your bundler can include that driver without resolving the other one.
+Install the driver your application uses: `yarn add mysql2` or `yarn add pg`. Generation selects one static driver import, so the unused driver need not be installed or bundled.
 
-## Use a database entry point
+## Use the generated database client
 
-For MySQL, with MySQL settings in `sasat.yml`:
+Generation creates two files:
+
+- `out/__generated__/dbClient.ts`: recreated on generation; imports `createMysqlPoolClient` from `sasat/mysql`, or `createPostgresClient` from `sasat/postgres`, and holds a client for this output module.
+- `out/dbClient.ts`: created once and preserved afterward; exposes `getDbClient` and `releaseDbClient` as an application customization point.
+
+Generated data sources receive `getDbClient` as a function and call it on first use. A static schema import needs no explicit database initialization:
 
 ```ts
-import { getDbClient } from 'sasat/mysql';
+import { schema } from './out/schema.js';
+// Start your GraphQL server with schema.
+```
 
-const db = getDbClient({ connectionLimit: 10 });
+Database connection settings are read at runtime from `sasat.yml` or `setConfig`; credentials are never embedded by generation. Finish configuration before the first database operation. The generated driver must agree with `db.dialect`; changing database engines requires regeneration.
+
+For direct SQL, transactions, optional pool tuning, or shutdown, import the generated module:
+
+```ts
+import { getDbClient, releaseDbClient } from './out/dbClient.js';
+
+// Optional tuning must precede the first data-source operation.
+const db = getDbClient({ connectionLimit: 10 }); // PostgreSQL: { max: 10 }
 const rows = await db.executeQuery({ text: 'SELECT ? AS value', values: [42] });
-await db.release();
+// PostgreSQL SQL: SELECT $1::int AS value
+await releaseDbClient();
 ```
 
-For PostgreSQL, with `db.dialect: postgres` and PostgreSQL connection settings:
+Repeated calls reuse the client. Conflicting connection settings, explicit options, or loggers are rejected while it is active. An omitted options/logger argument reuses the initial choice. `releaseDbClient()` does not create an unused client; finish outstanding work before releasing. A subsequent call creates a new client using runtime settings and the options supplied to that call. Existing data sources retain their resolved executor, so create new data sources after replacing a client.
+
+To apply tuning automatically, edit the preserved `out/dbClient.ts`:
 
 ```ts
-import { getDbClient } from 'sasat/postgres';
+import { getDbClient as getGeneratedDbClient } from './__generated__/dbClient.js';
+export { releaseDbClient } from './__generated__/dbClient.js';
 
-const db = getDbClient({ max: 10 });
-const rows = await db.executeQuery({ text: 'SELECT $1::int AS value', values: [42] });
-await db.release();
+export const getDbClient = () => getGeneratedDbClient({ connectionLimit: 10 });
 ```
 
-These entry points statically import `mysql2/promise` and `pg`, respectively. Importing an entry point requires its driver to be installed at build time. Pool creation remains lazy. They do not change configuration; using an entry point that disagrees with `db.dialect` throws an error.
+Different generated output modules hold separate clients. They still read the same Sasat configuration; inject independent clients with explicit settings for concurrent access to different databases.
 
-The shared client is the same one returned by `getDbClient()` from `sasat`. Initialize it through the selected entry point **before constructing data sources**. If generated resolvers instantiate data sources during module evaluation, load the schema after initialization:
+## Independent clients and explicit driver injection
 
-```ts
-import { getDbClient } from 'sasat/mysql'; // use sasat/postgres for PostgreSQL
-
-const db = getDbClient();
-const { schema } = await import('./out/schema.js');
-// Start your GraphQL server with schema. On shutdown, await db.release().
-```
-
-A static schema import executes before the initialization statement, even when written below it. Importing the database entry point alone does not register a global driver or initialize the shared client.
-
-For independent clients, use `MysqlPoolClient` or the non-pooled `MysqlClient` from `sasat/mysql`, or `PostgresClient` from `sasat/postgres`. These constructors accept connection options and an optional logger. Pass the resulting client to a data-source constructor instead of using its default shared client. Release independent pools yourself.
+`createMysqlPoolClient(options, logger?)` from `sasat/mysql` and `createPostgresClient(options, logger?)` from `sasat/postgres` create independent clients. Each call returns a new client; it does not register a global driver or reuse a global pool. The driver is fixed by the entry point and the options are explicit. Release each client yourself. The existing `MysqlPoolClient`, non-pooled `MysqlClient`, and `PostgresClient` constructors remain available.
 
 ## Inject a driver explicitly
 
-The common entry point accepts a driver as the third argument. This makes your application's static driver import visible to its bundler:
+Common-entry constructors still accept an explicit driver as their third argument:
 
 ```ts
 import mysql from 'mysql2/promise';
-import { getDbClient, MysqlPoolClient } from 'sasat';
+import { MysqlPoolClient } from 'sasat';
 
-const db = getDbClient({ connectionLimit: 10 }, undefined, {
-  dialect: 'mysql',
-  driver: mysql,
-});
-
-const independent = new MysqlPoolClient(
+const db = new MysqlPoolClient(
   { host: 'localhost', database: 'example', user: 'app' },
   undefined, // optional SQL logger
   mysql,
 );
+// Pass db to your data sources and release it when finished.
 ```
 
-For PostgreSQL, import `pg` and pass `{ dialect: 'postgres', driver: pg }`; an independent `PostgresClient(options, logger, pg)` also accepts injection. Applications that import `pg` directly in TypeScript should install `@types/pg` as a development dependency. Using `sasat/postgres` does not require it.
+For PostgreSQL, use `new PostgresClient(options, logger, pg)`. Applications importing `pg` directly in TypeScript should install `@types/pg`; the dedicated Sasat entry point includes its option types. `MysqlDriver`, `PostgresDriver`, and `DatabaseDriver` remain exported types.
 
-`MysqlDriver`, `PostgresDriver`, and the discriminated `DatabaseDriver` type are exported from `sasat`. Injection is per client and takes precedence over runtime module loading. An active shared client rejects a different driver object, settings, or logger. Finish outstanding work and release it before replacing it. Repeated calls without a driver reuse the initialized client; after release, initialize through the database entry point or supply the driver again.
+## Upgrade existing generated code
+
+Run `yarn sasat generate` to create the database modules. Existing `baseDBDataSource.ts` is application-owned and is not overwritten. Preserve its customizations and add these imports and this constructor to its existing class:
+
+```ts
+import type { SQLExecutor, SQLExecutorProvider } from 'sasat';
+import { getDbClient } from './dbClient.js';
+
+// Inside BaseDBDataSource:
+constructor(client: SQLExecutor | SQLExecutorProvider = getDbClient) {
+  super(client);
+}
+```
+
+If it already has a constructor, adapt its call to `super` while keeping its custom logic. Pass the function `getDbClient`, not the eagerly evaluated `getDbClient()`. Direct subclasses of `SasatDBDatasource` must now supply an executor or a synchronous provider. This constructor change requires migration even though the legacy getter is retained.
+
+Replace application imports of `getDbClient` from `sasat`, `sasat/mysql`, or `sasat/postgres` with the generated module. Those legacy getters are deprecated and retain a separate global pool for compatibility; they do not configure the generated client's pool. Explicit transaction injection still takes precedence over the generated provider.
 
 ## Build an ESM Node.js bundle with esbuild
 
@@ -89,7 +108,7 @@ The banner lets bundled CommonJS driver dependencies load Node built-ins. Do not
 
 For CommonJS, use `require('sasat/mysql')` or `require('sasat/postgres')` so the bundler selects the CommonJS export, then emit `format: 'cjs'` to a `.cjs` file. The ESM banner is not needed. Converting Sasat's ESM export to CommonJS also requires handling `import.meta.url` in its Node compatibility code.
 
-Package regression tests embed each driver through both APIs, check that the other driver's modules are absent, and run ESM/CommonJS bundles from a directory with no `node_modules`. Live checks also run bound queries and managed transactions from those isolated bundles against MySQL and PostgreSQL.
+Package regression tests generate real schemas for both databases, check the generated TypeScript, and run ESM/CommonJS bundles from a directory without `node_modules`. They verify that only the selected driver is embedded. Live checks run bound SQL and transaction-scoped generated data sources. For generated CommonJS applications, compile application/generated TypeScript to CommonJS first so its imports select Sasat's CommonJS export.
 
 ## Keep the existing runtime-loading behavior
 

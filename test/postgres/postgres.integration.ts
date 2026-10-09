@@ -254,6 +254,9 @@ test("generated GraphQL creates Hash IDs and returns nested paged relations", as
     pathToFileURL(path.resolve("dist/index.mjs")).href
   )) as typeof import("../../src/index.js");
   runtime.setConfig({ db: { ...settings, database, dialect: "postgres" } });
+  const databaseModule = await import(
+    pathToFileURL(path.join(scratch, "out/dbClient.ts")).href
+  );
   const generated = await import(
     pathToFileURL(path.join(scratch, "out/schema.ts")).href
   );
@@ -281,7 +284,7 @@ test("generated GraphQL creates Hash IDs and returns nested paged relations", as
       1,
     );
   } finally {
-    await runtime.getDbClient().release();
+    await databaseModule.releaseDbClient();
   }
 });
 

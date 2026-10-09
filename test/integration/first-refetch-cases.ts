@@ -60,6 +60,7 @@ export async function verifyFirstRefetch(dialect: DatabaseDialect) {
   const runtime = (await import(
     pathToFileURL(path.resolve("dist/index.mjs")).href
   )) as typeof import("../../src/index.js");
+  let releaseGeneratedClient: (() => Promise<void>) | undefined;
   let created = false;
   try {
     await admin.rawCommand(`CREATE DATABASE ${sql.escapeId(database)}`);
@@ -71,7 +72,6 @@ export async function verifyFirstRefetch(dialect: DatabaseDialect) {
     });
     runtime.setConfig({ db: { ...settings, database, dialect } });
     getDbClient();
-    const executor = runtime.getDbClient();
     const store = StoreMigrator.deserialize({ tables: [] }, sql);
     store.createTable("author", (t) => {
       t.column("id").int().primary().autoIncrement();
@@ -205,6 +205,12 @@ export async function verifyFirstRefetch(dialect: DatabaseDialect) {
       ],
       { stdio: "inherit" },
     );
+    const databaseModule = await import(
+      pathToFileURL(path.join(out, "dbClient.ts")).href
+    );
+    releaseGeneratedClient = databaseModule.releaseDbClient;
+    const executor: ReturnType<typeof runtime.getDbClient> =
+      databaseModule.getDbClient();
     const generated = await import(
       pathToFileURL(path.join(out, "schema.ts")).href
     );
@@ -563,7 +569,7 @@ export async function verifyFirstRefetch(dialect: DatabaseDialect) {
     await measure("mutation-after", () => call(mutation));
     await pubsub.close();
   } finally {
-    await runtime.getDbClient().release();
+    await releaseGeneratedClient?.();
     await getDbClient().release();
     await client.release();
     if (created)

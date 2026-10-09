@@ -11,7 +11,7 @@ export default {
   transformIgnorePatterns: ["/node_modules/(?!chalk/)"],
   moduleNameMapper: {
     "^sasat$": "<rootDir>/src/index.ts",
-    "^sasat/(migration|testing)$": "<rootDir>/src/$1/index.ts",
+    "^sasat/(migration|testing|mysql|postgres)$": "<rootDir>/src/$1/index.ts",
     "^@/(.*)\\.js$": "<rootDir>/src/$1",
     "^(\\.{1,2}/.*)\\.js$": "$1",
   },

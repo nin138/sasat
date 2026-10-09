@@ -3,7 +3,7 @@
 Use `client.withTransaction(callback, options?)` to run related operations on one connection. It commits when the callback succeeds and rolls back when the callback throws or any SQL operation fails. MySQL, PostgreSQL, and the mock client implement this API. The callback's result is returned only after successful completion and connection cleanup.
 
 ```typescript
-import { getDbClient } from 'sasat';
+import { getDbClient } from './out/dbClient.js';
 import { UserDBDataSource } from './out/dataSources/db/User.js';
 
 const client = getDbClient();

@@ -89,3 +89,8 @@ export function setConfig(update: NestedPartial<SasatConfig>): SasatConfig {
   conf = mergeConfig(config(), update);
   return conf;
 }
+
+/** A snapshot for application-owned database clients; contains connection secrets. */
+export function getDbConfig(): SasatConfigDB {
+  return structuredClone(config().db);
+}

@@ -304,13 +304,27 @@ for (const driver of drivers) {
         for (const format of ["esm", "cjs"] as const) {
           const extension = format === "esm" ? "mjs" : "cjs";
           const source = path.join(directory, `embed.${extension}`);
+          // Like generated resolvers, this module constructs a data source at
+          // import time, before application configuration or driver injection.
+          writeFileSync(
+            path.join(directory, `schema.${extension}`),
+            `${format === "esm" ? "import {SasatDBDatasource, getDbClient} from 'sasat';" : "const {SasatDBDatasource, getDbClient} = require('sasat');"}
+             class DataSource extends SasatDBDatasource {
+               constructor() { super(getDbClient); }
+               get executor() { return this.client; }
+               get generator() { return this.sql; }
+             }
+             ${format === "esm" ? "export const dataSource = new DataSource();" : "exports.dataSource = new DataSource();"}`,
+          );
           const imports =
             format === "esm"
-              ? `import {setConfig, getDbClient as shared, ${className} as BaseClient} from 'sasat';
+              ? `import {dataSource} from './schema.mjs';
+               import {setConfig, getDbClient as shared, ${className} as BaseClient} from 'sasat';
                import assert from 'node:assert/strict'; import {createRequire} from 'node:module';
                ${api === "entry" ? `import {getDbClient, ${className} as Client} from 'sasat/${dialect}';` : `import driver from '${specifier}';`}
                const resolve = createRequire(import.meta.url).resolve;`
-              : `const {setConfig, getDbClient: shared, ${className}: BaseClient} = require('sasat');
+              : `const {dataSource} = require('./schema.cjs');
+               const {setConfig, getDbClient: shared, ${className}: BaseClient} = require('sasat');
                const assert = require('node:assert/strict'); const {createRequire} = require('node:module');
                ${api === "entry" ? `const {getDbClient, ${className}: Client} = require('sasat/${dialect}');` : `const driver = require('${specifier}');`}
                const resolve = createRequire(__filename).resolve;`;
@@ -332,6 +346,8 @@ for (const driver of drivers) {
               const tuning = ${driver === "mysql2" ? "{connectTimeout:1000}" : "{connectionTimeoutMillis:1000}"};
               const client = ${api === "entry" ? "getDbClient(tuning)" : `shared(tuning, undefined, {dialect:'${dialect}',driver})`};
               assert.equal(shared(), client);
+              assert.equal(dataSource.generator.dialect, '${dialect}');
+              assert.equal(dataSource.executor, client);
               const independent = ${api === "entry" ? "new Client({...options, ...tuning})" : "new BaseClient({...options, ...tuning}, undefined, driver)"};
               for (const db of [client, independent]) {
                 try {

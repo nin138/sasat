@@ -1,4 +1,4 @@
-export { setConfig } from "./config/config.js";
+export { getDbConfig, setConfig } from "./config/config.js";
 export { MysqlClient } from "./db/connectors/mysql/client.js";
 export { MysqlPoolClient } from "./db/connectors/mysql/poolClient.js";
 export { PostgresClient } from "./db/connectors/postgres/client.js";
@@ -61,6 +61,7 @@ export type {
   EntityType,
   ListQueryOption,
   QueryOptions,
+  SQLExecutorProvider,
 } from "./runtime/sasatDBDatasource.js";
 export { SasatDBDatasource } from "./runtime/sasatDBDatasource.js";
 export { SqlString } from "./runtime/sql/sqlString.js";

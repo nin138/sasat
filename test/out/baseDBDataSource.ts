@@ -1,5 +1,6 @@
 import { relationMap, tableInfo } from './__generated__/relationMap.js';
-import { EntityType, Fields, SasatDBDatasource } from '../../src/index.js';
+import { EntityType, Fields, SasatDBDatasource, SQLExecutor, SQLExecutorProvider } from '../../src/index.js';
+import { getDbClient } from './dbClient.js';
 
 export abstract class BaseDBDataSource<
   Entity extends EntityType,
@@ -16,6 +17,10 @@ export abstract class BaseDBDataSource<
   EntityFields,
   QueryResult
 > {
+  constructor(client: SQLExecutor | SQLExecutorProvider = getDbClient) {
+    super(client);
+  }
+
   protected relationMap = relationMap;
   protected tableInfo = tableInfo;
   protected queryLogger = (q: string) => console.log(q);

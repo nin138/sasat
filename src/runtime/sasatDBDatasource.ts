@@ -2,12 +2,7 @@ import type { SQLExecutor, SqlValueType } from "../db/connectors/dbClient.js";
 import { executeMutation } from "../db/executeMutation.js";
 import { executeSelect } from "../db/executeSelect.js";
 import { type SqlGenerator, sqlFor } from "../db/sqlGenerator.js";
-import {
-  type CommandResponse,
-  getDbClient,
-  qe,
-  type RelationMap,
-} from "../index.js";
+import { type CommandResponse, qe, type RelationMap } from "../index.js";
 import type { Create, Delete, Update } from "./dsl/mutation/mutation.js";
 import {
   createQueryResolveInfo,
@@ -33,6 +28,8 @@ import {
 const firstQuery = Symbol("firstQuery");
 
 export type EntityType = Record<string, SqlValueType>;
+/** Called once on first use; pass a transaction directly to bypass the provider. */
+export type SQLExecutorProvider = () => SQLExecutor;
 export type EntityResult<Entity, Identifiable> = Identifiable & Partial<Entity>;
 interface Repository<Entity, Identifiable, Creatable, Updatable> {
   create(entity: Creatable): Promise<Entity>;
@@ -76,9 +73,39 @@ export abstract class SasatDBDatasource<
   protected readonly autoIncrementBigInt: boolean = false;
   protected readonly autoIncrementUnsigned: boolean = false;
 
-  protected readonly sql: SqlGenerator;
-  constructor(protected client: SQLExecutor = getDbClient()) {
-    this.sql = sqlFor(client);
+  private resolvedClient?: SQLExecutor;
+  private resolvedSql?: SqlGenerator;
+  readonly #executor: SQLExecutor | SQLExecutorProvider;
+
+  constructor(executor: SQLExecutor | SQLExecutorProvider) {
+    this.#executor = executor;
+    // Explicit executors (including transactions) keep their original binding.
+    if (executor && typeof executor !== "function") this.client = executor;
+  }
+
+  protected get client(): SQLExecutor {
+    // Generated resolvers construct data sources during module evaluation.
+    // The generated application owns the provider and its shared client.
+    if (!this.resolvedClient) {
+      if (typeof this.#executor !== "function")
+        throw new Error(
+          "A SQL executor or provider is required. Update baseDBDataSource.ts to pass the generated getDbClient provider.",
+        );
+      const client = this.#executor();
+      this.client = client;
+      return client;
+    }
+    return this.resolvedClient;
+  }
+
+  protected set client(client: SQLExecutor) {
+    this.resolvedSql = sqlFor(client);
+    this.resolvedClient = client;
+  }
+
+  protected get sql(): SqlGenerator {
+    this.resolvedSql ??= sqlFor(this.client);
+    return this.resolvedSql;
   }
 
   protected abstract getDefaultValueString():

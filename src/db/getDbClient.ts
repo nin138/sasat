@@ -13,7 +13,10 @@ let initialOptions: object | undefined;
 let initialLogger: ((query: string) => void) | undefined;
 let initialDriver: DatabaseDriver["driver"] | undefined;
 
-/** Reuses the active pool; conflicting settings require releasing it first. */
+/**
+ * Reuses the legacy global pool; conflicting settings require releasing it first.
+ * @deprecated Use getDbClient from your generated dbClient module, or an explicit client.
+ */
 export const getDbClient = (
   option?: Partial<PoolOptions> | PoolConfig,
   logger?: (query: string) => void,

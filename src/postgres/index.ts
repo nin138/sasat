@@ -14,7 +14,15 @@ export class PostgresClient extends BasePostgresClient {
   }
 }
 
-/** Initialize the shared client for db.dialect: postgres. */
+/** Creates an independent pool with a statically imported driver. */
+export function createPostgresClient(
+  options: ConstructorParameters<typeof BasePostgresClient>[0],
+  logger?: (query: string) => void,
+) {
+  return new PostgresClient(options, logger);
+}
+
+/** @deprecated Use your generated dbClient module or createPostgresClient. */
 export function getDbClient(
   options?: ConstructorParameters<typeof BasePostgresClient>[0],
   logger?: (query: string) => void,

@@ -32,13 +32,20 @@ export const schema = {
 
 const baseDBDataSourceFile = `\
 ${new ImportDeclaration(
-  ["Fields", "SasatDBDatasource", "EntityType"],
+  [
+    "Fields",
+    "SasatDBDatasource",
+    "EntityType",
+    "SQLExecutor",
+    "SQLExecutorProvider",
+  ],
   "sasat",
 ).toString()}
 ${new ImportDeclaration(
   ["relationMap", "tableInfo"],
   "./__generated__/relationMap",
 ).toString()}
+${new ImportDeclaration(["getDbClient"], "./dbClient").toString()}
 
 export abstract class BaseDBDataSource<
   Entity extends EntityType,
@@ -48,6 +55,10 @@ export abstract class BaseDBDataSource<
   EntityFields extends Fields<Entity>,
   QueryResult extends Partial<Entity> & Identifiable,
 > extends SasatDBDatasource<Entity, Identifiable, Creatable, Updatable, EntityFields, QueryResult> {
+  constructor(client: SQLExecutor | SQLExecutorProvider = getDbClient) {
+    super(client);
+  }
+
   protected relationMap = relationMap;
   protected tableInfo = tableInfo;
 }

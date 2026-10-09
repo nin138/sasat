@@ -58,6 +58,7 @@ export async function verifyNumericDatabase(dialect: DatabaseDialect) {
   const runtime = (await import(
     pathToFileURL(path.resolve("dist/index.mjs")).href
   )) as typeof import("../../src/index.js");
+  let releaseGeneratedClient: (() => Promise<void>) | undefined;
   let created = false;
   try {
     await admin.rawCommand(`CREATE DATABASE ${sql.escapeId(database)}`);
@@ -158,6 +159,10 @@ export async function verifyNumericDatabase(dialect: DatabaseDialect) {
       ],
       { stdio: "inherit" },
     );
+    const databaseModule = await import(
+      pathToFileURL(path.join(out, "dbClient.ts")).href
+    );
+    releaseGeneratedClient = databaseModule.releaseDbClient;
     const generated = await import(
       pathToFileURL(path.join(out, "schema.ts")).href
     );
@@ -309,7 +314,7 @@ export async function verifyNumericDatabase(dialect: DatabaseDialect) {
     const { NumericAutoDBDataSource } = await import(
       pathToFileURL(path.join(out, "dataSources/db/NumericAuto.ts")).href
     );
-    const tx = await runtime.getDbClient().transaction();
+    const tx = await databaseModule.getDbClient().transaction();
     try {
       const ds = new NumericAutoDBDataSource(tx);
       const row = await ds.create({ amount: "2.000000000000000001" });
@@ -356,7 +361,7 @@ export async function verifyNumericDatabase(dialect: DatabaseDialect) {
       );
     }
   } finally {
-    await runtime.getDbClient().release();
+    await releaseGeneratedClient?.();
     await getDbClient().release();
     await client.release();
     if (created)

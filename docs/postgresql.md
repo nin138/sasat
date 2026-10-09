@@ -38,7 +38,7 @@ yarn sasat migrate --generateFiles
 yarn tsx server.ts
 ```
 
-In the README server example, import `getDbClient` from `sasat/postgres` instead of `sasat/mysql`. This entry point imports `pg` statically so it can be included in an application bundle. Initialize the client before loading the generated schema. See [bundling and explicit driver injection](bundling.md).
+Generation with `db.dialect: postgres` creates a client module that statically imports `createPostgresClient` from `sasat/postgres`. The README server needs no driver-specific initialization. Import `getDbClient` from `./out/dbClient.js` for direct SQL and transactions. Existing applications should follow the [generated client migration](bundling.md#upgrade-existing-generated-code).
 
 The common `sasat` entry point retains lazy driver loading when no driver is injected. If `pg` is missing, the first database operation rejects with an installation hint; importing that common entry point or releasing an unused client does not require a driver. Sasat includes the connection option types in its declarations, so using Sasat does not require `@types/pg`. Install `@types/pg` yourself if your TypeScript application imports `pg` directly.
 
