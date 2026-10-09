@@ -1,10 +1,10 @@
-import { config } from "../../config/config.js";
+import { getMigrationBuildConfig } from "../../config/config.js";
 import { Direction } from "./getCurrentMigration.js";
 
 /** Resolve before compilation or generation can write any files. */
 export const resolveMigrationTarget = (
   files: string[],
-  target: string | undefined = config().migration.target,
+  target: string | undefined = getMigrationBuildConfig().target,
 ): string | undefined => {
   if (target !== undefined && !files.includes(target))
     throw new Error("migration target not found");

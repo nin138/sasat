@@ -1,19 +1,20 @@
 import { ImportDeclaration } from "../../../tsg/importDeclaration.js";
 import type { FileData } from "../tscodegen_v2.js";
 
-const contextFile = `\
+export function generateStaticFiles(): FileData[] {
+  const contextFile = `\
 ${new ImportDeclaration(
   ["BaseGQLContext"],
   "./__generated__/context",
 ).toString()}
 export type GQLContext = BaseGQLContext & Record<string, never>;
 `;
-const pubsubFile = `\
+  const pubsubFile = `\
 ${new ImportDeclaration(["createPubSub"], "sasat").toString()}
 
 export const pubsub = createPubSub();
 `;
-const schemaFile = `\
+  const schemaFile = `\
 ${new ImportDeclaration(["assignDeep", "createTypeDef"], "sasat").toString()}
 ${new ImportDeclaration(
   ["typeDefs", "inputs"],
@@ -30,7 +31,7 @@ export const schema = {
 };
 `;
 
-const baseDBDataSourceFile = `\
+  const baseDBDataSourceFile = `\
 ${new ImportDeclaration(
   [
     "Fields",
@@ -63,21 +64,22 @@ export abstract class BaseDBDataSource<
   protected tableInfo = tableInfo;
 }
 `;
-export const staticFiles: FileData[] = [
-  {
-    name: "context",
-    body: contextFile,
-  },
-  {
-    name: "pubsub",
-    body: pubsubFile,
-  },
-  {
-    name: "schema",
-    body: schemaFile,
-  },
-  {
-    name: "baseDBDataSource",
-    body: baseDBDataSourceFile,
-  },
-];
+  return [
+    {
+      name: "context",
+      body: contextFile,
+    },
+    {
+      name: "pubsub",
+      body: pubsubFile,
+    },
+    {
+      name: "schema",
+      body: schemaFile,
+    },
+    {
+      name: "baseDBDataSource",
+      body: baseDBDataSourceFile,
+    },
+  ];
+}

@@ -10,7 +10,8 @@ export const changeExtTsToJs = (fileName: string) =>
   fileName.slice(0, -3) + ".mjs";
 
 export const compileMigrationFiles = () => {
-  const tsFiles = getMigrationFileNames();
+  const directory = getMigrationFileDir();
+  const tsFiles = getMigrationFileNames(directory);
   resolveMigrationTarget(tsFiles);
   const stubServerOnlyPlugin: Plugin = {
     name: "stub-server-only",
@@ -26,7 +27,7 @@ export const compileMigrationFiles = () => {
     },
   };
   const compiles = tsFiles.map(async (fileName) => {
-    const filePath = path.join(getMigrationFileDir(), fileName);
+    const filePath = path.join(directory, fileName);
     const r = await build({
       entryPoints: [filePath],
       bundle: true,

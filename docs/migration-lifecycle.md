@@ -6,10 +6,13 @@ A migration exports a default class implementing `SasatMigration` from `sasat/mi
 
 | Operation | Definitions | Apply hooks | Managed database writes |
 | --- | --- | --- | --- |
+| `migration:build` | None; compilation only | None | None |
 | Schema reconstruction | Applied `up` definitions | None | None |
 | `generate`, `generate:test`, `generate:er` | Definitions needed for the target | None | None |
 | `migrate --dry` | Applied definitions, then pending `up`/`down` | None | None |
 | `migrate` | Applied definitions, then pending `up`/`down` | Pending migrations only | Queued SQL and history |
+
+`migration:build` needs only the migration directory and optional target. It does not require DB environment variables or execute migration modules. See [configuration validation](configuration.md) for the offline scope.
 
 Generation writes its normal output files. Dry runs may compile adjacent `.mjs` files and read database history, but do not acquire the migration lock, create history, apply queued SQL, or generate output requested by `--generateFiles`. `--skipBuild` uses existing compiled files.
 

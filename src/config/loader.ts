@@ -1,10 +1,25 @@
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { readYmlFile } from "../util/fsUtil.js";
-import { defaultConf, type SasatConfig } from "./config.js";
-import { invalidConfig, mergeConfig } from "./validate.js";
+import {
+  defaultConf,
+  type MigrationBuildConfig,
+  type SasatConfig,
+} from "./config.js";
+import {
+  invalidConfig,
+  mergeConfig,
+  readMigrationBuildConfig,
+} from "./validate.js";
 
 export class SasatConfigLoader {
+  static getMigrationBuildConfig(): MigrationBuildConfig {
+    return readMigrationBuildConfig(
+      SasatConfigLoader.loadConfig(),
+      defaultConf.migration.dir,
+    );
+  }
+
   private static loadConfig(): unknown {
     const filepath = path.join(process.cwd(), "sasat.yml");
     if (!existsSync(filepath)) return {};

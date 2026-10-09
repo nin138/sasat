@@ -1,4 +1,7 @@
-import chalk from "chalk";
+import { Chalk } from "chalk";
+
+// Named imports also work when the CJS CLI loads Chalk's ESM distribution.
+const chalk = new Chalk();
 
 export const Console = {
   success: (msg: string): void => {

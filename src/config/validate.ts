@@ -1,4 +1,4 @@
-import type { SasatConfig } from "./config.js";
+import type { MigrationBuildConfig, SasatConfig } from "./config.js";
 
 type Schema = {
   optional?: boolean;
@@ -62,6 +62,7 @@ function read(
   key: string,
   partial: boolean,
   environment: boolean,
+  extensions = true,
 ): unknown {
   if (environment && typeof value === "string" && value.startsWith("$")) {
     const resolved = process.env[value.slice(1)];
@@ -82,6 +83,7 @@ function read(
     const result: Record<string, unknown> = {};
     for (const [name, item] of Object.entries(value)) {
       if (
+        extensions &&
         !Object.hasOwn(node.fields, name) &&
         name !== "__proto__" &&
         name !== "constructor"
@@ -103,6 +105,7 @@ function read(
         key === "config" ? name : `${key}.${name}`,
         partial,
         environment,
+        extensions,
       );
     }
     return result;
@@ -110,7 +113,7 @@ function read(
   if (node.kind === "array") {
     if (!Array.isArray(value)) throw invalidConfig(key, "must be an array");
     return Array.from(value, (item) =>
-      read(item, node.item, `${key}[]`, partial, environment),
+      read(item, node.item, `${key}[]`, partial, environment, extensions),
     );
   }
   if (node.kind === "string") {
@@ -228,4 +231,30 @@ export function mergeConfig(
   } catch {
     throw invalidConfig("config", "must contain serializable values");
   }
+}
+
+/** Compilation reads no connection, dialect, generator, or application settings. */
+export function readMigrationBuildConfig(
+  update: unknown,
+  defaultDir: string,
+): MigrationBuildConfig {
+  const buildSchema: Schema = {
+    kind: "object",
+    fields: {
+      migration: {
+        kind: "object",
+        fields: {
+          dir: string,
+          target: { ...string, optional: true },
+        },
+      },
+    },
+  };
+  const patch = read(update, buildSchema, "config", true, true, false);
+  const candidate = merge({ migration: { dir: defaultDir } }, patch);
+  return (
+    read(candidate, buildSchema, "config", false, false, false) as {
+      migration: MigrationBuildConfig;
+    }
+  ).migration;
 }

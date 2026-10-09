@@ -127,3 +127,87 @@ test("parser errors and invalid values never echo secrets or YAML snippets", () 
     }
   }
 });
+
+test("offline migration settings ignore connection and generation settings", () => {
+  delete process.env.SASAT_TEST_HOST;
+  writeFileSync(
+    join(dir, "sasat.yml"),
+    `
+db:
+  host: $SASAT_TEST_HOST
+  port: invalid
+  password: $SASAT_TEST_HOST
+  ssl:
+    ca: [$SASAT_TEST_HOST]
+testDB: $SASAT_TEST_HOST
+generator: $SASAT_TEST_HOST
+application: $SASAT_TEST_HOST
+migration:
+  dir: definitions
+  target: 001.ts
+  out: $SASAT_TEST_HOST
+  table: $SASAT_TEST_HOST
+  db: $SASAT_TEST_HOST
+`,
+  );
+  expect(SasatConfigLoader.getMigrationBuildConfig()).toEqual({
+    dir: "definitions",
+    target: "001.ts",
+  });
+  expect(() => new SasatConfigLoader()).toThrow("Invalid configuration:");
+});
+
+test("offline migration settings use defaults and resolve only their own environment references", () => {
+  expect(SasatConfigLoader.getMigrationBuildConfig()).toEqual({
+    dir: "migrations",
+  });
+  process.env.SASAT_TEST_HOST = "definitions";
+  writeFileSync(
+    join(dir, "sasat.yml"),
+    "migration:\n  dir: $SASAT_TEST_HOST\n",
+  );
+  expect(SasatConfigLoader.getMigrationBuildConfig()).toEqual({
+    dir: "definitions",
+  });
+});
+
+test.each([
+  ["migration:\n  dir: $SASAT_TEST_HOST", "migration.dir"],
+  ["migration:\n  target: $SASAT_TEST_HOST", "migration.target"],
+  ["migration:\n  dir: ''", "migration.dir"],
+  ["migration:\n  target: 123", "migration.target"],
+  ["migration: []", "migration"],
+  ["[]", "config"],
+  ["db: [SYNTHETIC_SECRET", "sasat.yml"],
+])("offline build still validates required inputs: %s", (yaml, key) => {
+  delete process.env.SASAT_TEST_HOST;
+  writeFileSync(join(dir, "sasat.yml"), yaml);
+  expect(() => SasatConfigLoader.getMigrationBuildConfig()).toThrow(
+    `Invalid configuration: ${key}`,
+  );
+  expect(() => SasatConfigLoader.getMigrationBuildConfig()).not.toThrow(
+    "SYNTHETIC_SECRET",
+  );
+});
+
+test("offline reads do not publish partial configuration or weaken subsequent connection validation", async () => {
+  delete process.env.SASAT_TEST_HOST;
+  writeFileSync(
+    join(dir, "sasat.yml"),
+    "db:\n  host: $SASAT_TEST_HOST\nmigration:\n  dir: definitions\n",
+  );
+  await jest.isolateModulesAsync(async () => {
+    const { getMigrationBuildConfig, getDbConfig, setConfig } = await import(
+      "./config.js"
+    );
+    expect(getMigrationBuildConfig()).toEqual({ dir: "definitions" });
+    expect(() => getDbConfig()).toThrow("db.host");
+    process.env.SASAT_TEST_HOST = "localhost";
+    expect(getDbConfig().host).toBe("localhost");
+    setConfig({ migration: { dir: "configured", target: "002.ts" } });
+    expect(getMigrationBuildConfig()).toEqual({
+      dir: "configured",
+      target: "002.ts",
+    });
+  });
+});

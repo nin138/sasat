@@ -44,6 +44,8 @@ export interface SasatConfigMigration {
   db?: SasatConfigDB;
 }
 
+export type MigrationBuildConfig = Pick<SasatConfigMigration, "dir" | "target">;
+
 const defaultConfMigration: SasatConfigMigration = {
   table: "__migrate__",
   dir: "migrations",
@@ -84,6 +86,12 @@ export const config = (): SasatConfig => {
   if (conf === undefined) conf = new SasatConfigLoader().getConfig();
   return conf;
 };
+
+/** Offline compilation must not resolve or cache database connection settings. */
+export function getMigrationBuildConfig(): MigrationBuildConfig {
+  if (conf) return { dir: conf.migration.dir, target: conf.migration.target };
+  return SasatConfigLoader.getMigrationBuildConfig();
+}
 
 export function setConfig(update: NestedPartial<SasatConfig>): SasatConfig {
   conf = mergeConfig(config(), update);

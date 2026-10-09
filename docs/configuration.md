@@ -109,6 +109,8 @@ Errors identify the setting and rule, for example:
 
 Errors do not include the rejected value, environment variable contents, or YAML source snippets. Parse/read failures identify `sasat.yml` instead of an individual setting. Invalid configuration is rejected before normal CLI database or generation work.
 
+`migration:build` is an offline compiler. It reads and validates only `migration.dir` and the optional `migration.target`, including their environment references. Database connection values, including unresolved references in `db`, `testDB`, or `migration.db`, are not required. Other generation/application settings are also unused. Malformed YAML, invalid build settings, and a target absent from the migration directory still fail before compilation writes files. This limited read does not initialize or relax the full configuration used by `getDbConfig`, `setConfig`, or commands such as `migrate` and `generate`.
+
 **Upgrade:** unresolved environment references and values previously passed through to drivers may now fail at configuration loading. Supply the missing variables, omit unused optional settings, and fix invalid types/ranges. No generated-code regeneration is required for this change.
 
 ## Database drivers
@@ -129,7 +131,7 @@ Run these commands from the application root containing `sasat.yml`.
 | --- | --- |
 | `yarn sasat init` | Create sasat.yml if it does not exist |
 | `yarn sasat migration:create createUser` | Create a timestamped TypeScript migration |
-| `yarn sasat migration:build` | Compile migration `.ts` files to adjacent `.mjs` files |
+| `yarn sasat migration:build` | Compile migration `.ts` files to adjacent `.mjs` files without database connection settings or definition execution |
 | `yarn sasat migrate` | Apply up/down migrations according to history and target |
 | `yarn sasat migrate -g` | Apply migrations, then generate code, currentSchema, and test SQL |
 | `yarn sasat generate` | Generate code, currentSchema, and test SQL from definitions |

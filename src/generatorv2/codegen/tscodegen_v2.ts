@@ -19,7 +19,7 @@ import { generateSubscription } from "./ts/generateSubscription.js";
 import { generateTypeDefs } from "./ts/generateTypeDefs.js";
 import { generateUserDefinedCondition } from "./ts/generateUserDefinedCondition.js";
 import { generateRelationMap } from "./ts/relationMap/index.js";
-import { staticFiles } from "./ts/staticFiles.js";
+import { generateStaticFiles } from "./ts/staticFiles.js";
 
 export type FileData = { name: string; body: string };
 
@@ -51,7 +51,7 @@ export class TsCodegen_v2 {
   };
   generateOnceFiles = (): FileData[] => {
     return [
-      ...staticFiles,
+      ...generateStaticFiles(),
       { name: "dbClient", body: generateDbClientExtension() },
     ];
   };
