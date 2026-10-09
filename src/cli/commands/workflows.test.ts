@@ -2,6 +2,7 @@ import { join } from "node:path";
 import { config } from "../../config/config.js";
 import type { DBClient } from "../../db/connectors/dbClient.js";
 import { getDbClient } from "../../db/getDbClient.js";
+import { SqlGenerator } from "../../db/sqlGenerator.js";
 import { CodeGen_v2 } from "../../generatorv2/codegen_v2.js";
 import { MigrationController } from "../../migration/controller.js";
 import { createCurrentMigrationDataStore } from "../../migration/exec/createCurrentMigrationDataStore.js";
@@ -120,10 +121,16 @@ test("loads the configured target or the most recent migration", async () => {
   try {
     config().migration.target = "001.ts";
     await expect(getCurrentStore()).resolves.toEqual(empty);
-    expect(createCurrentMigrationDataStore).toHaveBeenLastCalledWith("001.ts");
+    expect(createCurrentMigrationDataStore).toHaveBeenLastCalledWith(
+      "001.ts",
+      expect.any(SqlGenerator),
+    );
     config().migration.target = undefined;
     await getCurrentStore();
-    expect(createCurrentMigrationDataStore).toHaveBeenLastCalledWith("002.ts");
+    expect(createCurrentMigrationDataStore).toHaveBeenLastCalledWith(
+      "002.ts",
+      expect.any(SqlGenerator),
+    );
   } finally {
     config().migration.target = target;
   }
@@ -144,7 +151,7 @@ test("generates the application and test migration files", async () => {
   ]);
   expect(CodeGen_v2.prototype.generate).toHaveBeenCalledTimes(1);
   expect(renderTestMigrationFile).toHaveBeenCalledWith(
-    jest.mocked(getDbClient).mock.results[0].value,
+    expect.any(SqlGenerator),
     true,
   );
   expect(compileMigrationFiles).toHaveBeenCalledTimes(1);
@@ -192,7 +199,10 @@ test("loads an empty migration directory without a target", async () => {
     config().migration.target = undefined;
     jest.mocked(getMigrationFileNames).mockReturnValue([]);
     await expect(getCurrentStore()).resolves.toEqual(empty);
-    expect(createCurrentMigrationDataStore).toHaveBeenCalledWith(undefined);
+    expect(createCurrentMigrationDataStore).toHaveBeenCalledWith(
+      undefined,
+      expect.any(SqlGenerator),
+    );
   } finally {
     config().migration.target = previous;
   }
@@ -209,10 +219,7 @@ test.each(["generate", "migrate"])(
     ).rejects.toThrow("SQL rendering failed");
     expect(CodeGen_v2.prototype.generate).not.toHaveBeenCalled();
     expect(writeCurrentSchema).not.toHaveBeenCalled();
-    if (command === "generate")
-      expect(
-        jest.mocked(getDbClient).mock.results[0].value.release,
-      ).toHaveBeenCalledTimes(1);
+    if (command === "generate") expect(getDbClient).not.toHaveBeenCalled();
   },
 );
 test("propagates publication failure after DB migration without reporting success", async () => {

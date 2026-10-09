@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { config, type SasatConfig } from "@/config/config.js";
+import { getMigrationDirectory, type SasatConfig } from "@/config/config.js";
 import { SasatError } from "@/error.js";
 import { readInitialSchema } from "@/util/fsUtil.js";
 import type { NestedPartial } from "@/util/type.js";
@@ -39,7 +39,9 @@ export class StoreMigrator implements MigrationStore {
   private constructor(readonly sqlGenerator: SqlGenerator) {}
 
   static new(sqlGenerator: SqlGenerator = createSqlGenerator()): StoreMigrator {
-    if (fs.existsSync(path.join(config().migration.dir, "initialSchema.yml"))) {
+    if (
+      fs.existsSync(path.join(getMigrationDirectory(), "initialSchema.yml"))
+    ) {
       return StoreMigrator.deserialize(readInitialSchema(), sqlGenerator);
     }
     return new StoreMigrator(sqlGenerator);

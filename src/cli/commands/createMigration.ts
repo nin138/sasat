@@ -1,6 +1,6 @@
 import * as fs from "node:fs";
 import { join } from "node:path";
-import { config } from "@/config/config.js";
+import { getMigrationDirectory } from "@/config/config.js";
 import { mkDirIfNotExist } from "@/util/fsUtil.js";
 import { capitalizeFirstLetter } from "@/util/stringUtil.js";
 import { Console } from "../console.js";
@@ -34,7 +34,7 @@ export const createMigrationFile = (migrationName: string): string => {
     pad(date.getMinutes()) +
     pad(date.getSeconds());
   const fileName = now + migrationName;
-  const outDir = join(config().migration.dir);
+  const outDir = join(getMigrationDirectory());
   mkDirIfNotExist(outDir);
   fs.writeFileSync(
     join(outDir, fileName) + ".ts",

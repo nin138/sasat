@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import * as path from "node:path";
 import ts from "typescript";
-import { config } from "../config/config.js";
+import { getMigrationOutputDir } from "../config/config.js";
 import type { DataStoreHandler } from "../migration/dataStore.js";
 import { tsFileNames } from "./codegen/ts/tsFileNames.js";
 import { TsCodegen_v2 } from "./codegen/tscodegen_v2.js";
@@ -12,7 +12,7 @@ import { parse } from "./parse.js";
 
 export class CodeGen_v2 {
   private codeGen: TsCodegen_v2;
-  private outDir = config().migration.out;
+  private outDir = getMigrationOutputDir();
   private readonly root: RootNode;
   constructor(store: DataStoreHandler) {
     this.codeGen = new TsCodegen_v2(store.sqlGenerator.dialect);

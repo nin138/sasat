@@ -1,34 +1,30 @@
 import { join } from "node:path";
 import { Console } from "@/cli/console.js";
-import { config } from "@/config/config.js";
+import { getMigrationDirectory } from "@/config/config.js";
 import type { DBClient } from "@/db/connectors/dbClient.js";
 import { publishArtifacts } from "@/generatorv2/fs/publishArtifacts.js";
-import { MigrationController } from "@/migration/controller.js";
 import { compileMigrationFiles } from "@/migration/exec/migrationFileCompiler.js";
-import type { StoreMigrator } from "@/migration/front/storeMigrator.js";
+import { StoreMigrator } from "@/migration/front/storeMigrator.js";
+import { SqlGenerator, sqlFor } from "../../db/sqlGenerator.js";
+import { getMigrationFileNames } from "../../migration/exec/getMigrationFiles.js";
+import { getMigrationTargets } from "../../migration/exec/getMigrationTarget.js";
+import { readMigration } from "../../migration/exec/readMigrationFile.js";
 
 export async function renderTestMigrationFile(
-  client: DBClient,
+  client: DBClient | SqlGenerator,
   skipBuild = false,
 ): Promise<string> {
   try {
     if (!skipBuild) await compileMigrationFiles();
-    const migration = new MigrationController();
+    const sql = client instanceof SqlGenerator ? client : sqlFor(client);
+    const target = getMigrationTargets(getMigrationFileNames(), undefined);
+    let store = StoreMigrator.new(sql);
     const sqls: string[] = [];
-    const exec = async (_: DBClient, store: StoreMigrator) => {
+    for (const name of target.files) {
+      store = await readMigration(store, name, target.direction);
       if (!store.currentOption.skipOnTest) sqls.push(...store.getSql());
-    };
-    await migration.migrate(
-      client,
-      undefined,
-      {
-        generateFiles: false,
-        silent: true,
-        dry: false,
-        skipBuild: false,
-      },
-      exec,
-    );
+      store.resetQueue();
+    }
     return JSON.stringify(sqls);
   } catch (e: unknown) {
     Console.error((e as Error).message);
@@ -36,9 +32,11 @@ export async function renderTestMigrationFile(
   }
 }
 
-export async function generateTestMigrationFile(client: DBClient) {
+export async function generateTestMigrationFile(
+  client: DBClient | SqlGenerator,
+) {
   const content = await renderTestMigrationFile(client);
   publishArtifacts([
-    { path: join(config().migration.dir, "test.migration.json"), content },
+    { path: join(getMigrationDirectory(), "test.migration.json"), content },
   ]);
 }

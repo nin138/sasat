@@ -1,9 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
-import { getMigrationBuildConfig } from "@/config/config.js";
+import { getMigrationDirectory } from "@/config/config.js";
 
 export const getMigrationFileDir = () => {
-  return path.join(process.cwd(), getMigrationBuildConfig().dir);
+  return path.join(process.cwd(), getMigrationDirectory());
 };
 
 export const getMigrationFileNames = (

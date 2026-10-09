@@ -211,3 +211,68 @@ test("offline reads do not publish partial configuration or weaken subsequent co
     });
   });
 });
+
+test("scoped settings validate their own values without caching connection settings", async () => {
+  delete process.env.SASAT_TEST_HOST;
+  writeFileSync(
+    join(dir, "sasat.yml"),
+    `
+db:
+  dialect: mysql
+  host: $SASAT_TEST_HOST
+migration:
+  dir: definitions
+  out: output
+  target: $SASAT_TEST_HOST
+  db:
+    dialect: postgres
+    host: $SASAT_TEST_HOST
+generator:
+  gql:
+    subscription: false
+testDB: $SASAT_TEST_HOST
+`,
+  );
+  await jest.isolateModulesAsync(async () => {
+    const {
+      getMigrationDirectory,
+      getMigrationOutputDir,
+      getGeneratorConfig,
+      getConfiguredDialect,
+      getDbConfig,
+      getMigrationBuildConfig,
+    } = await import("./config.js");
+    expect(getMigrationDirectory()).toBe("definitions");
+    expect(getMigrationOutputDir()).toBe("output");
+    expect(getConfiguredDialect()).toBe("mysql");
+    expect(getConfiguredDialect(true)).toBe("postgres");
+    expect(getGeneratorConfig()).toEqual({
+      addJsExtToImportStatement: false,
+      gql: { subscription: false },
+    });
+    expect(() => getMigrationBuildConfig()).toThrow("migration.target");
+    expect(() => getDbConfig()).toThrow("db.host");
+  });
+});
+
+test.each([
+  ["db:\n  dialect: invalid", ["db.dialect"], "db.dialect"],
+  ["migration:\n  out: []", ["migration.out"], "migration.out"],
+  [
+    "generator:\n  gql:\n    subscription: invalid",
+    ["generator"],
+    "generator.gql.subscription",
+  ],
+  [
+    "migration:\n  db:\n    dialect: $SASAT_TEST_HOST",
+    ["migration.db.dialect"],
+    "migration.db.dialect",
+  ],
+] as const)(
+  "scoped validation rejects used invalid inputs: %s",
+  (yaml, fields, key) => {
+    delete process.env.SASAT_TEST_HOST;
+    writeFileSync(join(dir, "sasat.yml"), yaml);
+    expect(() => SasatConfigLoader.getFields(fields)).toThrow(key);
+  },
+);

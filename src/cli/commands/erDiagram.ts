@@ -1,6 +1,10 @@
 import fs from "node:fs";
 import path from "node:path";
-import { config } from "../../config/config.js";
+import {
+  getConfiguredDialect,
+  getMigrationOutputDir,
+} from "../../config/config.js";
+import { createSqlGenerator } from "../../db/sqlGenerator.js";
 import { Directory } from "../../generatorv2/directory.js";
 import type { Relation } from "../../migration/data/relation.js";
 import { DataStoreHandler } from "../../migration/dataStore.js";
@@ -14,20 +18,21 @@ import { Console } from "../console.js";
 
 export const writeDiagram = async (): Promise<void> => {
   try {
-    const store = new DataStoreHandler(await getCurrentStore());
+    const store = new DataStoreHandler(
+      await getCurrentStore(),
+      createSqlGenerator(getConfiguredDialect(true)),
+    );
 
     const entities = store.tables.map((it) => processTable(store, it));
     const result = `erDiagram
 ${entities.join("\n")}
 `;
-    fs.writeFileSync(
-      path.join(
-        config().migration.out,
-        Directory.paths.GENERATED,
-        "er-diagram.mermaid",
-      ),
-      result,
+    const directory = path.join(
+      getMigrationOutputDir(),
+      Directory.paths.GENERATED,
     );
+    fs.mkdirSync(directory, { recursive: true });
+    fs.writeFileSync(path.join(directory, "er-diagram.mermaid"), result);
   } catch (e) {
     Console.error((e as Error).message);
     throw e;

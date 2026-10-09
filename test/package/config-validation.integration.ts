@@ -159,8 +159,8 @@ for (const [yaml, message] of [
   });
 }
 
-for (const command of ["generate", "migrate"]) {
-  for (const malformed of [false, true]) {
+for (const command of ["generate", "migrate", "dump-db"]) {
+  for (const malformed of command === "generate" ? [true] : [false, true]) {
     test(`CLI ${command} rejects ${malformed ? "malformed YAML" : "missing environment values"} without output changes or secret disclosure`, () => {
       const dir = mkdtempSync(path.join(tmpdir(), "sasat-config-cli-"));
       try {

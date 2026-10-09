@@ -1,6 +1,6 @@
 import type { NestedPartial } from "../util/type.js";
 import { SasatConfigLoader } from "./loader.js";
-import { mergeConfig } from "./validate.js";
+import { mergeConfig, readConfigFields } from "./validate.js";
 
 export type SasatDBConfigBase = {
   /** Defaults to mysql for backward compatibility. */
@@ -91,6 +91,39 @@ export const config = (): SasatConfig => {
 export function getMigrationBuildConfig(): MigrationBuildConfig {
   if (conf) return { dir: conf.migration.dir, target: conf.migration.target };
   return SasatConfigLoader.getMigrationBuildConfig();
+}
+
+function getFields<T>(fields: readonly string[]): T {
+  return conf
+    ? (readConfigFields(defaultConf, conf, fields, false) as T)
+    : SasatConfigLoader.getFields<T>(fields);
+}
+
+export function getMigrationDirectory(): string {
+  return getFields<{ migration: { dir: string } }>(["migration.dir"]).migration
+    .dir;
+}
+
+export function getMigrationOutputDir(): string {
+  return getFields<{ migration: { out: string } }>(["migration.out"]).migration
+    .out;
+}
+
+export function getGeneratorConfig(): SasatConfigGenerator {
+  return getFields<{ generator: SasatConfigGenerator }>(["generator"])
+    .generator;
+}
+
+export function getConfiguredDialect(migration = false): "mysql" | "postgres" {
+  type Dialect = Pick<SasatConfigDB, "dialect">;
+  const selected = getFields<{ db: Dialect; migration?: { db?: Dialect } }>(
+    migration ? ["db.dialect", "migration.db.dialect"] : ["db.dialect"],
+  );
+  return (
+    (migration ? selected.migration?.db?.dialect : undefined) ??
+    selected.db.dialect ??
+    "mysql"
+  );
 }
 
 export function setConfig(update: NestedPartial<SasatConfig>): SasatConfig {

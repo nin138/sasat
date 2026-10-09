@@ -14,7 +14,7 @@ A migration exports a default class implementing `SasatMigration` from `sasat/mi
 
 `migration:build` needs only the migration directory and optional target. It does not require DB environment variables or execute migration modules. See [configuration validation](configuration.md) for the offline scope.
 
-Generation writes its normal output files. Dry runs may compile adjacent `.mjs` files and read database history, but do not acquire the migration lock, create history, apply queued SQL, or generate output requested by `--generateFiles`. `--skipBuild` uses existing compiled files.
+Generation needs a SQL dialect and its output/generator settings, but does not create a DB client or require connection environment variables. It writes its normal output files. Dry runs may compile adjacent `.mjs` files and read database history, but do not acquire the migration lock, create history, apply queued SQL, or generate output requested by `--generateFiles`. `--skipBuild` uses existing compiled files.
 
 Definitions must be replayable. Put database changes in the store's queue or apply hooks. Import code, constructors, and `up`/`down` still execute during replay; Sasat does not sandbox their direct database, network, or filesystem operations. `skipOnTest` excludes queued SQL from test-SQL collection, not definition execution. Test-SQL generation does not include data inserted by hooks.
 

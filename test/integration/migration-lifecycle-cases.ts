@@ -305,6 +305,22 @@ export default class Migration { ${body} }`,
     assert.equal(await count("entries"), 4);
   });
 
+  test(`${dialect}: migrate -g and dump-db produce artifacts from the isolated database`, {
+    timeout: 60_000,
+  }, async () => {
+    const beforeEvents = events();
+    const beforeHistory = await history();
+    await run("migrate", "-g");
+    assert.ok(
+      existsSync(join(directory, "generated/__generated__/dbClient.ts")),
+    );
+    await run("dump-db");
+    const schema = readFileSync(join(directory, "initialSchema.yml"), "utf8");
+    assert.match(schema, /tableName: entries/);
+    assert.deepEqual(events(), beforeEvents);
+    assert.deepEqual(await history(), beforeHistory);
+  });
+
   test(`${dialect}: reusable client (PostgreSQL max=1) retains no session lock after failure`, {
     timeout: 15_000,
   }, async () => {

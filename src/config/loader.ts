@@ -9,10 +9,19 @@ import {
 import {
   invalidConfig,
   mergeConfig,
+  readConfigFields,
   readMigrationBuildConfig,
 } from "./validate.js";
 
 export class SasatConfigLoader {
+  static getFields<T>(fields: readonly string[]): T {
+    return readConfigFields(
+      defaultConf,
+      SasatConfigLoader.loadConfig(),
+      fields,
+      true,
+    ) as T;
+  }
   static getMigrationBuildConfig(): MigrationBuildConfig {
     return readMigrationBuildConfig(
       SasatConfigLoader.loadConfig(),

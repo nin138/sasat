@@ -258,3 +258,36 @@ export function readMigrationBuildConfig(
     }
   ).migration;
 }
+
+/** Select only the settings needed by an offline operation. */
+export function readConfigFields(
+  base: SasatConfig,
+  update: unknown,
+  fields: readonly string[],
+  environment: boolean,
+): unknown {
+  const select = (node: Schema, paths: string[][]): Schema => {
+    if (paths.some((path) => path.length === 0)) return node;
+    if (node.kind !== "object")
+      throw new Error("Invalid internal config selection");
+    const selected: Record<string, Schema> = {};
+    for (const name of new Set(paths.map((path) => path[0]))) {
+      if (!Object.hasOwn(node.fields, name))
+        throw new Error("Invalid internal config selection");
+      selected[name] = select(
+        node.fields[name],
+        paths.filter((path) => path[0] === name).map((path) => path.slice(1)),
+      );
+    }
+    return { ...node, fields: selected };
+  };
+  const selected = select(
+    schema,
+    fields.map((field) => field.split(".")),
+  );
+  const candidate = merge(
+    read(base, selected, "config", true, false, false),
+    read(update, selected, "config", true, environment, false),
+  );
+  return read(candidate, selected, "config", false, false, false);
+}

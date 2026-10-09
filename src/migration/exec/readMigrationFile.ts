@@ -1,5 +1,5 @@
 import path from "node:path";
-import { config } from "@/config/config.js";
+import { getMigrationDirectory } from "@/config/config.js";
 import type { SasatMigration } from "../front/migration.js";
 import type { StoreMigrator } from "../front/storeMigrator.js";
 import { Direction } from "./getCurrentMigration.js";
@@ -13,7 +13,7 @@ export const readMigration = async (
 ): Promise<StoreMigrator> => {
   const file = path.join(
     process.cwd(),
-    config().migration.dir,
+    getMigrationDirectory(),
     changeExtTsToJs(tsFileName),
   );
   const module = await import(file);

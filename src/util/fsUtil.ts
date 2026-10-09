@@ -2,7 +2,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { dump, load } from "js-yaml";
-import { config } from "../config/config.js";
+import { getMigrationDirectory } from "../config/config.js";
 import type { SerializedStore } from "../migration/serialized/serializedStore.js";
 
 // biome-ignore lint/suspicious/noExplicitAny: <>
@@ -49,8 +49,8 @@ export const writeYmlFile = (
 };
 
 export const readInitialSchema = (): SerializedStore => {
-  return readYmlFile(join(config().migration.dir, "initialSchema.yml"));
+  return readYmlFile(join(getMigrationDirectory(), "initialSchema.yml"));
 };
 export const writeCurrentSchema = (schema: SerializedStore): void => {
-  writeYmlFile(config().migration.dir, "currentSchema.yml", schema as never);
+  writeYmlFile(getMigrationDirectory(), "currentSchema.yml", schema as never);
 };

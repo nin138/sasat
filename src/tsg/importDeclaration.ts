@@ -1,4 +1,4 @@
-import { config } from "../config/config.js";
+import { getGeneratorConfig } from "../config/config.js";
 
 export class ImportDeclaration {
   constructor(
@@ -7,7 +7,7 @@ export class ImportDeclaration {
   ) {}
   toString(): string {
     const addJsExt =
-      config().generator.addJsExtToImportStatement &&
+      getGeneratorConfig().addJsExtToImportStatement &&
       this.module.startsWith(".");
     return `import {${this.types.join(",")}} from "${
       addJsExt ? this.module + ".js" : this.module

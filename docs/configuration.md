@@ -24,61 +24,9 @@ Sasat merges defaults with `sasat.yml` in the current working directory on first
 
 For PostgreSQL, explicitly set the port and user; the shared defaults remain MySQL-compatible. See [PostgreSQL configuration and SQL differences](postgresql.md).
 
-In YAML, a string starting with `# Configuration, CLI, and migrations
+In YAML, a string starting with `$` is replaced with the environment variable named by the entire remaining string. `$DB_HOST` works; embedded substitutions such as `prefix-$NAME` are not supported. An explicit reference to an undefined variable is an error when that setting is read, including optional settings such as password. Omit an optional setting when it is not needed. A defined empty password is allowed.
 
-[README](../README.md) · [Runtime customization](runtime.md) · [Application workflow](application-workflow.md)
-
-## Loading configuration
-
-Sasat merges defaults with `sasat.yml` in the current working directory on first use. The public `setConfig(partial)` API merges further updates into the shared process configuration. Both paths normalize and validate the documented settings before publishing the result.
-
-| Setting | Default or purpose |
-| --- | --- |
-| `db.dialect` | `mysql` by default; set `postgres` for PostgreSQL |
-| `db.host` / `db.port` | `127.0.0.1` / `3306` |
-| `db.user` / `db.database` | `root` / `sasat` |
-| `db.password` | Empty string by default |
-| `db.ssl.ca` | Optional array of CA strings |
-| `migration.dir` | `migrations` |
-| `migration.table` | `__migrate__` |
-| `migration.out` | `sasat` |
-| `migration.target` | Optional exact migration filename, including `.ts` |
-| `migration.db` | Optional connection override used by migration and generation commands |
-| `testDB` | Connection settings for test-database creation; must use the application dialect |
-| `generator.gql.subscription` | Defaults to true; set false and regenerate to disable subscriptions and mutation publishing |
-| `generator.addJsExtToImportStatement` | Defaults to false; set true for the README's ESM example |
-
-For PostgreSQL, explicitly set the port and user; the shared defaults remain MySQL-compatible. See [PostgreSQL configuration and SQL differences](postgresql.md).
-
- is replaced with the environment variable named by the entire remaining string. `$DB_HOST` works; embedded substitutions such as `prefix-$NAME` are not supported. An explicit reference to an undefined variable is an error, including for optional settings such as password. Omit an optional setting when it is not needed. A defined empty password is allowed.
-
-Only settings with numeric or boolean types are converted: port accepts decimal digit strings, and boolean flags accept exactly `"true"` or `"false"`. Passwords, hosts, names, and paths remain strings. `setConfig` does not expand environment references; a password starting with `# Configuration, CLI, and migrations
-
-[README](../README.md) · [Runtime customization](runtime.md) · [Application workflow](application-workflow.md)
-
-## Loading configuration
-
-Sasat merges defaults with `sasat.yml` in the current working directory on first use. The public `setConfig(partial)` API merges further updates into the shared process configuration. Both paths normalize and validate the documented settings before publishing the result.
-
-| Setting | Default or purpose |
-| --- | --- |
-| `db.dialect` | `mysql` by default; set `postgres` for PostgreSQL |
-| `db.host` / `db.port` | `127.0.0.1` / `3306` |
-| `db.user` / `db.database` | `root` / `sasat` |
-| `db.password` | Empty string by default |
-| `db.ssl.ca` | Optional array of CA strings |
-| `migration.dir` | `migrations` |
-| `migration.table` | `__migrate__` |
-| `migration.out` | `sasat` |
-| `migration.target` | Optional exact migration filename, including `.ts` |
-| `migration.db` | Optional connection override used by migration and generation commands |
-| `testDB` | Connection settings for test-database creation; must use the application dialect |
-| `generator.gql.subscription` | Defaults to true; set false and regenerate to disable subscriptions and mutation publishing |
-| `generator.addJsExtToImportStatement` | Defaults to false; set true for the README's ESM example |
-
-For PostgreSQL, explicitly set the port and user; the shared defaults remain MySQL-compatible. See [PostgreSQL configuration and SQL differences](postgresql.md).
-
- remains literal there.
+Only settings with numeric or boolean types are converted: port accepts decimal digit strings, and boolean flags accept exactly `"true"` or `"false"`. Passwords, hosts, names, and paths remain strings. `setConfig` does not expand environment references; a password starting with `$` remains literal there.
 
 If you use `.env`, load it through your application's startup tooling. Supply the connection settings to both the CLI and the server. Sasat itself does not automatically load this file.
 
@@ -109,7 +57,22 @@ Errors identify the setting and rule, for example:
 
 Errors do not include the rejected value, environment variable contents, or YAML source snippets. Parse/read failures identify `sasat.yml` instead of an individual setting. Invalid configuration is rejected before normal CLI database or generation work.
 
-`migration:build` is an offline compiler. It reads and validates only `migration.dir` and the optional `migration.target`, including their environment references. Database connection values, including unresolved references in `db`, `testDB`, or `migration.db`, are not required. Other generation/application settings are also unused. Malformed YAML, invalid build settings, and a target absent from the migration directory still fail before compilation writes files. This limited read does not initialize or relax the full configuration used by `getDbConfig`, `setConfig`, or commands such as `migrate` and `generate`.
+`migration:build` is an offline compiler. It reads and validates only `migration.dir` and the optional `migration.target`, including their environment references. Database connection values, including unresolved references in `db`, `testDB`, or `migration.db`, are not required. Other generation/application settings are also unused. Malformed YAML, invalid build settings, and a target absent from the migration directory still fail before compilation writes files. This limited read does not initialize or relax the full configuration used by `getDbConfig`, `setConfig`, or commands such as `migrate` and `dump-db`.
+
+Offline commands read only the settings they use; unrelated environment references do not need to be defined. They do not initialize the full runtime configuration.
+
+| Command | Required configuration scope | DB connection |
+| --- | --- | --- |
+| `init` | None | No |
+| `migration:create` | `migration.dir` | No |
+| `migration:build` | `migration.dir`, `migration.target` | No |
+| `generate:test` | Migration directory/target and SQL dialect | No |
+| `generate:er` | Migration directory/target/output and SQL dialect | No |
+| `generate` | Migration directory/target/output, SQL dialect, generator flags | No |
+| `migrate` (including `--dry` and `-g`) | Full configuration | Yes |
+| `dump-db` | Full configuration | Yes |
+
+Generation uses `migration.db.dialect` when provided, otherwise `db.dialect` (default: MySQL). Connection credentials and `testDB` are unnecessary for generation. Migration imports, constructors, and definitions still execute and may themselves request configuration or perform I/O; keep them replayable and put application-time work in hooks. `migrate --dry` needs a database connection to read migration history.
 
 **Upgrade:** unresolved environment references and values previously passed through to drivers may now fail at configuration loading. Supply the missing variables, omit unused optional settings, and fix invalid types/ranges. No generated-code regeneration is required for this change.
 
@@ -136,7 +99,7 @@ Run these commands from the application root containing `sasat.yml`.
 | `yarn sasat migrate -g` | Apply migrations, then generate code, currentSchema, and test SQL |
 | `yarn sasat generate` | Generate code, currentSchema, and test SQL from definitions |
 | `yarn sasat generate:test` | Generate `migrations/test.migration.json` |
-| `yarn sasat generate:er` | Write `out/__generated__/er-diagram.mermaid`; create the output directory first |
+| `yarn sasat generate:er` | Write `out/__generated__/er-diagram.mermaid`; creates the output directory if needed |
 | `yarn sasat dump-db` | Convert the connected database schema to `migrations/initialSchema.yml` |
 
 The paths in this table use the README's `migration.dir` and `migration.out` values. `dump-db` exports schema information, not data rows. Tables without primary keys are excluded. MySQL may exclude unsupported column types; PostgreSQL rejects unsupported types or expressions. See [PostgreSQL import boundaries](postgresql.md#schema-imports-and-boundaries).
