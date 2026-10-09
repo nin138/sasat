@@ -29,8 +29,17 @@ export class SasatConfigLoader {
     );
   }
 
-  private static loadConfig(): unknown {
-    const filepath = path.join(process.cwd(), "sasat.yml");
+  static fromFile(filepath: string): SasatConfig {
+    return mergeConfig(
+      defaultConf,
+      SasatConfigLoader.loadConfig(filepath),
+      true,
+    );
+  }
+
+  private static loadConfig(
+    filepath = path.join(process.cwd(), "sasat.yml"),
+  ): unknown {
     if (!existsSync(filepath)) return {};
     try {
       const value: unknown = readYmlFile(filepath);

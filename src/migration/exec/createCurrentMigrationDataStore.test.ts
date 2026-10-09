@@ -47,3 +47,27 @@ test("rejects an unknown reconstruction target instead of returning an empty sch
   expect(StoreMigrator.new).not.toHaveBeenCalled();
   expect(readMigration).not.toHaveBeenCalled();
 });
+
+test("embedded definitions replay from their own initial schema without reading the source directory", async () => {
+  const base = StoreMigrator.deserialize({ tables: [] });
+  base.createTable("baseline", (t) => t.column("id").int().primary());
+  const definitions = {
+    files: ["001.ts"],
+    initialSchema: base.serialize(),
+    load: jest.fn(),
+  };
+  const before = structuredClone(definitions.initialSchema);
+  const store = await createCurrentMigrationDataStore(
+    "001.ts",
+    base.sqlGenerator,
+    definitions,
+  );
+  expect(getMigrationFileNames).not.toHaveBeenCalled();
+  expect(StoreMigrator.new).not.toHaveBeenCalled();
+  expect(store.serialize().tables.map((t) => t.tableName)).toEqual([
+    "baseline",
+    "001",
+  ]);
+  expect(store.getSql()).toEqual([]);
+  expect(definitions.initialSchema).toEqual(before);
+});

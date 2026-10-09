@@ -177,7 +177,7 @@ Use the returned ID with `user(userId: "...")` to fetch one user. See [runtime c
 | `out/schema.ts`, `context.ts`, `pubsub.ts`, `baseDBDataSource.ts`, `dbClient.ts` | Created once, then maintained by your application |
 | `out/conditions.ts`, `idEncoder.ts`, `middlewares.ts` | Existing content is read and missing declarations are added |
 
-Add database changes in new migrations rather than rewriting applied definitions. Use `yarn sasat generate` to regenerate code from existing definitions. Files created only once are not automatically updated when Sasat changes; review and apply any required updates yourself. Existing applications must [update their base data-source constructor](docs/bundling.md#upgrade-existing-generated-code) when adopting the generated database client.
+Add database changes in new migrations rather than rewriting applied definitions. Use `yarn sasat generate` to regenerate code from existing definitions. To deploy migrations without `node_modules`, build a [standalone migration executable](docs/standalone-migrations.md) with `yarn sasat migration:build --standalone` and copy it with your runtime config. Files created only once are not automatically updated when Sasat changes; review and apply any required updates yourself. Existing applications must [update their base data-source constructor](docs/bundling.md#upgrade-existing-generated-code) when adopting the generated database client.
 
 ## Current limitations
 

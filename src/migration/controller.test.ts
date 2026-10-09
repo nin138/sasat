@@ -56,6 +56,7 @@ test("executes each pending migration with only that migration's SQL", async () 
     "001.ts",
     Direction.Up,
     expect.any(Function),
+    undefined,
   );
 });
 
@@ -74,6 +75,7 @@ test("rolls back to the configured target", async () => {
     "002.ts",
     Direction.Down,
     expect.any(Function),
+    undefined,
   );
 });
 
@@ -116,7 +118,11 @@ test("uses the client generator for migrations even when config selects another 
       config().db.dialect = "mysql";
     },
   );
-  expect(createCurrentMigrationDataStore).toHaveBeenCalledWith(undefined, sql);
+  expect(createCurrentMigrationDataStore).toHaveBeenCalledWith(
+    undefined,
+    sql,
+    undefined,
+  );
   expect(queries).toHaveLength(2);
   expect(
     queries.every((query) =>

@@ -82,6 +82,12 @@ export const defaultConf: SasatConfig = {
 };
 
 let conf: SasatConfig | undefined;
+/** Used by the standalone CLI before any client or migration is initialized. */
+export function loadConfigFile(filepath: string): SasatConfig {
+  conf = SasatConfigLoader.fromFile(filepath);
+  return conf;
+}
+
 export const config = (): SasatConfig => {
   if (conf === undefined) conf = new SasatConfigLoader().getConfig();
   return conf;

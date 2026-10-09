@@ -18,6 +18,8 @@ Generation needs a SQL dialect and its output/generator settings, but does not c
 
 Definitions must be replayable. Put database changes in the store's queue or apply hooks. Import code, constructors, and `up`/`down` still execute during replay; Sasat does not sandbox their direct database, network, or filesystem operations. `skipOnTest` excludes queued SQL from test-SQL collection, not definition execution. Test-SQL generation does not include data inserted by hooks.
 
+The [standalone executable](standalone-migrations.md) uses the same history, locking, replay, and hook lifecycle with embedded definitions. Its build does not execute definitions or hooks.
+
 ## Hook order
 
 For each pending migration, Sasat awaits these steps in order:

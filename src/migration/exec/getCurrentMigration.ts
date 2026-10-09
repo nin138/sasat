@@ -35,11 +35,11 @@ const calcRunMigrationFileNames = (records: MigrationRecord[]) => {
 export const getCurrentMigration = async (
   client: SQLClient,
   options: MigrateCommandOption,
+  files = getMigrationFileNames(),
 ): Promise<string | undefined> => {
   const generator = sqlFor(client);
   const dialect = generator.dialect;
   const migrationTable = generator.escapeId(config().migration.table);
-  const files = getMigrationFileNames();
   if (!options.dry) {
     const query = generator.migrationTable(config().migration.table);
     if (!options.silent) {

@@ -8,12 +8,14 @@ import { getMigrationFileNames } from "../migration/exec/getMigrationFiles.js";
 import { createCurrentMigrationDataStore } from "./exec/createCurrentMigrationDataStore.js";
 import type { Direction } from "./exec/getCurrentMigration.js";
 import { getMigrationTargets } from "./exec/getMigrationTarget.js";
+import type { MigrationDefinitions } from "./exec/migrationDefinitions.js";
 import { readMigration } from "./exec/readMigrationFile.js";
 import { runMigration } from "./exec/runMigration.js";
 import type { SasatMigration } from "./front/migration.js";
 import type { SerializedStore } from "./serialized/serializedStore.js";
 
 export class MigrationController {
+  constructor(private readonly definitions?: MigrationDefinitions) {}
   async migrate(
     client: DBClient,
     currentMigration: string | undefined,
@@ -30,13 +32,14 @@ export class MigrationController {
     store: SerializedStore;
     currentMigration: string;
   }> {
-    const fileNames = getMigrationFileNames();
+    const fileNames = this.definitions?.files ?? getMigrationFileNames();
     if (!options.silent) {
       Console.log("--current migration--: " + currentMigration);
     }
     let store = await createCurrentMigrationDataStore(
       currentMigration,
       sqlFor(client),
+      this.definitions,
     );
     if (store.getUpdateConfig()) {
       setConfig(store.getUpdateConfig()!);
@@ -54,6 +57,7 @@ export class MigrationController {
         (instance) => {
           migration = instance;
         },
+        this.definitions,
       );
       await execute(
         client,

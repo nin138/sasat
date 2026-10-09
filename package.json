@@ -99,6 +99,10 @@
     "./postgres": {
       "import": "./dist/postgres/index.mjs",
       "require": "./dist/postgres/index.cjs"
+    },
+    "./migration/runner": {
+      "import": "./dist/migration/runner.mjs",
+      "require": "./dist/migration/runner.cjs"
     }
   },
   "main": "dist/index.mjs",

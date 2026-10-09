@@ -66,6 +66,7 @@ Offline commands read only the settings they use; unrelated environment referenc
 | `init` | None | No |
 | `migration:create` | `migration.dir` | No |
 | `migration:build` | `migration.dir`, `migration.target` | No |
+| `migration:build --standalone` | Migration directory/target and SQL dialect | No |
 | `generate:test` | Migration directory/target and SQL dialect | No |
 | `generate:er` | Migration directory/target/output and SQL dialect | No |
 | `generate` | Migration directory/target/output, SQL dialect, generator flags | No |
@@ -95,6 +96,7 @@ Run these commands from the application root containing `sasat.yml`.
 | `yarn sasat init` | Create sasat.yml if it does not exist |
 | `yarn sasat migration:create createUser` | Create a timestamped TypeScript migration |
 | `yarn sasat migration:build` | Compile migration `.ts` files to adjacent `.mjs` files without database connection settings or definition execution |
+| `yarn sasat migration:build --standalone` | Build a single deployable `migration.cjs` with definitions, runner, and the selected driver; see [standalone migrations](standalone-migrations.md) |
 | `yarn sasat migrate` | Apply up/down migrations according to history and target |
 | `yarn sasat migrate -g` | Apply migrations, then generate code, currentSchema, and test SQL |
 | `yarn sasat generate` | Generate code, currentSchema, and test SQL from definitions |

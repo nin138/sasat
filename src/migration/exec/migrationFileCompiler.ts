@@ -6,8 +6,9 @@ import {
 } from "./getMigrationFiles.js";
 import { resolveMigrationTarget } from "./getMigrationTarget.js";
 
-export const changeExtTsToJs = (fileName: string) =>
-  fileName.slice(0, -3) + ".mjs";
+import { changeExtTsToJs } from "./readMigrationFile.js";
+
+export { changeExtTsToJs } from "./readMigrationFile.js";
 
 export const compileMigrationFiles = () => {
   const directory = getMigrationFileDir();

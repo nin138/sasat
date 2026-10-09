@@ -34,6 +34,11 @@ try {
     });
   index
     .command("migration:build", "compile migration files")
+    .option(
+      "--standalone",
+      "bundle migrations and the selected driver into one executable CJS file",
+    )
+    .option("--out <file>", "standalone output path (default: migration.cjs)")
     .action(migrationBuild);
   index.command("generate", "generate files").action(generate);
   index
