@@ -20,6 +20,7 @@ import { CodeGen_v2 } from "../../src/generatorv2/codegen_v2.js";
 import { DataStoreHandler } from "../../src/migration/dataStore.js";
 import { StoreMigrator } from "../../src/migration/front/storeMigrator.js";
 import { Queries } from "../../src/migration/makeQuery.js";
+import { bundleCompatibility } from "./bundle-options.js";
 
 const root = process.cwd();
 const manifest = JSON.parse(
@@ -27,10 +28,10 @@ const manifest = JSON.parse(
 );
 
 for (const dialect of ["mysql", "postgres"] as const) {
-  test(`generated ${dialect} schemas own a lazy pool in isolated ESM and CJS bundles`, async () => {
+  test(`generated ${dialect} schemas own a lazy pool in isolated ESM, CJS and ESM-to-CJS bundles`, async () => {
     const scratch = mkdtempSync(path.join(tmpdir(), "sasat-generated-client-"));
     const deployment = mkdtempSync(
-      path.join(tmpdir(), "sasat-generated-deploy-"),
+      path.join(tmpdir(), "sasat-generated deploy #%-"),
     );
     const original = structuredClone(config());
     const driver = dialect === "mysql" ? "mysql2" : "pg";
@@ -92,8 +93,10 @@ for (const dialect of ["mysql", "postgres"] as const) {
         ],
         { stdio: "pipe", timeout: 60000 },
       );
-      for (const format of ["esm", "cjs"] as const) {
-        if (format === "cjs") {
+      for (const mode of ["esm", "esm-to-cjs", "cjs"] as const) {
+        const esmInput = mode !== "cjs";
+        const format = mode === "esm" ? "esm" : "cjs";
+        if (!esmInput) {
           // Consume the CJS package export instead of converting its ESM shim.
           for (const file of readdirSync(out, { recursive: true })
             .map(String)
@@ -111,15 +114,14 @@ for (const dialect of ["mysql", "postgres"] as const) {
           }
           writeFileSync(path.join(out, "package.json"), '{"type":"commonjs"}');
         }
-        const ext = format === "esm" ? "mjs" : "cjs";
+        const ext = esmInput ? "mjs" : "cjs";
         const source = path.join(scratch, `consumer.${ext}`);
-        const imports =
-          format === "esm"
-            ? `import {schema} from './out/schema.ts';
+        const imports = esmInput
+          ? `import {schema} from './out/schema.ts';
              import {ProbeDBDataSource} from './out/dataSources/db/Probe.ts';
              import {getDbClient, releaseDbClient} from './out/dbClient.ts';
              import {setConfig} from 'sasat'; import assert from 'node:assert/strict';`
-            : `const {schema} = require('./out/schema.js');
+          : `const {schema} = require('./out/schema.js');
              const {ProbeDBDataSource} = require('./out/dataSources/db/Probe.js');
              const {getDbClient, releaseDbClient} = require('./out/dbClient.js');
              const {setConfig} = require('sasat'); const assert = require('node:assert/strict');`;
@@ -164,7 +166,11 @@ for (const dialect of ["mysql", "postgres"] as const) {
             assert.throws(() => new Probe().executor, /Regenerate code/);
           })().catch(error => { console.error(error); process.exitCode = 1; });`,
         );
-        const outfile = path.join(deployment, `bundle.${ext}`);
+        const outfile = path.join(
+          deployment,
+          mode,
+          format === "esm" ? "bundle.mjs" : "bundle.cjs",
+        );
         const result = buildSync({
           absWorkingDir: scratch,
           entryPoints: [source],
@@ -173,17 +179,19 @@ for (const dialect of ["mysql", "postgres"] as const) {
           platform: "node",
           format,
           minify: true,
-          banner:
-            format === "esm"
-              ? {
-                  js: "import {createRequire as bundleCreateRequire} from 'node:module'; const require = bundleCreateRequire(import.meta.url);",
-                }
-              : undefined,
+          ...bundleCompatibility(mode),
           metafile: true,
           logLevel: "silent",
         });
+        assert.equal(result.warnings.length, 0);
         const inputs = Object.keys(result.metafile!.inputs).map((name) =>
           name.replaceAll("\\", "/"),
+        );
+        assert.ok(
+          inputs.some((name) =>
+            name.endsWith(`sasat/dist/index.${esmInput ? "mjs" : "cjs"}`),
+          ),
+          `wrong Sasat export selected for ${mode}`,
         );
         assert.ok(
           inputs.some((name) => name.includes(`/node_modules/${driver}/`)),

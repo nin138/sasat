@@ -84,7 +84,7 @@ Generation writes a static import for the selected driver into `out/__generated_
 
 When upgrading from a release that included the drivers as dependencies, add the one you use to your application dependencies explicitly. Clients still return synchronously and create pools lazily. Existing calls from `sasat` without driver injection retain runtime loading; that path needs the selected driver in the deployed `node_modules`. Public driver option types are included in Sasat's declarations, so checking Sasat's types does not require the unused driver or `@types/pg`.
 
-For CommonJS bundles, consume Sasat's CommonJS export through `require("sasat")`. Converting its ESM export to CommonJS also requires the bundler to handle `import.meta.url` used by the distribution's Node compatibility code.
+For CommonJS bundles, `require("sasat")` consumes the CommonJS export directly. To bundle ESM imports or generated TypeScript as CommonJS, use the tested [esbuild CJS recipe](bundling.md#bundle-esm-or-generated-typescript-as-commonjs), which supplies `import.meta.url` from the deployed bundle's filename.
 
 ## CLI commands
 

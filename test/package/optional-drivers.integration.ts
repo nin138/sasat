@@ -13,6 +13,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { buildSync } from "esbuild";
+import { bundleCompatibility } from "./bundle-options.js";
 
 const root = process.cwd();
 const manifest = JSON.parse(
@@ -241,15 +242,16 @@ for (const driver of [undefined, ...drivers]) {
           }
         })().catch(error => { console.error(error); process.exitCode = 1; });
       `;
-      for (const format of ["esm", "cjs"] as const) {
+      for (const mode of ["esm", "esm-to-cjs", "cjs"] as const) {
+        const esmInput = mode !== "cjs";
+        const format = mode === "esm" ? "esm" : "cjs";
         const source = path.join(
           directory,
-          format === "esm" ? "consumer.mjs" : "consumer.cjs",
+          esmInput ? "consumer.mjs" : "consumer.cjs",
         );
-        const imports =
-          format === "esm"
-            ? 'import {getDbClient, setConfig} from "sasat"; import assert from "node:assert/strict";'
-            : 'const {getDbClient, setConfig} = require("sasat"); const assert = require("node:assert/strict");';
+        const imports = esmInput
+          ? 'import {getDbClient, setConfig} from "sasat"; import assert from "node:assert/strict";'
+          : 'const {getDbClient, setConfig} = require("sasat"); const assert = require("node:assert/strict");';
         writeFileSync(source, imports + body);
         const outfile = path.join(
           directory,
@@ -263,6 +265,7 @@ for (const driver of [undefined, ...drivers]) {
           platform: "node",
           format,
           minify: true,
+          ...bundleCompatibility(mode),
           // Bundle Sasat itself. Only installed dependencies are external;
           // missing optional drivers must not need an external override.
           external: [
@@ -272,9 +275,12 @@ for (const driver of [undefined, ...drivers]) {
           metafile: true,
           logLevel: "silent",
         });
+        assert.equal(result.warnings.length, 0);
         assert.ok(
           Object.keys(result.metafile!.inputs).some((name) =>
-            name.includes("sasat/dist/"),
+            name
+              .replaceAll("\\", "/")
+              .endsWith(`sasat/dist/index.${esmInput ? "mjs" : "cjs"}`),
           ),
         );
         execute(directory, [outfile]);
@@ -294,36 +300,37 @@ for (const driver of drivers) {
     test(`${driver} ${api} bundles the driver and runs without node_modules`, () => {
       const directory = fixture(driver);
       const deployment = mkdtempSync(
-        path.join(tmpdir(), "sasat-bundle-deployment-"),
+        path.join(tmpdir(), "sasat-bundle deployment #%-"),
       );
       try {
         const dialect = driver === "mysql2" ? "mysql" : "postgres";
         const className =
           driver === "mysql2" ? "MysqlPoolClient" : "PostgresClient";
         const specifier = driver === "mysql2" ? "mysql2/promise" : "pg";
-        for (const format of ["esm", "cjs"] as const) {
-          const extension = format === "esm" ? "mjs" : "cjs";
+        for (const mode of ["esm", "esm-to-cjs", "cjs"] as const) {
+          const esmInput = mode !== "cjs";
+          const format = mode === "esm" ? "esm" : "cjs";
+          const extension = esmInput ? "mjs" : "cjs";
           const source = path.join(directory, `embed.${extension}`);
           // Like generated resolvers, this module constructs a data source at
           // import time, before application configuration or driver injection.
           writeFileSync(
             path.join(directory, `schema.${extension}`),
-            `${format === "esm" ? "import {SasatDBDatasource, getDbClient} from 'sasat';" : "const {SasatDBDatasource, getDbClient} = require('sasat');"}
+            `${esmInput ? "import {SasatDBDatasource, getDbClient} from 'sasat';" : "const {SasatDBDatasource, getDbClient} = require('sasat');"}
              class DataSource extends SasatDBDatasource {
                constructor() { super(getDbClient); }
                get executor() { return this.client; }
                get generator() { return this.sql; }
              }
-             ${format === "esm" ? "export const dataSource = new DataSource();" : "exports.dataSource = new DataSource();"}`,
+             ${esmInput ? "export const dataSource = new DataSource();" : "exports.dataSource = new DataSource();"}`,
           );
-          const imports =
-            format === "esm"
-              ? `import {dataSource} from './schema.mjs';
+          const imports = esmInput
+            ? `import {dataSource} from './schema.mjs';
                import {setConfig, getDbClient as shared, ${className} as BaseClient} from 'sasat';
                import assert from 'node:assert/strict'; import {createRequire} from 'node:module';
                ${api === "entry" ? `import {getDbClient, ${className} as Client} from 'sasat/${dialect}';` : `import driver from '${specifier}';`}
                const resolve = createRequire(import.meta.url).resolve;`
-              : `const {dataSource} = require('./schema.cjs');
+            : `const {dataSource} = require('./schema.cjs');
                const {setConfig, getDbClient: shared, ${className}: BaseClient} = require('sasat');
                const assert = require('node:assert/strict'); const {createRequire} = require('node:module');
                ${api === "entry" ? `const {getDbClient, ${className}: Client} = require('sasat/${dialect}');` : `const driver = require('${specifier}');`}
@@ -364,7 +371,11 @@ for (const driver of drivers) {
             })().catch(error => { console.error(error); process.exitCode = 1; });
           `,
           );
-          const outfile = path.join(deployment, `bundle.${extension}`);
+          const outfile = path.join(
+            deployment,
+            mode,
+            format === "esm" ? "bundle.mjs" : "bundle.cjs",
+          );
           const result = buildSync({
             absWorkingDir: directory,
             entryPoints: [source],
@@ -373,18 +384,19 @@ for (const driver of drivers) {
             platform: "node",
             format,
             minify: true,
-            // CommonJS driver dependencies still require Node built-ins in ESM output.
-            banner:
-              format === "esm"
-                ? {
-                    js: "import {createRequire as bundleCreateRequire} from 'node:module'; const require = bundleCreateRequire(import.meta.url);",
-                  }
-                : undefined,
+            ...bundleCompatibility(mode),
             metafile: true,
             logLevel: "silent",
           });
+          assert.equal(result.warnings.length, 0);
           const inputs = Object.keys(result.metafile!.inputs).map((name) =>
             name.replaceAll("\\", "/"),
+          );
+          assert.ok(
+            inputs.some((name) =>
+              name.endsWith(`sasat/dist/index.${esmInput ? "mjs" : "cjs"}`),
+            ),
+            `wrong Sasat export selected for ${mode}`,
           );
           assert.ok(
             inputs.some((name) => name.includes(`/node_modules/${driver}/`)),

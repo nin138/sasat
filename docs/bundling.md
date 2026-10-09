@@ -106,9 +106,45 @@ await build({
 
 The banner lets bundled CommonJS driver dependencies load Node built-ins. Do not mark the selected driver external, and do not use `packages: 'external'`, if it should be embedded. Your deployment still needs application configuration and any other files your own code reads. Standard JavaScript `pg` is covered; native addons such as `pg-native` require their own deployment handling.
 
-For CommonJS, use `require('sasat/mysql')` or `require('sasat/postgres')` so the bundler selects the CommonJS export, then emit `format: 'cjs'` to a `.cjs` file. The ESM banner is not needed. Converting Sasat's ESM export to CommonJS also requires handling `import.meta.url` in its Node compatibility code.
+For CommonJS source, use `require('sasat/mysql')` or `require('sasat/postgres')` so the bundler selects the CommonJS export, then emit `format: 'cjs'` to a `.cjs` file. No compatibility banner is needed for this route. For ESM or generated TypeScript source, use the recipe below.
 
-Package regression tests generate real schemas for both databases, check the generated TypeScript, and run ESM/CommonJS bundles from a directory without `node_modules`. They verify that only the selected driver is embedded. Live checks run bound SQL and transaction-scoped generated data sources. For generated CommonJS applications, compile application/generated TypeScript to CommonJS first so its imports select Sasat's CommonJS export.
+## Bundle ESM or generated TypeScript as CommonJS
+
+With esbuild, an `import` selects Sasat's ESM export even when the output uses `format: 'cjs'`. That export's Node compatibility code calls `createRequire(import.meta.url)`. Without a replacement, esbuild reports `empty-import-meta` and the bundle can fail at startup with `ERR_INVALID_ARG_VALUE` because `createRequire` receives `undefined`.
+
+Use this Node.js recipe to supply the final bundle's URL at runtime. Application and generated TypeScript can keep their ESM imports; no preliminary CommonJS compilation is needed.
+
+```js
+// build.mjs
+import { build } from 'esbuild';
+
+await build({
+  entryPoints: ['server.ts'],
+  outfile: 'build/server.cjs',
+  bundle: true,
+  platform: 'node',
+  target: 'node22',
+  format: 'cjs',
+  define: {
+    'import.meta.url': '__sasatBundleImportMetaUrl',
+  },
+  banner: {
+    js: "const __sasatBundleImportMetaUrl = require('node:url').pathToFileURL(__filename).href;",
+  },
+});
+```
+
+Use the CJS banner above instead of the ESM banner. `__filename` refers to the deployed `.cjs` file, so this does not embed the build machine's path or depend on the process working directory. `pathToFileURL` also handles spaces and URL-special characters in paths. Reserve `__sasatBundleImportMetaUrl` for this shim.
+
+This `define` applies to every bundled occurrence of `import.meta.url`, including application code and dependencies. Those references now identify the final bundle, not each original source module. Copy module-relative assets to the appropriate deployment location or externalize dependencies that need their original file layout. This recipe does not implement `import.meta.resolve`, `import.meta.dirname`, or `import.meta.filename`, and does not remove esbuild's restriction on top-level `await` in CJS output. The tested scope is a Node.js single-file bundle with esbuild; other bundlers need their own equivalent configuration.
+
+| Input and output | Compatibility settings |
+| --- | --- |
+| `require('sasat')` / dedicated CJS entry → CJS | None |
+| ESM `import` / generated TypeScript → ESM | ESM `createRequire` banner shown above |
+| ESM `import` / generated TypeScript → CJS | `import.meta.url` define and CJS banner shown above |
+
+Package regression tests generate real schemas for both databases, check the generated TypeScript, and run all three bundle routes. Fully embedded bundles run from a directory without `node_modules`, including paths containing spaces, `#`, and `%`, with a working directory different from the bundle's directory. Tests verify that the expected Sasat export and only the selected driver are embedded. Live checks run bound SQL and transaction-scoped generated data sources. Runtime driver loading is tested separately with no driver, only `mysql2`, and only `pg` installed.
 
 ## Keep the existing runtime-loading behavior
 
