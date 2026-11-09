@@ -15,7 +15,7 @@ export class Lexer2 {
     protected readonly rules: Rule[],
     protected readonly separators: string[],
     protected readonly operators: string[],
-    protected readonly whiteSpaces = /([ \t\n])/,
+    protected readonly whiteSpaces = /\s/,
   ) {
     this.chars = str.split("");
   }

@@ -90,3 +90,69 @@ test("imports bigint and decimal defaults without converting through number", ()
     "12345678901234567890.123456789012345678",
   ]);
 });
+
+test.each([
+  ["bigint", "-9007199254740993", "-9007199254740993"],
+  [
+    "decimal(38,18)",
+    "-12345678901234567890.123456789012345678",
+    "-12345678901234567890.123456789012345678",
+  ],
+  ["int", "-42", -42],
+  ["double", "1.5e-3", 0.0015],
+] as const)(
+  "imports signed and exponential defaults for %s",
+  (type, literal, expected) => {
+    expect(
+      serializeCreateTable(
+        `CREATE TABLE values_table (value ${type} DEFAULT ${literal})`,
+      ).columns[0].default,
+    ).toBe(expected);
+  },
+);
+
+test("accepts CRLF and tabs as SQL whitespace", () => {
+  const table = serializeCreateTable(
+    "CREATE TABLE\r\nrecords (\r\n\tid int NOT NULL,\r\nPRIMARY KEY (id)\r\n)",
+  );
+  expect(table.tableName).toBe("records");
+  expect(table.primaryKey).toEqual(["id"]);
+  expect(table.columns[0]).toMatchObject({
+    columnName: "id",
+    type: "int",
+    notNull: true,
+  });
+});
+
+test("uses unique foreign keys for optional single relations and names repeated references", () => {
+  const table = serializeCreateTable(`CREATE TABLE records (
+    owner int, reviewer int, UNIQUE KEY owner_unique (owner),
+    CONSTRAINT owner_fk FOREIGN KEY (owner) REFERENCES accounts (id),
+    CONSTRAINT reviewer_fk FOREIGN KEY (reviewer) REFERENCES accounts (id)
+  )`);
+  expect(table.columns[0]).toMatchObject({
+    reference: { relation: "OneOrZero" },
+  });
+  expect(table.columns[1]).toMatchObject({
+    reference: { relation: "Many", relationName: "accounts1" },
+  });
+});
+
+test.each(["'open", '"open', "`open"])(
+  "rejects unterminated quoted literals %s",
+  (value) => {
+    expect(() =>
+      serializeCreateTable(
+        `CREATE TABLE records (name varchar(40) DEFAULT ${value})`,
+      ),
+    ).toThrow("Non Terminated String");
+  },
+);
+
+test("rejects malformed numeric literals instead of silently rounding or truncating", () => {
+  expect(() =>
+    serializeCreateTable(
+      "CREATE TABLE records (amount decimal(10,2) DEFAULT 12oops)",
+    ),
+  ).toThrow("fail to read number");
+});

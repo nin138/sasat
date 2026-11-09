@@ -206,3 +206,79 @@ test("forwards bound statements through the reserved migration session and rejec
   expect(executeQuery.mock.calls).toHaveLength(2);
   expect(executeCommand).toHaveBeenCalledWith(statement);
 });
+
+test.each([null, undefined, "1"])(
+  "rejects an ambiguous acquire result %s without applying migrations",
+  async (value) => {
+    const { session, client } = setup();
+    session.rawQuery.mockResolvedValueOnce(
+      value === undefined ? [] : [{ acquired: value }],
+    );
+    const apply = jest.fn();
+    await expect(withMigrationLock(client, apply)).rejects.toThrow(
+      "Could not acquire",
+    );
+    expect(apply).not.toHaveBeenCalled();
+    expect(session.discard).toHaveBeenCalledTimes(1);
+    expect(
+      session.rawQuery.mock.calls.some(([sql]) => sql.includes("AS released")),
+    ).toBe(false);
+  },
+);
+
+test("failed BEGIN clears the transaction flag so callers can retry", async () => {
+  const { session, client } = setup();
+  await withMigrationLock(client, async (db) => {
+    session.rawQuery.mockRejectedValueOnce(new Error("begin failed"));
+    await expect(db.transaction()).rejects.toThrow("begin failed");
+    await (await db.transaction()).commit();
+  });
+  expect(session.discard).not.toHaveBeenCalled();
+});
+
+test("rollback is idempotent even when the first rollback fails", async () => {
+  const { session, client } = setup();
+  await withMigrationLock(client, async (db) => {
+    const tx = await db.transaction();
+    session.rawQuery.mockRejectedValueOnce(new Error("rollback failed"));
+    await expect(tx.rollback()).rejects.toThrow("rollback failed");
+    const count = session.rawQuery.mock.calls.length;
+    await tx.rollback();
+    expect(session.rawQuery).toHaveBeenCalledTimes(count);
+    expect(() => tx.rawCommand("late")).toThrow("finished");
+    await (await db.transaction()).commit();
+  });
+});
+
+test("preserves apply, cleanup and discard errors in their original order", async () => {
+  const { session, client } = setup();
+  const applyError = new Error("apply failed");
+  const cleanupError = new Error("cleanup failed");
+  const discardError = new Error("discard failed");
+  session.discard.mockRejectedValueOnce(discardError);
+  await expect(
+    withMigrationLock(client, async () => {
+      session.rawQuery.mockRejectedValueOnce(cleanupError);
+      throw applyError;
+    }),
+  ).rejects.toMatchObject({ errors: [applyError, cleanupError, discardError] });
+  expect(session.rollback).not.toHaveBeenCalled();
+  expect(session.discard).toHaveBeenCalledTimes(1);
+});
+
+test("reports session return failure even after a successful migration and unlock", async () => {
+  const { session, client } = setup();
+  const error = new Error("pool return failed");
+  session.rollback.mockRejectedValueOnce(error);
+  await expect(withMigrationLock(client, async () => 42)).rejects.toBe(error);
+  expect(session.discard).toHaveBeenCalledTimes(1);
+});
+
+test("failure to reserve a session never invokes migration callbacks", async () => {
+  const { client } = setup();
+  const error = new Error("pool exhausted");
+  jest.mocked(client.transaction).mockRejectedValueOnce(error);
+  const apply = jest.fn();
+  await expect(withMigrationLock(client, apply)).rejects.toBe(error);
+  expect(apply).not.toHaveBeenCalled();
+});

@@ -1,14 +1,16 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { generateTestMigrationFile } from "@/cli/commands/generateTestMigrationFile.js";
-import { Console } from "@/cli/console.js";
 import { config, setConfig } from "@/config/config.js";
 import { MysqlClient } from "@/db/connectors/mysql/client.js";
 import { PostgresClient } from "../db/connectors/postgres/client.js";
 
 export async function readTestMigration() {
-  let d = readTestMigFile();
-  if (!d) {
+  let d: Buffer;
+  try {
+    d = readTestMigFile();
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
     const conf = config();
     if (conf.migration.db) {
       setConfig({ db: conf.migration.db });
@@ -18,12 +20,11 @@ export async function readTestMigration() {
       settings.dialect === "postgres"
         ? new PostgresClient(settings)
         : new MysqlClient(settings);
-    await generateTestMigrationFile(client).catch(async (e) => {
+    try {
+      await generateTestMigrationFile(client);
+    } finally {
       await client.release();
-      Console.error(e);
-      process.exit(1);
-    });
-    await client.release();
+    }
     d = readTestMigFile();
   }
   return JSON.parse(d.toString()) as string[];

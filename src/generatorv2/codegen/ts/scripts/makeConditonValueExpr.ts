@@ -49,9 +49,8 @@ export const makeConditionValueRaw = (cv: JoinConditionValue): TsExpression => {
 
 export const makeConditionValueQExpr = (
   cv: QueryConditionValue,
+  context: TsExpression = tsg.identifier("arg").property("context?"),
 ): TsExpression => {
-  const arg = tsg.identifier("arg");
-  const context = arg.property("context?");
   switch (cv.kind) {
     case "context": {
       const value = context.property(cv.field);

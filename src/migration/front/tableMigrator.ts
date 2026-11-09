@@ -131,8 +131,7 @@ export class TableMigrator implements MigrationTable {
 
   addForeignKey(reference: Reference): MigrationTable {
     this.tableExists(reference.parentTable);
-    this.table.addForeignKey(reference);
-    const column = this.table.column(reference.columnName) as ReferenceColumn;
+    const column = this.table.column(reference.columnName);
     const targetColumn = this.store
       .table(reference.parentTable)!
       .column(reference.parentColumn);
@@ -153,10 +152,14 @@ export class TableMigrator implements MigrationTable {
         } is different Type( ${column.dataType()} != ${targetColumn.dataType()} )`,
       );
     }
+    this.table.addForeignKey(reference);
+    const referenceColumn = this.table.column(
+      reference.columnName,
+    ) as ReferenceColumn;
     this.store.addQuery(
       this.store.sqlGenerator.alter.addForeignKey(
         this.tableName,
-        column.getConstraintName(),
+        referenceColumn.getConstraintName(),
         reference,
       ),
     );

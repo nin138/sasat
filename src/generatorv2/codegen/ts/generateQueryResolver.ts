@@ -18,6 +18,7 @@ import type {
 } from "../../nodes/QueryConditionNode.js";
 import type { RootNode } from "../../nodes/rootNode.js";
 import { toTsType } from "../../scripts/gqlTypes.js";
+import { makeJoinConditionThrowExpressions } from "./relationMap/makeNoContexError.js";
 import {
   makeContextTypeRef,
   makeTypeRef,
@@ -218,6 +219,14 @@ const makeTypeArgs = (
 const qExpr = tsg.identifier("qe").importFrom("sasat");
 
 const makeGQLQueryBody = (entity: EntityNode, query: GQLQuery) => {
+  const contextGuards = query.conditions
+    .flatMap((condition) =>
+      condition.kind === "between"
+        ? [condition.left, condition.begin, condition.end]
+        : [condition.left, condition.right],
+    )
+    .map((value) => makeJoinConditionThrowExpressions(value, "context"))
+    .filter(nonNullable);
   const fields = tsg.variable(
     "const",
     "fields",
@@ -263,5 +272,5 @@ const makeGQLQueryBody = (entity: EntityNode, query: GQLQuery) => {
   const result = makeDatasource(entity.name, DIR)
     .property(method[query.type])
     .call(...args);
-  return tsg.block(fields, where, tsg.return(result));
+  return tsg.block(...contextGuards, fields, where, tsg.return(result));
 };

@@ -174,9 +174,9 @@ const reverseConditionNode = (
     );
   }
   return Conditions.rel.comparison(
-    reverseConditionValue(condition.right),
-    condition.operator,
     reverseConditionValue(condition.left),
+    condition.operator,
+    reverseConditionValue(condition.right),
   );
 };
 

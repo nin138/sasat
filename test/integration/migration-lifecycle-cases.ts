@@ -3,9 +3,11 @@ import { execFile } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import {
   existsSync,
+  mkdirSync,
   mkdtempSync,
   readFileSync,
   rmSync,
+  symlinkSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
@@ -130,6 +132,9 @@ export default class Migration { ${body} }`,
     );
   }
   before(async () => {
+    // Generated application clients resolve Sasat just as they do in an installed project.
+    mkdirSync(join(directory, "node_modules"));
+    symlinkSync(resolve("."), join(directory, "node_modules", "sasat"), "dir");
     await admin.rawQuery(`CREATE DATABASE ${admin.sql.escapeId(database)}`);
     created = true;
     client = makeClient(database);

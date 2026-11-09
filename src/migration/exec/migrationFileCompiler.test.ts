@@ -26,7 +26,8 @@ test("compiles TypeScript migrations into executable ESM and stubs server-only",
       [
         "--input-type=module",
         "-e",
-        'const {default: Migration} = await import("./001.mjs"); console.log(new Migration().value);',
+        // Numeric console.log output gains ANSI escapes when FORCE_COLOR is inherited.
+        'const {default: Migration} = await import("./001.mjs"); process.stdout.write(String(new Migration().value));',
       ],
       { cwd: dir, encoding: "utf8" },
     );

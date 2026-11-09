@@ -5,20 +5,22 @@ import { makeConditionValueQExpr } from "./makeConditonValueExpr.js";
 const qExpr = tsg.identifier("qe").importFrom("sasat");
 
 export const makeQueryConditionExpr = (condition: QueryConditionNode) => {
+  const value = (cv: Parameters<typeof makeConditionValueQExpr>[0]) =>
+    makeConditionValueQExpr(cv, tsg.identifier("context?"));
   if (condition.kind === "between") {
     return qExpr
       .property("between")
       .call(
-        makeConditionValueQExpr(condition.left),
-        makeConditionValueQExpr(condition.begin),
-        makeConditionValueQExpr(condition.end),
+        value(condition.left),
+        value(condition.begin),
+        value(condition.end),
       );
   }
   return qExpr
     .property("comparison")
     .call(
-      makeConditionValueQExpr(condition.left),
+      value(condition.left),
       tsg.string(condition.operator),
-      makeConditionValueQExpr(condition.right),
+      value(condition.right),
     );
 };

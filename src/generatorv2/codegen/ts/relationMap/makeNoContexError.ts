@@ -4,6 +4,7 @@ import type {
   JoinConditionRangeValue,
   JoinConditionValue,
 } from "../../../nodes/JoinConditionNode.js";
+import type { QueryConditionValue } from "../../../nodes/QueryConditionNode.js";
 
 const makeJoinRangeConditionThrowExpressions = (
   cv: JoinConditionRangeValue,
@@ -19,15 +20,18 @@ const makeJoinRangeConditionThrowExpressions = (
   return [];
 };
 
-const makeJoinConditionThrowExpressions = (cv: JoinConditionValue) => {
+export const makeJoinConditionThrowExpressions = (
+  cv: JoinConditionValue | QueryConditionValue,
+  contextName = "arg.context",
+) => {
   if (cv.kind !== "context") return null;
   if (cv.onNotDefined.action !== "error") return null;
   return tsg.if(
     tsg.binary(
-      tsg.identifier("!arg.context"),
+      tsg.identifier(`!${contextName}`),
       "||",
       tsg.binary(
-        tsg.identifier("arg.context").property(cv.field),
+        tsg.identifier(contextName).property(cv.field),
         "===",
         tsg.identifier("undefined"),
       ),
@@ -53,7 +57,9 @@ export const makeThrowExpressions = (condition: JoinConditionNode) => {
   if (condition.operator === "IN") {
     return [
       makeJoinConditionThrowExpressions(condition.left),
-      ...condition.right.map(makeJoinConditionThrowExpressions),
+      ...condition.right.map((value) =>
+        makeJoinConditionThrowExpressions(value),
+      ),
     ];
   }
   return [

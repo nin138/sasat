@@ -30,7 +30,7 @@ const createStringLiteralRule = (literalInitializer: RegExp): Rule => {
 };
 
 const numberLiteral: Rule = {
-  start: /[0-9]/,
+  start: /[0-9+.-]/,
   terminator: ["separator", "whitespace", "operator"],
   fn: (start, next) => {
     let literal = start;
