@@ -33,44 +33,44 @@
     "test:package": "tsx --test test/package/*.integration.ts"
   },
   "dependencies": {
-    "cac": "^7.0.0",
+    "cac": "^7.1.0",
     "chalk": "^6.0.1",
     "esbuild": "^0.28.2",
     "graphql": "^16.14.2",
     "graphql-subscriptions": "^3.0.0",
     "hashids": "^2.3.0",
-    "js-yaml": "^5.4.2",
+    "js-yaml": "^5.5.0",
     "pluralize": "^8.0.0",
     "sqlstring": "^2.3.3",
     "typescript": "^6.0.3"
   },
   "devDependencies": {
     "@apollo/server": "^5.5.1",
-    "@biomejs/biome": "^2.5.15",
+    "@biomejs/biome": "^2.6.4",
     "@types/jest": "^30.0.0",
     "@types/js-yaml": "^4.0.9",
-    "@types/node": "^25.9.8",
+    "@types/node": "^25.9.9",
     "@types/pg": "8.23.1",
     "@types/pluralize": "0.0.33",
     "@types/sqlstring": "2.3.2",
     "env-cmd": "^11.0.0",
-    "globals": "^17.12.0",
-    "graphql-yoga": "^5.24.1",
+    "globals": "^17.14.0",
+    "graphql-yoga": "^5.24.6",
     "husky": "9.1.7",
     "ioredis": "^6.0.0",
     "jest": "^30.5.2",
     "lint-staged": "^17.6.0",
-    "mysql2": "^3.24.5",
+    "mysql2": "^3.24.6",
     "pg": "8.23.1",
     "sasat": "link:./dist",
-    "ts-jest": "^29.4.14",
-    "tsdown": "^0.23.0",
+    "ts-jest": "^29.4.15",
+    "tsdown": "^0.23.4",
     "tsx": "^4.23.15"
   },
   "resolutions": {
-    "qs": "^6.16.0",
+    "qs": "^6.17.1",
     "tar": "^7.5.22",
-    "undici": "~6.29.0"
+    "undici": "~6.29.1"
   },
   "lint-staged": {
     "*.ts": [
