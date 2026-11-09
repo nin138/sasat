@@ -9,7 +9,9 @@ import { init } from "@/cli/commands/init.js";
 import { migrate } from "@/cli/commands/migrate.js";
 import { migrationBuild } from "@/cli/commands/migrationBuild.js";
 import { config, setConfig } from "@/config/config.js";
-import { getDbClient } from "@/db/getDbClient.js";
+import { getMigrationDbClient } from "@/migration/exec/getMigrationDbClient.js";
+import { getMigrationFileNames } from "@/migration/exec/getMigrationFiles.js";
+import { resolveMigrationTarget } from "@/migration/exec/getMigrationTarget.js";
 
 const index = cac();
 try {
@@ -21,16 +23,22 @@ try {
     .option("-s, --silent", "do not print logs")
     .option("-b, --skipBuild", "skip compile migration files")
     .action(async (options) => {
-      const conf = config();
-      if (conf.migration.db) {
-        setConfig({ db: conf.migration.db });
-      }
-      const client = getDbClient();
-      await migrate(client, options).catch((e) => {
+      try {
+        const conf = config();
+        if (conf.migration.db) {
+          setConfig({ db: conf.migration.db });
+        }
+        resolveMigrationTarget(getMigrationFileNames());
+        const client = await getMigrationDbClient();
+        try {
+          await migrate(client, options);
+        } finally {
+          await client.release();
+        }
+      } catch (e) {
         console.error(e);
-        process.exit(1);
-      });
-      await client.release();
+        process.exitCode = 1;
+      }
     });
   index
     .command("migration:build", "compile migration files")

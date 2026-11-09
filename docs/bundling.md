@@ -41,6 +41,10 @@ export { releaseDbClient } from './__generated__/dbClient.js';
 export const getDbClient = () => getGeneratedDbClient({ connectionLimit: 10 });
 ```
 
+`sasat migrate` (including `--dry` and `--skipBuild`) and standalone migrations also use `getDbClient` from `migration.out/dbClient.ts` when that file exists. They load it after applying `migration.db` and release the client when execution finishes, including on failure. Before initial code generation, they fall back to Sasat's default client. A broken client module is reported as an error instead of falling back. Keep the generated client's dialect consistent with the migration database.
+
+The regular CLI compiles the TypeScript client and its local dependencies in memory on each invocation; no generated client files are overwritten. Like standalone builds, this uses CommonJS output, so top-level `await` in bundled client code is unsupported. Read runtime assets relative to the user-owned `dbClient.ts`. Rebuild a standalone executable after changing the client; regular `sasat migrate` picks up edits on its next invocation.
+
 Different generated output modules hold separate clients. They still read the same Sasat configuration; inject independent clients with explicit settings for concurrent access to different databases.
 
 ## Independent clients and explicit driver injection

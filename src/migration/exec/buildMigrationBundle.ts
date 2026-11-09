@@ -2,7 +2,10 @@ import fs from "node:fs";
 import { isBuiltin } from "node:module";
 import path from "node:path";
 import { build, type Plugin } from "esbuild";
-import { getConfiguredDialect } from "../../config/config.js";
+import {
+  getConfiguredDialect,
+  getMigrationOutputDir,
+} from "../../config/config.js";
 import { publishArtifacts } from "../../generatorv2/fs/publishArtifacts.js";
 import { readYmlFile } from "../../util/fsUtil.js";
 import {
@@ -22,6 +25,10 @@ export async function buildMigrationBundle(
   const files = getMigrationFileNames(directory);
   resolveMigrationTarget(files);
   const dialect = getConfiguredDialect(true);
+  const clientFile = path.resolve(getMigrationOutputDir(), "dbClient.ts");
+  const clientProvider = fs.existsSync(clientFile)
+    ? `async () => (await import(${JSON.stringify(clientFile)})).getDbClient()`
+    : "undefined";
   const schemaFile = path.join(directory, "initialSchema.yml");
   const initialSchema = fs.existsSync(schemaFile)
     ? readYmlFile(schemaFile)
@@ -69,7 +76,7 @@ runMigrationBundle({
     const module = await loaders[name]();
     return new module.default();
   }
-}, { dialect: ${JSON.stringify(dialect)}, driver }).catch(error => {
+}, { dialect: ${JSON.stringify(dialect)}, driver }, undefined, ${clientProvider}).catch(error => {
   console.error(error);
   process.exitCode = 1;
 });`,

@@ -19,7 +19,10 @@ let initialConfig: ReturnType<typeof getDbConfig> | undefined;
 let initialOptions: object | undefined;
 let initialLogger: Logger;
 
-/** Shared only by this generated module; pool connections are opened lazily. */
+/**
+ * Shared only by this generated module; pool connections are opened lazily.
+ * Also used by regular and standalone migrations through the user-owned dbClient module.
+ */
 export function getDbClient(options?: Options, logger?: Logger): Client {
   const dbConfig = getDbConfig();
   const { dialect = 'mysql', ...connection } = dbConfig;
@@ -55,5 +58,13 @@ export function generateDbClientExtension(): string {
     ["getDbClient", "releaseDbClient"],
     "./__generated__/dbClient",
   ).toString();
-  return `${declaration}\nexport { getDbClient, releaseDbClient };\n`;
+  return `${declaration}
+/**
+ * getDbClient is also used by sasat migrate and migrations built with
+ * sasat migration:build --standalone.
+ * Custom connection options and logging apply to those migrations too.
+ * Rebuild the standalone executable after changing this module.
+ */
+export { getDbClient, releaseDbClient };
+`;
 }

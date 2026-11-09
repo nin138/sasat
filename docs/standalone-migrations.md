@@ -14,15 +14,18 @@ yarn sasat migration:build --standalone
 yarn sasat migration:build --standalone --out build/migration.cjs
 ```
 
-The default output is `migration.cjs` in the current directory. The command emits one file and does not create adjacent `.mjs` files. Without `--standalone`, `migration:build` keeps its existing per-file compilation behavior; ordinary `migrate` and generation commands are unchanged.
+The default output is `migration.cjs` in the current directory. The command emits one file and does not create adjacent `.mjs` files. Without `--standalone`, `migration:build` keeps its existing per-file compilation behavior. Both ordinary `migrate` and the standalone runner use the user-owned database client when present (see [database clients](bundling.md#use-the-generated-database-client)).
 
-The standalone build reads `migration.dir`, validates `migration.target` if specified, and selects `migration.db.dialect` or `db.dialect` (default: MySQL). It does not need connection credentials or a live database. Explicit environment references for the directory, target, or dialect must be available when building; unused connection and generator settings are not resolved.
+The standalone build reads `migration.dir` and `migration.out`, validates `migration.target` if specified, and selects `migration.db.dialect` or `db.dialect` (default: MySQL). It does not need connection credentials or a live database. Explicit environment references for these paths, target, or dialect must be available when building; unused connection and generator settings are not resolved.
 
 The executable includes:
 
 - All migration `.ts` files from the configured directory, in filename order, and their statically imported JavaScript dependencies.
 - `initialSchema.yml`, if present, as the starting schema description. It does not create the database tables described by that file; they must already exist.
 - Sasat's migration runner and the selected JavaScript database driver.
+- The user-owned `migration.out/dbClient.ts` and its statically imported dependencies, when present. The runner calls its exported `getDbClient()` after loading runtime configuration and applying `migration.db`. Custom connection options and logging therefore apply to standalone migrations too. The module is not evaluated during building, `--help`, or `--list`. If it is absent at build time, the runner uses Sasat's default database client.
+
+Edits to `dbClient.ts` require rebuilding the executable. The client must support the bundled database dialect, and the runner releases it when execution finishes. The generated `__generated__/dbClient.ts` must also match that dialect; regenerate it if necessary.
 
 Building does not execute migration imports, constructors, definitions, or hooks. Sasat does not embed `sasat.yml` or resolve its connection secrets into the artifact. Values hard-coded in migration source or its dependencies remain part of the bundle.
 

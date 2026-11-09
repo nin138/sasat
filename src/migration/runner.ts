@@ -16,6 +16,8 @@ export async function runMigrationBundle(
   definitions: MigrationDefinitions,
   driver: DatabaseDriver,
   args = process.argv.slice(2),
+  createClient: () => DBClient | Promise<DBClient> = () =>
+    getDbClient(undefined, undefined, driver),
 ): Promise<void> {
   const { values } = parseArgs({
     args,
@@ -62,7 +64,8 @@ Bundled database dialect: ${driver.dialect}`);
     generateFiles: false,
     skipBuild: true,
   };
-  const client = getDbClient(undefined, undefined, driver);
+  // Load application customization only after configuration and validation.
+  const client = await createClient();
   try {
     const apply = async (db: DBClient) => {
       const current = await getCurrentMigration(db, options, definitions.files);
