@@ -87,20 +87,29 @@ export class CreateTableParser {
       definitionTokens.tokens,
       (token) => token.kind === TokenKind.Separator && token.value === ",",
     );
+    const foreignKeys: Tokens[][] = [];
     definitions.forEach((it) => {
+      const kind = (it[0] as Token).kind;
+      if (kind === TokenKind.Identifier || kind === TokenKind.String)
+        return this.parseColumn(it);
       const kindIncludes = (kind: string) =>
         !!it.find((it) => it.kind === kind);
       if (kindIncludes("PRIMARY")) return this.parsePrimary(it);
       if (kindIncludes("UNIQUE")) return this.parseUnique(it);
-      if (kindIncludes("FOREIGN")) return this.parseFkey(it);
+      if (kindIncludes("FOREIGN")) {
+        foreignKeys.push(it);
+        return;
+      }
       if (kindIncludes("KEY") || kindIncludes("INDEX"))
         return this.parseIndex(it);
 
-      const kind = (it[0] as Token).kind;
-      if (kind === TokenKind.Identifier || kind === TokenKind.String)
-        return this.parseColumn(it);
       throw new Error("fail to parse sql");
     });
+    for (const column of this.result.columns) {
+      if (this.result.primaryKey.includes(column.columnName))
+        column.notNull = true;
+    }
+    foreignKeys.forEach((tokens) => this.parseFkey(tokens));
     return this.result;
   };
 
@@ -133,7 +142,10 @@ export class CreateTableParser {
       tokens[defaultTokenIndex + 1].value.toUpperCase() === "CURRENT_TIMESTAMP";
     const isOnUpdate = (): boolean => {
       const index = tokens.findIndex((it) => it.kind === "UPDATE");
-      return tokens[index + 1].value.toUpperCase() === "CURRENT_TIMESTAMP";
+      return (
+        index !== -1 &&
+        tokens[index + 1].value.toUpperCase() === "CURRENT_TIMESTAMP"
+      );
     };
     const isNotNull = () => {
       let prevIsNot = false;
@@ -191,6 +203,7 @@ export class CreateTableParser {
   private parsePrimary(tokens: Tokens[]) {
     const keyIndex = tokens.findIndex((it) => it.kind === "KEY");
     const paren = tokens[keyIndex + 1] as ParenToken;
+    this.assertSimpleIndex(paren);
     this.result.primaryKey = paren.tokens
       .filter((it) => it.kind !== TokenKind.Separator)
       .map((it) => it.value);
@@ -198,6 +211,7 @@ export class CreateTableParser {
 
   private parseUnique(tokens: Tokens[]) {
     const paren = tokens.find((it) => it.kind === "Paren")! as ParenToken;
+    this.assertSimpleIndex(paren);
     this.result.uniqueKeys.push(
       paren.tokens
         .filter((it) => it.kind !== TokenKind.Separator)
@@ -205,9 +219,16 @@ export class CreateTableParser {
     );
   }
 
-  // TODO col_name(length) syntax
+  private assertSimpleIndex(paren: ParenToken) {
+    if (paren.tokens.some(isParenToken))
+      throw new Error(
+        `Cannot import prefix or expression index on ${this.result.tableName}`,
+      );
+  }
+
   private parseIndex(tokens: Tokens[]) {
     const paren = tokens.find((it) => it.kind === "Paren")! as ParenToken;
+    this.assertSimpleIndex(paren);
     this.result.indexes.push({
       constraintName: tokens[1].value,
       columns: paren.tokens
@@ -218,12 +239,31 @@ export class CreateTableParser {
 
   private parseFkey(tokens: Tokens[]) {
     const f = tokens.findIndex((it) => it.kind === "FOREIGN");
-    const columnName = (tokens[f + 2] as ParenToken).tokens[0].value;
+    const columns = (tokens[f + 2] as ParenToken).tokens.filter(
+      (token) => token.kind !== TokenKind.Separator,
+    );
     const refIndex = tokens.findIndex(
       (it) => it.kind === "REFERENCES" && it.value === "REFERENCES",
     );
     const targetTable = tokens[refIndex + 1].value;
-    const targetColumn = (tokens[refIndex + 2] as ParenToken).tokens[0].value;
+    const parentColumns = (tokens[refIndex + 2] as ParenToken).tokens.filter(
+      (token) => token.kind !== TokenKind.Separator,
+    );
+    if (columns.length !== 1 || parentColumns.length !== 1)
+      throw new Error(
+        `Cannot import composite foreign key on ${this.result.tableName}`,
+      );
+    const columnName = columns[0].value;
+    const targetColumn = parentColumns[0].value;
+    const column = this.result.columns.find(
+      (column) => column.columnName === columnName,
+    );
+    if (!column)
+      throw new Error(`${this.result.tableName}.${columnName} is Not Found`);
+    if (column.hasReference)
+      throw new Error(
+        `Cannot import multiple foreign keys on ${this.result.tableName}.${columnName}`,
+      );
 
     let onDelete: ForeignKeyReferentialAction | undefined;
     let onUpdate: ForeignKeyReferentialAction | undefined;
@@ -246,7 +286,7 @@ export class CreateTableParser {
       }
     });
 
-    const isColumnUnique = this.result.uniqueKeys
+    const isColumnUnique = [...this.result.uniqueKeys, this.result.primaryKey]
       .filter((it) => it.length === 1)
       .find((it) => it[0] === columnName);
     const sameTableRefs = this.result.columns.filter(

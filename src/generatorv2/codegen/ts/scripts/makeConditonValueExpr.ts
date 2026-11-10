@@ -34,7 +34,11 @@ export const makeConditionValueRaw = (cv: JoinConditionValue): TsExpression => {
             : "getTodayDateString",
         )
         .importFrom("sasat")
-        .call();
+        .call(
+          ...(cv.thresholdHour === undefined
+            ? []
+            : [tsg.number(cv.thresholdHour)]),
+        );
     }
     case "now": {
       return tsg
@@ -87,7 +91,11 @@ export const makeConditionValueQExpr = (
               : "getTodayDateString",
           )
           .importFrom("sasat")
-          .call(),
+          .call(
+            ...(cv.thresholdHour === undefined
+              ? []
+              : [tsg.number(cv.thresholdHour)]),
+          ),
       );
     }
     case "now": {

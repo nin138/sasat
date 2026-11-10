@@ -42,6 +42,122 @@ const relations: RelationMap = {
   posts: {},
 };
 
+test.each([undefined, null, false])(
+  "disabled relations %s do not create joins or require source columns",
+  (disabled) => {
+    const fields = { fields: ["name"], relations: { posts: disabled } };
+    const query = createQuery("users", fields, undefined, tables, relations);
+    expect(query.from.joins).toEqual([]);
+    expect(query.select).toHaveLength(2);
+    expect(
+      createQueryResolveInfo(
+        "users",
+        fields as unknown as Fields<unknown>,
+        relations,
+        tables,
+      ).joins,
+    ).toEqual([]);
+    const paging = createPagingFieldQuery({
+      baseTableName: "users",
+      fields: fields as unknown as Fields<unknown>,
+      tableInfo: tables,
+      relationMap: relations,
+      pagingOption: { numberOfItem: 1 },
+    });
+    expect(paging.from.joins).toEqual([]);
+  },
+);
+
+test.each(["t0", "t1", "t2"])(
+  "automatic table aliases do not collide with an explicit root alias %s",
+  (tableAlias) => {
+    const fields = {
+      fields: ["id"],
+      tableAlias,
+      relations: { posts: { fields: ["id"] } },
+    };
+    const query = createQuery("users", fields, undefined, tables, relations);
+    const child = query.from.joins[0].table.alias;
+    expect(child).not.toBe(tableAlias);
+    expect(
+      query.select.map((field) => ("table" in field ? field.table : undefined)),
+    ).toEqual([tableAlias, child]);
+    expect(
+      createQueryResolveInfo(
+        "users",
+        fields as unknown as Fields<unknown>,
+        relations,
+        tables,
+      ).joins[0].tableAlias,
+    ).toBe(child);
+  },
+);
+test("reserves explicit descendant aliases before choosing automatic parent aliases", () => {
+  const fields = {
+    fields: ["id"],
+    relations: { posts: { fields: ["id"], tableAlias: "t0" } },
+  };
+  const query = createQuery("users", fields, undefined, tables, relations);
+  expect(query.from.alias).not.toBe("t0");
+  expect(query.from.joins[0].table.alias).toBe("t0");
+});
+test("rejects duplicate explicit aliases before producing ambiguous SQL", () => {
+  const fields = {
+    fields: ["id"],
+    tableAlias: "same",
+    relations: { posts: { fields: ["id"], tableAlias: "same" } },
+  };
+  expect(() =>
+    createQuery("users", fields, undefined, tables, relations),
+  ).toThrow("Duplicate table alias");
+});
+
+test("paging shares the resolved root alias with its inner query", () => {
+  const fields = {
+    fields: ["id"],
+    relations: { posts: { fields: ["id"], tableAlias: "t0" } },
+  };
+  const query = createPagingFieldQuery({
+    baseTableName: "users",
+    fields: fields as unknown as Fields<unknown>,
+    tableInfo: tables,
+    relationMap: relations,
+    pagingOption: { numberOfItem: 1 },
+  });
+  expect(query.from.subquery).toBe(true);
+  if (!query.from.subquery) throw new Error("expected a paging subquery");
+  expect(query.from.alias).not.toBe("t0");
+  expect(query.from.query.from.alias).toBe(query.from.alias);
+  expect(query.from.joins[0].table.alias).toBe("t0");
+});
+test("automatic aliases also avoid explicitly joined tables", () => {
+  const join = q.join(q.table("posts", [], "t1"), q.eq(q.value(1), q.value(1)));
+  const query = createQuery(
+    "users",
+    { fields: ["id"], relations: { posts: { fields: ["id"] } } },
+    { join: [join] },
+    tables,
+    relations,
+  );
+  expect(query.from.alias).toBe("t0");
+  expect(query.from.joins[0].table.alias).toBe("t2");
+});
+
+test("paging aliases also avoid joins supplied only in paging options", () => {
+  const join = q.join(q.table("posts", [], "t0"), q.eq(q.value(1), q.value(1)));
+  const query = createPagingFieldQuery({
+    baseTableName: "users",
+    fields: { fields: ["id"] as never[] },
+    tableInfo: tables,
+    relationMap: relations,
+    pagingOption: { numberOfItem: 1, join: [join] },
+  });
+  if (!query.from.subquery) throw new Error("expected a paging subquery");
+  expect(query.from.alias).not.toBe("t0");
+  expect(query.from.query.from.alias).toBe(query.from.alias);
+  expect(query.from.query.from.joins[0].table.alias).toBe("t0");
+});
+
 test("selects identity columns and ignores GraphQL-only fields", () => {
   const fields = {
     fields: ["name", "name", "__typename", "unknown"],

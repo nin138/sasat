@@ -10,6 +10,15 @@ import { tsFileNames } from "./tsFileNames.js";
 
 const { createSourceFile, ScriptTarget } = typescript;
 
+const bindingNames = (name: typescript.BindingName): string[] =>
+  typescript.isIdentifier(name)
+    ? [name.text]
+    : name.elements.flatMap((element) =>
+        typescript.isOmittedExpression(element)
+          ? []
+          : bindingNames(element.name),
+      );
+
 export const generateUserDefinedCondition = (
   root: RootNode,
   content: string,
@@ -34,7 +43,37 @@ export const generateUserDefinedCondition = (
     content,
     ScriptTarget.ESNext,
   );
-  const exportedVariables = getExportedVariables(sourceFile);
+  const exportedNames = new Set(
+    getExportedVariables(sourceFile).flatMap((statement) =>
+      statement.declarationList.declarations.flatMap((declaration) =>
+        bindingNames(declaration.name),
+      ),
+    ),
+  );
+  for (const statement of sourceFile.statements) {
+    if (
+      typescript.isFunctionDeclaration(statement) &&
+      statement.name &&
+      statement.modifiers?.some(
+        (modifier) => modifier.kind === typescript.SyntaxKind.ExportKeyword,
+      ) &&
+      !statement.modifiers?.some(
+        (modifier) => modifier.kind === typescript.SyntaxKind.DefaultKeyword,
+      )
+    ) {
+      exportedNames.add(statement.name.text);
+    }
+    if (
+      typescript.isExportDeclaration(statement) &&
+      !statement.isTypeOnly &&
+      statement.exportClause &&
+      typescript.isNamedExports(statement.exportClause)
+    ) {
+      for (const element of statement.exportClause.elements) {
+        if (!element.isTypeOnly) exportedNames.add(element.name.text);
+      }
+    }
+  }
   const contextImported = isImported(sourceFile, "GQLContext", [
     "./context",
     "./context.js",
@@ -44,13 +83,7 @@ export const generateUserDefinedCondition = (
   ]);
   const statements: TsStatement[] = [];
   customConditionNames.forEach((conditionName) => {
-    const exists = exportedVariables.some((it) => {
-      return (
-        it.declarationList.declarations[0].name.getText(sourceFile) ===
-        conditionName
-      );
-    });
-    if (!exists) {
+    if (!exportedNames.has(conditionName)) {
       statements.push(
         tsg
           .variable(

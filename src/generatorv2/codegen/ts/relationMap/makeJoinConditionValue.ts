@@ -23,21 +23,25 @@ const childTableAlias = "childTableAlias";
 export const makeJoinConditionValueQExpr = (
   node: EntityNode,
   cv: JoinConditionValue,
+  target: EntityNode = node,
 ): TsExpression => {
   const arg = tsg.identifier("arg");
   switch (cv.kind) {
     case "parent": {
       const columnName =
-        node.fields.find((it) => it.fieldName === cv.field)?.columnName ||
-        cv.field;
+        (
+          target.fields.find((it) => it.columnName === cv.field) ??
+          target.fields.find((it) => it.fieldName === cv.field)
+        )?.columnName ?? cv.field;
       return qExpr
         .property("field")
         .call(arg.property(childTableAlias), tsg.string(columnName));
     }
     case "child": {
-      const columnName =
-        node.fields.find((it) => it.fieldName === cv.field)?.columnName ||
-        cv.field;
+      const field =
+        node.fields.find((it) => it.columnName === cv.field) ??
+        node.fields.find((it) => it.fieldName === cv.field);
+      const columnName = field?.columnName ?? cv.field;
       return tsg.ternary(
         arg.property(parentTableAlias),
         qExpr
@@ -45,7 +49,7 @@ export const makeJoinConditionValueQExpr = (
           .call(arg.property(parentTableAlias), tsg.string(columnName)),
         qExpr
           .property("value")
-          .call(arg.property("parent?").property(cv.field)),
+          .call(arg.property("parent?").property(field?.fieldName ?? cv.field)),
       );
     }
     default:
@@ -56,11 +60,12 @@ export const makeJoinConditionValueQExpr = (
 const makeRangeCondition = (
   entity: EntityNode,
   range: JoinConditionRangeValue,
+  target: EntityNode,
 ): TsExpression[] => {
   if (range.kind === "range") {
     return [
-      makeJoinConditionValueQExpr(entity, range.begin),
-      makeJoinConditionValueQExpr(entity, range.end),
+      makeJoinConditionValueQExpr(entity, range.begin, target),
+      makeJoinConditionValueQExpr(entity, range.end, target),
     ];
   }
   return [
@@ -70,7 +75,7 @@ const makeRangeCondition = (
         .importFrom("sasat")
         .call(
           tsg.new(tsg.identifier("Date")),
-          range.thresholdHour
+          range.thresholdHour !== undefined
             ? tsg.number(range.thresholdHour)
             : tsg.identifier("undefined"),
         ),
@@ -81,6 +86,7 @@ const makeRangeCondition = (
 const makeConditionExpr = (
   entity: EntityNode,
   condition: JoinConditionNode,
+  target: EntityNode,
 ) => {
   if (condition.kind === "custom") {
     return tsg
@@ -91,36 +97,55 @@ const makeConditionExpr = (
   if (condition.kind === "isNull") {
     return qExpr
       .property(condition.not ? "isNotNull" : "isNull")
-      .call(makeJoinConditionValueQExpr(entity, condition.value));
+      .call(makeJoinConditionValueQExpr(entity, condition.value, target));
   }
   if (condition.operator === "BETWEEN") {
     return qExpr
       .property("between")
       .call(
-        makeJoinConditionValueQExpr(entity, condition.left),
-        ...makeRangeCondition(entity, condition.right),
+        makeJoinConditionValueQExpr(entity, condition.left, target),
+        ...makeRangeCondition(entity, condition.right, target),
       );
   }
   if (condition.operator === "IN") {
+    if (
+      condition.right.some(
+        (value) => value.kind === "parent" || value.kind === "child",
+      )
+    ) {
+      return qExpr
+        .property("or")
+        .call(
+          ...condition.right.map((value) =>
+            qExpr
+              .property("eq")
+              .call(
+                makeJoinConditionValueQExpr(entity, condition.left, target),
+                makeJoinConditionValueQExpr(entity, value, target),
+              ),
+          ),
+        );
+    }
     return qExpr
       .property("in")
       .call(
-        makeJoinConditionValueQExpr(entity, condition.left),
+        makeJoinConditionValueQExpr(entity, condition.left, target),
         tsg.array(condition.right.map((it) => makeConditionValueRaw(it))),
       );
   }
   return qExpr
     .property("comparison")
     .call(
-      makeJoinConditionValueQExpr(entity, condition.left),
+      makeJoinConditionValueQExpr(entity, condition.left, target),
       tsg.string(condition.operator),
-      makeJoinConditionValueQExpr(entity, condition.right),
+      makeJoinConditionValueQExpr(entity, condition.right, target),
     );
 };
 
 export const makeJoinConditionValue = (
   node: EntityNode,
   ref: ReferenceNode | ReferencedNode,
+  target: EntityNode = node,
 ) => {
   const arg = tsg.identifier("arg");
 
@@ -137,7 +162,9 @@ export const makeJoinConditionValue = (
           qExpr
             .property("and")
             .call(
-              ...ref.joinCondition.map((it) => makeConditionExpr(node, it)),
+              ...ref.joinCondition.map((it) =>
+                makeConditionExpr(node, it, target),
+              ),
             ),
         ),
       ),

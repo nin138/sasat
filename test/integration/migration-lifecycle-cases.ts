@@ -326,6 +326,75 @@ export default class Migration { ${body} }`,
     assert.deepEqual(await history(), beforeHistory);
   });
 
+  test(`${dialect}: migration sessions preserve exact decimal strings in raw and bound queries`, async () => {
+    const amount = "12345678901234567890.123456789";
+    await withMigrationLock(client, async (db) => {
+      const tx = await db.transaction();
+      try {
+        for (const executor of [db, tx]) {
+          const raw = await executor.rawQuery(
+            `SELECT CAST('${amount}' AS DECIMAL(30,9)) AS amount`,
+          );
+          assert.equal(raw[0].amount, amount);
+          const bound = await executor.executeQuery({
+            text: `SELECT CAST(${postgres ? "$1" : "?"} AS DECIMAL(30,9)) AS amount`,
+            values: [amount],
+          });
+          assert.equal(bound[0].amount, amount);
+        }
+        await tx.commit();
+      } catch (error) {
+        await tx.rollback();
+        throw error;
+      }
+    });
+  });
+
+  if (!postgres) {
+    test("mysql: migration locks accept string results from a custom client", async () => {
+      const results: Array<[string, unknown]> = [];
+      const custom = new MysqlPoolClient({
+        ...settings,
+        database,
+        connectionLimit: 1,
+        supportBigNumbers: true,
+        bigNumberStrings: true,
+        typeCast(field, next) {
+          const value = next();
+          if (field.name === "acquired" || field.name === "released")
+            results.push([field.name, value]);
+          return value;
+        },
+      });
+      try {
+        await withMigrationLock(custom, async () => {
+          await assert.rejects(
+            withMigrationLock(client, async () => assert.fail("lock bypassed")),
+            /Another Sasat migration/,
+          );
+        });
+        assert.deepEqual(results, [
+          ["acquired", "1"],
+          ["released", "1"],
+        ]);
+        await withMigrationLock(client, async () => {
+          await assert.rejects(
+            withMigrationLock(custom, async () => assert.fail("lock bypassed")),
+            /Another Sasat migration/,
+          );
+        });
+        await withMigrationLock(custom, async () => {});
+        assert.deepEqual(results.slice(2), [
+          ["acquired", "0"],
+          ["acquired", "1"],
+          ["released", "1"],
+        ]);
+      } finally {
+        await custom.release();
+      }
+    });
+  }
+
   test(`${dialect}: reusable client (PostgreSQL max=1) retains no session lock after failure`, {
     timeout: 15_000,
   }, async () => {

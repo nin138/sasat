@@ -94,6 +94,10 @@ class MigrationTransaction extends SQLTransaction {
   }
 }
 
+// Custom driver type casts may preserve the integer lock result as a string.
+const lockSucceeded = (value: unknown): boolean =>
+  value === true || value === 1 || value === 1n || value === "1";
+
 export async function withMigrationLock<T>(
   client: DBClient,
   apply: (session: DBClient) => Promise<T>,
@@ -116,9 +120,9 @@ export async function withMigrationLock<T>(
   try {
     const rows = await session.rawQuery(`SELECT ${acquire} AS acquired`);
     const value = rows[0]?.acquired;
-    acquired = value === true || value === 1 || value === 1n;
+    acquired = lockSucceeded(value);
     if (!acquired) {
-      if (value === false || value === 0 || value === 0n)
+      if (value === false || value === 0 || value === 0n || value === "0")
         throw new Error(
           "Another Sasat migration is running for this database. Retry after it finishes.",
         );
@@ -135,11 +139,7 @@ export async function withMigrationLock<T>(
     await session.rawQuery("ROLLBACK");
     if (acquired) {
       const rows = await session.rawQuery(`SELECT ${unlock} AS released`);
-      if (
-        rows[0]?.released !== true &&
-        rows[0]?.released !== 1 &&
-        rows[0]?.released !== 1n
-      ) {
+      if (!lockSucceeded(rows[0]?.released)) {
         throw new Error("Could not release the database migration lock");
       }
     }

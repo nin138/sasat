@@ -7,6 +7,7 @@ const keywords = [
   "TABLE",
   "PRIMARY",
   "KEY",
+  "INDEX",
   "UNIQUE",
   "FOREIGN",
   "NOT",

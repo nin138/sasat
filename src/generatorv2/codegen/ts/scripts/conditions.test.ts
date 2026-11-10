@@ -102,3 +102,25 @@ test("does not add guards for fixed, defaulted, custom or date-range conditions"
   ];
   expect(conditions.flatMap(makeThrowExpressions).filter(Boolean)).toEqual([]);
 });
+
+test.each([undefined, 0, 9, -5])(
+  "today expressions forward the specified hour %s in date and datetime modes",
+  (hour) => {
+    for (const date of [false, true]) {
+      const helper = jest.fn((_hour?: number) => "result");
+      const value = c.value.today(hour, date);
+      for (const expression of [
+        makeConditionValueRaw(value),
+        makeConditionValueQExpr(value),
+      ]) {
+        new Function(
+          "getTodayDateString",
+          "getTodayDateTimeString",
+          "qe",
+          `return ${expression}`,
+        )(helper, helper, QExpr);
+        expect(helper.mock.calls.at(-1)?.[0]).toBe(hour);
+      }
+    }
+  },
+);

@@ -27,7 +27,7 @@ const makeRelationMap = (root: RootNode) => {
     .variable(
       "const",
       tsg.identifier("relationMap"),
-      tsg.object(...root.entities.map((it) => makeEntityRelationMap(it))),
+      tsg.object(...root.entities.map((it) => makeEntityRelationMap(it, root))),
       tsg
         .typeRef("RelationMap", [makeContextTypeRef("GENERATED")])
         .importFrom("sasat"),
@@ -45,7 +45,7 @@ const fieldNameToColumnNameAndFilterPrimary =
     return column.columnName;
   };
 
-const makeEntityRelationMap = (node: EntityNode) => {
+const makeEntityRelationMap = (node: EntityNode, root: RootNode) => {
   return tsg.propertyAssign(
     node.tableName,
     tsg.object(
@@ -55,7 +55,13 @@ const makeEntityRelationMap = (node: EntityNode) => {
           ref.fieldName,
           tsg.object(
             tsg.propertyAssign("table", tsg.string(ref.parentTableName)),
-            makeJoinConditionValue(node, ref),
+            makeJoinConditionValue(
+              node,
+              ref,
+              root.entities.find(
+                (entity) => entity.tableName === ref.parentTableName,
+              )!,
+            ),
             tsg.propertyAssign("array", tsg.boolean(ref.isArray)),
             tsg.propertyAssign("nullable", tsg.boolean(ref.isNullable)),
             tsg.propertyAssign(
@@ -76,7 +82,13 @@ const makeEntityRelationMap = (node: EntityNode) => {
           rel.fieldName,
           tsg.object(
             tsg.propertyAssign("table", tsg.string(rel.childTable)),
-            makeJoinConditionValue(node, rel),
+            makeJoinConditionValue(
+              node,
+              rel,
+              root.entities.find(
+                (entity) => entity.tableName === rel.childTable,
+              )!,
+            ),
             tsg.propertyAssign("array", tsg.boolean(rel.isArray)),
             tsg.propertyAssign("nullable", tsg.boolean(rel.isNullable)),
             tsg.propertyAssign(

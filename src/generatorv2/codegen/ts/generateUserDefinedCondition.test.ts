@@ -52,3 +52,34 @@ test.each(["./context", "./context.js"])(
     expect(generated.match(/import /g)).toHaveLength(2);
   },
 );
+
+test.each([
+  "export const other = () => 1, tenantScope = () => 42;",
+  "export const { scope: tenantScope } = { scope: () => 42 };",
+  "export const [unused, tenantScope] = [() => 1, () => 42];",
+  "export const { nested: { tenantScope } } = { nested: { tenantScope: () => 42 } };",
+  "export const [, tenantScope] = [() => 1, () => 42];",
+  "export function tenantScope() { return 42; }",
+  "const scope = () => 42; export { scope as tenantScope };",
+  "export { scope as tenantScope } from './userScope.js';",
+])("preserves existing custom conditions declared as %s", (content) => {
+  const model = root(["tenantScope"]);
+  const generated = generateUserDefinedCondition(model, content)!;
+  expect(generated).not.toContain("TODO: Not Implemented");
+  expect(generated).toContain(content);
+  const exports: Record<string, () => number> = {};
+  runInNewContext(
+    ts.transpileModule(generated, {
+      compilerOptions: { module: ts.ModuleKind.CommonJS },
+    }).outputText,
+    {
+      exports,
+      require: (name: string) => {
+        if (name === "./userScope.js") return { scope: () => 42 };
+        throw new Error(`Unexpected import: ${name}`);
+      },
+    },
+  );
+  expect(exports.tenantScope()).toBe(42);
+  expect(generateUserDefinedCondition(model, generated)).toBe(generated);
+});

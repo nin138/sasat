@@ -156,3 +156,109 @@ test("rejects malformed numeric literals instead of silently rounding or truncat
     ),
   ).toThrow("fail to read number");
 });
+
+test.each(["UNIQUE", "UNIQUE KEY"])(
+  "imports inline primary and %s constraints without losing column definitions",
+  (unique) => {
+    const table = serializeCreateTable(
+      `CREATE TABLE records (id int PRIMARY KEY, code varchar(20) ${unique})`,
+    );
+    expect(table.columns.map((column) => column.columnName)).toEqual([
+      "id",
+      "code",
+    ]);
+    expect(table.primaryKey).toEqual(["id"]);
+    expect(table.uniqueKeys).toEqual([["code"]]);
+  },
+);
+test.each(["KEY", "INDEX"])(
+  "imports a named %s as an index rather than a column",
+  (keyword) => {
+    const table = serializeCreateTable(
+      `CREATE TABLE records (id int, code varchar(20), PRIMARY KEY (id), ${keyword} by_code (code))`,
+    );
+    expect(table.columns).toHaveLength(2);
+    expect(table.indexes).toEqual([
+      { constraintName: "by_code", columns: ["code"] },
+    ]);
+  },
+);
+test.each([
+  "FOREIGN KEY (owner, tenant) REFERENCES owners (id, tenant)",
+  "FOREIGN KEY (owner) REFERENCES owners (id, tenant)",
+  "FOREIGN KEY (owner, tenant) REFERENCES owners (id)",
+])(
+  "rejects unrepresentable composite foreign keys instead of importing only the first pair: %s",
+  (key) => {
+    expect(() =>
+      serializeCreateTable(
+        `CREATE TABLE records (id int, owner int, tenant int, PRIMARY KEY (id), CONSTRAINT fk_owner ${key})`,
+      ),
+    ).toThrow("composite foreign key");
+  },
+);
+test("foreign key cardinality does not depend on whether a unique constraint is written before it", () => {
+  const columns = "id int, owner int, PRIMARY KEY (id)";
+  const foreign =
+    "CONSTRAINT fk_owner FOREIGN KEY (owner) REFERENCES owners (id)";
+  const unique = "UNIQUE KEY owner_unique (owner)";
+  for (const constraints of [
+    `${foreign}, ${unique}`,
+    `${unique}, ${foreign}`,
+  ]) {
+    expect(
+      serializeCreateTable(`CREATE TABLE records (${columns}, ${constraints})`)
+        .columns[1],
+    ).toMatchObject({ reference: { relation: "OneOrZero" } });
+  }
+});
+
+test.each(["id int PRIMARY KEY", "id int, PRIMARY KEY (id)"])(
+  "primary keys are non-null and make foreign references unique: %s",
+  (definition) => {
+    const table = serializeCreateTable(
+      `CREATE TABLE records (${definition}, CONSTRAINT fk_owner FOREIGN KEY (id) REFERENCES owners (id))`,
+    );
+    expect(table.columns[0]).toMatchObject({
+      notNull: true,
+      reference: { relation: "OneOrZero" },
+    });
+  },
+);
+test.each(["KEY", "UNIQUE KEY"])(
+  "rejects unsupported prefix indexes rather than expanding them: %s",
+  (keyword) => {
+    expect(() =>
+      serializeCreateTable(
+        `CREATE TABLE records (id int, title varchar(100), PRIMARY KEY (id), ${keyword} by_title (title(10)))`,
+      ),
+    ).toThrow("prefix or expression index");
+  },
+);
+test("rejects a foreign key on a missing column instead of omitting it", () => {
+  expect(() =>
+    serializeCreateTable(
+      "CREATE TABLE records (id int, PRIMARY KEY (id), CONSTRAINT fk_owner FOREIGN KEY (missing) REFERENCES owners (id))",
+    ),
+  ).toThrow("records.missing");
+});
+test("rejects unsupported prefix primary keys instead of importing incorrect columns", () => {
+  expect(() =>
+    serializeCreateTable(
+      "CREATE TABLE records (title varchar(100), PRIMARY KEY (title(10)))",
+    ),
+  ).toThrow("prefix or expression index");
+});
+test("rejects multiple foreign keys on one column instead of replacing the first", () => {
+  expect(() =>
+    serializeCreateTable(
+      "CREATE TABLE records (id int, PRIMARY KEY (id), CONSTRAINT fk_owner FOREIGN KEY (id) REFERENCES owners (id), CONSTRAINT fk_other FOREIGN KEY (id) REFERENCES others (id))",
+    ),
+  ).toThrow("multiple foreign keys");
+});
+test("a column named CURRENT_TIMESTAMP is not an automatic update timestamp", () => {
+  expect(
+    serializeCreateTable("CREATE TABLE records (`CURRENT_TIMESTAMP` int)")
+      .columns[0].onUpdateCurrentTimeStamp,
+  ).toBe(false);
+});

@@ -21,7 +21,7 @@ const getConditionChildColumnNames =
   (getConditionValue: GetConditionValue) =>
   (c: JoinConditionNode): (string | null)[] => {
     if (c.kind === "custom") return c.childRequiredFields || [];
-    if (c.kind === "isNull") return [];
+    if (c.kind === "isNull") return [getConditionValue(c.value)];
     const result = [getConditionValue(c.left)];
     if (c.operator === "IN") {
       result.push(getConditionValue(c.left));

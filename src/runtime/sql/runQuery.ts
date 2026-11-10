@@ -36,13 +36,37 @@ export const createQuery = (
 ): Query => {
   let tableCount = 0;
   const select: Field[] = [];
+  const aliases = new Set<string>();
+  const reserveAlias = (alias?: string) => {
+    if (!alias) return;
+    if (aliases.has(alias)) throw new Error(`Duplicate table alias: ${alias}`);
+    aliases.add(alias);
+  };
+  const reserveJoinAliases = (table: QueryTable) => {
+    reserveAlias(table.alias);
+    table.joins.forEach((join) => reserveJoinAliases(join.table));
+  };
+  options?.join?.forEach((join) => reserveJoinAliases(join.table));
+  const reserveFieldAliases = (tableName: string, table: Fields<unknown>) => {
+    reserveAlias(table.tableAlias);
+    for (const [name, fields] of Object.entries(table.relations || {})) {
+      const rel = relationMap[tableName][name];
+      if (fields && rel)
+        reserveFieldAliases(rel.table, fields as Fields<unknown>);
+    }
+  };
+  reserveFieldAliases(baseTableName, fields);
 
   const resolveFields = (
     tableName: string,
     table: Fields<unknown>,
   ): QueryTable => {
-    const tableAlias = table.tableAlias || "t" + tableCount;
-    table.tableAlias = tableAlias;
+    if (!table.tableAlias) {
+      while (aliases.has("t" + tableCount)) tableCount++;
+      table.tableAlias = "t" + tableCount;
+      aliases.add(table.tableAlias);
+    }
+    const tableAlias = table.tableAlias;
     tableCount++;
     const info = tableInfo[tableName];
 
@@ -64,6 +88,7 @@ export const createQuery = (
     return QExpr.table(
       tableName,
       Object.entries(table.relations || {})
+        .filter(([, value]) => value)
         .map(([relationName, table]: [string, Fields<unknown> | unknown]) => {
           const current = tableCount;
           const rel = relationMap[tableName][relationName];
@@ -114,9 +139,11 @@ export const createPagingInnerQuery = (
   return {
     select: unique([
       ...tableInfo[tableName].identifiableKeys,
-      ...Object.keys(fields.relations || {}).flatMap((key) => {
-        return relationMap[tableName][key]?.requiredColumns || [];
-      }),
+      ...Object.entries(fields.relations || {})
+        .filter(([, value]) => value)
+        .flatMap(([key]) => {
+          return relationMap[tableName][key]?.requiredColumns || [];
+        }),
       ...(fields.fields as string[])
         .filter((it) => notTypeName(it) && map[it])
         .map((it) => map[it] || it),
@@ -157,6 +184,21 @@ export const createPagingFieldQuery = ({
   relationMap,
   context,
 }: CreatePagingFieldQueryArg): Query => {
+  // Assign aliases before creating the inner query so both levels use the same names.
+  const main = createQuery(
+    baseTableName,
+    fields,
+    {
+      ...queryOption,
+      join: unique([
+        ...(pagingOption.join ?? []),
+        ...(queryOption?.join ?? []),
+      ]),
+    },
+    tableInfo,
+    relationMap,
+    context,
+  );
   const tableAlias = fields.tableAlias || "t0";
 
   const innerQuery: Query = createPagingInnerQuery(
@@ -181,14 +223,6 @@ export const createPagingFieldQuery = ({
   );
   innerQuery.lock = queryOption?.lock;
 
-  const main = createQuery(
-    baseTableName,
-    fields,
-    queryOption,
-    tableInfo,
-    relationMap,
-    context,
-  );
   return {
     select: main.select,
     lock: queryOption?.lock,

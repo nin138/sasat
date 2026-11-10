@@ -156,7 +156,7 @@ test("rejects nested transactions and allows rollback after a failed commit", as
   });
 });
 
-test.each([1, 1n])("accepts MySQL lock success as %s", async (value) => {
+test.each([1, 1n, "1"])("accepts MySQL lock success as %s", async (value) => {
   const { session, client } = setup("mysql");
   session.rawQuery.mockImplementation(async (sql) =>
     sql.includes("AS acquired")
@@ -168,13 +168,16 @@ test.each([1, 1n])("accepts MySQL lock success as %s", async (value) => {
   await withMigrationLock(client, async () => {});
   expect(session.discard).not.toHaveBeenCalled();
 });
-test.each([0, 0n])("recognizes MySQL lock contention as %s", async (value) => {
-  const { session, client } = setup("mysql");
-  session.rawQuery.mockResolvedValueOnce([{ acquired: value }]);
-  await expect(withMigrationLock(client, jest.fn())).rejects.toThrow(
-    "Another Sasat migration",
-  );
-});
+test.each([0, 0n, "0"])(
+  "recognizes MySQL lock contention as %s",
+  async (value) => {
+    const { session, client } = setup("mysql");
+    session.rawQuery.mockResolvedValueOnce([{ acquired: value }]);
+    await expect(withMigrationLock(client, jest.fn())).rejects.toThrow(
+      "Another Sasat migration",
+    );
+  },
+);
 
 test("forwards bound statements through the reserved migration session and rejects late calls", async () => {
   const { client, session } = setup();
@@ -207,7 +210,7 @@ test("forwards bound statements through the reserved migration session and rejec
   expect(executeCommand).toHaveBeenCalledWith(statement);
 });
 
-test.each([null, undefined, "1"])(
+test.each([null, undefined, "", " ", "1.0", "true", "unexpected"])(
   "rejects an ambiguous acquire result %s without applying migrations",
   async (value) => {
     const { session, client } = setup();
