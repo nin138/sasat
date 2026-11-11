@@ -1,4 +1,4 @@
-FROM node:24-slim
+FROM node:26-slim
 
 # curl / dig / jq / ipset / iptables / ip are all required by project-firewall.sh
 # procps provides ps for Codex remote-control daemon management.
