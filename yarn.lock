@@ -52,8 +52,8 @@ __metadata:
   linkType: hard
 
 "@apollo/server@npm:^5.5.1":
-  version: 5.5.1
-  resolution: "@apollo/server@npm:5.5.1"
+  version: 5.5.2
+  resolution: "@apollo/server@npm:5.5.2"
   dependencies:
     "@apollo/cache-control-types": "npm:^1.0.3"
     "@apollo/server-gateway-interface": "npm:^2.0.0"
@@ -65,7 +65,9 @@ __metadata:
     "@apollo/utils.logger": "npm:^3.0.0"
     "@apollo/utils.usagereporting": "npm:^2.1.0"
     "@apollo/utils.withrequired": "npm:^3.0.0"
-    "@graphql-tools/schema": "npm:^10.0.0"
+    "@graphql-tools/merge": "npm:^9.1.1 <9.2.5"
+    "@graphql-tools/schema": "npm:^10.0.0 <10.1.2"
+    "@graphql-tools/utils": "npm:^10.9.1 || ^11.0.0 || >=12.0.0 <12.0.2"
     async-retry: "npm:^1.2.1"
     body-parser: "npm:^2.2.2"
     content-type: "npm:^1.0.5"
@@ -77,7 +79,7 @@ __metadata:
     whatwg-mimetype: "npm:^4.0.0"
   peerDependencies:
     graphql: ^16.11.0
-  checksum: 10/d70ea5287ca3a62604f458924a6b77c6b99803d88228d7e01a0e89d1d29cf2a0e5af0d854ed847a3a453730bf9b44620620efc687b298582d4a48aa5db1b9073
+  checksum: 10/b55339d50bd6f2f5c890c7ddc1fc4ddd96d51f5567ab624c5d202ffb641f933d219b5e850a9f0f4f7ad8f353387c879948236bc5858b84f29e82f6a42f958a1f
   languageName: node
   linkType: hard
 
@@ -962,7 +964,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphql-tools/merge@npm:^9.2.4":
+"@graphql-tools/merge@npm:^9.1.1 <9.2.5, @graphql-tools/merge@npm:^9.2.4":
   version: 9.2.4
   resolution: "@graphql-tools/merge@npm:9.2.4"
   dependencies:
@@ -986,7 +988,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphql-tools/schema@npm:^10.0.0":
+"@graphql-tools/schema@npm:^10.0.0 <10.1.2":
   version: 10.1.1
   resolution: "@graphql-tools/schema@npm:10.1.1"
   dependencies:
@@ -1012,7 +1014,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphql-tools/utils@npm:^12.0.1":
+"@graphql-tools/utils@npm:^10.9.1 || ^11.0.0 || >=12.0.0 <12.0.2, @graphql-tools/utils@npm:^12.0.1":
   version: 12.0.1
   resolution: "@graphql-tools/utils@npm:12.0.1"
   dependencies:
@@ -3469,11 +3471,11 @@ __metadata:
   linkType: hard
 
 "graphql-subscriptions@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "graphql-subscriptions@npm:3.0.0"
+  version: 3.1.0
+  resolution: "graphql-subscriptions@npm:3.1.0"
   peerDependencies:
-    graphql: ^15.7.2 || ^16.0.0
-  checksum: 10/9dbee94d1f8a8742631e6deba33fed4a688b893bb5e287c346b5d01a237b80f96eb4ed2576a3b44c608e553cfd1f2cb400f88b0ffc882cb4effaa4db789f1ce0
+    graphql: ^15.7.2 || ^16.0.0 || ^17.0.0
+  checksum: 10/adebf429ee91ef00f430769a11a1b5a0219fb6f628da69e34d2819a1727eff0da3ef42b84f6b5f0ddc6aada69e658847c8c60be039aee1da24ec2559e2c3034f
   languageName: node
   linkType: hard
 
