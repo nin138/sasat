@@ -34,6 +34,35 @@ test("finds TypeScript migrations only", () => {
   expect(getMigrationFileNames()).toEqual(names);
 });
 
+test("does not treat TypeScript declarations as executable migrations", () => {
+  writeFileSync(
+    join(dir, "types.d.ts"),
+    "export interface Data { id: number }",
+  );
+  expect(getMigrationFileNames()).toEqual(names);
+});
+
+test("does not treat directories ending in .ts as migrations", () => {
+  fs.mkdirSync(join(dir, "helpers.ts"));
+  expect(getMigrationFileNames()).toEqual(names);
+});
+
+test("finds migrations in an absolute configured directory", () => {
+  setConfig({ migration: { dir } });
+  expect(getMigrationFileNames()).toEqual(names);
+});
+
+test("keeps symbolic links to migration files", () => {
+  fs.symlinkSync(join(dir, names[0]), join(dir, "004_link.ts"));
+  expect(getMigrationFileNames()).toEqual([...names, "004_link.ts"]);
+});
+
+test("ignores symbolic links to directories ending in .ts", () => {
+  fs.mkdirSync(join(dir, "helpers"));
+  fs.symlinkSync(join(dir, "helpers"), join(dir, "helpers.ts"));
+  expect(getMigrationFileNames()).toEqual(names);
+});
+
 test("selects pending migrations or rolls back in reverse order", () => {
   expect(getMigrationTargets(names, undefined)).toEqual({
     direction: Direction.Up,

@@ -1,8 +1,9 @@
 import path from "node:path";
-import { getMigrationDirectory } from "@/config/config.js";
+import { pathToFileURL } from "node:url";
 import type { SasatMigration } from "../front/migration.js";
 import type { StoreMigrator } from "../front/storeMigrator.js";
 import { Direction } from "./getCurrentMigration.js";
+import { getMigrationFileDir } from "./getMigrationFiles.js";
 import type { MigrationDefinitions } from "./migrationDefinitions.js";
 
 export const changeExtTsToJs = (fileName: string) =>
@@ -16,12 +17,8 @@ export const readMigration = async (
   definitions?: MigrationDefinitions,
 ): Promise<StoreMigrator> => {
   const load = async () => {
-    const file = path.join(
-      process.cwd(),
-      getMigrationDirectory(),
-      changeExtTsToJs(tsFileName),
-    );
-    const module = await import(file);
+    const file = path.join(getMigrationFileDir(), changeExtTsToJs(tsFileName));
+    const module = await import(pathToFileURL(file).href);
     return new module.default() as SasatMigration;
   };
   const instance = definitions

@@ -1,4 +1,5 @@
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 import { config } from "../../config/config.js";
 import { StoreMigrator } from "../front/storeMigrator.js";
 import { Direction } from "./getCurrentMigration.js";
@@ -37,9 +38,13 @@ test.each([Direction.Up, Direction.Down])(
         calls.push("afterDown");
       }
     }
-    jest.doMock(modulePath, () => ({ __esModule: true, default: Migration }), {
-      virtual: true,
-    });
+    jest.doMock(
+      pathToFileURL(modulePath).href,
+      () => ({ __esModule: true, default: Migration }),
+      {
+        virtual: true,
+      },
+    );
     const store = StoreMigrator.deserialize({ tables: [] });
     await expect(readMigration(store, migrationName, direction)).resolves.toBe(
       store,

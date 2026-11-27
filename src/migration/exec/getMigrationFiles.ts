@@ -3,7 +3,7 @@ import path from "node:path";
 import { getMigrationDirectory } from "@/config/config.js";
 
 export const getMigrationFileDir = () => {
-  return path.join(process.cwd(), getMigrationDirectory());
+  return path.resolve(process.cwd(), getMigrationDirectory());
 };
 
 export const getMigrationFileNames = (
@@ -11,6 +11,11 @@ export const getMigrationFileNames = (
 ): string[] => {
   return fs
     .readdirSync(directory)
-    .filter((it) => it.split(".").pop() === "ts")
+    .filter(
+      (name) =>
+        name.endsWith(".ts") &&
+        !name.endsWith(".d.ts") &&
+        fs.statSync(path.join(directory, name)).isFile(),
+    )
     .sort();
 };
