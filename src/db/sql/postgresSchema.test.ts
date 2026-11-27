@@ -261,3 +261,68 @@ test("returns an empty schema and propagates catalog query failures", async () =
   await expect(readPostgresSchema(client)).rejects.toBe(failure);
   expect(client.rawQuery).toHaveBeenCalledTimes(1);
 });
+
+test.each(["primary", "unique-before", "unique-after", "unique-index"])(
+  "imports a unique foreign key as OneOrZero: %s",
+  async (kind) => {
+    const unique = {
+      table_name: "records",
+      contype: "u",
+      columns: ["owner_id"],
+    };
+    const constraints =
+      kind === "primary"
+        ? [{ ...primary, columns: ["owner_id"] }, foreign]
+        : kind === "unique-before"
+          ? [primary, unique, foreign]
+          : kind === "unique-after"
+            ? [primary, foreign, unique]
+            : [primary, foreign];
+    const result = await readPostgresSchema(
+      fixture(
+        undefined,
+        constraints,
+        kind === "unique-index" ? [{ ...index, indisunique: true }] : [],
+      ),
+    );
+    expect(result.tables[0].columns[1]).toMatchObject({
+      reference: { relation: "OneOrZero" },
+    });
+  },
+);
+
+test("composite uniqueness does not make an individual foreign key unique", async () => {
+  const result = await readPostgresSchema(
+    fixture(undefined, [
+      primary,
+      foreign,
+      { table_name: "records", contype: "u", columns: ["owner_id", "id"] },
+    ]),
+  );
+  expect(result.tables[0].columns[1]).toMatchObject({
+    reference: { relation: "Many" },
+  });
+});
+
+test("rejects multiple foreign keys on one column instead of overwriting the first", async () => {
+  await expect(
+    readPostgresSchema(
+      fixture(undefined, [
+        primary,
+        foreign,
+        { ...foreign, parent_table: "other_owners" },
+      ]),
+    ),
+  ).rejects.toThrow("multiple foreign keys");
+});
+
+test.each([{ columns: ["missing"] }, { parent_columns: ["id", "tenant"] }])(
+  "rejects an unrepresentable foreign key mapping: %p",
+  async (extra) => {
+    await expect(
+      readPostgresSchema(
+        fixture(undefined, [primary, { ...foreign, ...extra }]),
+      ),
+    ).rejects.toThrow("Cannot import");
+  },
+);

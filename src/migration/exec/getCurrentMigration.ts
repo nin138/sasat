@@ -19,6 +19,10 @@ type MigrationRecord = {
 const calcRunMigrationFileNames = (records: MigrationRecord[]) => {
   const result: string[] = [];
   records.forEach((it) => {
+    if (it.direction !== Direction.Up && it.direction !== Direction.Down)
+      throw new Error(
+        `Invalid migration history: unknown direction ${JSON.stringify(it.direction)}`,
+      );
     if (it.direction === Direction.Down) {
       if (result[result.length - 1] !== it.name)
         throw new Error(

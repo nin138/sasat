@@ -140,6 +140,7 @@ export async function readPostgresSchema(
     if (row.contype === "f") {
       if (
         row.columns.length !== 1 ||
+        row.parent_columns.length !== 1 ||
         row.parent_schema !== row.schema_name ||
         !actions[row.confupdtype] ||
         !actions[row.confdeltype]
@@ -148,6 +149,17 @@ export async function readPostgresSchema(
           `Cannot import composite, cross-schema, or unsupported foreign key on ${row.table_name}`,
         );
       }
+      const column = table.columns.find(
+        (col) => col.columnName === row.columns[0],
+      );
+      if (!column)
+        throw new Error(
+          `Cannot import foreign key on missing column ${row.table_name}.${row.columns[0]}`,
+        );
+      if (column.hasReference)
+        throw new Error(
+          `Cannot import multiple foreign keys on ${row.table_name}.${row.columns[0]}`,
+        );
       table.columns = table.columns.map((col) =>
         col.columnName !== row.columns[0]
           ? col
@@ -170,7 +182,7 @@ export async function readPostgresSchema(
     await client.rawQuery(`SELECT t.relname AS table_name, idx.relname AS index_name, i.indisunique, i.indpred IS NOT NULL AS partial, i.indnatts <> i.indnkeyatts AS included, i.indnullsnotdistinct AS nulls_not_distinct,
     ARRAY(SELECT a.attname FROM unnest(i.indkey) WITH ORDINALITY k(n, ord) LEFT JOIN pg_attribute a ON a.attrelid=i.indrelid AND a.attnum=k.n ORDER BY k.ord)::text[] AS columns
     FROM pg_index i JOIN pg_class t ON t.oid=i.indrelid JOIN pg_class idx ON idx.oid=i.indexrelid JOIN pg_namespace n ON n.oid=t.relnamespace
-    WHERE n.nspname=current_schema() AND NOT EXISTS (SELECT 1 FROM pg_constraint c WHERE c.conindid=i.indexrelid)`);
+    WHERE n.nspname=current_schema() AND NOT EXISTS (SELECT 1 FROM pg_constraint c WHERE c.conindid=i.indexrelid AND c.contype <> 'f')`);
   for (const raw of indexes) {
     const row = raw as unknown as {
       table_name: string;
@@ -195,6 +207,20 @@ export async function readPostgresSchema(
     const cols = row.columns as string[];
     if (row.indisunique) table.uniqueKeys.push(cols);
     else table.indexes.push({ constraintName: row.index_name, columns: cols });
+  }
+  // Both constraints and standalone unique indexes determine reverse cardinality.
+  for (const table of tables.values()) {
+    const uniqueColumns = new Set(
+      [table.primaryKey, ...table.uniqueKeys]
+        .filter((columns) => columns.length === 1)
+        .map(([column]) => column),
+    );
+    for (const column of table.columns) {
+      if (column.hasReference)
+        column.reference.relation = uniqueColumns.has(column.columnName)
+          ? "OneOrZero"
+          : "Many";
+    }
   }
   return {
     tables: [...tables.values()].filter((t) => t.primaryKey.length > 0),

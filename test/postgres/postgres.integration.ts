@@ -450,6 +450,62 @@ test("schema imports reject indexes that cannot be represented", async () => {
   }
 });
 
+test("schema import preserves standalone unique indexes referenced by foreign keys", async () => {
+  await client.rawQuery(
+    "CREATE TABLE import_parent (id int PRIMARY KEY, code int)",
+  );
+  try {
+    await client.rawQuery(
+      "CREATE UNIQUE INDEX import_parent_code ON import_parent(code)",
+    );
+    await client.rawQuery(
+      "CREATE TABLE import_child (id int PRIMARY KEY, owner_code int REFERENCES import_parent(code))",
+    );
+    const store = await readPostgresSchema(client);
+    assert.deepEqual(
+      store.tables.find((t) => t.tableName === "import_parent")!.uniqueKeys,
+      [["code"]],
+    );
+  } finally {
+    await client.rawQuery("DROP TABLE IF EXISTS import_child");
+    await client.rawQuery("DROP TABLE import_parent");
+  }
+});
+
+test("schema import determines foreign key cardinality from unique indexes", async () => {
+  await client.rawQuery("CREATE TABLE import_parent (id int PRIMARY KEY)");
+  try {
+    await client.rawQuery(
+      "CREATE TABLE import_child (id int PRIMARY KEY, owner_id int REFERENCES import_parent(id))",
+    );
+    await client.rawQuery(
+      "CREATE UNIQUE INDEX import_child_owner ON import_child(owner_id)",
+    );
+    const store = await readPostgresSchema(client);
+    const column = store.tables
+      .find((t) => t.tableName === "import_child")!
+      .columns.find((c) => c.columnName === "owner_id")!;
+    assert.ok(column.hasReference);
+    assert.equal(column.reference.relation, "OneOrZero");
+  } finally {
+    await client.rawQuery("DROP TABLE IF EXISTS import_child");
+    await client.rawQuery("DROP TABLE import_parent");
+  }
+});
+
+test("schema import rejects two foreign keys on the same column", async () => {
+  await client.rawQuery("CREATE TABLE import_parent (id int PRIMARY KEY)");
+  try {
+    await client.rawQuery(
+      "CREATE TABLE import_child (id int PRIMARY KEY, owner_id int REFERENCES import_parent(id), FOREIGN KEY (owner_id) REFERENCES import_parent(id))",
+    );
+    await assert.rejects(readPostgresSchema(client), /multiple foreign keys/);
+  } finally {
+    await client.rawQuery("DROP TABLE IF EXISTS import_child");
+    await client.rawQuery("DROP TABLE import_parent");
+  }
+});
+
 test("client-owned generation survives opposite config in DDL, CRUD and transactions", async () => {
   const original = config().db.dialect ?? "mysql";
   const table = "generator_boundary";

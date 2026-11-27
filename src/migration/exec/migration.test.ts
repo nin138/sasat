@@ -123,6 +123,15 @@ test("rejects out-of-order migration history", async () => {
   ).rejects.toThrow("Invalid migration history");
 });
 
+test.each(["", "UP", "sideways"])(
+  "rejects invalid history direction %p instead of treating it as up",
+  async (direction) => {
+    await expect(
+      getCurrentMigration(clientFor([{ name: names[0], direction }]), options),
+    ).rejects.toThrow("Invalid migration history");
+  },
+);
+
 test("dry run reads history without submitting DDL", async () => {
   const rawQuery = jest
     .fn()
